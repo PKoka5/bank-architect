@@ -6,6 +6,7 @@ group = 'com.pkoka5'
 version = '0.1.0'
 
 def runeLiteVersion = 'latest.release'
+def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_11
@@ -31,8 +32,9 @@ tasks.register('run', JavaExec) {
 	group = 'RuneLite'
 	description = 'Starts a local RuneLite client for plugin development.'
 	classpath = sourceSets.test.runtimeClasspath
-	mainClass = 'net.runelite.client.RuneLite'
+	mainClass = pluginMainClass
 	enableAssertions = true
+	args '--developer-mode'
 }
 
 wrapper {
