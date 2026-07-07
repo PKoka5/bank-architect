@@ -1,0 +1,41 @@
+plugins {
+	id 'java'
+}
+
+group = 'com.pkoka5'
+version = '0.1.0'
+
+def runeLiteVersion = 'latest.release'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+}
+
+dependencies {
+	compileOnly group: 'net.runelite', name: 'client', version: runeLiteVersion
+
+	testImplementation 'junit:junit:4.13.2'
+	testImplementation group: 'net.runelite', name: 'client', version: runeLiteVersion
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+processResources {
+	from('runelite-plugin.properties')
+}
+
+tasks.register('run', JavaExec) {
+	group = 'RuneLite'
+	description = 'Starts a local RuneLite client for plugin development.'
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'net.runelite.client.RuneLite'
+	enableAssertions = true
+}
+
+wrapper {
+	gradleVersion = '8.7'
+	distributionType = Wrapper.DistributionType.BIN
+}

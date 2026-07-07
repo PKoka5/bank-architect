@@ -1,0 +1,17 @@
+.gradle/
+build/
+out/
+
+.classpath
+.project
+.settings/
+
+.idea/
+*.iml
+
+.vscode/
+
+*.class
+*.log
+hs_err_pid*
+replay_pid*
