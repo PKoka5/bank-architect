@@ -44,11 +44,11 @@ public final class AllRoundIronmanPreset
 	private static BlueprintTab herbloreTab()
 	{
 		VisualBlock iritRecipe = new VisualBlock("irit-super-attack", "Irit → Super attack", "Recipe", Arrays.asList(
+			BlueprintSlot.workflowItem("herblore.irit.seed", "Irit seed"),
 			BlueprintSlot.workflowItem("herblore.irit.grimy", "Grimy irit"),
 			BlueprintSlot.workflowItem("herblore.irit.clean", "Clean irit"),
-			BlueprintSlot.workflowItem("herblore.irit.unfinished", "Irit potion (unf)"),
-			BlueprintSlot.workflowItem("herblore.eye-of-newt", "Eye of newt"),
-			BlueprintSlot.workflowItem("herblore.super-attack.4", "Super attack (4)"),
+			BlueprintSlot.workflowItem("herblore.irit.unf", "Irit potion (unf)"),
+			BlueprintSlot.workflowItem("herblore.irit.secondary", "Eye of newt"),
 			BlueprintSlot.workflowItem("herblore.super-attack.3", "Super attack (3)"),
 			BlueprintSlot.workflowItem("herblore.super-attack.2", "Super attack (2)"),
 			BlueprintSlot.workflowItem("herblore.super-attack.1", "Super attack (1)")

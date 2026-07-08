@@ -97,21 +97,21 @@ public class AllRoundIronmanPresetTest
 		assertEquals("Irit → Super attack", block.getName());
 		assertEquals("Recipe", block.getTypeLabel());
 		assertEquals(Arrays.asList(
+			"Irit seed",
 			"Grimy irit",
 			"Clean irit",
 			"Irit potion (unf)",
 			"Eye of newt",
-			"Super attack (4)",
 			"Super attack (3)",
 			"Super attack (2)",
 			"Super attack (1)"
 		), slotLabels(block));
 		assertEquals(Arrays.asList(
+			"herblore.irit.seed",
 			"herblore.irit.grimy",
 			"herblore.irit.clean",
-			"herblore.irit.unfinished",
-			"herblore.eye-of-newt",
-			"herblore.super-attack.4",
+			"herblore.irit.unf",
+			"herblore.irit.secondary",
 			"herblore.super-attack.3",
 			"herblore.super-attack.2",
 			"herblore.super-attack.1"

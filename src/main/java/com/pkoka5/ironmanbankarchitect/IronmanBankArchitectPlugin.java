@@ -1,15 +1,20 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
+import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
+import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 import javax.inject.Inject;
 import net.runelite.api.Client;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -33,6 +38,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private Client client;
 
 	@Inject
+	private ClientThread clientThread;
+
+	@Inject
 	private OverlayManager overlayManager;
 
 	private NavigationButton navigationButton;
@@ -47,7 +55,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		guideOverlay = new BankGuideOverlay(this, client, guideController);
 		overlayManager.add(guideOverlay);
 
-		panel = new IronmanBankArchitectPanel(guideController);
+		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank);
 		navigationButton = NavigationButton.builder()
 			.tooltip(PLUGIN_NAME)
 			.icon(createIcon())
@@ -86,6 +94,20 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	IronmanBankArchitectConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(IronmanBankArchitectConfig.class);
+	}
+
+	private void analyzeBank()
+	{
+		clientThread.invoke(() -> {
+			Optional<BankSnapshot> snapshot = BankSnapshotReader.readOpenBank(client);
+			if (!snapshot.isPresent())
+			{
+				guideController.publishBankClosedAnalysis();
+				return;
+			}
+
+			guideController.publishMatchResult(BankSlotMatcher.match(guideController.getSelectedBlock(), snapshot.get()));
+		});
 	}
 
 	private static BufferedImage createIcon()

@@ -5,8 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
+import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
+import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
+import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -139,5 +144,37 @@ public class BankGuideControllerTest
 		assertEquals("Open your bank to preview the guide.", BankGuideController.BANK_CLOSED_STATUS);
 		assertEquals("Guide preview active.", BankGuideController.GUIDE_ACTIVE_STATUS);
 		assertEquals("Guide preview off.", BankGuideController.GUIDE_DISABLED_STATUS);
+	}
+
+	@Test
+	public void defaultAnalysisTextHasNoAnalysisYet()
+	{
+		assertEquals("No bank analysis yet.", controller.getAnalysisText());
+	}
+
+	@Test
+	public void bankClosedAnalysisTextIsPublished()
+	{
+		controller.publishBankClosedAnalysis();
+
+		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
+		assertEquals("", controller.getAnalysisDetailText());
+		assertEquals(null, controller.getLatestMatchResult());
+	}
+
+	@Test
+	public void matchResultIsStoredAndSummarized()
+	{
+		controller.selectBlock("irit-super-attack");
+		BlockMatchResult result = BankSlotMatcher.match(controller.getSelectedBlock(), new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(209, 1, 0),
+			new BankItemSnapshot(259, 1, 1)
+		)));
+
+		controller.publishMatchResult(result);
+
+		assertEquals(result, controller.getLatestMatchResult());
+		assertEquals("Owned: 2 | Missing: 6 | Role-only: 0 | Reserved: 0", controller.getAnalysisText());
+		assertEquals("1. Irit seed \u2014 missing", controller.getAnalysisDetailText().split("\n")[0]);
 	}
 }

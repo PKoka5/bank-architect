@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.blueprint.BankProfile;
 import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSection;
 import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintTab;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
+import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +17,14 @@ public final class BankGuideController
 	public static final String BANK_CLOSED_STATUS = "Open your bank to preview the guide.";
 	public static final String GUIDE_ACTIVE_STATUS = "Guide preview active.";
 	public static final String GUIDE_DISABLED_STATUS = "Guide preview off.";
+	public static final String NO_ANALYSIS_STATUS = "No bank analysis yet.";
+	public static final String ANALYSIS_BANK_CLOSED_STATUS = "Open your bank before analyzing.";
 
 	private final List<VisualBlock> availableBlocks;
 	private final AtomicReference<BankGuideState> state;
+	private final AtomicReference<BlockMatchResult> latestMatchResult = new AtomicReference<>();
+	private final AtomicReference<String> analysisText = new AtomicReference<>(NO_ANALYSIS_STATUS);
+	private final AtomicReference<String> analysisDetailText = new AtomicReference<>("");
 	private final AtomicBoolean bankOpen = new AtomicBoolean(false);
 
 	public BankGuideController(BankProfile profile)
@@ -87,6 +93,36 @@ public final class BankGuideController
 	public BankGuideState getState()
 	{
 		return state.get();
+	}
+
+	public void publishBankClosedAnalysis()
+	{
+		latestMatchResult.set(null);
+		analysisText.set(ANALYSIS_BANK_CLOSED_STATUS);
+		analysisDetailText.set("");
+	}
+
+	public void publishMatchResult(BlockMatchResult result)
+	{
+		Objects.requireNonNull(result, "result");
+		latestMatchResult.set(result);
+		analysisText.set(result.toCompactSummary());
+		analysisDetailText.set(result.toSlotDetailText());
+	}
+
+	public BlockMatchResult getLatestMatchResult()
+	{
+		return latestMatchResult.get();
+	}
+
+	public String getAnalysisText()
+	{
+		return analysisText.get();
+	}
+
+	public String getAnalysisDetailText()
+	{
+		return analysisDetailText.get();
 	}
 
 	private VisualBlock findBlock(String key)

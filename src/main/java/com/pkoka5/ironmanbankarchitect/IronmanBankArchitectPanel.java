@@ -28,10 +28,18 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final BankGuideController guideController;
 	private final JComboBox<String> blockDropdown;
 	private final JButton toggleButton;
+	private final JButton analyzeButton;
 	private final JLabel statusLabel;
+	private final JLabel analysisLabel;
+	private final JLabel analysisDetailLabel;
 	private final Timer statusTimer;
 
 	IronmanBankArchitectPanel(BankGuideController guideController)
+	{
+		this(guideController, () -> {});
+	}
+
+	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback)
 	{
 		this.guideController = guideController;
 
@@ -67,12 +75,26 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		toggleButton = new JButton();
 		toggleButton.addActionListener(event -> onToggleGuide());
 
+		analyzeButton = new JButton("Analyze My Bank");
+		analyzeButton.addActionListener(event -> {
+			analyzeCallback.run();
+			refreshAnalysis();
+		});
+
 		statusLabel = label("");
+		analysisLabel = label("");
+		analysisDetailLabel = label("");
 
 		controls.add(Box.createVerticalStrut(4));
 		controls.add(blockDropdown);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(toggleButton);
+		controls.add(Box.createVerticalStrut(8));
+		controls.add(analyzeButton);
+		controls.add(Box.createVerticalStrut(8));
+		controls.add(analysisLabel);
+		controls.add(Box.createVerticalStrut(4));
+		controls.add(analysisDetailLabel);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(statusLabel);
 
@@ -88,6 +110,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	void shutdown()
 	{
 		statusTimer.stop();
+	}
+
+	JButton getAnalyzeButton()
+	{
+		return analyzeButton;
 	}
 
 	private void onBlockSelected()
@@ -117,6 +144,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshStatus()
 	{
 		statusLabel.setText(guideController.getStatusText());
+		refreshAnalysis();
+	}
+
+	private void refreshAnalysis()
+	{
+		analysisLabel.setText(guideController.getAnalysisText());
+		analysisDetailLabel.setText(toHtmlLines(guideController.getAnalysisDetailText()));
 	}
 
 	private String profileLine()
@@ -137,5 +171,19 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		JLabel label = new JLabel(text, SwingConstants.CENTER);
 		label.setForeground(Color.WHITE);
 		return label;
+	}
+
+	private static String toHtmlLines(String text)
+	{
+		if (text == null || text.isEmpty())
+		{
+			return "";
+		}
+
+		return "<html>" + text
+			.replace("&", "&amp;")
+			.replace("<", "&lt;")
+			.replace(">", "&gt;")
+			.replace("\n", "<br>") + "</html>";
 	}
 }
