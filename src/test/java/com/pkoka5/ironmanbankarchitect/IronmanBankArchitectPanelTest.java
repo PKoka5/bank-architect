@@ -10,12 +10,19 @@ import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
+import java.awt.Component;
+import java.awt.Container;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.AbstractButton;
+import javax.swing.JLabel;
 import org.junit.Test;
 
 public class IronmanBankArchitectPanelTest
@@ -61,6 +68,54 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	@Test
+	public void panelFramesWholeBankOrganizationAsPrimaryFlow()
+	{
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
+			new BankGuideController(AllRoundIronmanPreset.create()),
+			() -> {});
+
+		String panelText = String.join("\n", collectLabelText(panel));
+
+		assertTrue(panelText.contains("Profile"));
+		assertTrue(panelText.contains(AllRoundIronmanPreset.PROFILE_NAME));
+		assertTrue(panelText.contains("Main action"));
+		assertTrue(panelText.contains("Analyze My Bank"));
+		assertTrue(panelText.contains("Whole Bank Scan"));
+		assertTrue(panelText.contains("Suggested Bank Blueprint"));
+		assertTrue(panelText.contains("Early preview: known owned bank IDs can be categorized."));
+		assertTrue(panelText.contains("Advanced preview block"));
+		assertTrue(panelText.contains("Preview block is temporary"));
+		assertTrue(panelText.contains("whole-bank organization focuses on items found in your bank"));
+
+		panel.shutdown();
+	}
+
+	@Test
+	public void selectedBlockDetailsRenderAfterAnalysisAsSecondaryPreview()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		controller.selectBlock("irit-super-attack");
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0),
+			new BankItemSnapshot(209, 1, 1),
+			new BankItemSnapshot(999999, 1, 2)
+		));
+		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
+		controller.publishMatchResult(BankSlotMatcher.match(controller.getSelectedBlock(), snapshot));
+
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+		panel.getAnalyzeButton().doClick();
+
+		String panelText = String.join("\n", collectLabelText(panel));
+		assertTrue(panel.getCatalogSummaryLabel().getText().contains("Bank Scan Overview"));
+		assertTrue(panel.getAnalysisLabel().getText().contains("Owned: 2"));
+		assertTrue(panel.getAnalysisDetailLabel().getText().contains("Irit seed"));
+		assertTrue(panelText.indexOf("Bank Scan Overview") < panelText.indexOf("Owned: 2"));
+
+		panel.shutdown();
+	}
+
+	@Test
 	public void panelSourceHasNoRuneLiteClientApiImports() throws Exception
 	{
 		String source = new String(Files.readAllBytes(Paths.get("src/main/java/com/pkoka5/ironmanbankarchitect/IronmanBankArchitectPanel.java")), StandardCharsets.UTF_8);
@@ -73,4 +128,25 @@ public class IronmanBankArchitectPanelTest
 		assertFalse(source.contains("net.runelite.api."));
 	}
 
+	private static List<String> collectLabelText(Container container)
+	{
+		List<String> texts = new ArrayList<>();
+		for (Component component : container.getComponents())
+		{
+			if (component instanceof JLabel)
+			{
+				texts.add(((JLabel) component).getText());
+			}
+			if (component instanceof AbstractButton)
+			{
+				texts.add(((AbstractButton) component).getText());
+			}
+			if (component instanceof Container)
+			{
+				texts.addAll(collectLabelText((Container) component));
+			}
+		}
+
+		return texts;
+	}
 }

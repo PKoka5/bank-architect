@@ -23,6 +23,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final String TITLE = "Ironman Bank Architect";
 	private static final String SUMMARY = "Standalone bank blueprint planner";
 	private static final String SAFETY_NOTE = "No bank actions are automated.";
+	private static final String MAIN_ACTION_LABEL = "Main action";
+	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
+	private static final String SUGGESTED_BLUEPRINT_LABEL = "Suggested Bank Blueprint";
+	private static final String SUGGESTED_BLUEPRINT_TEXT =
+		"Early preview: known owned bank IDs can be categorized. Full tab/row generation is coming next.";
+	private static final String PREVIEW_BLOCK_LABEL = "Advanced preview block";
+	private static final String PREVIEW_BLOCK_HELP =
+		"Preview block is temporary and shows one blueprint row while whole-bank planning is being built.";
+	private static final String PREVIEW_MISSING_NOTE =
+		"Preview rows may show missing items, but whole-bank organization focuses on items found in your bank.";
 	private static final int STATUS_REFRESH_MILLIS = 500;
 
 	private final BankGuideController guideController;
@@ -88,17 +98,27 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		catalogSummaryLabel = label("");
 
 		controls.add(Box.createVerticalStrut(4));
+		controls.add(label(MAIN_ACTION_LABEL));
+		controls.add(analyzeButton);
+		controls.add(Box.createVerticalStrut(8));
+		controls.add(label(WHOLE_BANK_SCAN_LABEL));
+		controls.add(catalogSummaryLabel);
+		controls.add(Box.createVerticalStrut(8));
+		controls.add(label(SUGGESTED_BLUEPRINT_LABEL));
+		controls.add(label(SUGGESTED_BLUEPRINT_TEXT));
+		controls.add(Box.createVerticalStrut(12));
+		controls.add(label(PREVIEW_BLOCK_LABEL));
+		controls.add(label(PREVIEW_BLOCK_HELP));
+		controls.add(Box.createVerticalStrut(4));
 		controls.add(blockDropdown);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(toggleButton);
 		controls.add(Box.createVerticalStrut(8));
-		controls.add(analyzeButton);
-		controls.add(Box.createVerticalStrut(8));
+		controls.add(label(PREVIEW_MISSING_NOTE));
+		controls.add(Box.createVerticalStrut(4));
 		controls.add(analysisLabel);
 		controls.add(Box.createVerticalStrut(4));
 		controls.add(analysisDetailLabel);
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(catalogSummaryLabel);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(statusLabel);
 
@@ -124,6 +144,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	JLabel getCatalogSummaryLabel()
 	{
 		return catalogSummaryLabel;
+	}
+
+	JLabel getAnalysisLabel()
+	{
+		return analysisLabel;
+	}
+
+	JLabel getAnalysisDetailLabel()
+	{
+		return analysisDetailLabel;
 	}
 
 	private void onBlockSelected()

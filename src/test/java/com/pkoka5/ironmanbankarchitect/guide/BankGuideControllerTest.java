@@ -201,6 +201,26 @@ public class BankGuideControllerTest
 	}
 
 	@Test
+	public void bankClosedAnalysisClearsSelectedBlockResultAndCatalogOverview()
+	{
+		controller.selectBlock("irit-super-attack");
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0),
+			new BankItemSnapshot(209, 1, 1)
+		));
+		controller.publishMatchResult(BankSlotMatcher.match(controller.getSelectedBlock(), snapshot));
+		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
+
+		controller.publishBankClosedAnalysis();
+
+		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
+		assertEquals("", controller.getAnalysisDetailText());
+		assertEquals(null, controller.getLatestMatchResult());
+		assertEquals("Analyze your bank to see catalog overview.", controller.getCatalogSummaryText());
+		assertEquals(null, controller.getLatestCatalogSummary());
+	}
+
+	@Test
 	public void matchResultIsStoredAndSummarized()
 	{
 		controller.selectBlock("irit-super-attack");
