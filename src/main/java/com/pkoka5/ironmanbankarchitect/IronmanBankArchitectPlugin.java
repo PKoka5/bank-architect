@@ -3,6 +3,8 @@ package com.pkoka5.ironmanbankarchitect;
 import com.google.inject.Provides;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
+import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
+import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
@@ -106,7 +108,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				return;
 			}
 
-			guideController.publishMatchResult(BankSlotMatcher.match(guideController.getSelectedBlock(), snapshot.get()));
+			BankSnapshot bankSnapshot = snapshot.get();
+			guideController.publishMatchResult(BankSlotMatcher.match(guideController.getSelectedBlock(), bankSnapshot));
+			guideController.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot, StaticItemCatalog.INSTANCE));
 		});
 	}
 

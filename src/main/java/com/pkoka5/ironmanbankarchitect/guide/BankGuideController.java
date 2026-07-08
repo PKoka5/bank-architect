@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.blueprint.BankProfile;
 import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSection;
 import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintTab;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
+import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,12 +20,15 @@ public final class BankGuideController
 	public static final String GUIDE_DISABLED_STATUS = "Guide preview off.";
 	public static final String NO_ANALYSIS_STATUS = "No bank analysis yet.";
 	public static final String ANALYSIS_BANK_CLOSED_STATUS = "Open your bank before analyzing.";
+	public static final String NO_CATALOG_SUMMARY_STATUS = "Analyze your bank to see catalog overview.";
 
 	private final List<VisualBlock> availableBlocks;
 	private final AtomicReference<BankGuideState> state;
 	private final AtomicReference<BlockMatchResult> latestMatchResult = new AtomicReference<>();
 	private final AtomicReference<String> analysisText = new AtomicReference<>(NO_ANALYSIS_STATUS);
 	private final AtomicReference<String> analysisDetailText = new AtomicReference<>("");
+	private final AtomicReference<BankCatalogSummary> latestCatalogSummary = new AtomicReference<>();
+	private final AtomicReference<String> catalogSummaryText = new AtomicReference<>(NO_CATALOG_SUMMARY_STATUS);
 	private final AtomicBoolean bankOpen = new AtomicBoolean(false);
 
 	public BankGuideController(BankProfile profile)
@@ -100,6 +104,8 @@ public final class BankGuideController
 		latestMatchResult.set(null);
 		analysisText.set(ANALYSIS_BANK_CLOSED_STATUS);
 		analysisDetailText.set("");
+		latestCatalogSummary.set(null);
+		catalogSummaryText.set(NO_CATALOG_SUMMARY_STATUS);
 	}
 
 	public void publishMatchResult(BlockMatchResult result)
@@ -123,6 +129,23 @@ public final class BankGuideController
 	public String getAnalysisDetailText()
 	{
 		return analysisDetailText.get();
+	}
+
+	public void publishCatalogSummary(BankCatalogSummary summary)
+	{
+		Objects.requireNonNull(summary, "summary");
+		latestCatalogSummary.set(summary);
+		catalogSummaryText.set(summary.toOverviewText());
+	}
+
+	public BankCatalogSummary getLatestCatalogSummary()
+	{
+		return latestCatalogSummary.get();
+	}
+
+	public String getCatalogSummaryText()
+	{
+		return catalogSummaryText.get();
 	}
 
 	private VisualBlock findBlock(String key)

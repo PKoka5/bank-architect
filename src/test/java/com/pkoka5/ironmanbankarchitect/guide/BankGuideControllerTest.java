@@ -8,6 +8,9 @@ import static org.junit.Assert.fail;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
+import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
+import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
+import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
 import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
@@ -160,6 +163,41 @@ public class BankGuideControllerTest
 		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
 		assertEquals("", controller.getAnalysisDetailText());
 		assertEquals(null, controller.getLatestMatchResult());
+	}
+
+	@Test
+	public void defaultCatalogSummaryTextPromptsAnalysis()
+	{
+		assertEquals("Analyze your bank to see catalog overview.", controller.getCatalogSummaryText());
+		assertEquals(null, controller.getLatestCatalogSummary());
+	}
+
+	@Test
+	public void catalogSummaryIsStoredAndReadable()
+	{
+		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0),
+			new BankItemSnapshot(999999, 1, 1)
+		)), StaticItemCatalog.INSTANCE);
+
+		controller.publishCatalogSummary(summary);
+
+		assertEquals(summary, controller.getLatestCatalogSummary());
+		assertEquals(summary.toOverviewText(), controller.getCatalogSummaryText());
+	}
+
+	@Test
+	public void bankClosedAnalysisResetsCatalogSummaryInsteadOfShowingStaleData()
+	{
+		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0)
+		)), StaticItemCatalog.INSTANCE);
+		controller.publishCatalogSummary(summary);
+
+		controller.publishBankClosedAnalysis();
+
+		assertEquals("Analyze your bank to see catalog overview.", controller.getCatalogSummaryText());
+		assertEquals(null, controller.getLatestCatalogSummary());
 	}
 
 	@Test

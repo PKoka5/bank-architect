@@ -32,6 +32,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JLabel statusLabel;
 	private final JLabel analysisLabel;
 	private final JLabel analysisDetailLabel;
+	private final JLabel catalogSummaryLabel;
 	private final Timer statusTimer;
 
 	IronmanBankArchitectPanel(BankGuideController guideController)
@@ -84,6 +85,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		statusLabel = label("");
 		analysisLabel = label("");
 		analysisDetailLabel = label("");
+		catalogSummaryLabel = label("");
 
 		controls.add(Box.createVerticalStrut(4));
 		controls.add(blockDropdown);
@@ -95,6 +97,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		controls.add(analysisLabel);
 		controls.add(Box.createVerticalStrut(4));
 		controls.add(analysisDetailLabel);
+		controls.add(Box.createVerticalStrut(8));
+		controls.add(catalogSummaryLabel);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(statusLabel);
 
@@ -115,6 +119,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	JButton getAnalyzeButton()
 	{
 		return analyzeButton;
+	}
+
+	JLabel getCatalogSummaryLabel()
+	{
+		return catalogSummaryLabel;
 	}
 
 	private void onBlockSelected()
@@ -151,6 +160,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		analysisLabel.setText(guideController.getAnalysisText());
 		analysisDetailLabel.setText(toHtmlLines(guideController.getAnalysisDetailText()));
+		catalogSummaryLabel.setText(toHtmlLines(guideController.getCatalogSummaryText()));
 	}
 
 	private String profileLine()

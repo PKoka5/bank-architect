@@ -11,5 +11,11 @@ public enum ItemCategory
 	SKILLING,
 	CURRENCY,
 	CLEANUP,
-	UNKNOWN
+	UNKNOWN;
+
+	public String getDisplayLabel()
+	{
+		String lower = name().toLowerCase();
+		return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
+	}
 }
