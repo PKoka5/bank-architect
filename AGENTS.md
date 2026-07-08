@@ -29,5 +29,5 @@ The player always moves bank items manually.
 - Keep changes small and focused.
 - Do not commit, push, merge, or change branches unless explicitly asked.
 - Only one coding agent edits production files at a time.
-- Claude is research/design/review; Codex is implementation/tests.
+- Claude is implementation/tests; Codex is research/design/review.
 - Run tests after code changes and report warnings or failures.

@@ -1,16 +1,21 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
+import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
+import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.inject.Inject;
+import net.runelite.api.Client;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 @PluginDescriptor(
 	name = "Ironman Bank Architect",
@@ -24,13 +29,25 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Inject
 	private ClientToolbar clientToolbar;
 
+	@Inject
+	private Client client;
+
+	@Inject
+	private OverlayManager overlayManager;
+
 	private NavigationButton navigationButton;
 	private IronmanBankArchitectPanel panel;
+	private BankGuideController guideController;
+	private BankGuideOverlay guideOverlay;
 
 	@Override
 	protected void startUp()
 	{
-		panel = new IronmanBankArchitectPanel();
+		guideController = new BankGuideController(AllRoundIronmanPreset.create());
+		guideOverlay = new BankGuideOverlay(this, client, guideController);
+		overlayManager.add(guideOverlay);
+
+		panel = new IronmanBankArchitectPanel(guideController);
 		navigationButton = NavigationButton.builder()
 			.tooltip(PLUGIN_NAME)
 			.icon(createIcon())
@@ -50,6 +67,18 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			navigationButton = null;
 		}
 
+		if (guideOverlay != null)
+		{
+			overlayManager.remove(guideOverlay);
+			guideOverlay = null;
+		}
+
+		if (panel != null)
+		{
+			panel.shutdown();
+		}
+
+		guideController = null;
 		panel = null;
 	}
 
