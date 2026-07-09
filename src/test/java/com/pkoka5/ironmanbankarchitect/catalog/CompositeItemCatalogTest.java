@@ -70,6 +70,25 @@ public class CompositeItemCatalogTest
 	}
 
 	@Test
+	public void generatedRegistryRefinesReviewSampleItems()
+	{
+		assertEquals(ItemCategory.CLEANUP, CompositeItemCatalog.DEFAULT.findById(1919)
+			.orElseThrow(() -> new AssertionError("expected beer glass")).getCategory());
+		assertEquals(ItemCategory.SKILLING, CompositeItemCatalog.DEFAULT.findById(5514)
+			.orElseThrow(() -> new AssertionError("expected giant pouch")).getCategory());
+		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(25818)
+			.orElseThrow(() -> new AssertionError("expected book of the dead")).getCategory());
+		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(13393)
+			.orElseThrow(() -> new AssertionError("expected xeric talisman")).getCategory());
+		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(22400)
+			.orElseThrow(() -> new AssertionError("expected drakan medallion")).getCategory());
+		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(4251)
+			.orElseThrow(() -> new AssertionError("expected ectophial")).getCategory());
+		assertEquals(ItemCategory.CURRENCY, CompositeItemCatalog.DEFAULT.findById(13143)
+			.orElseThrow(() -> new AssertionError("expected western banner")).getCategory());
+	}
+
+	@Test
 	public void uncategorizedItemsDoNotInflatePresetCleanupReview()
 	{
 		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(

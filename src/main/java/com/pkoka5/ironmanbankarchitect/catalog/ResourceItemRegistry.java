@@ -109,13 +109,16 @@ public final class ResourceItemRegistry implements ItemCatalog
 		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
 		if (containsAny(name, "clue scroll", "reward casket", "ornament kit", "graceful", "pyromancer",
 			"prospector", "angler", "rogue", "lumberjack", "farmer's", "carpenter", "cosmetic",
-			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament"))
+			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
+			"beer glass"))
 		{
 			return ItemCategory.CLEANUP;
 		}
 		if (containsAny(name, "ring of dueling", "games necklace", "amulet of glory", "skills necklace",
 			"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
-			"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery"))
+			"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery", "ectophial",
+			"xeric's talisman", "xeric talisman", "drakan's medallion", "drakans medallion",
+			"book of the dead"))
 		{
 			return ItemCategory.TELEPORT;
 		}
@@ -129,7 +132,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 		if (containsAny(name, "pickaxe", " axe", "harpoon", "lobster pot", "small fishing net",
 			"big fishing net", "chisel", "hammer", "saw", "rake", "seed dibber", "secateurs",
 			"watering can", "tinderbox", "knife", "pestle and mortar", "glassblowing pipe",
-			"spade", "needle", "thread", "mould", "hammerstone", "fishing rod", "fly fishing rod"))
+			"spade", "needle", "thread", "mould", "hammerstone", "fishing rod", "fly fishing rod",
+			"small pouch", "medium pouch", "large pouch", "giant pouch", "colossal pouch"))
 		{
 			return ItemCategory.SKILLING;
 		}
@@ -158,7 +162,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 			return ItemCategory.HERBLORE;
 		}
 		if (containsAny(name, "coins", "tokkul", "numulite", "mark of grace", "nugget", "stardust",
-			"trading sticks", "ecto-token", "castle wars ticket", "pieces of eight", "pearl"))
+			"trading sticks", "ecto-token", "castle wars ticket", "pieces of eight", "pearl",
+			"western banner", "rada's blessing", "rada blessing", "ghommal's hilt", "ghommals hilt"))
 		{
 			return ItemCategory.CURRENCY;
 		}
