@@ -23,8 +23,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final String MAIN_ACTION_LABEL = "Main action";
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
 	private static final String SUGGESTED_BLUEPRINT_LABEL = "Suggested Bank Blueprint";
-	private static final String SUGGESTED_BLUEPRINT_TEXT =
-		"Owned bank items are categorized first. Full tab/row blueprint generation is coming next.";
 	private static final String PREVIEW_BLOCK_HELP =
 		"Bank guide preview is temporary while whole-bank planning is being built.";
 	private static final String PREVIEW_OVERLAY_NOTE =
@@ -36,6 +34,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton analyzeButton;
 	private final JLabel statusLabel;
 	private final JLabel catalogSummaryLabel;
+	private final JLabel organizationPreviewLabel;
 	private final Timer statusTimer;
 
 	IronmanBankArchitectPanel(BankGuideController guideController)
@@ -71,6 +70,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		statusLabel = label("");
 		catalogSummaryLabel = label("");
+		organizationPreviewLabel = label("");
 
 		controls.add(Box.createVerticalStrut(4));
 		controls.add(label(MAIN_ACTION_LABEL));
@@ -80,7 +80,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		controls.add(catalogSummaryLabel);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(label(SUGGESTED_BLUEPRINT_LABEL));
-		controls.add(label(SUGGESTED_BLUEPRINT_TEXT));
+		controls.add(organizationPreviewLabel);
 		controls.add(Box.createVerticalStrut(12));
 		controls.add(label(PREVIEW_BLOCK_HELP));
 		controls.add(Box.createVerticalStrut(4));
@@ -114,6 +114,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return catalogSummaryLabel;
 	}
 
+	JLabel getOrganizationPreviewLabel()
+	{
+		return organizationPreviewLabel;
+	}
+
 	private void onToggleGuide()
 	{
 		guideController.toggleGuide();
@@ -135,6 +140,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshAnalysis()
 	{
 		catalogSummaryLabel.setText(toHtmlLines(guideController.getCatalogSummaryText()));
+		organizationPreviewLabel.setText(toHtmlLines(guideController.getOrganizationPreviewText()));
 	}
 
 	private String profileLine()

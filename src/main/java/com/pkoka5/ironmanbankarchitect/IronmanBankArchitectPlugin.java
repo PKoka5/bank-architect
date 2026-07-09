@@ -6,6 +6,7 @@ import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
@@ -110,6 +111,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 			BankSnapshot bankSnapshot = snapshot.get();
 			guideController.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
+				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
+			guideController.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
 				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
 		});
 	}

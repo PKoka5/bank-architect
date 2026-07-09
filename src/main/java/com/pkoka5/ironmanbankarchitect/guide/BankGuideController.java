@@ -6,6 +6,7 @@ import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintTab;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,7 @@ public final class BankGuideController
 	public static final String NO_ANALYSIS_STATUS = "No bank analysis yet.";
 	public static final String ANALYSIS_BANK_CLOSED_STATUS = "Open your bank before analyzing.";
 	public static final String NO_CATALOG_SUMMARY_STATUS = "Analyze your bank to see catalog overview.";
+	public static final String NO_ORGANIZATION_PREVIEW_STATUS = "Analyze your bank to preview owned-item blueprint.";
 
 	private final List<VisualBlock> availableBlocks;
 	private final AtomicReference<BankGuideState> state;
@@ -29,6 +31,8 @@ public final class BankGuideController
 	private final AtomicReference<String> analysisDetailText = new AtomicReference<>("");
 	private final AtomicReference<BankCatalogSummary> latestCatalogSummary = new AtomicReference<>();
 	private final AtomicReference<String> catalogSummaryText = new AtomicReference<>(NO_CATALOG_SUMMARY_STATUS);
+	private final AtomicReference<BankOrganizationPreview> latestOrganizationPreview = new AtomicReference<>();
+	private final AtomicReference<String> organizationPreviewText = new AtomicReference<>(NO_ORGANIZATION_PREVIEW_STATUS);
 	private final AtomicBoolean bankOpen = new AtomicBoolean(false);
 
 	public BankGuideController(BankProfile profile)
@@ -106,6 +110,8 @@ public final class BankGuideController
 		analysisDetailText.set("");
 		latestCatalogSummary.set(null);
 		catalogSummaryText.set(NO_CATALOG_SUMMARY_STATUS);
+		latestOrganizationPreview.set(null);
+		organizationPreviewText.set(NO_ORGANIZATION_PREVIEW_STATUS);
 	}
 
 	public void publishMatchResult(BlockMatchResult result)
@@ -146,6 +152,23 @@ public final class BankGuideController
 	public String getCatalogSummaryText()
 	{
 		return catalogSummaryText.get();
+	}
+
+	public void publishOrganizationPreview(BankOrganizationPreview preview)
+	{
+		Objects.requireNonNull(preview, "preview");
+		latestOrganizationPreview.set(preview);
+		organizationPreviewText.set(preview.toPreviewText());
+	}
+
+	public BankOrganizationPreview getLatestOrganizationPreview()
+	{
+		return latestOrganizationPreview.get();
+	}
+
+	public String getOrganizationPreviewText()
+	{
+		return organizationPreviewText.get();
 	}
 
 	private VisualBlock findBlock(String key)
