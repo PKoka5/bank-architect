@@ -218,6 +218,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			bankDialog.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 			bankDialog.setLocationRelativeTo(this);
 			bankTabs = new JTabbedPane();
+			bankTabs.setTabPlacement(JTabbedPane.LEFT);
 			bankTabs.setBackground(BANK_BG);
 			bankTabs.setForeground(Color.WHITE);
 			bankDialog.add(bankTabs, BorderLayout.CENTER);
@@ -244,7 +245,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		int tabNumber = 1;
 		for (BankCategoryPreview category : preview.getCategories())
 		{
-			String title = tabNumber + ". " + category.getCategory().getName() + " (" + category.getItemCount() + ")";
+			String title = tabNumber + "  " + shortCategoryName(category) + "  " + category.getItemCount();
 			bankTabs.addTab(title, categoryScrollPane(category));
 			tabNumber++;
 		}
@@ -309,6 +310,53 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		}
 
 		return "Blueprint ready: " + preview.getPlannedItems().size() + " item IDs sorted.";
+	}
+
+	private static String shortCategoryName(BankCategoryPreview category)
+	{
+		String key = category.getCategory().getKey();
+		if ("currency-utilities".equals(key))
+		{
+			return "Currency";
+		}
+		if ("teleports-runes".equals(key))
+		{
+			return "Teleports";
+		}
+		if ("combat-gear".equals(key))
+		{
+			return "Gear";
+		}
+		if ("potions-food".equals(key))
+		{
+			return "Supplies";
+		}
+		if ("farming-herblore".equals(key))
+		{
+			return "Herblore";
+		}
+		if ("skilling-tools".equals(key))
+		{
+			return "Tools";
+		}
+		if ("resources".equals(key))
+		{
+			return "Resources";
+		}
+		if ("slayer-boss-loot".equals(key))
+		{
+			return "Boss Loot";
+		}
+		if ("clues-cosmetics".equals(key))
+		{
+			return "Clues";
+		}
+		if ("storage-cleanup".equals(key))
+		{
+			return "Review";
+		}
+
+		return category.getCategory().getName();
 	}
 
 	private String profileLine()

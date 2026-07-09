@@ -42,6 +42,8 @@ function Find-Rule-Category([string] $displayName, [string] $constantName)
 	if (Has-Any $name @("clue scroll", "reward casket", "ornament kit", "graceful", "pyromancer",
 		"prospector", "angler", "rogue", "lumberjack", "farmer's", "carpenter", "cosmetic",
 		"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
+		"burnt fish", "burntfish", "burnt lobster", "burnt shark", "burnt swordfish",
+		"burnt manta", "burnt mantaray", "burnt sea turtle", "burnt seaturtle",
 		"beer glass", "nulodion's notes", "instruction manual", "holy table napkin", "grail bell",
 		"holy grail", "cog", "rat poison", "red vine worm", "insect repellent", "candle",
 		"khazard cell", "lever", "shiny key", "child's blanket", "quest", "notes", "letter",
