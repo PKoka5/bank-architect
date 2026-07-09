@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.PresetItemSorter;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,6 +13,10 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Window;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -259,7 +264,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		wrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 		wrapper.add(label(category.getCategory().getName() + " - " + category.getItemCount() + " owned item IDs"));
 		wrapper.add(Box.createVerticalStrut(8));
-		wrapper.add(categoryGrid(category));
+		wrapper.add(categoryContent(category));
 
 		JScrollPane scrollPane = new JScrollPane(wrapper);
 		scrollPane.getViewport().setBackground(BANK_BG);
@@ -269,18 +274,57 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return scrollPane;
 	}
 
+	private JPanel categoryContent(BankCategoryPreview category)
+	{
+		if (!"storage-cleanup".equals(category.getCategory().getKey()))
+		{
+			return categoryGrid(category.getItems());
+		}
+
+		JPanel content = verticalPanel();
+		content.setBackground(BANK_BG);
+		content.setOpaque(true);
+		Map<String, List<BankPreviewItem>> itemsByLane = new LinkedHashMap<>();
+		for (BankPreviewItem item : category.getItems())
+		{
+			String label = PresetItemSorter.subgroupLabel(category.getCategory(), item);
+			itemsByLane.computeIfAbsent(label, ignored -> new ArrayList<>()).add(item);
+		}
+
+		if (itemsByLane.isEmpty())
+		{
+			content.add(categoryGrid(category.getItems()));
+			return content;
+		}
+
+		for (Map.Entry<String, List<BankPreviewItem>> entry : itemsByLane.entrySet())
+		{
+			content.add(label(entry.getKey() + " - " + entry.getValue().size()));
+			content.add(Box.createVerticalStrut(4));
+			content.add(categoryGrid(entry.getValue()));
+			content.add(Box.createVerticalStrut(10));
+		}
+
+		return content;
+	}
+
 	private JPanel categoryGrid(BankCategoryPreview category)
+	{
+		return categoryGrid(category.getItems());
+	}
+
+	private JPanel categoryGrid(List<BankPreviewItem> items)
 	{
 		JPanel grid = new JPanel(new GridLayout(0, BANK_GRID_COLUMNS, 3, 3));
 		grid.setBackground(BANK_BG);
 		grid.setOpaque(true);
 		grid.setAlignmentX(Component.LEFT_ALIGNMENT);
-		for (BankPreviewItem item : category.getItems())
+		for (BankPreviewItem item : items)
 		{
 			grid.add(itemCell(item));
 		}
 
-		if (category.getItems().isEmpty())
+		if (items.isEmpty())
 		{
 			grid.add(emptyCell());
 		}

@@ -100,20 +100,78 @@ public final class PresetItemSorter
 
 		if ("storage-cleanup".equals(categoryKey))
 		{
-			if (item.getItemCategory() == ItemCategory.UNKNOWN)
-			{
-				return 90;
-			}
-
-			return rank(name, subcategory,
-				group(0, "clue", "casket"),
-				group(10, "graceful", "pyromancer", "prospector", "angler", "rogue", "lumberjack"),
-				group(20, "quest", "key", "notes", "letter", "book", "scroll"),
-				group(30, "costume", "cosmetic", "mask", "hat"),
-				group(40, "beer glass", "junk"));
+			return reviewLaneRank(item);
 		}
 
 		return 50;
+	}
+
+	public static String subgroupLabel(BankCategory category, BankPreviewItem item)
+	{
+		if (!"storage-cleanup".equals(category.getKey()))
+		{
+			return "";
+		}
+
+		int rank = reviewLaneRank(item);
+		if (rank == 0)
+		{
+			return "External Storage";
+		}
+		if (rank == 10)
+		{
+			return "Clue & STASH";
+		}
+		if (rank == 20)
+		{
+			return "Cosmetics & Collection";
+		}
+		if (rank == 30)
+		{
+			return "Quest Leftovers";
+		}
+		if (rank == 40)
+		{
+			return "Holiday & Event";
+		}
+		if (rank == 50)
+		{
+			return "Burnt & Junk";
+		}
+		if (rank == 60)
+		{
+			return "Redundant Gear Review";
+		}
+		if (rank == 90)
+		{
+			return "Unknown Safe Review";
+		}
+
+		return "General Review";
+	}
+
+	private static int reviewLaneRank(BankPreviewItem item)
+	{
+		if (item.getItemCategory() == ItemCategory.UNKNOWN)
+		{
+			return 90;
+		}
+
+		String name = normalizedName(item.getDisplayName());
+		String subcategory = normalizedName(item.getSubcategory());
+		return rank(name, subcategory,
+			group(0, "seed vault", "costume room", "poh", "stash", "armour case", "magic wardrobe",
+				"treasure chest", "toy box", "cape rack"),
+			group(10, "clue", "casket"),
+			group(20, "graceful", "pyromancer", "prospector", "angler", "rogue", "lumberjack",
+				"farmer's", "carpenter", "costume", "cosmetic", "mask", "gown", "robe top",
+				"robe bottom"),
+			group(30, "quest", "key", "notes", "letter", "book", "scroll", "manual", "certificate",
+				"sample", "specimen", "plaque", "report", "tome", "binding book"),
+			group(40, "christmas", "easter", "halloween", "holiday", "santa", "partyhat", "pumpkin",
+				"snow", "event"),
+			group(50, "burnt", "beer glass", "junk", "old boot", "buttons", "broken", "empty"),
+			group(60, "bronze", "iron", "steel", "black", "mithril", "adamant", "rune"));
 	}
 
 	private static int rank(String name, String subcategory, Group... groups)

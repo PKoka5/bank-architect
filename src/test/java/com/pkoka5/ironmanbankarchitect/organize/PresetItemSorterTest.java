@@ -70,10 +70,30 @@ public class PresetItemSorterTest
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("storage-cleanup"), Arrays.asList(
 			new BankPreviewItem(CatalogItem.unknown(999999), 1),
 			item(1, "Clue scroll", ItemCategory.CLEANUP),
-			item(2, "Quest key", ItemCategory.CLEANUP)
+			item(2, "Quest key", ItemCategory.CLEANUP),
+			item(3, "Burnt shark", ItemCategory.CLEANUP),
+			item(4, "Graceful top", ItemCategory.CLEANUP)
 		));
 
-		assertEquals(Arrays.asList("Clue scroll", "Quest key", "Unknown item #999999"), names(sorted));
+		assertEquals(Arrays.asList("Clue scroll", "Graceful top", "Quest key", "Burnt shark",
+			"Unknown item #999999"), names(sorted));
+	}
+
+	@Test
+	public void cleanupItemsExposeHumanReviewLaneLabels()
+	{
+		BankCategory cleanup = BankPresets.IRONMAN.getCategory("storage-cleanup");
+
+		assertEquals("Clue & STASH", PresetItemSorter.subgroupLabel(cleanup,
+			item(1, "Reward casket", ItemCategory.CLEANUP)));
+		assertEquals("Cosmetics & Collection", PresetItemSorter.subgroupLabel(cleanup,
+			item(2, "Graceful hood", ItemCategory.CLEANUP)));
+		assertEquals("Quest Leftovers", PresetItemSorter.subgroupLabel(cleanup,
+			item(3, "Old notes", ItemCategory.CLEANUP)));
+		assertEquals("Burnt & Junk", PresetItemSorter.subgroupLabel(cleanup,
+			item(4, "Burnt lobster", ItemCategory.CLEANUP)));
+		assertEquals("Unknown Safe Review", PresetItemSorter.subgroupLabel(cleanup,
+			new BankPreviewItem(CatalogItem.unknown(999999), 1)));
 	}
 
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
