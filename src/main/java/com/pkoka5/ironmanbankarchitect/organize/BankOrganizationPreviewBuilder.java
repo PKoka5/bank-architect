@@ -12,8 +12,6 @@ import java.util.Objects;
 
 public final class BankOrganizationPreviewBuilder
 {
-	private static final int MAX_SAMPLE_ITEMS_PER_CATEGORY = 3;
-
 	private BankOrganizationPreviewBuilder()
 	{
 	}
@@ -40,7 +38,7 @@ public final class BankOrganizationPreviewBuilder
 				throw new IllegalStateException("Preset mapper returned unknown category: " + category.getKey());
 			}
 
-			preview.add(catalogItem.getDisplayName(), bankItem.getQuantity());
+			preview.add(catalogItem.getItemId(), catalogItem.getDisplayName(), bankItem.getQuantity());
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -55,28 +53,21 @@ public final class BankOrganizationPreviewBuilder
 	private static final class MutableCategoryPreview
 	{
 		private final BankCategory category;
-		private final List<String> sampleItems = new ArrayList<>();
-		private int itemCount;
+		private final List<BankPreviewItem> items = new ArrayList<>();
 
 		private MutableCategoryPreview(BankCategory category)
 		{
 			this.category = category;
 		}
 
-		private void add(String displayName, int quantity)
+		private void add(int itemId, String displayName, int quantity)
 		{
-			itemCount++;
-			if (sampleItems.size() >= MAX_SAMPLE_ITEMS_PER_CATEGORY)
-			{
-				return;
-			}
-
-			sampleItems.add(quantity > 1 ? displayName + " x" + quantity : displayName);
+			items.add(new BankPreviewItem(itemId, displayName, quantity));
 		}
 
 		private BankCategoryPreview toImmutable()
 		{
-			return new BankCategoryPreview(category, itemCount, sampleItems);
+			return new BankCategoryPreview(category, items);
 		}
 	}
 }

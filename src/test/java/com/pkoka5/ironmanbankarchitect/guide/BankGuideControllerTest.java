@@ -192,6 +192,23 @@ public class BankGuideControllerTest
 	}
 
 	@Test
+	public void analysisStartedClearsStaleOutput()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(995, 1, 0)
+		));
+		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
+		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+
+		controller.publishAnalysisStarted();
+
+		assertEquals("Analyzing bank snapshot...", controller.getCatalogSummaryText());
+		assertEquals("Analyzing bank snapshot...", controller.getOrganizationPreviewText());
+		assertEquals(null, controller.getLatestCatalogSummary());
+		assertEquals(null, controller.getLatestOrganizationPreview());
+	}
+
+	@Test
 	public void organizationPreviewIsStoredAndReadable()
 	{
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(

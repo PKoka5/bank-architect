@@ -1,9 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.overlay;
 
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSlot;
-import com.pkoka5.ironmanbankarchitect.blueprint.SlotKind;
-import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,6 +11,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
@@ -24,12 +23,14 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 
 public final class BankGuideOverlay extends Overlay
 {
-	private static final int SLOT_COUNT = 8;
-
-	private static final Color PREVIEW_FILL = new Color(150, 150, 150, 45);
-	private static final Color PREVIEW_BORDER = new Color(150, 150, 150, 150);
-	private static final Color RESERVED_FILL = new Color(105, 150, 175, 45);
-	private static final Color RESERVED_BORDER = new Color(105, 150, 175, 150);
+	private static final Color CORRECT_FILL = new Color(75, 190, 95, 50);
+	private static final Color CORRECT_BORDER = new Color(75, 220, 95, 190);
+	private static final Color MISPLACED_FILL = new Color(240, 165, 45, 50);
+	private static final Color MISPLACED_BORDER = new Color(245, 175, 45, 190);
+	private static final Color WRONG_FILL = new Color(220, 70, 70, 50);
+	private static final Color WRONG_BORDER = new Color(230, 80, 80, 190);
+	private static final Color UNKNOWN_FILL = new Color(150, 150, 150, 35);
+	private static final Color UNKNOWN_BORDER = new Color(150, 150, 150, 130);
 	private static final Color BADGE_COLOR = new Color(255, 255, 255, 220);
 
 	private final Client client;
@@ -58,20 +59,23 @@ public final class BankGuideOverlay extends Overlay
 			return null;
 		}
 
+		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		if (preview == null)
+		{
+			return null;
+		}
+
 		Rectangle gridBounds = bankItems.getBounds();
 		if (!isSafeGeometry(gridBounds))
 		{
 			return null;
 		}
 
-		List<Rectangle> firstRow = SlotGridResolver.resolveFirstRow(collectCandidateBounds(bankItems, gridBounds), SLOT_COUNT);
-		if (firstRow.size() < SLOT_COUNT)
+		List<BankSlotWidget> bankSlots = collectBankSlots(bankItems, gridBounds);
+		if (bankSlots.isEmpty())
 		{
 			return null;
 		}
-
-		VisualBlock block = guideController.getSelectedBlock();
-		List<BlueprintSlot> slots = block.getSlots();
 
 		Shape originalClip = graphics.getClip();
 		Font originalFont = graphics.getFont();
@@ -81,14 +85,15 @@ public final class BankGuideOverlay extends Overlay
 		graphics.setFont(originalFont.deriveFont(Font.BOLD, 11f));
 		graphics.setStroke(new BasicStroke(1f));
 
-		for (int i = 0; i < SLOT_COUNT && i < slots.size(); i++)
+		for (int i = 0; i < bankSlots.size(); i++)
 		{
-			BlueprintSlot slot = slots.get(i);
-			Rectangle cell = firstRow.get(i);
+			BankSlotWidget slot = bankSlots.get(i);
+			SlotValidationState state = stateFor(preview, i, slot.itemId);
+			Rectangle cell = slot.bounds;
 
-			graphics.setColor(fillFor(slot.getKind()));
+			graphics.setColor(fillFor(state));
 			graphics.fill(cell);
-			graphics.setColor(borderFor(slot.getKind()));
+			graphics.setColor(borderFor(state));
 			graphics.draw(cell);
 
 			graphics.setColor(BADGE_COLOR);
@@ -102,39 +107,76 @@ public final class BankGuideOverlay extends Overlay
 		return null;
 	}
 
-	static Color fillFor(SlotKind kind)
+	static SlotValidationState stateFor(BankOrganizationPreview preview, int physicalSlotIndex, int actualItemId)
 	{
-		if (kind == SlotKind.EMPTY)
+		int expectedItemId = preview.getExpectedItemId(physicalSlotIndex);
+		if (expectedItemId <= 0)
 		{
-			return RESERVED_FILL;
+			return SlotValidationState.UNKNOWN;
 		}
 
-		return PREVIEW_FILL;
-	}
-
-	static Color borderFor(SlotKind kind)
-	{
-		if (kind == SlotKind.EMPTY)
+		if (actualItemId == expectedItemId)
 		{
-			return RESERVED_BORDER;
+			return SlotValidationState.CORRECT;
 		}
 
-		return PREVIEW_BORDER;
+		if (actualItemId <= 0)
+		{
+			return SlotValidationState.WRONG;
+		}
+
+		return preview.getPlannedSlotIndex(actualItemId) >= 0
+			? SlotValidationState.MISPLACED
+			: SlotValidationState.WRONG;
 	}
 
-	private static List<Rectangle> collectCandidateBounds(Widget container, Rectangle gridBounds)
+	static Color fillFor(SlotValidationState state)
 	{
-		List<Rectangle> candidates = new ArrayList<>();
-		addVisibleBounds(container.getDynamicChildren(), gridBounds, candidates);
+		switch (state)
+		{
+			case CORRECT:
+				return CORRECT_FILL;
+			case MISPLACED:
+				return MISPLACED_FILL;
+			case WRONG:
+				return WRONG_FILL;
+			case UNKNOWN:
+			default:
+				return UNKNOWN_FILL;
+		}
+	}
+
+	static Color borderFor(SlotValidationState state)
+	{
+		switch (state)
+		{
+			case CORRECT:
+				return CORRECT_BORDER;
+			case MISPLACED:
+				return MISPLACED_BORDER;
+			case WRONG:
+				return WRONG_BORDER;
+			case UNKNOWN:
+			default:
+				return UNKNOWN_BORDER;
+		}
+	}
+
+	private static List<BankSlotWidget> collectBankSlots(Widget container, Rectangle gridBounds)
+	{
+		List<BankSlotWidget> candidates = new ArrayList<>();
+		addVisibleSlots(container.getDynamicChildren(), gridBounds, candidates);
 		if (candidates.isEmpty())
 		{
-			addVisibleBounds(container.getChildren(), gridBounds, candidates);
+			addVisibleSlots(container.getChildren(), gridBounds, candidates);
 		}
 
+		candidates.sort(Comparator.comparingInt((BankSlotWidget slot) -> slot.bounds.y)
+			.thenComparingInt(slot -> slot.bounds.x));
 		return candidates;
 	}
 
-	private static void addVisibleBounds(Widget[] children, Rectangle gridBounds, List<Rectangle> candidates)
+	private static void addVisibleSlots(Widget[] children, Rectangle gridBounds, List<BankSlotWidget> candidates)
 	{
 		if (children == null)
 		{
@@ -154,12 +196,32 @@ public final class BankGuideOverlay extends Overlay
 				continue;
 			}
 
-			candidates.add(bounds);
+			candidates.add(new BankSlotWidget(bounds, child.getItemId()));
 		}
 	}
 
 	private static boolean isSafeGeometry(Rectangle bounds)
 	{
 		return bounds != null && bounds.width > 0 && bounds.height > 0;
+	}
+
+	enum SlotValidationState
+	{
+		CORRECT,
+		MISPLACED,
+		WRONG,
+		UNKNOWN
+	}
+
+	private static final class BankSlotWidget
+	{
+		private final Rectangle bounds;
+		private final int itemId;
+
+		private BankSlotWidget(Rectangle bounds, int itemId)
+		{
+			this.bounds = bounds;
+			this.itemId = itemId;
+		}
 	}
 }

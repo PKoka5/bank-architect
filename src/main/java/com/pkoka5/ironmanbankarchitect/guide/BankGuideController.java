@@ -21,6 +21,7 @@ public final class BankGuideController
 	public static final String GUIDE_DISABLED_STATUS = "Guide preview off.";
 	public static final String NO_ANALYSIS_STATUS = "No bank analysis yet.";
 	public static final String ANALYSIS_BANK_CLOSED_STATUS = "Open your bank before analyzing.";
+	public static final String ANALYSIS_RUNNING_STATUS = "Analyzing bank snapshot...";
 	public static final String NO_CATALOG_SUMMARY_STATUS = "Analyze your bank to see catalog overview.";
 	public static final String NO_ORGANIZATION_PREVIEW_STATUS = "Analyze your bank to preview owned-item blueprint.";
 
@@ -112,6 +113,14 @@ public final class BankGuideController
 		catalogSummaryText.set(NO_CATALOG_SUMMARY_STATUS);
 		latestOrganizationPreview.set(null);
 		organizationPreviewText.set(NO_ORGANIZATION_PREVIEW_STATUS);
+	}
+
+	public void publishAnalysisStarted()
+	{
+		latestCatalogSummary.set(null);
+		catalogSummaryText.set(ANALYSIS_RUNNING_STATUS);
+		latestOrganizationPreview.set(null);
+		organizationPreviewText.set(ANALYSIS_RUNNING_STATUS);
 	}
 
 	public void publishMatchResult(BlockMatchResult result)

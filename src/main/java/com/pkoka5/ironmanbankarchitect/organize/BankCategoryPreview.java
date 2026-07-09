@@ -8,19 +8,12 @@ import java.util.Objects;
 public final class BankCategoryPreview
 {
 	private final BankCategory category;
-	private final int itemCount;
-	private final List<String> sampleItems;
+	private final List<BankPreviewItem> items;
 
-	public BankCategoryPreview(BankCategory category, int itemCount, List<String> sampleItems)
+	public BankCategoryPreview(BankCategory category, List<BankPreviewItem> items)
 	{
-		if (itemCount < 0)
-		{
-			throw new IllegalArgumentException("itemCount must not be negative");
-		}
-
 		this.category = Objects.requireNonNull(category, "category");
-		this.itemCount = itemCount;
-		this.sampleItems = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(sampleItems, "sampleItems")));
+		this.items = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(items, "items")));
 	}
 
 	public BankCategory getCategory()
@@ -30,11 +23,23 @@ public final class BankCategoryPreview
 
 	public int getItemCount()
 	{
-		return itemCount;
+		return items.size();
+	}
+
+	public List<BankPreviewItem> getItems()
+	{
+		return items;
 	}
 
 	public List<String> getSampleItems()
 	{
-		return sampleItems;
+		List<String> samples = new ArrayList<>();
+		int sampleCount = Math.min(3, items.size());
+		for (int i = 0; i < sampleCount; i++)
+		{
+			samples.add(items.get(i).toCompactLabel());
+		}
+
+		return Collections.unmodifiableList(samples);
 	}
 }

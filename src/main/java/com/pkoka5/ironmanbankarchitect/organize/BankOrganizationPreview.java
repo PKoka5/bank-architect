@@ -26,6 +26,42 @@ public final class BankOrganizationPreview
 		return categories;
 	}
 
+	public List<BankPreviewItem> getPlannedItems()
+	{
+		List<BankPreviewItem> items = new ArrayList<>();
+		for (BankCategoryPreview category : categories)
+		{
+			items.addAll(category.getItems());
+		}
+
+		return Collections.unmodifiableList(items);
+	}
+
+	public int getExpectedItemId(int slotIndex)
+	{
+		List<BankPreviewItem> items = getPlannedItems();
+		if (slotIndex < 0 || slotIndex >= items.size())
+		{
+			return -1;
+		}
+
+		return items.get(slotIndex).getItemId();
+	}
+
+	public int getPlannedSlotIndex(int itemId)
+	{
+		List<BankPreviewItem> items = getPlannedItems();
+		for (int i = 0; i < items.size(); i++)
+		{
+			if (items.get(i).getItemId() == itemId)
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
 	public String toPreviewText()
 	{
 		StringBuilder builder = new StringBuilder();
