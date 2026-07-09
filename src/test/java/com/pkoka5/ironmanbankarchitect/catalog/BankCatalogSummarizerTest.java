@@ -77,7 +77,7 @@ public class BankCatalogSummarizerTest
 		assertEquals(0, summary.getKnownIdCount());
 		assertEquals(0, summary.getUnknownIdCount());
 		assertEquals(0, summary.getTotalScannedIdCount());
-		assertEquals("Bank Scan Overview\nKnown catalog IDs: 0\nUnknown IDs: 0", summary.toOverviewText());
+		assertEquals("Bank Scan Overview\nRecognized item IDs: 0\nUnrecognized IDs: 0", summary.toOverviewText());
 	}
 
 	@Test
@@ -107,13 +107,12 @@ public class BankCatalogSummarizerTest
 
 		assertEquals(
 			"Bank Scan Overview\n"
-				+ "Known catalog IDs: 2\n"
-				+ "Unknown IDs: 1\n"
+				+ "Recognized item IDs: 2\n"
+				+ "Unrecognized IDs: 1\n"
 				+ "\n"
 				+ "Categories:\n"
 				+ "Herblore: 1\n"
-				+ "Farming: 1\n"
-				+ "Unknown: 1",
+				+ "Farming: 1",
 			overview
 		);
 	}

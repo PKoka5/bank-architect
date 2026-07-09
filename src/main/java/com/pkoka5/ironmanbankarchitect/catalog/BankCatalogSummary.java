@@ -1,7 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
+import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
+import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -15,8 +18,16 @@ public final class BankCatalogSummary
 	private final int knownIdCount;
 	private final int unknownIdCount;
 	private final Map<ItemCategory, Integer> countsByCategory;
+	private final BankPreset preset;
+	private final Map<String, Integer> countsByPresetCategory;
 
 	public BankCatalogSummary(int knownIdCount, int unknownIdCount, Map<ItemCategory, Integer> countsByCategory)
+	{
+		this(knownIdCount, unknownIdCount, countsByCategory, null, Collections.emptyMap());
+	}
+
+	public BankCatalogSummary(int knownIdCount, int unknownIdCount, Map<ItemCategory, Integer> countsByCategory,
+		BankPreset preset, Map<String, Integer> countsByPresetCategory)
 	{
 		if (knownIdCount < 0 || unknownIdCount < 0)
 		{
@@ -27,6 +38,9 @@ public final class BankCatalogSummary
 		this.unknownIdCount = unknownIdCount;
 		this.countsByCategory = Collections.unmodifiableMap(
 			new EnumMap<>(Objects.requireNonNull(countsByCategory, "countsByCategory")));
+		this.preset = preset;
+		this.countsByPresetCategory = Collections.unmodifiableMap(
+			new LinkedHashMap<>(Objects.requireNonNull(countsByPresetCategory, "countsByPresetCategory")));
 	}
 
 	public int getKnownIdCount()
@@ -55,17 +69,33 @@ public final class BankCatalogSummary
 		return countsByCategory;
 	}
 
+	public int countForPresetCategory(String categoryKey)
+	{
+		Integer count = countsByPresetCategory.get(categoryKey);
+		return count == null ? 0 : count;
+	}
+
+	public Map<String, Integer> getCountsByPresetCategory()
+	{
+		return countsByPresetCategory;
+	}
+
 	public String toOverviewText()
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append("Bank Scan Overview").append('\n')
-			.append("Known catalog IDs: ").append(knownIdCount).append('\n')
-			.append("Unknown IDs: ").append(unknownIdCount);
+			.append("Recognized item IDs: ").append(knownIdCount).append('\n')
+			.append("Unrecognized IDs: ").append(unknownIdCount);
 
 		StringBuilder categoryLines = new StringBuilder();
 		for (Map.Entry<ItemCategory, Integer> entry : countsByCategory.entrySet())
 		{
 			if (entry.getValue() == null || entry.getValue() <= 0)
+			{
+				continue;
+			}
+
+			if (entry.getKey() == ItemCategory.UNKNOWN)
 			{
 				continue;
 			}
@@ -79,6 +109,18 @@ public final class BankCatalogSummary
 		if (categoryLines.length() > 0)
 		{
 			builder.append('\n').append('\n').append("Categories:").append(categoryLines);
+		}
+
+		if (preset != null)
+		{
+			builder.append('\n').append('\n').append(preset.getName()).append(':');
+			for (BankCategory category : preset.getCategories())
+			{
+				builder.append('\n')
+					.append(category.getName())
+					.append(": ")
+					.append(countForPresetCategory(category.getKey()));
+			}
 		}
 
 		return builder.toString();
