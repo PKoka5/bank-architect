@@ -14,6 +14,14 @@ public final class ResourceItemRegistry implements ItemCatalog
 {
 	static final String RESOURCE_PATH = "/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv";
 
+	private static final String[] TELEPORT_NEEDLES = {
+		"ring of dueling", "games necklace", "amulet of glory", "skills necklace",
+		"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
+		"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery", "ectophial",
+		"xeric's talisman", "xeric talisman", "drakan's medallion", "drakans medallion",
+		"book of the dead", "magic whistle"
+	};
+
 	public static final ResourceItemRegistry INSTANCE = new ResourceItemRegistry();
 
 	private final Map<Integer, CatalogItem> itemsById;
@@ -72,9 +80,9 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 				int itemId = Integer.parseInt(itemIdText);
 				String displayName = fields[1];
-				ItemCategory category = parseRegistryCategory(fields.length >= 3 ? fields[2] : "");
+				ItemCategory explicitCategory = parseRegistryCategory(fields.length >= 3 ? fields[2] : "");
 				String constantName = fields.length >= 4 ? fields[3] : "";
-				category = refineCategory(displayName, constantName, category);
+				ItemCategory category = resolveCategory(displayName, constantName, explicitCategory);
 				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, category,
 					category.getDisplayLabel().toLowerCase(), Collections.emptySet(), null));
 			}
@@ -91,7 +99,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 	{
 		if (value == null || value.trim().isEmpty() || "UNKNOWN".equals(value))
 		{
-			return ItemCategory.CLEANUP;
+			return null;
 		}
 
 		try
@@ -100,8 +108,41 @@ public final class ResourceItemRegistry implements ItemCatalog
 		}
 		catch (IllegalArgumentException ex)
 		{
-			return ItemCategory.CLEANUP;
+			return null;
 		}
+	}
+
+	/**
+	 * Explicit registry categories win over the name-based refinement, with two exceptions
+	 * where the generated column is known to be unreliable:
+	 * teleport jewellery is labelled GEAR or POTION (charge suffixes like "(4)" were read as
+	 * potion doses), and every item containing the word "rune" was labelled RUNE (Rune
+	 * scimitar, Rune dart, ...). Items without an explicit category are refined by name and
+	 * default to CLEANUP for manual review.
+	 */
+	private static ItemCategory resolveCategory(String displayName, String constantName, ItemCategory explicitCategory)
+	{
+		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
+		if (containsAny(name, TELEPORT_NEEDLES))
+		{
+			return ItemCategory.TELEPORT;
+		}
+		if (explicitCategory == ItemCategory.RUNE && !isActualRune(displayName))
+		{
+			return refineCategory(displayName, constantName, ItemCategory.RUNE);
+		}
+		if (explicitCategory != null)
+		{
+			return explicitCategory;
+		}
+
+		return refineCategory(displayName, constantName, ItemCategory.CLEANUP);
+	}
+
+	private static boolean isActualRune(String displayName)
+	{
+		String name = displayName.toLowerCase();
+		return name.endsWith(" rune") || name.contains("essence");
 	}
 
 	private static ItemCategory refineCategory(String displayName, String constantName, ItemCategory category)
@@ -129,11 +170,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 		{
 			return ItemCategory.CLEANUP;
 		}
-		if (containsAny(name, "ring of dueling", "games necklace", "amulet of glory", "skills necklace",
-			"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
-			"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery", "ectophial",
-			"xeric's talisman", "xeric talisman", "drakan's medallion", "drakans medallion",
-			"book of the dead", "magic whistle"))
+		if (containsAny(name, TELEPORT_NEEDLES))
 		{
 			return ItemCategory.TELEPORT;
 		}
