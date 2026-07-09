@@ -47,13 +47,13 @@ public class CompositeItemCatalogTest
 	}
 
 	@Test
-	public void generatedRegistryKeepsKnownButUnclassifiedIdsAsUncategorized()
+	public void generatedRegistryAssignsKnownButUnclassifiedIdsToCleanupReview()
 	{
 		CatalogItem toolkit = CompositeItemCatalog.DEFAULT.findById(1)
 			.orElseThrow(() -> new AssertionError("expected toolkit"));
 
 		assertEquals("Toolkit", toolkit.getDisplayName());
-		assertEquals(ItemCategory.UNCATEGORIZED, toolkit.getCategory());
+		assertEquals(ItemCategory.CLEANUP, toolkit.getCategory());
 	}
 
 	@Test
@@ -89,15 +89,14 @@ public class CompositeItemCatalogTest
 	}
 
 	@Test
-	public void uncategorizedItemsDoNotInflatePresetCleanupReview()
+	public void registryFallbackAssignsEveryKnownItemToPresetCategory()
 	{
 		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0)
 		)), CompositeItemCatalog.DEFAULT, com.pkoka5.ironmanbankarchitect.organize.BankPresets.IRONMAN);
 
-		assertEquals(1, summary.countFor(ItemCategory.UNCATEGORIZED));
-		assertEquals(0, summary.countForPresetCategory("storage-cleanup"));
-		assertTrue(summary.toOverviewText().contains("Needs category rules: 1"));
-		assertEquals("Toolkit (#1) slot 0", summary.getReviewEntries().get(0).toCompactText());
+		assertEquals(1, summary.countFor(ItemCategory.CLEANUP));
+		assertEquals(1, summary.countForPresetCategory("storage-cleanup"));
+		assertEquals(0, summary.getReviewEntries().size());
 	}
 }

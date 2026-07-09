@@ -95,19 +95,20 @@ public class BankCatalogSummarizerTest
 	}
 
 	@Test
-	public void summarizerKeepsReviewSamplesForUncategorizedItems()
+	public void summarizerKeepsReviewSamplesOnlyForUnrecognizedItems()
 	{
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 4),
-			new BankItemSnapshot(3, 1, 9)
+			new BankItemSnapshot(999999, 1, 9)
 		));
 
 		BankCatalogSummary summary = BankCatalogSummarizer.summarize(snapshot, CompositeItemCatalog.DEFAULT);
 
-		assertEquals(2, summary.countFor(ItemCategory.UNCATEGORIZED));
-		assertEquals(2, summary.getReviewEntries().size());
-		assertEquals("Toolkit (#1) slot 4", summary.getReviewEntries().get(0).toCompactText());
-		assertTrue(summary.toOverviewText().contains("Rule review:"));
+		assertEquals(1, summary.countFor(ItemCategory.CLEANUP));
+		assertEquals(1, summary.countFor(ItemCategory.UNKNOWN));
+		assertEquals(1, summary.getReviewEntries().size());
+		assertEquals("Unknown item #999999 (#999999) slot 9", summary.getReviewEntries().get(0).toCompactText());
+		assertTrue(summary.toOverviewText().contains("Unrecognized item review:"));
 	}
 
 	@Test
@@ -125,7 +126,10 @@ public class BankCatalogSummarizerTest
 		assertEquals(
 			"Bank Scan Overview\n"
 				+ "Recognized item IDs: 2\n"
-				+ "Unrecognized IDs: 1",
+				+ "Unrecognized IDs: 1\n"
+				+ "\n"
+				+ "Unrecognized item review:\n"
+				+ "Unknown item #999999 (#999999) slot 2",
 			overview
 		);
 	}

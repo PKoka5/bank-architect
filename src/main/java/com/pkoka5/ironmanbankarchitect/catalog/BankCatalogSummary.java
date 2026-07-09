@@ -102,11 +102,6 @@ public final class BankCatalogSummary
 		builder.append("Bank Scan Overview").append('\n')
 			.append("Recognized item IDs: ").append(knownIdCount).append('\n')
 			.append("Unrecognized IDs: ").append(unknownIdCount);
-		int needsRulesCount = countFor(ItemCategory.UNCATEGORIZED);
-		if (needsRulesCount > 0)
-		{
-			builder.append('\n').append("Needs category rules: ").append(needsRulesCount);
-		}
 
 		if (preset != null)
 		{
@@ -122,7 +117,7 @@ public final class BankCatalogSummary
 
 		if (!reviewEntries.isEmpty())
 		{
-			builder.append('\n').append('\n').append("Rule review:");
+			builder.append('\n').append('\n').append("Unrecognized item review:");
 			for (BankItemReviewEntry entry : reviewEntries)
 			{
 				builder.append('\n').append(entry.toCompactText());

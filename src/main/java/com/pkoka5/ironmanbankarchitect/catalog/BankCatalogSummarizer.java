@@ -50,18 +50,15 @@ public final class BankCatalogSummarizer
 				knownIdCount++;
 			}
 
-			if (described.getCategory() == ItemCategory.UNCATEGORIZED && reviewEntries.size() < MAX_REVIEW_ENTRIES)
+			if (described.getCategory() == ItemCategory.UNKNOWN && reviewEntries.size() < MAX_REVIEW_ENTRIES)
 			{
 				reviewEntries.add(new BankItemReviewEntry(item.getItemId(), described.getDisplayName(), item.getSlotIndex()));
 			}
 
 			if (preset != null)
 			{
-				if (described.getCategory() != ItemCategory.UNCATEGORIZED)
-				{
-					BankCategory presetCategory = PresetCategoryMapper.map(preset, described);
-					countsByPresetCategory.merge(presetCategory.getKey(), 1, Integer::sum);
-				}
+				BankCategory presetCategory = PresetCategoryMapper.map(preset, described);
+				countsByPresetCategory.merge(presetCategory.getKey(), 1, Integer::sum);
 			}
 		}
 

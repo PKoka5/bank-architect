@@ -91,7 +91,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 	{
 		if (value == null || value.trim().isEmpty() || "UNKNOWN".equals(value))
 		{
-			return ItemCategory.UNCATEGORIZED;
+			return ItemCategory.CLEANUP;
 		}
 
 		try
@@ -100,7 +100,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 		}
 		catch (IllegalArgumentException ex)
 		{
-			return ItemCategory.UNCATEGORIZED;
+			return ItemCategory.CLEANUP;
 		}
 	}
 
