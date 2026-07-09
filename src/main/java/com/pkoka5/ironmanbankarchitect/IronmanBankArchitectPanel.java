@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -11,6 +12,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import net.runelite.client.ui.PluginPanel;
@@ -90,8 +92,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(statusLabel);
 
+		JScrollPane scrollPane = new JScrollPane(controls);
+		scrollPane.setBorder(BorderFactory.createEmptyBorder());
+		scrollPane.setOpaque(false);
+		scrollPane.getViewport().setOpaque(false);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
 		add(identity, BorderLayout.NORTH);
-		add(controls, BorderLayout.CENTER);
+		add(scrollPane, BorderLayout.CENTER);
 
 		refreshControls();
 
@@ -158,8 +167,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private static JLabel label(String text)
 	{
-		JLabel label = new JLabel(text, SwingConstants.CENTER);
+		JLabel label = new JLabel(text, SwingConstants.LEFT);
 		label.setForeground(Color.WHITE);
+		label.setAlignmentX(Component.LEFT_ALIGNMENT);
 		return label;
 	}
 

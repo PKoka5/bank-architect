@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public final class BankOrganizationPreviewBuilder
 {
-	private static final int MAX_SAMPLE_ITEMS_PER_CATEGORY = 4;
+	private static final int MAX_SAMPLE_ITEMS_PER_CATEGORY = 3;
 
 	private BankOrganizationPreviewBuilder()
 	{

@@ -45,8 +45,15 @@ public final class BankOrganizationPreview
 			if (!category.getSampleItems().isEmpty())
 			{
 				builder.append('\n')
-					.append("   ")
+					.append("   e.g. ")
 					.append(String.join(", ", category.getSampleItems()));
+				int hiddenItemCount = category.getItemCount() - category.getSampleItems().size();
+				if (hiddenItemCount > 0)
+				{
+					builder.append(" +")
+						.append(hiddenItemCount)
+						.append(" more");
+				}
 			}
 
 			tabNumber++;
