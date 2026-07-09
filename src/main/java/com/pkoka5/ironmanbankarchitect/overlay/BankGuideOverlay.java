@@ -4,9 +4,6 @@ import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSlot;
 import com.pkoka5.ironmanbankarchitect.blueprint.SlotKind;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
-import com.pkoka5.ironmanbankarchitect.match.SlotMatchResult;
-import com.pkoka5.ironmanbankarchitect.match.SlotMatchState;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,8 +14,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
@@ -31,12 +26,8 @@ public final class BankGuideOverlay extends Overlay
 {
 	private static final int SLOT_COUNT = 8;
 
-	private static final Color OWNED_FILL = new Color(58, 180, 105, 70);
-	private static final Color OWNED_BORDER = new Color(58, 180, 105, 185);
-	private static final Color MISSING_FILL = new Color(230, 160, 45, 70);
-	private static final Color MISSING_BORDER = new Color(230, 160, 45, 190);
-	private static final Color ROLE_ONLY_FILL = new Color(150, 150, 150, 45);
-	private static final Color ROLE_ONLY_BORDER = new Color(150, 150, 150, 150);
+	private static final Color PREVIEW_FILL = new Color(150, 150, 150, 45);
+	private static final Color PREVIEW_BORDER = new Color(150, 150, 150, 150);
 	private static final Color RESERVED_FILL = new Color(105, 150, 175, 45);
 	private static final Color RESERVED_BORDER = new Color(105, 150, 175, 150);
 	private static final Color BADGE_COLOR = new Color(255, 255, 255, 220);
@@ -81,7 +72,6 @@ public final class BankGuideOverlay extends Overlay
 
 		VisualBlock block = guideController.getSelectedBlock();
 		List<BlueprintSlot> slots = block.getSlots();
-		Map<String, SlotMatchState> slotStates = slotStatesFor(block);
 
 		Shape originalClip = graphics.getClip();
 		Font originalFont = graphics.getFont();
@@ -95,15 +85,10 @@ public final class BankGuideOverlay extends Overlay
 		{
 			BlueprintSlot slot = slots.get(i);
 			Rectangle cell = firstRow.get(i);
-			SlotMatchState state = slotStates.get(slot.getKey());
-			if (state == null)
-			{
-				state = slot.getKind() == SlotKind.EMPTY ? SlotMatchState.RESERVED_EMPTY : SlotMatchState.ROLE_ONLY;
-			}
 
-			graphics.setColor(fillFor(state));
+			graphics.setColor(fillFor(slot.getKind()));
 			graphics.fill(cell);
-			graphics.setColor(borderFor(state));
+			graphics.setColor(borderFor(slot.getKind()));
 			graphics.draw(cell);
 
 			graphics.setColor(BADGE_COLOR);
@@ -117,53 +102,24 @@ public final class BankGuideOverlay extends Overlay
 		return null;
 	}
 
-	private Map<String, SlotMatchState> slotStatesFor(VisualBlock block)
+	static Color fillFor(SlotKind kind)
 	{
-		Map<String, SlotMatchState> states = new HashMap<>();
-		BlockMatchResult matchResult = guideController.getLatestMatchResult();
-		if (matchResult == null || !matchResult.getBlockKey().equals(block.getKey()))
+		if (kind == SlotKind.EMPTY)
 		{
-			return states;
+			return RESERVED_FILL;
 		}
 
-		for (SlotMatchResult slotResult : matchResult.getSlotResults())
-		{
-			states.put(slotResult.getSlotKey(), slotResult.getState());
-		}
-
-		return states;
+		return PREVIEW_FILL;
 	}
 
-	private static Color fillFor(SlotMatchState state)
+	static Color borderFor(SlotKind kind)
 	{
-		switch (state)
+		if (kind == SlotKind.EMPTY)
 		{
-			case OWNED:
-				return OWNED_FILL;
-			case MISSING:
-				return MISSING_FILL;
-			case RESERVED_EMPTY:
-				return RESERVED_FILL;
-			case ROLE_ONLY:
-			default:
-				return ROLE_ONLY_FILL;
+			return RESERVED_BORDER;
 		}
-	}
 
-	private static Color borderFor(SlotMatchState state)
-	{
-		switch (state)
-		{
-			case OWNED:
-				return OWNED_BORDER;
-			case MISSING:
-				return MISSING_BORDER;
-			case RESERVED_EMPTY:
-				return RESERVED_BORDER;
-			case ROLE_ONLY:
-			default:
-				return ROLE_ONLY_BORDER;
-		}
+		return PREVIEW_BORDER;
 	}
 
 	private static List<Rectangle> collectCandidateBounds(Widget container, Rectangle gridBounds)

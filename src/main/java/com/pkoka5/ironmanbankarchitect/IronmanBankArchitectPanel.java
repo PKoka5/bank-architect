@@ -1,17 +1,14 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -21,27 +18,23 @@ import net.runelite.client.ui.PluginPanel;
 final class IronmanBankArchitectPanel extends PluginPanel
 {
 	private static final String TITLE = "Ironman Bank Architect";
-	private static final String SUMMARY = "Standalone bank blueprint planner";
+	private static final String SUMMARY = "Read-only whole-bank organization planner";
 	private static final String SAFETY_NOTE = "No bank actions are automated.";
 	private static final String MAIN_ACTION_LABEL = "Main action";
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
 	private static final String SUGGESTED_BLUEPRINT_LABEL = "Suggested Bank Blueprint";
 	private static final String SUGGESTED_BLUEPRINT_TEXT =
-		"Early preview: known owned bank IDs can be categorized. Full tab/row generation is coming next.";
-	private static final String PREVIEW_BLOCK_LABEL = "Advanced preview block";
+		"Owned bank items are categorized first. Full tab/row blueprint generation is coming next.";
 	private static final String PREVIEW_BLOCK_HELP =
-		"Preview block is temporary and shows one blueprint row while whole-bank planning is being built.";
-	private static final String PREVIEW_MISSING_NOTE =
-		"Preview rows may show missing items, but whole-bank organization focuses on items found in your bank.";
+		"Bank guide preview is temporary while whole-bank planning is being built.";
+	private static final String PREVIEW_OVERLAY_NOTE =
+		"Overlay preview is neutral: it shows suggested row positions only, not correct or missing slots.";
 	private static final int STATUS_REFRESH_MILLIS = 500;
 
 	private final BankGuideController guideController;
-	private final JComboBox<String> blockDropdown;
 	private final JButton toggleButton;
 	private final JButton analyzeButton;
 	private final JLabel statusLabel;
-	private final JLabel analysisLabel;
-	private final JLabel analysisDetailLabel;
 	private final JLabel catalogSummaryLabel;
 	private final Timer statusTimer;
 
@@ -67,22 +60,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		controls.add(Box.createVerticalStrut(12));
 		controls.add(label(profileLine()));
 
-		List<VisualBlock> availableBlocks = guideController.getAvailableBlocks();
-		String[] blockNames = new String[availableBlocks.size()];
-		int selectedIndex = 0;
-		for (int i = 0; i < availableBlocks.size(); i++)
-		{
-			blockNames[i] = availableBlocks.get(i).getName();
-			if (availableBlocks.get(i).getKey().equals(guideController.getSelectedBlock().getKey()))
-			{
-				selectedIndex = i;
-			}
-		}
-
-		blockDropdown = new JComboBox<>(blockNames);
-		blockDropdown.setSelectedIndex(selectedIndex);
-		blockDropdown.addActionListener(event -> onBlockSelected());
-
 		toggleButton = new JButton();
 		toggleButton.addActionListener(event -> onToggleGuide());
 
@@ -93,8 +70,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		});
 
 		statusLabel = label("");
-		analysisLabel = label("");
-		analysisDetailLabel = label("");
 		catalogSummaryLabel = label("");
 
 		controls.add(Box.createVerticalStrut(4));
@@ -107,18 +82,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		controls.add(label(SUGGESTED_BLUEPRINT_LABEL));
 		controls.add(label(SUGGESTED_BLUEPRINT_TEXT));
 		controls.add(Box.createVerticalStrut(12));
-		controls.add(label(PREVIEW_BLOCK_LABEL));
 		controls.add(label(PREVIEW_BLOCK_HELP));
 		controls.add(Box.createVerticalStrut(4));
-		controls.add(blockDropdown);
+		controls.add(label(PREVIEW_OVERLAY_NOTE));
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(toggleButton);
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(label(PREVIEW_MISSING_NOTE));
-		controls.add(Box.createVerticalStrut(4));
-		controls.add(analysisLabel);
-		controls.add(Box.createVerticalStrut(4));
-		controls.add(analysisDetailLabel);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(statusLabel);
 
@@ -146,28 +114,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return catalogSummaryLabel;
 	}
 
-	JLabel getAnalysisLabel()
-	{
-		return analysisLabel;
-	}
-
-	JLabel getAnalysisDetailLabel()
-	{
-		return analysisDetailLabel;
-	}
-
-	private void onBlockSelected()
-	{
-		List<VisualBlock> availableBlocks = guideController.getAvailableBlocks();
-		int index = blockDropdown.getSelectedIndex();
-		if (index >= 0 && index < availableBlocks.size())
-		{
-			guideController.selectBlock(availableBlocks.get(index).getKey());
-		}
-
-		refreshStatus();
-	}
-
 	private void onToggleGuide()
 	{
 		guideController.toggleGuide();
@@ -188,8 +134,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshAnalysis()
 	{
-		analysisLabel.setText(guideController.getAnalysisText());
-		analysisDetailLabel.setText(toHtmlLines(guideController.getAnalysisDetailText()));
 		catalogSummaryLabel.setText(toHtmlLines(guideController.getCatalogSummaryText()));
 	}
 

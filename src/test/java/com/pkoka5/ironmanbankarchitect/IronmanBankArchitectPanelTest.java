@@ -10,7 +10,6 @@ import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
@@ -58,11 +57,10 @@ public class IronmanBankArchitectPanelTest
 
 		String labelText = panel.getCatalogSummaryLabel().getText();
 		assertTrue(labelText.contains("Bank Scan Overview"));
-		assertTrue(labelText.contains("Known catalog IDs: 2"));
-		assertTrue(labelText.contains("Unknown IDs: 1"));
+		assertTrue(labelText.contains("Recognized item IDs: 2"));
+		assertTrue(labelText.contains("Unrecognized IDs: 1"));
 		assertTrue(labelText.contains("Farming: 1"));
 		assertTrue(labelText.contains("Herblore: 1"));
-		assertTrue(labelText.contains("Unknown: 1"));
 
 		panel.shutdown();
 	}
@@ -78,20 +76,23 @@ public class IronmanBankArchitectPanelTest
 
 		assertTrue(panelText.contains("Profile"));
 		assertTrue(panelText.contains(AllRoundIronmanPreset.PROFILE_NAME));
+		assertTrue(panelText.contains("Read-only whole-bank organization planner"));
 		assertTrue(panelText.contains("Main action"));
 		assertTrue(panelText.contains("Analyze My Bank"));
 		assertTrue(panelText.contains("Whole Bank Scan"));
 		assertTrue(panelText.contains("Suggested Bank Blueprint"));
-		assertTrue(panelText.contains("Early preview: known owned bank IDs can be categorized."));
-		assertTrue(panelText.contains("Advanced preview block"));
-		assertTrue(panelText.contains("Preview block is temporary"));
-		assertTrue(panelText.contains("whole-bank organization focuses on items found in your bank"));
+		assertTrue(panelText.contains("Owned bank items are categorized first."));
+		assertTrue(panelText.contains("Bank guide preview is temporary"));
+		assertTrue(panelText.contains("Overlay preview is neutral"));
+		assertFalse(panelText.contains("Advanced preview block"));
+		assertFalse(panelText.contains("Owned:"));
+		assertFalse(panelText.contains("Missing:"));
 
 		panel.shutdown();
 	}
 
 	@Test
-	public void selectedBlockDetailsRenderAfterAnalysisAsSecondaryPreview()
+	public void selectedBlockDetailsDoNotRenderInMainOrganizerSidebar()
 	{
 		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
 		controller.selectBlock("irit-super-attack");
@@ -101,16 +102,15 @@ public class IronmanBankArchitectPanelTest
 			new BankItemSnapshot(999999, 1, 2)
 		));
 		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
-		controller.publishMatchResult(BankSlotMatcher.match(controller.getSelectedBlock(), snapshot));
 
 		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
 		panel.getAnalyzeButton().doClick();
 
 		String panelText = String.join("\n", collectLabelText(panel));
 		assertTrue(panel.getCatalogSummaryLabel().getText().contains("Bank Scan Overview"));
-		assertTrue(panel.getAnalysisLabel().getText().contains("Owned: 2"));
-		assertTrue(panel.getAnalysisDetailLabel().getText().contains("Irit seed"));
-		assertTrue(panelText.indexOf("Bank Scan Overview") < panelText.indexOf("Owned: 2"));
+		assertFalse(panelText.contains("Irit seed"));
+		assertFalse(panelText.contains("Owned:"));
+		assertFalse(panelText.contains("Missing:"));
 
 		panel.shutdown();
 	}
