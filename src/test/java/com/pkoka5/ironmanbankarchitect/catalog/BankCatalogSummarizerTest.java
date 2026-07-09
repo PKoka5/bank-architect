@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
@@ -91,6 +92,22 @@ public class BankCatalogSummarizerTest
 
 		assertEquals(0, summary.getKnownIdCount());
 		assertEquals(1, summary.getUnknownIdCount());
+	}
+
+	@Test
+	public void summarizerKeepsReviewSamplesForUncategorizedItems()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1, 1, 4),
+			new BankItemSnapshot(3, 1, 9)
+		));
+
+		BankCatalogSummary summary = BankCatalogSummarizer.summarize(snapshot, CompositeItemCatalog.DEFAULT);
+
+		assertEquals(2, summary.countFor(ItemCategory.UNCATEGORIZED));
+		assertEquals(2, summary.getReviewEntries().size());
+		assertEquals("Toolkit (#1) slot 4", summary.getReviewEntries().get(0).toCompactText());
+		assertTrue(summary.toOverviewText().contains("Rule review:"));
 	}
 
 	@Test

@@ -5,13 +5,17 @@ import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.PresetCategoryMapper;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public final class BankCatalogSummarizer
 {
+	private static final int MAX_REVIEW_ENTRIES = 10;
+
 	private BankCatalogSummarizer()
 	{
 	}
@@ -30,6 +34,7 @@ public final class BankCatalogSummarizer
 		int unknownIdCount = 0;
 		Map<ItemCategory, Integer> countsByCategory = new EnumMap<>(ItemCategory.class);
 		Map<String, Integer> countsByPresetCategory = new LinkedHashMap<>();
+		List<BankItemReviewEntry> reviewEntries = new ArrayList<>();
 
 		for (BankItemSnapshot item : snapshot.getItems())
 		{
@@ -45,6 +50,11 @@ public final class BankCatalogSummarizer
 				knownIdCount++;
 			}
 
+			if (described.getCategory() == ItemCategory.UNCATEGORIZED && reviewEntries.size() < MAX_REVIEW_ENTRIES)
+			{
+				reviewEntries.add(new BankItemReviewEntry(item.getItemId(), described.getDisplayName(), item.getSlotIndex()));
+			}
+
 			if (preset != null)
 			{
 				if (described.getCategory() != ItemCategory.UNCATEGORIZED)
@@ -55,6 +65,7 @@ public final class BankCatalogSummarizer
 			}
 		}
 
-		return new BankCatalogSummary(knownIdCount, unknownIdCount, countsByCategory, preset, countsByPresetCategory);
+		return new BankCatalogSummary(knownIdCount, unknownIdCount, countsByCategory, preset,
+			countsByPresetCategory, reviewEntries);
 	}
 }

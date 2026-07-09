@@ -79,5 +79,6 @@ public class CompositeItemCatalogTest
 		assertEquals(1, summary.countFor(ItemCategory.UNCATEGORIZED));
 		assertEquals(0, summary.countForPresetCategory("storage-cleanup"));
 		assertTrue(summary.toOverviewText().contains("Needs category rules: 1"));
+		assertEquals("Toolkit (#1) slot 0", summary.getReviewEntries().get(0).toCompactText());
 	}
 }
