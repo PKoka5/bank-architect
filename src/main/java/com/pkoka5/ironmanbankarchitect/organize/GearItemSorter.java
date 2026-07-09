@@ -1,6 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-public final class GearItemSorter
+final class GearItemSorter
 {
 	private GearItemSorter()
 	{
@@ -9,100 +9,7 @@ public final class GearItemSorter
 	static int rank(BankPreviewItem item)
 	{
 		String name = normalizedName(item.getDisplayName());
-		return slotRank(item) * 10000 + styleRank(item) * 1000 + tierRank(item);
-	}
-
-	public static int slotRank(BankPreviewItem item)
-	{
-		return slotRank(normalizedName(item.getDisplayName()));
-	}
-
-	public static int styleRank(BankPreviewItem item)
-	{
-		return styleRank(normalizedName(item.getDisplayName()));
-	}
-
-	public static int tierRank(BankPreviewItem item)
-	{
-		return tierRank(normalizedName(item.getDisplayName()));
-	}
-
-	public static String slotLabel(int slotRank)
-	{
-		if (slotRank == 0)
-		{
-			return "Head";
-		}
-		if (slotRank == 1)
-		{
-			return "Body";
-		}
-		if (slotRank == 2)
-		{
-			return "Legs";
-		}
-		if (slotRank == 3)
-		{
-			return "Cape";
-		}
-		if (slotRank == 4)
-		{
-			return "Neck";
-		}
-		if (slotRank == 5)
-		{
-			return "Offhand";
-		}
-		if (slotRank == 6)
-		{
-			return "Hands";
-		}
-		if (slotRank == 7)
-		{
-			return "Feet";
-		}
-		if (slotRank == 8)
-		{
-			return "Weapon";
-		}
-		if (slotRank == 9)
-		{
-			return "Ranged weapon";
-		}
-		if (slotRank == 10)
-		{
-			return "Magic weapon";
-		}
-		if (slotRank == 11)
-		{
-			return "Ammo";
-		}
-
-		return "Other";
-	}
-
-	public static String styleLabel(int styleRank)
-	{
-		if (styleRank == 0)
-		{
-			return "Melee";
-		}
-		if (styleRank == 1)
-		{
-			return "Ranged";
-		}
-		if (styleRank == 2)
-		{
-			return "Magic";
-		}
-
-		return "Other";
-	}
-
-	public static boolean isSetupSlot(BankPreviewItem item)
-	{
-		int slotRank = slotRank(item);
-		return slotRank >= 0 && slotRank <= 11;
+		return slotRank(name) * 100 + styleRank(name);
 	}
 
 	private static int slotRank(String name)
@@ -176,37 +83,6 @@ public final class GearItemSorter
 		}
 
 		return 3;
-	}
-
-	private static int tierRank(String name)
-	{
-		if (containsAny(name, "torva", "masori", "ancestral", "shadow", "tbow", "twisted bow",
-			"scythe", "sanguinesti", "tumeken", "zaryte", "voidwaker"))
-		{
-			return 0;
-		}
-		if (containsAny(name, "bandos", "armadyl", "ahrim", "karil", "verac", "dharok", "guthan",
-			"torag", "serpentine", "faceguard", "ferocious", "primordial", "pegasian", "eternal",
-			"occult", "zenyte", "anguish", "tormented", "avernic", "toxic blowpipe", "trident"))
-		{
-			return 10;
-		}
-		if (containsAny(name, "barrows", "crystal", "blessed", "dragon", "obsidian", "fighter torso",
-			"abyssal", "whip", "blowpipe", "mystic", "infinity", "malediction", "odium"))
-		{
-			return 20;
-		}
-		if (containsAny(name, "rune", "black d'hide", "red d'hide", "blue d'hide", "green d'hide",
-			"splitbark", "iban", "warped", "magic shortbow"))
-		{
-			return 40;
-		}
-		if (containsAny(name, "adamant", "mithril", "steel", "iron", "bronze"))
-		{
-			return 70;
-		}
-
-		return 50;
 	}
 
 	private static boolean isMelee(String name)
