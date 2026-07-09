@@ -11,6 +11,7 @@ public enum ItemCategory
 	SKILLING,
 	CURRENCY,
 	CLEANUP,
+	UNCATEGORIZED,
 	UNKNOWN;
 
 	public String getDisplayLabel()

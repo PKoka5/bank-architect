@@ -4,9 +4,9 @@ import com.google.inject.Provides;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
-import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.match.BankSlotMatcher;
+import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
@@ -109,8 +109,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			}
 
 			BankSnapshot bankSnapshot = snapshot.get();
-			guideController.publishMatchResult(BankSlotMatcher.match(guideController.getSelectedBlock(), bankSnapshot));
-			guideController.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot, StaticItemCatalog.INSTANCE));
+			guideController.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
+				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
 		});
 	}
 
