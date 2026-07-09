@@ -108,11 +108,7 @@ public class BankCatalogSummarizerTest
 		assertEquals(
 			"Bank Scan Overview\n"
 				+ "Recognized item IDs: 2\n"
-				+ "Unrecognized IDs: 1\n"
-				+ "\n"
-				+ "Categories:\n"
-				+ "Herblore: 1\n"
-				+ "Farming: 1",
+				+ "Unrecognized IDs: 1",
 			overview
 		);
 	}

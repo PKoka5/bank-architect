@@ -59,8 +59,7 @@ public class IronmanBankArchitectPanelTest
 		assertTrue(labelText.contains("Bank Scan Overview"));
 		assertTrue(labelText.contains("Recognized item IDs: 2"));
 		assertTrue(labelText.contains("Unrecognized IDs: 1"));
-		assertTrue(labelText.contains("Farming: 1"));
-		assertTrue(labelText.contains("Herblore: 1"));
+		assertFalse(labelText.contains("Categories:"));
 
 		panel.shutdown();
 	}

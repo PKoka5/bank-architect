@@ -73,6 +73,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 				int itemId = Integer.parseInt(itemIdText);
 				String displayName = fields[1];
 				ItemCategory category = parseRegistryCategory(fields.length >= 3 ? fields[2] : "");
+				String constantName = fields.length >= 4 ? fields[3] : "";
+				category = refineCategory(displayName, constantName, category);
 				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, category,
 					category.getDisplayLabel().toLowerCase(), Collections.emptySet(), null));
 			}
@@ -100,5 +102,80 @@ public final class ResourceItemRegistry implements ItemCatalog
 		{
 			return ItemCategory.UNCATEGORIZED;
 		}
+	}
+
+	private static ItemCategory refineCategory(String displayName, String constantName, ItemCategory category)
+	{
+		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
+		if (containsAny(name, "clue scroll", "reward casket", "ornament kit", "graceful", "pyromancer",
+			"prospector", "angler", "rogue", "lumberjack", "farmer's", "carpenter", "cosmetic",
+			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament"))
+		{
+			return ItemCategory.CLEANUP;
+		}
+		if (containsAny(name, "ring of dueling", "games necklace", "amulet of glory", "skills necklace",
+			"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
+			"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery"))
+		{
+			return ItemCategory.TELEPORT;
+		}
+		if (containsAny(name, "shark", "monkfish", "karambwan", "manta ray", "anglerfish", "lobster",
+			"swordfish", "tuna", "salmon", "trout", "saradomin brew", "restore", "stamina potion",
+			"prayer potion", "super combat", "ranging potion", "magic potion", "cooked", "pizza",
+			"potato", "cake", "pie", "wine", "summer pie", "karambwanji"))
+		{
+			return ItemCategory.POTION;
+		}
+		if (containsAny(name, "pickaxe", " axe", "harpoon", "lobster pot", "small fishing net",
+			"big fishing net", "chisel", "hammer", "saw", "rake", "seed dibber", "secateurs",
+			"watering can", "tinderbox", "knife", "pestle and mortar", "glassblowing pipe",
+			"spade", "needle", "thread", "mould", "hammerstone", "fishing rod", "fly fishing rod"))
+		{
+			return ItemCategory.SKILLING;
+		}
+		if (containsAny(name, "arrow", "bolt", "dart", "knife", "javelin", "cannonball", "chinchompa",
+			"bolt rack", "toktz", "tzhaar", "helmet", "helm", "coif", "body", "chaps", "vambraces",
+			"boots", "gloves", "shield", "defender", "sword", "scimitar", "mace", "dagger", "spear",
+			"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe"))
+		{
+			return ItemCategory.GEAR;
+		}
+		if (containsAny(name, "logs", "log", "ore", "bar", "plank", "hide", "leather", "gem",
+			"uncut", "essence", "fish", "raw ", "scale", "dust", "ash", "bone", "bones",
+			"limestone", "clay", "sand", "molten glass", "flax", "bow string", "bowstring",
+			"feather", "nail", "nails", "coconut", "seaweed", "bucket of", "vial", "orb",
+			"battlestaff", "dragonhide"))
+		{
+			return ItemCategory.SKILLING;
+		}
+		if (containsAny(name, "seed", "sapling", "compost", "ultracompost", "plant cure", "watering can"))
+		{
+			return ItemCategory.FARMING;
+		}
+		if (containsAny(name, "grimy", "clean", "herb", "secondary", "unf", "potion unfinished",
+			"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus"))
+		{
+			return ItemCategory.HERBLORE;
+		}
+		if (containsAny(name, "coins", "tokkul", "numulite", "mark of grace", "nugget", "stardust",
+			"trading sticks", "ecto-token", "castle wars ticket", "pieces of eight", "pearl"))
+		{
+			return ItemCategory.CURRENCY;
+		}
+
+		return category;
+	}
+
+	private static boolean containsAny(String value, String... needles)
+	{
+		for (String needle : needles)
+		{
+			if (value.contains(needle))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

@@ -43,7 +43,7 @@ public class CompositeItemCatalogTest
 		assertEquals(1, summary.getUnknownIdCount());
 		assertEquals(1, summary.countFor(ItemCategory.FARMING));
 		assertEquals(1, summary.countFor(ItemCategory.CURRENCY));
-		assertTrue(summary.toOverviewText().contains("Currency: 1"));
+		assertTrue(summary.toOverviewText().contains("Recognized item IDs: 2"));
 	}
 
 	@Test
@@ -54,5 +54,30 @@ public class CompositeItemCatalogTest
 
 		assertEquals("Toolkit", toolkit.getDisplayName());
 		assertEquals(ItemCategory.UNCATEGORIZED, toolkit.getCategory());
+	}
+
+	@Test
+	public void generatedRegistryRefinesCommonFoodAmmoToolsAndResources()
+	{
+		assertEquals(ItemCategory.POTION, CompositeItemCatalog.DEFAULT.findById(385)
+			.orElseThrow(() -> new AssertionError("expected shark")).getCategory());
+		assertEquals(ItemCategory.GEAR, CompositeItemCatalog.DEFAULT.findById(2)
+			.orElseThrow(() -> new AssertionError("expected cannonball")).getCategory());
+		assertEquals(ItemCategory.SKILLING, CompositeItemCatalog.DEFAULT.findById(1275)
+			.orElseThrow(() -> new AssertionError("expected rune pickaxe")).getCategory());
+		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(2552)
+			.orElseThrow(() -> new AssertionError("expected ring of dueling")).getCategory());
+	}
+
+	@Test
+	public void uncategorizedItemsDoNotInflatePresetCleanupReview()
+	{
+		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1, 1, 0)
+		)), CompositeItemCatalog.DEFAULT, com.pkoka5.ironmanbankarchitect.organize.BankPresets.IRONMAN);
+
+		assertEquals(1, summary.countFor(ItemCategory.UNCATEGORIZED));
+		assertEquals(0, summary.countForPresetCategory("storage-cleanup"));
+		assertTrue(summary.toOverviewText().contains("Needs category rules: 1"));
 	}
 }

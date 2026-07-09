@@ -47,8 +47,11 @@ public final class BankCatalogSummarizer
 
 			if (preset != null)
 			{
-				BankCategory presetCategory = PresetCategoryMapper.map(preset, described);
-				countsByPresetCategory.merge(presetCategory.getKey(), 1, Integer::sum);
+				if (described.getCategory() != ItemCategory.UNCATEGORIZED)
+				{
+					BankCategory presetCategory = PresetCategoryMapper.map(preset, described);
+					countsByPresetCategory.merge(presetCategory.getKey(), 1, Integer::sum);
+				}
 			}
 		}
 

@@ -86,29 +86,10 @@ public final class BankCatalogSummary
 		builder.append("Bank Scan Overview").append('\n')
 			.append("Recognized item IDs: ").append(knownIdCount).append('\n')
 			.append("Unrecognized IDs: ").append(unknownIdCount);
-
-		StringBuilder categoryLines = new StringBuilder();
-		for (Map.Entry<ItemCategory, Integer> entry : countsByCategory.entrySet())
+		int needsRulesCount = countFor(ItemCategory.UNCATEGORIZED);
+		if (needsRulesCount > 0)
 		{
-			if (entry.getValue() == null || entry.getValue() <= 0)
-			{
-				continue;
-			}
-
-			if (entry.getKey() == ItemCategory.UNKNOWN)
-			{
-				continue;
-			}
-
-			categoryLines.append('\n')
-				.append(entry.getKey().getDisplayLabel())
-				.append(": ")
-				.append(entry.getValue());
-		}
-
-		if (categoryLines.length() > 0)
-		{
-			builder.append('\n').append('\n').append("Categories:").append(categoryLines);
+			builder.append('\n').append("Needs category rules: ").append(needsRulesCount);
 		}
 
 		if (preset != null)
