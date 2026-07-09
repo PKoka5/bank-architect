@@ -28,3 +28,15 @@ Production rules:
 - Treat `exclude-main-catalog` rows as research-only unless explicitly reviewed.
 - Treat `LOW` confidence rows as suggestions, not truth.
 - Prefer organizing items the player actually owns over building missing-item checklists.
+
+## Category Classifier Report
+
+`category-classifier-report.md` and `category-classifier-detail.tsv` are generated from the
+production item registry by:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\generate-category-report.ps1
+```
+
+Use this report to improve broad classifier rules across the full item registry instead of tuning
+rules only from one player's current bank.
