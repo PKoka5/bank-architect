@@ -38,7 +38,7 @@ public final class BankOrganizationPreviewBuilder
 				throw new IllegalStateException("Preset mapper returned unknown category: " + category.getKey());
 			}
 
-			preview.add(catalogItem.getItemId(), catalogItem.getDisplayName(), bankItem.getQuantity());
+			preview.add(catalogItem, bankItem.getQuantity());
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -60,14 +60,14 @@ public final class BankOrganizationPreviewBuilder
 			this.category = category;
 		}
 
-		private void add(int itemId, String displayName, int quantity)
+		private void add(CatalogItem catalogItem, int quantity)
 		{
-			items.add(new BankPreviewItem(itemId, displayName, quantity));
+			items.add(new BankPreviewItem(catalogItem, quantity));
 		}
 
 		private BankCategoryPreview toImmutable()
 		{
-			return new BankCategoryPreview(category, items);
+			return new BankCategoryPreview(category, PresetItemSorter.sort(category, items));
 		}
 	}
 }

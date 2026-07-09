@@ -1,12 +1,34 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+
 public final class BankPreviewItem
 {
 	private final int itemId;
 	private final String displayName;
 	private final int quantity;
+	private final ItemCategory itemCategory;
+	private final String subcategory;
+	private final Set<String> tags;
 
 	public BankPreviewItem(int itemId, String displayName, int quantity)
+	{
+		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet());
+	}
+
+	public BankPreviewItem(CatalogItem catalogItem, int quantity)
+	{
+		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
+			catalogItem.getSubcategory(), catalogItem.getTags());
+	}
+
+	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
+		String subcategory, Set<String> tags)
 	{
 		if (quantity <= 0)
 		{
@@ -16,6 +38,11 @@ public final class BankPreviewItem
 		this.itemId = itemId;
 		this.displayName = requireText(displayName, "displayName");
 		this.quantity = quantity;
+		this.itemCategory = Objects.requireNonNull(itemCategory, "itemCategory");
+		this.subcategory = requireText(subcategory, "subcategory");
+		this.tags = tags == null || tags.isEmpty()
+			? Collections.emptySet()
+			: Collections.unmodifiableSet(new LinkedHashSet<>(tags));
 	}
 
 	public int getItemId()
@@ -31,6 +58,21 @@ public final class BankPreviewItem
 	public int getQuantity()
 	{
 		return quantity;
+	}
+
+	public ItemCategory getItemCategory()
+	{
+		return itemCategory;
+	}
+
+	public String getSubcategory()
+	{
+		return subcategory;
+	}
+
+	public boolean hasTag(String tag)
+	{
+		return tags.contains(tag);
 	}
 
 	public String toCompactLabel()
