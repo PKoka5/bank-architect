@@ -23,7 +23,16 @@ public final class BankCategoryPreview
 
 	public int getItemCount()
 	{
-		return items.size();
+		int count = 0;
+		for (BankPreviewItem item : items)
+		{
+			if (!item.isBlank())
+			{
+				count++;
+			}
+		}
+
+		return count;
 	}
 
 	public List<BankPreviewItem> getItems()
@@ -34,10 +43,16 @@ public final class BankCategoryPreview
 	public List<String> getSampleItems()
 	{
 		List<String> samples = new ArrayList<>();
-		int sampleCount = Math.min(3, items.size());
-		for (int i = 0; i < sampleCount; i++)
+		for (BankPreviewItem item : items)
 		{
-			samples.add(items.get(i).toCompactLabel());
+			if (samples.size() >= 3)
+			{
+				break;
+			}
+			if (!item.isBlank())
+			{
+				samples.add(item.toCompactLabel());
+			}
 		}
 
 		return Collections.unmodifiableList(samples);

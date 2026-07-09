@@ -1,9 +1,151 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 final class GearItemSorter
 {
+	private static final int STYLE_MELEE = 0;
+	private static final int STYLE_RANGED = 1;
+	private static final int STYLE_MAGIC = 2;
+	private static final int STYLE_OTHER = 3;
+	private static final int[] SETUP_STYLES = {STYLE_MELEE, STYLE_RANGED, STYLE_MAGIC};
+	private static final int[] SETUP_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+
+	// Must match the popup grid width so each lane row renders as one visual row.
+	static final int LANE_GRID_COLUMNS = 8;
+	// One row per equipment slot; index = style column (melee, ranged, magic), -1 = no cell for that style.
+	private static final int[][] LANE_ROWS = {
+		{0, 0, 0},
+		{1, 1, 1},
+		{2, 2, 2},
+		{3, 3, 3},
+		{4, 4, 4},
+		{5, 5, 5},
+		{6, 6, 6},
+		{7, 7, 7},
+		{8, 9, 10},
+		{-1, 11, -1}
+	};
+
 	private GearItemSorter()
 	{
+	}
+
+	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
+	{
+		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items);
+		if (bestSetupItems.isEmpty())
+		{
+			return sort(items);
+		}
+
+		List<BankPreviewItem> laidOut = new ArrayList<>();
+		Set<Integer> usedItemIds = new LinkedHashSet<>();
+		for (int[] laneRow : LANE_ROWS)
+		{
+			List<BankPreviewItem> rowCells = new ArrayList<>();
+			boolean rowHasItem = false;
+			for (int style : SETUP_STYLES)
+			{
+				int slot = laneRow[style];
+				BankPreviewItem item = slot < 0 ? null : bestSetupItems.get(style + ":" + slot);
+				if (item != null && usedItemIds.add(item.getItemId()))
+				{
+					rowCells.add(item);
+					rowHasItem = true;
+				}
+				else
+				{
+					rowCells.add(BankPreviewItem.blank());
+				}
+			}
+
+			if (!rowHasItem)
+			{
+				continue;
+			}
+
+			while (rowCells.size() < LANE_GRID_COLUMNS)
+			{
+				rowCells.add(BankPreviewItem.blank());
+			}
+
+			laidOut.addAll(rowCells);
+		}
+
+		laidOut.addAll(remainingSorted(items, usedItemIds));
+		return laidOut;
+	}
+
+	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
+	{
+		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items);
+
+		List<BankPreviewItem> sorted = new ArrayList<>();
+		Set<Integer> usedItemIds = new LinkedHashSet<>();
+		for (int slot : SETUP_SLOTS)
+		{
+			for (int style : SETUP_STYLES)
+			{
+				BankPreviewItem item = bestSetupItems.get(style + ":" + slot);
+				if (item != null && usedItemIds.add(item.getItemId()))
+				{
+					sorted.add(item);
+				}
+			}
+		}
+
+		sorted.addAll(remainingSorted(items, usedItemIds));
+		return sorted;
+	}
+
+	private static Map<String, BankPreviewItem> bestSetupItems(List<BankPreviewItem> items)
+	{
+		Map<String, BankPreviewItem> bestSetupItems = new LinkedHashMap<>();
+		for (BankPreviewItem item : items)
+		{
+			String name = normalizedName(item.getDisplayName());
+			int style = styleRank(name);
+			int slot = slotRank(name);
+			if (style == STYLE_OTHER || slot >= 12)
+			{
+				continue;
+			}
+
+			String key = style + ":" + slot;
+			BankPreviewItem current = bestSetupItems.get(key);
+			if (current == null || gearScore(item) > gearScore(current))
+			{
+				bestSetupItems.put(key, item);
+			}
+		}
+
+		return bestSetupItems;
+	}
+
+	private static List<BankPreviewItem> remainingSorted(List<BankPreviewItem> items, Set<Integer> usedItemIds)
+	{
+		List<BankPreviewItem> remaining = new ArrayList<>();
+		for (BankPreviewItem item : items)
+		{
+			if (!usedItemIds.contains(item.getItemId()))
+			{
+				remaining.add(item);
+			}
+		}
+
+		remaining.sort(Comparator
+			.comparingInt(GearItemSorter::rank)
+			.thenComparing((BankPreviewItem item) -> -gearScore(item))
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+		return remaining;
 	}
 
 	static int rank(BankPreviewItem item)
@@ -69,27 +211,29 @@ final class GearItemSorter
 
 	private static int styleRank(String name)
 	{
-		if (isMelee(name))
-		{
-			return 0;
-		}
 		if (isRanged(name))
 		{
-			return 1;
+			return STYLE_RANGED;
 		}
 		if (isMagic(name))
 		{
-			return 2;
+			return STYLE_MAGIC;
+		}
+		if (isMelee(name))
+		{
+			return STYLE_MELEE;
 		}
 
-		return 3;
+		return STYLE_OTHER;
 	}
 
 	private static boolean isMelee(String name)
 	{
 		return containsAny(name, "rune", "dragon", "barrows", "bandos", "torva", "obsidian", "fighter",
 			"berserker", "defender", "scimitar", "whip", "mace", "spear", "halberd", "warhammer",
-			"battleaxe", "maul", "hasta", "rapier", "platebody", "platelegs", "plateskirt", "helm");
+			"battleaxe", "maul", "hasta", "rapier", "platebody", "platelegs", "plateskirt", "helm",
+			"neitiznot", "serpentine", "faceguard", "granite", "justiciar", "verac", "dharok", "guthan",
+			"torag", "karamja gloves", "barrows gloves");
 	}
 
 	private static boolean isRanged(String name)
@@ -104,6 +248,31 @@ final class GearItemSorter
 		return containsAny(name, "staff", "wand", "trident", "sceptre", "scepter", "mystic", "ahrim",
 			"ancestral", "infinity", "wizard", "splitbark", "lunar", "xerician", "ghostly", "robe",
 			"occult", "tome");
+	}
+
+	private static int gearScore(BankPreviewItem item)
+	{
+		String name = normalizedName(item.getDisplayName());
+		int score = 0;
+		score = Math.max(score, scoreIfContains(name, 1000, "torva", "ancestral", "masori", "tumeken", "twisted bow",
+			"scythe", "shadow"));
+		score = Math.max(score, scoreIfContains(name, 900, "bandos", "armadyl", "ahrim", "karil", "zaryte",
+			"crystal", "bowfa", "bow of faerdhinen", "toxic blowpipe", "trident", "occult", "primordial",
+			"pegasian", "eternal"));
+		score = Math.max(score, scoreIfContains(name, 800, "barrows", "fighter torso", "serpentine",
+			"faceguard", "dragonfire", "abyssal", "whip", "tentacle", "dragon defender", "rune defender",
+			"blessed d'hide", "god d'hide", "malediction", "odium", "toxic"));
+		score = Math.max(score, scoreIfContains(name, 700, "dragon", "black d'hide", "mystic", "infinity",
+			"rune crossbow", "magic shortbow", "book of darkness", "tome"));
+		score = Math.max(score, scoreIfContains(name, 600, "rune", "red d'hide", "blue d'hide", "green d'hide",
+			"splitbark", "xerician"));
+		score = Math.max(score, scoreIfContains(name, 500, "adamant", "mithril", "leather", "wizard"));
+		return score;
+	}
+
+	private static int scoreIfContains(String name, int score, String... needles)
+	{
+		return containsAny(name, needles) ? score : 0;
 	}
 
 	private static boolean containsAny(String value, String... needles)

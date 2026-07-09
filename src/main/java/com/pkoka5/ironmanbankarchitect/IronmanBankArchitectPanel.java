@@ -57,6 +57,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final Color BANK_BG = new Color(38, 38, 38);
 	private static final Color BANK_PANEL = new Color(31, 31, 31);
 	private static final Color SLOT_BORDER = new Color(78, 78, 78);
+	private static final Color BLANK_SLOT_BORDER = new Color(52, 52, 52);
 
 	private final BankGuideController guideController;
 	private final BiConsumer<BankPreviewItem, JLabel> itemIconRenderer;
@@ -345,16 +346,24 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private JLabel itemCell(BankPreviewItem item)
 	{
 		JLabel label = new JLabel("", SwingConstants.CENTER);
-		label.setText(Integer.toString(item.getItemId()));
-		label.setToolTipText(item.toCompactLabel());
 		label.setForeground(Color.WHITE);
 		label.setOpaque(true);
 		label.setBackground(BANK_PANEL);
-		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
 		Dimension cellSize = new Dimension(CELL_WIDTH, CELL_HEIGHT);
 		label.setPreferredSize(cellSize);
 		label.setMinimumSize(cellSize);
 		label.setMaximumSize(cellSize);
+
+		if (item.isBlank())
+		{
+			label.setToolTipText("Planned empty slot");
+			label.setBorder(BorderFactory.createLineBorder(BLANK_SLOT_BORDER));
+			return label;
+		}
+
+		label.setText(Integer.toString(item.getItemId()));
+		label.setToolTipText(item.toCompactLabel());
+		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
 		itemIconRenderer.accept(item, label);
 		return label;
 	}
@@ -366,7 +375,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			return "Analyze your bank, then open the blueprint.";
 		}
 
-		return "Blueprint ready: " + preview.getPlannedItems().size() + " item IDs sorted.";
+		return "Blueprint ready: " + preview.getPlannedItemCount() + " item IDs sorted.";
 	}
 
 	private static String shortCategoryName(BankCategoryPreview category)

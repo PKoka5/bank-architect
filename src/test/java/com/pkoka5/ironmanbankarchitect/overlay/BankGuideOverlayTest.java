@@ -44,6 +44,25 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
+	public void slotValidationTreatsPlannedBlankSlotAsUnknown()
+	{
+		BankOrganizationPreview preview = previewWith(Arrays.asList(
+			BankPreviewItem.blank(),
+			new BankPreviewItem(10, "Item 10", 1),
+			new BankPreviewItem(30, "Item 30", 1)
+		));
+
+		assertEquals(BankGuideOverlay.SlotValidationState.UNKNOWN,
+			BankGuideOverlay.stateFor(preview, 0, -1));
+		assertEquals(BankGuideOverlay.SlotValidationState.UNKNOWN,
+			BankGuideOverlay.stateFor(preview, 0, 10));
+		assertEquals(BankGuideOverlay.SlotValidationState.CORRECT,
+			BankGuideOverlay.stateFor(preview, 1, 10));
+		assertEquals(BankGuideOverlay.SlotValidationState.MISPLACED,
+			BankGuideOverlay.stateFor(preview, 2, 10));
+	}
+
+	@Test
 	public void validationColorsAreDistinct()
 	{
 		assertNotEquals(BankGuideOverlay.fillFor(BankGuideOverlay.SlotValidationState.CORRECT),
@@ -60,6 +79,11 @@ public class BankGuideOverlayTest
 			items.add(new BankPreviewItem(itemId, "Item " + itemId, 1));
 		}
 
+		return previewWith(items);
+	}
+
+	private static BankOrganizationPreview previewWith(java.util.List<BankPreviewItem> items)
+	{
 		return new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
 			new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0), items),
 			new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(1), Collections.emptyList()),

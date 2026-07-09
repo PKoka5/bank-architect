@@ -48,12 +48,24 @@ public final class BankOrganizationPreview
 		return items.get(slotIndex).getItemId();
 	}
 
+	public int getPlannedItemCount()
+	{
+		int count = 0;
+		for (BankCategoryPreview category : categories)
+		{
+			count += category.getItemCount();
+		}
+
+		return count;
+	}
+
 	public int getPlannedSlotIndex(int itemId)
 	{
 		List<BankPreviewItem> items = getPlannedItems();
 		for (int i = 0; i < items.size(); i++)
 		{
-			if (items.get(i).getItemId() == itemId)
+			BankPreviewItem item = items.get(i);
+			if (!item.isBlank() && item.getItemId() == itemId)
 			{
 				return i;
 			}

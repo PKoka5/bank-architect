@@ -9,6 +9,8 @@ import java.util.Set;
 
 public final class BankPreviewItem
 {
+	private static final BankPreviewItem BLANK = new BankPreviewItem(-1, "Empty slot", 1);
+
 	private final int itemId;
 	private final String displayName;
 	private final int quantity;
@@ -43,6 +45,16 @@ public final class BankPreviewItem
 		this.tags = tags == null || tags.isEmpty()
 			? Collections.emptySet()
 			: Collections.unmodifiableSet(new LinkedHashSet<>(tags));
+	}
+
+	public static BankPreviewItem blank()
+	{
+		return BLANK;
+	}
+
+	public boolean isBlank()
+	{
+		return itemId < 0;
 	}
 
 	public int getItemId()

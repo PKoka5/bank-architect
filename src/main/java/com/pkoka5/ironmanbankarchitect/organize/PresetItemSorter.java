@@ -13,6 +13,11 @@ public final class PresetItemSorter
 
 	public static List<BankPreviewItem> sort(BankCategory category, List<BankPreviewItem> items)
 	{
+		if ("combat-gear".equals(category.getKey()))
+		{
+			return sortCombatGear(items);
+		}
+
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> subgroupRank(category.getKey(), item))
@@ -93,6 +98,11 @@ public final class PresetItemSorter
 		}
 
 		return 50;
+	}
+
+	static List<BankPreviewItem> sortCombatGear(List<BankPreviewItem> items)
+	{
+		return GearItemSorter.layout(items);
 	}
 
 	public static String subgroupLabel(BankCategory category, BankPreviewItem item)
