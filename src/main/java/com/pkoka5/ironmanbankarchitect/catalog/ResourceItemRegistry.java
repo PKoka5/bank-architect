@@ -110,7 +110,9 @@ public final class ResourceItemRegistry implements ItemCatalog
 		if (containsAny(name, "clue scroll", "reward casket", "ornament kit", "graceful", "pyromancer",
 			"prospector", "angler", "rogue", "lumberjack", "farmer's", "carpenter", "cosmetic",
 			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
-			"beer glass"))
+			"beer glass", "nulodion's notes", "instruction manual", "holy table napkin", "grail bell",
+			"holy grail", "cog", "rat poison", "red vine worm", "insect repellent", "candle",
+			"khazard cell", "lever", "shiny key", "child's blanket"))
 		{
 			return ItemCategory.CLEANUP;
 		}
@@ -118,14 +120,16 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
 			"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery", "ectophial",
 			"xeric's talisman", "xeric talisman", "drakan's medallion", "drakans medallion",
-			"book of the dead"))
+			"book of the dead", "magic whistle"))
 		{
 			return ItemCategory.TELEPORT;
 		}
 		if (containsAny(name, "shark", "monkfish", "karambwan", "manta ray", "anglerfish", "lobster",
 			"swordfish", "tuna", "salmon", "trout", "saradomin brew", "restore", "stamina potion",
 			"prayer potion", "super combat", "ranging potion", "magic potion", "cooked", "pizza",
-			"potato", "cake", "pie", "wine", "summer pie", "karambwanji"))
+			"potato", "cake", "pie", "wine", "summer pie", "karambwanji", "shrimp", "anchovies",
+			"sardine", "herring", "mackerel", "cod", "pike", "bass", "mantaray", "sea turtle",
+			"chilli potato", "egg potato", "tuna potato", "stew", "curry", "kebab"))
 		{
 			return ItemCategory.POTION;
 		}
@@ -140,7 +144,9 @@ public final class ResourceItemRegistry implements ItemCatalog
 		if (containsAny(name, "arrow", "bolt", "dart", "knife", "javelin", "cannonball", "chinchompa",
 			"bolt rack", "toktz", "tzhaar", "helmet", "helm", "coif", "body", "chaps", "vambraces",
 			"boots", "gloves", "shield", "defender", "sword", "scimitar", "mace", "dagger", "spear",
-			"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe"))
+			"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe",
+			"excalibur", "pendant of lucien", "armadyl pendant", "cannon base", "cannon stand",
+			"cannon barrels", "cannon furnace", "twpart", "mcannon", "railing"))
 		{
 			return ItemCategory.GEAR;
 		}
@@ -157,7 +163,14 @@ public final class ResourceItemRegistry implements ItemCatalog
 			return ItemCategory.FARMING;
 		}
 		if (containsAny(name, "grimy", "clean", "herb", "secondary", "unf", "potion unfinished",
-			"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus"))
+			"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus",
+			"unidentified guam", "unidentified marentill", "unidentified marrentill",
+			"unidentified tarromin", "unidentified harralander", "unidentified ranarr",
+			"unidentified irit", "unidentified avantoe", "unidentified kwuarm",
+			"unidentified cadantine", "unidentified dwarf weed", "unidentified torstol",
+			"guam", "marentill", "marrentill", "tarromin", "harralander", "ranarr weed",
+			"irit leaf", "avantoe", "kwuarm", "cadantine", "dwarf weed", "torstol",
+			"unicorn horn", "jangerberries", "weapon poison"))
 		{
 			return ItemCategory.HERBLORE;
 		}

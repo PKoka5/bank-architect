@@ -98,7 +98,7 @@ public class BankCatalogSummarizerTest
 	public void summarizerKeepsReviewSamplesOnlyForUnrecognizedItems()
 	{
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(1, 1, 4),
+			new BankItemSnapshot(1919, 1, 4),
 			new BankItemSnapshot(999999, 1, 9)
 		));
 

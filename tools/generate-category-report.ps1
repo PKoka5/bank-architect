@@ -35,14 +35,16 @@ function Has-Any([string] $value, [string[]] $needles)
 	return $false
 }
 
-function Refine-Category([string] $displayName, [string] $constantName, [string] $category)
+function Find-Rule-Category([string] $displayName, [string] $constantName)
 {
 	$name = ($displayName + " " + ($constantName -replace "_", " ")).ToLowerInvariant()
 
 	if (Has-Any $name @("clue scroll", "reward casket", "ornament kit", "graceful", "pyromancer",
 		"prospector", "angler", "rogue", "lumberjack", "farmer's", "carpenter", "cosmetic",
 		"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
-		"beer glass"))
+		"beer glass", "nulodion's notes", "instruction manual", "holy table napkin", "grail bell",
+		"holy grail", "cog", "rat poison", "red vine worm", "insect repellent", "candle",
+		"khazard cell", "lever", "shiny key", "child's blanket"))
 	{
 		return "CLEANUP"
 	}
@@ -50,14 +52,16 @@ function Refine-Category([string] $displayName, [string] $constantName, [string]
 		"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
 		"bracelet of ethereum", "teleport", "tablet", "teletab", "jewellery", "ectophial",
 		"xeric's talisman", "xeric talisman", "drakan's medallion", "drakans medallion",
-		"book of the dead"))
+		"book of the dead", "magic whistle"))
 	{
 		return "TELEPORT"
 	}
 	if (Has-Any $name @("shark", "monkfish", "karambwan", "manta ray", "anglerfish", "lobster",
 		"swordfish", "tuna", "salmon", "trout", "saradomin brew", "restore", "stamina potion",
 		"prayer potion", "super combat", "ranging potion", "magic potion", "cooked", "pizza",
-		"potato", "cake", "pie", "wine", "summer pie", "karambwanji"))
+		"potato", "cake", "pie", "wine", "summer pie", "karambwanji", "shrimp", "anchovies",
+		"sardine", "herring", "mackerel", "cod", "pike", "bass", "mantaray", "sea turtle",
+		"chilli potato", "egg potato", "tuna potato", "stew", "curry", "kebab"))
 	{
 		return "POTION"
 	}
@@ -72,7 +76,9 @@ function Refine-Category([string] $displayName, [string] $constantName, [string]
 	if (Has-Any $name @("arrow", "bolt", "dart", "knife", "javelin", "cannonball", "chinchompa",
 		"bolt rack", "toktz", "tzhaar", "helmet", "helm", "coif", "body", "chaps", "vambraces",
 		"boots", "gloves", "shield", "defender", "sword", "scimitar", "mace", "dagger", "spear",
-		"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe"))
+		"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe",
+		"excalibur", "pendant of lucien", "armadyl pendant", "cannon base", "cannon stand",
+		"cannon barrels", "cannon furnace", "twpart", "mcannon", "railing"))
 	{
 		return "GEAR"
 	}
@@ -89,7 +95,14 @@ function Refine-Category([string] $displayName, [string] $constantName, [string]
 		return "FARMING"
 	}
 	if (Has-Any $name @("grimy", "clean", "herb", "secondary", "unf", "potion unfinished",
-		"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus"))
+		"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus",
+		"unidentified guam", "unidentified marentill", "unidentified marrentill",
+		"unidentified tarromin", "unidentified harralander", "unidentified ranarr",
+		"unidentified irit", "unidentified avantoe", "unidentified kwuarm",
+		"unidentified cadantine", "unidentified dwarf weed", "unidentified torstol",
+		"guam", "marentill", "marrentill", "tarromin", "harralander", "ranarr weed",
+		"irit leaf", "avantoe", "kwuarm", "cadantine", "dwarf weed", "torstol",
+		"unicorn horn", "jangerberries", "weapon poison"))
 	{
 		return "HERBLORE"
 	}
@@ -100,7 +113,7 @@ function Refine-Category([string] $displayName, [string] $constantName, [string]
 		return "CURRENCY"
 	}
 
-	return $category
+	return $null
 }
 
 function Escape-Tsv([string] $value)
@@ -139,9 +152,11 @@ foreach ($line in Get-Content -LiteralPath $RegistryPath)
 	$sourceCategory = if ($fields.Count -ge 3) { $fields[2] } else { "" }
 	$constantName = if ($fields.Count -ge 4) { $fields[3] } else { "" }
 	$baseCategory = Parse-Registry-Category $sourceCategory
-	$finalCategory = Refine-Category $displayName $constantName $baseCategory
-	$changed = $baseCategory -ne $finalCategory
-	$fallback = $sourceCategory -eq "UNKNOWN" -and $finalCategory -eq "CLEANUP"
+	$ruleCategory = Find-Rule-Category $displayName $constantName
+	$matchedRule = $null -ne $ruleCategory
+	$finalCategory = if ($matchedRule) { $ruleCategory } else { $baseCategory }
+	$changed = $matchedRule -and $baseCategory -ne $finalCategory
+	$fallback = $sourceCategory -eq "UNKNOWN" -and -not $matchedRule
 
 	$rows.Add([pscustomobject] @{
 		ItemId = [int] $itemIdText
@@ -149,6 +164,7 @@ foreach ($line in Get-Content -LiteralPath $RegistryPath)
 		ConstantName = $constantName
 		SourceCategory = $sourceCategory
 		FinalCategory = $finalCategory
+		MatchedRule = $matchedRule
 		ChangedByRules = $changed
 		FallbackReview = $fallback
 	})
@@ -158,7 +174,7 @@ $reportPath = Join-Path $OutputDir "category-classifier-report.md"
 $detailPath = Join-Path $OutputDir "category-classifier-detail.tsv"
 
 $detailLines = New-Object System.Collections.Generic.List[string]
-$detailLines.Add("item_id	display_name	constant_name	source_category	final_category	changed_by_rules	fallback_review")
+$detailLines.Add("item_id	display_name	constant_name	source_category	final_category	matched_rule	changed_by_rules	fallback_review")
 foreach ($row in ($rows | Sort-Object FinalCategory, ItemId))
 {
 	$detailLines.Add([string]::Join("`t", @(
@@ -167,6 +183,7 @@ foreach ($row in ($rows | Sort-Object FinalCategory, ItemId))
 		(Escape-Tsv $row.ConstantName),
 		(Escape-Tsv $row.SourceCategory),
 		(Escape-Tsv $row.FinalCategory),
+		$row.MatchedRule,
 		$row.ChangedByRules,
 		$row.FallbackReview
 	)))
@@ -180,8 +197,10 @@ $summary.Add("Generated from the production item registry and classifier rules."
 $summary.Add("")
 $summary.Add("- Registry: ``$RegistryPath``")
 $summary.Add("- Total positive item IDs: $($rows.Count)")
+$summary.Add("- Matched by classifier rules: $(($rows | Where-Object { $_.MatchedRule }).Count)")
 $summary.Add("- Changed by rules: $(($rows | Where-Object { $_.ChangedByRules }).Count)")
-$summary.Add("- Fallback review items: $(($rows | Where-Object { $_.FallbackReview }).Count)")
+$summary.Add("- Items still using source/fallback category: $(($rows | Where-Object { -not $_.MatchedRule }).Count)")
+$summary.Add("- Unknown-source items still needing rules: $(($rows | Where-Object { $_.FallbackReview }).Count)")
 $summary.Add("")
 $summary.Add("## Final Category Counts")
 $summary.Add("")
