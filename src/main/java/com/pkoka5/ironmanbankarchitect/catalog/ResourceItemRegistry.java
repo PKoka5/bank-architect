@@ -112,7 +112,18 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
 			"beer glass", "nulodion's notes", "instruction manual", "holy table napkin", "grail bell",
 			"holy grail", "cog", "rat poison", "red vine worm", "insect repellent", "candle",
-			"khazard cell", "lever", "shiny key", "child's blanket"))
+			"khazard cell", "lever", "shiny key", "child's blanket", "quest", "notes", "letter",
+			"package", "message", "certificate", "sample", "specimen", "plaque", "pebble", "urn",
+			"skull", "portrait", "belt buckle", "old boot", "buttons", "powder", "liquid",
+			"chemical", "compound", "vase", "bullroarer", "hollow reed", "casket", "key",
+			"gown", "scorpion cage", "bird feed", "sheep feed", "cattleprod", "oil can",
+			"rubber tube", "pressure gauge", "distillator", "touch paper", "karamja rum",
+			"plague", "pigeon", "newcomer map", "torch", "observatory lens", "scroll",
+			"locating crystal", "beads of the dead", "wampum belt", "old tooth",
+			"ammonium nitrate", "nitroglycerin", "arcenia root", "tattered", "scrumpled",
+			"scribbled", "scrawled", "macro triffidfruit", "report", "shaman's tome",
+			"binding book", "heart crystal", "chunk of crystal", "hunk of crystal",
+			"lump of crystal", "holy force", "totem", "gnomeball", "crest part"))
 		{
 			return ItemCategory.CLEANUP;
 		}
@@ -129,7 +140,10 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"prayer potion", "super combat", "ranging potion", "magic potion", "cooked", "pizza",
 			"potato", "cake", "pie", "wine", "summer pie", "karambwanji", "shrimp", "anchovies",
 			"sardine", "herring", "mackerel", "cod", "pike", "bass", "mantaray", "sea turtle",
-			"chilli potato", "egg potato", "tuna potato", "stew", "curry", "kebab"))
+			"seaturtle", "giant carp", "strange fruit", "chilli potato", "egg potato",
+			"tuna potato", "stew", "curry", "kebab", "strength4", "attack4", "defence4",
+			"ranging4", "magic4", "poison chalice", "enchanted beef", "enchanted rat",
+			"enchanted bear", "enchanted chicken", "cup of tea", "holy water"))
 		{
 			return ItemCategory.POTION;
 		}
@@ -146,7 +160,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"boots", "gloves", "shield", "defender", "sword", "scimitar", "mace", "dagger", "spear",
 			"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe",
 			"excalibur", "pendant of lucien", "armadyl pendant", "cannon base", "cannon stand",
-			"cannon barrels", "cannon furnace", "twpart", "mcannon", "railing"))
+			"cannon barrels", "cannon furnace", "twpart", "mcannon", "railing", "gauntlets"))
 		{
 			return ItemCategory.GEAR;
 		}
@@ -154,7 +168,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"uncut", "essence", "fish", "raw ", "scale", "dust", "ash", "bone", "bones",
 			"limestone", "clay", "sand", "molten glass", "flax", "bow string", "bowstring",
 			"feather", "nail", "nails", "coconut", "seaweed", "bucket of", "vial", "orb",
-			"battlestaff", "dragonhide"))
+			"battlestaff", "dragonhide", "coal", "charcoal", "rock pick", "trowel",
+			"panning tray", "oyster"))
 		{
 			return ItemCategory.SKILLING;
 		}
@@ -170,7 +185,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"unidentified cadantine", "unidentified dwarf weed", "unidentified torstol",
 			"guam", "marentill", "marrentill", "tarromin", "harralander", "ranarr weed",
 			"irit leaf", "avantoe", "kwuarm", "cadantine", "dwarf weed", "torstol",
-			"unicorn horn", "jangerberries", "weapon poison"))
+			"unicorn horn", "jangerberries", "weapon poison", "snakeweed mixture",
+			"ardrigal mixture", "cadava berries", "cadavaberries"))
 		{
 			return ItemCategory.HERBLORE;
 		}

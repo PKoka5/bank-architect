@@ -4,72 +4,72 @@ Generated from the production item registry and classifier rules.
 
 - Registry: `src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv`
 - Total positive item IDs: 33742
-- Matched by classifier rules: 15410
-- Changed by rules: 5399
-- Items still using source/fallback category: 18332
-- Unknown-source items still needing rules: 13256
+- Matched by classifier rules: 17422
+- Changed by rules: 5781
+- Items still using source/fallback category: 16320
+- Unknown-source items still needing rules: 11398
 
 ## Final Category Counts
 
-- CLEANUP: 16103
-- CURRENCY: 248
+- CLEANUP: 16451
+- CURRENCY: 241
 - FARMING: 774
-- GEAR: 9123
-- HERBLORE: 428
-- POTION: 2500
-- RUNE: 311
-- SKILLING: 3672
-- TELEPORT: 583
+- GEAR: 9074
+- HERBLORE: 423
+- POTION: 2473
+- RUNE: 310
+- SKILLING: 3542
+- TELEPORT: 454
 
 ## Fallback Review Samples
 
-- Strength4 (#114, STRENGTH4)
-- Poison chalice (#197, POISON_CHALICE)
-- Poison Chalice (#198, POISON_CHALICE)
-- Pressure gauge (#271, PRESSURE_GAUGE)
 - Poison (#273, POISON)
-- Key (#275, CLOSET_KEY)
-- Rubber tube (#276, RUBBER_TUBE)
-- Oil can (#277, OIL_CAN)
-- Cattleprod (#278, CATTLEPROD)
-- Sheep feed (#279, POISONED_FEED)
-- Plague jacket (#284, PLAGUE_JACKET)
-- Plague trousers (#285, PLAGUE_TROUSERS)
-- Research package (#290, RESEARCH_PACKAGE)
-- Research notes (#291, RESEARCH_NOTES)
-- Book on baxtorian (#292, BAXTORIAN_BOOK_WATERFALL_QUEST)
-- Key (#293, GOLRIE_KEY_WATERFALL_QUEST)
-- Glarial's pebble (#294, GLARIALS_PEBBLE_WATERFALL_QUEST)
-- Glarial's urn (#296, GLARIALS_URN_FULL_WATERFALL_QUEST)
-- Key (#298, BAXTORIAN_KEY_WATERFALL_QUEST)
 - Rat's tail (#300, RATS_TAIL)
-- Giant carp (#337, GIANT_CARP)
-- Seaturtle (#398, SEATURTLE)
-- Casket (#405, CASKET)
-- Casket (#406, CASKET)
-- Oyster (#407, OYSTERSHELL)
-- Oystershell (#408, OYSTERSHELL)
 - Ethenea (#415, ETHENEA)
-- Liquid honey (#416, LIQUID_HONEY)
 - Sulphuric broline (#417, SULPHURIC_BROLINE)
-- Plague sample (#418, PLAGUESAMPLE)
-- Touch paper (#419, TOUCH_PAPER)
-- Distillator (#420, DISTILLATOR)
-- Bird feed (#422, BIRDFEED)
-- Key (#423, MOURNERKEYTW)
-- Pigeon cage (#424, PIGEONS)
-- Pigeon cage (#425, PIGEONCAGE)
-- Priest gown (#426, PRIEST_GOWN)
-- Priest Gown (#427, PRIEST_GOWN)
-- Medical gown (#430, DOCTOR_GOWN)
-- Karamjan rum (#431, KARAMJA_RUM)
-- Chest key (#432, CHEST_KEY)
-- Pirate message (#433, PIRATEMESSAGE)
-- Coal (#453, COAL)
-- Coal (#454, COAL)
-- Scorpion cage (#457, SCORPIONCAGEA)
-- Scorpion cage (#458, SCORPIONCAGEAB)
-- Scorpion cage (#459, SCORPIONCAGEAC)
-- Scorpion cage (#460, SCORPIONCAGEB)
-- Scorpion cage (#461, SCORPIONCAGEBC)
-- Scorpion cage (#462, SCORPIONCAGEC)
+- Ancient talisman (#681, DIGTALISMAN)
+- Dramen branch (#771, DRAMEN_BRANCH)
+- 'perfect' necklace (#774, PERFECT_RUBY_NECKLACE)
+- Family crest (#782, FAMILY_CREST)
+- Translation book (#784, GRANDTREE_TRANSLATIONBOOK)
+- Lumber order (#787, GRANDTREE_ORDER)
+- Twigs (#789, GRANDTREE_TWIGT)
+- Twigs (#790, GRANDTREE_TWIGU)
+- Twigs (#791, GRANDTREE_TWIGZ)
+- Twigs (#792, GRANDTREE_TWIGO)
+- Daconia rock (#793, GRANDTREE_DACONIAROCK)
+- Invasion plans (#794, GRANDTREE_INVASIONPLANS)
+- War ship (#795, GRANDTREE_WARSHIP)
+- Grinder (#798, GRINDER)
+- Template For Cert (#799, TEMPLATE_FOR_CERT)
+- Worm (#943, WORM)
+- Worm (#944, WORM)
+- Throwing rope (#945, THROWINGROPE)
+- Bear fur (#948, FUR)
+- Fur (#949, FUR)
+- Silk (#950, SILK)
+- Silk (#951, SILK)
+- Rope (#954, ROPE)
+- Rope (#955, ROPE)
+- Flyer (#956, FLIER)
+- Flier (#957, FLIER)
+- Grey wolf fur (#958, GREY_WOLF_FUR)
+- Grey Wolf Fur (#959, GREY_WOLF_FUR)
+- Christmas cracker (#962, CHRISTMAS_CRACKER)
+- Christmas Cracker (#963, CHRISTMAS_CRACKER)
+- Tile (#966, ROOFTILE)
+- Rooftile (#967, ROOFTILE)
+- Rock (#968, ROCK)
+- Rock (#969, ROCK)
+- Papyrus (#970, PAPYRUS)
+- Papyrus (#971, PAPYRUS)
+- Papyrus (#972, PAPYRUS_USED)
+- Machete (#975, MACHETTE)
+- Machette (#976, MACHETTE)
+- White apron (#1005, WHITE_APRON)
+- White Apron (#1006, WHITE_APRON)
+- Brass necklace (#1009, BRASS_NECKLACE)
+- Brass Necklace (#1010, BRASS_NECKLACE)
+- Right eye patch (#1025, EYE_PATCH)
+- Eye Patch (#1026, EYE_PATCH)
+- Bunny ears (#1037, BUNNYEARS)
