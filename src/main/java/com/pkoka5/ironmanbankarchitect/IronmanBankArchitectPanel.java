@@ -41,9 +41,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		"Overlay preview compares physical bank slots with the sorted blueprint.";
 	private static final int STATUS_REFRESH_MILLIS = 500;
 	private static final int BANK_GRID_COLUMNS = 8;
-	private static final int CELL_SIZE = 38;
-	private static final int DIALOG_WIDTH = 520;
+	private static final int CELL_WIDTH = 40;
+	private static final int CELL_HEIGHT = 34;
+	private static final int DIALOG_WIDTH = 560;
 	private static final int DIALOG_HEIGHT = 640;
+	private static final Color BANK_BG = new Color(38, 38, 38);
+	private static final Color BANK_PANEL = new Color(31, 31, 31);
+	private static final Color SLOT_BORDER = new Color(78, 78, 78);
 
 	private final BankGuideController guideController;
 	private final BiConsumer<BankPreviewItem, JLabel> itemIconRenderer;
@@ -190,8 +194,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshAnalysis()
 	{
 		catalogSummaryLabel.setText(toHtmlLines(guideController.getCatalogSummaryText()));
-		organizationPreviewLabel.setText(toHtmlLines(guideController.getOrganizationPreviewText()));
 		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		organizationPreviewLabel.setText(toHtmlLines(blueprintStatusText(preview)));
 		showBankButton.setEnabled(preview != null);
 		if (bankDialog != null && bankDialog.isVisible())
 		{
@@ -214,6 +218,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			bankDialog.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 			bankDialog.setLocationRelativeTo(this);
 			bankTabs = new JTabbedPane();
+			bankTabs.setBackground(BANK_BG);
+			bankTabs.setForeground(Color.WHITE);
 			bankDialog.add(bankTabs, BorderLayout.CENTER);
 		}
 
@@ -247,12 +253,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private JScrollPane categoryScrollPane(BankCategoryPreview category)
 	{
 		JPanel wrapper = verticalPanel();
+		wrapper.setBackground(BANK_BG);
+		wrapper.setOpaque(true);
 		wrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 		wrapper.add(label(category.getCategory().getName() + " - " + category.getItemCount() + " owned item IDs"));
 		wrapper.add(Box.createVerticalStrut(8));
 		wrapper.add(categoryGrid(category));
 
 		JScrollPane scrollPane = new JScrollPane(wrapper);
+		scrollPane.getViewport().setBackground(BANK_BG);
+		scrollPane.setBackground(BANK_BG);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		return scrollPane;
@@ -261,6 +271,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private JPanel categoryGrid(BankCategoryPreview category)
 	{
 		JPanel grid = new JPanel(new GridLayout(0, BANK_GRID_COLUMNS, 3, 3));
+		grid.setBackground(BANK_BG);
+		grid.setOpaque(true);
 		grid.setAlignmentX(Component.LEFT_ALIGNMENT);
 		for (BankPreviewItem item : category.getItems())
 		{
@@ -281,10 +293,22 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		label.setText(Integer.toString(item.getItemId()));
 		label.setToolTipText(item.toCompactLabel());
 		label.setForeground(Color.WHITE);
-		label.setBorder(BorderFactory.createLineBorder(new Color(80, 80, 80)));
-		label.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
+		label.setOpaque(true);
+		label.setBackground(BANK_PANEL);
+		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
+		label.setPreferredSize(new Dimension(CELL_WIDTH, CELL_HEIGHT));
 		itemIconRenderer.accept(item, label);
 		return label;
+	}
+
+	private static String blueprintStatusText(BankOrganizationPreview preview)
+	{
+		if (preview == null)
+		{
+			return "Analyze your bank, then open the blueprint.";
+		}
+
+		return "Blueprint ready: " + preview.getPlannedItems().size() + " item IDs sorted.";
 	}
 
 	private String profileLine()
@@ -312,8 +336,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		JLabel label = new JLabel("-", SwingConstants.CENTER);
 		label.setForeground(new Color(140, 140, 140));
-		label.setBorder(BorderFactory.createLineBorder(new Color(55, 55, 55)));
-		label.setPreferredSize(new Dimension(CELL_SIZE, CELL_SIZE));
+		label.setOpaque(true);
+		label.setBackground(BANK_PANEL);
+		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
+		label.setPreferredSize(new Dimension(CELL_WIDTH, CELL_HEIGHT));
 		return label;
 	}
 

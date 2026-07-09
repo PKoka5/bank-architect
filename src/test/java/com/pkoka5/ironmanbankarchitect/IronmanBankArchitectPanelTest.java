@@ -67,8 +67,8 @@ public class IronmanBankArchitectPanelTest
 		assertTrue(labelText.contains("Recognized item IDs: 2"));
 		assertTrue(labelText.contains("Unrecognized IDs: 1"));
 		assertFalse(labelText.contains("Categories:"));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Suggested Bank Blueprint"));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Irit seed"));
+		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Blueprint ready"));
+		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("3 item IDs sorted"));
 
 		panel.shutdown();
 	}
@@ -90,7 +90,7 @@ public class IronmanBankArchitectPanelTest
 		assertTrue(panelText.contains("Whole Bank Scan"));
 		assertTrue(panelText.contains("Blueprint"));
 		assertTrue(panelText.contains("Show My Bank"));
-		assertTrue(panelText.contains("Analyze your bank to preview owned-item blueprint."));
+		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
 		assertTrue(panelText.contains("Bank guide preview is temporary"));
 		assertTrue(panelText.contains("Overlay preview compares physical bank slots"));
 		assertFalse(panelText.contains("Advanced preview block"));
@@ -118,7 +118,8 @@ public class IronmanBankArchitectPanelTest
 
 		String panelText = String.join("\n", collectLabelText(panel));
 		assertTrue(panel.getCatalogSummaryLabel().getText().contains("Bank Scan Overview"));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Irit seed"));
+		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Blueprint ready"));
+		assertFalse(panel.getOrganizationPreviewLabel().getText().contains("Irit seed"));
 		assertFalse(panelText.contains("Owned:"));
 		assertFalse(panelText.contains("Missing:"));
 
