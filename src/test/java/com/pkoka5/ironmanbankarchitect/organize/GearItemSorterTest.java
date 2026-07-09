@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
@@ -44,8 +45,16 @@ public class GearItemSorterTest
 	@Test
 	public void ranksWeaponsAfterWearableGear()
 	{
-		assertEquals(true, GearItemSorter.rank(item(1, "Rune platebody")) < GearItemSorter.rank(item(2, "Dragon scimitar")));
-		assertEquals(true, GearItemSorter.rank(item(3, "Magic shortbow")) < GearItemSorter.rank(item(4, "Mystic staff")));
+		assertTrue(GearItemSorter.rank(item(1, "Rune platebody")) < GearItemSorter.rank(item(2, "Dragon scimitar")));
+		assertTrue(GearItemSorter.rank(item(3, "Magic shortbow")) < GearItemSorter.rank(item(4, "Mystic staff")));
+	}
+
+	@Test
+	public void ranksBandosTassetsAboveLowerMeleeLegs()
+	{
+		assertTrue(GearItemSorter.rank(item(1, "Bandos tassets")) < GearItemSorter.rank(item(2, "Rune platelegs")));
+		assertEquals(0, GearItemSorter.styleRank(item(3, "Bandos tassets")));
+		assertEquals(2, GearItemSorter.slotRank(item(4, "Bandos tassets")));
 	}
 
 	private static BankPreviewItem item(int itemId, String name)

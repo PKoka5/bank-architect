@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.GearItemSorter;
 import com.pkoka5.ironmanbankarchitect.organize.PresetItemSorter;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.BorderLayout;
@@ -280,6 +281,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private JPanel categoryContent(BankCategoryPreview category)
 	{
+		if ("combat-gear".equals(category.getCategory().getKey()))
+		{
+			return gearContent(category);
+		}
+
 		if (!"storage-cleanup".equals(category.getCategory().getKey()))
 		{
 			return categoryGrid(category.getItems());
@@ -310,6 +316,108 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		}
 
 		return content;
+	}
+
+	private JPanel gearContent(BankCategoryPreview category)
+	{
+		JPanel content = verticalPanel();
+		content.setBackground(BANK_BG);
+		content.setOpaque(true);
+
+		Map<String, BankPreviewItem> setupItems = bestSetupItems(category.getItems());
+		content.add(label("Setup Preview"));
+		content.add(Box.createVerticalStrut(4));
+		content.add(setupGrid(setupItems));
+		content.add(Box.createVerticalStrut(10));
+
+		List<BankPreviewItem> otherGear = new ArrayList<>();
+		for (BankPreviewItem item : category.getItems())
+		{
+			if (!setupItems.containsValue(item))
+			{
+				otherGear.add(item);
+			}
+		}
+
+		content.add(label("Other Gear - " + otherGear.size()));
+		content.add(Box.createVerticalStrut(4));
+		content.add(categoryGrid(otherGear));
+		return content;
+	}
+
+	private Map<String, BankPreviewItem> bestSetupItems(List<BankPreviewItem> items)
+	{
+		Map<String, BankPreviewItem> bestByStyleSlot = new LinkedHashMap<>();
+		for (BankPreviewItem item : items)
+		{
+			int styleRank = GearItemSorter.styleRank(item);
+			int slotRank = GearItemSorter.slotRank(item);
+			if (styleRank > 2 || !GearItemSorter.isSetupSlot(item))
+			{
+				continue;
+			}
+
+			String key = styleRank + ":" + slotRank;
+			BankPreviewItem current = bestByStyleSlot.get(key);
+			if (current == null || compareGearPreference(item, current) < 0)
+			{
+				bestByStyleSlot.put(key, item);
+			}
+		}
+
+		return bestByStyleSlot;
+	}
+
+	private static int compareGearPreference(BankPreviewItem left, BankPreviewItem right)
+	{
+		int tierCompare = Integer.compare(GearItemSorter.tierRank(left), GearItemSorter.tierRank(right));
+		if (tierCompare != 0)
+		{
+			return tierCompare;
+		}
+
+		int nameCompare = left.getDisplayName().compareToIgnoreCase(right.getDisplayName());
+		if (nameCompare != 0)
+		{
+			return nameCompare;
+		}
+
+		return Integer.compare(left.getItemId(), right.getItemId());
+	}
+
+	private JPanel setupGrid(Map<String, BankPreviewItem> setupItems)
+	{
+		JPanel grid = new JPanel(new GridBagLayout());
+		grid.setBackground(BANK_BG);
+		grid.setOpaque(true);
+		grid.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.insets = new Insets(0, 0, CELL_GAP, CELL_GAP);
+
+		for (int styleRank = 0; styleRank < 3; styleRank++)
+		{
+			constraints.gridx = styleRank + 1;
+			constraints.gridy = 0;
+			grid.add(setupHeader(GearItemSorter.styleLabel(styleRank)), constraints);
+		}
+
+		for (int slotRank = 0; slotRank <= 11; slotRank++)
+		{
+			constraints.gridx = 0;
+			constraints.gridy = slotRank + 1;
+			grid.add(setupHeader(GearItemSorter.slotLabel(slotRank)), constraints);
+			for (int styleRank = 0; styleRank < 3; styleRank++)
+			{
+				constraints.gridx = styleRank + 1;
+				BankPreviewItem item = setupItems.get(styleRank + ":" + slotRank);
+				grid.add(item == null ? emptySlotCell() : itemCell(item), constraints);
+			}
+		}
+
+		return grid;
 	}
 
 	private JPanel categoryGrid(BankCategoryPreview category)
@@ -356,6 +464,29 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		label.setMinimumSize(cellSize);
 		label.setMaximumSize(cellSize);
 		itemIconRenderer.accept(item, label);
+		return label;
+	}
+
+	private static JLabel setupHeader(String text)
+	{
+		JLabel label = new JLabel(text, SwingConstants.CENTER);
+		label.setForeground(new Color(190, 190, 190));
+		label.setPreferredSize(new Dimension(CELL_WIDTH * 2, CELL_HEIGHT));
+		label.setMinimumSize(label.getPreferredSize());
+		label.setMaximumSize(label.getPreferredSize());
+		return label;
+	}
+
+	private static JLabel emptySlotCell()
+	{
+		JLabel label = new JLabel("", SwingConstants.CENTER);
+		label.setOpaque(true);
+		label.setBackground(BANK_PANEL);
+		label.setBorder(BorderFactory.createLineBorder(new Color(52, 52, 52)));
+		Dimension cellSize = new Dimension(CELL_WIDTH, CELL_HEIGHT);
+		label.setPreferredSize(cellSize);
+		label.setMinimumSize(cellSize);
+		label.setMaximumSize(cellSize);
 		return label;
 	}
 
