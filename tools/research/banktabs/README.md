@@ -4,6 +4,16 @@ Dev-only tooling for learning bank-organization patterns from manually collected
 
 This folder is not used by the RuneLite plugin at runtime.
 
+## Folder Shape
+
+```text
+input-screenshots/   local screenshots you intentionally save for research
+output-crops/        generated per-slot crops and contact sheets
+reference-icons/     local item-icon references named with item IDs
+match-results/       generated TSV candidate matches
+reviewed-patterns/   human-reviewed aggregate pattern notes
+```
+
 ## Safety Rules
 
 - Do not bundle Reddit screenshots with the plugin.
@@ -44,10 +54,37 @@ Adjust `OriginX`, `OriginY`, slot size, and gaps per screenshot until the crops 
 
 ## Next Tooling Step
 
-Add an icon-matching script that compares these slot crops with a local item-icon reference set and writes:
+Add item-icon references to `reference-icons/`.
+
+Reference filenames should start with the item id, followed by any readable name:
 
 ```text
-screenshot_id,slot,candidate_item_id,candidate_name,confidence,review_status
+11834-bandos-tassets.png
+11235-dark-bow.png
+```
+
+Then run `match-slot-icons.ps1` to compare cropped slots with those local references:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\research\banktabs\match-slot-icons.ps1 `
+  -CropsDir tools\research\banktabs\output-crops\example `
+  -ReferenceDir tools\research\banktabs\reference-icons `
+  -OutputTsv tools\research\banktabs\match-results\example.tsv `
+  -TopN 5
+```
+
+The matcher writes:
+
+```text
+screenshot_id	slot	candidate_rank	candidate_item_id	candidate_name	score	confidence
 ```
 
 The confidence output is only a review aid. It must not write production category rules automatically.
+
+Reviewed pattern notes belong in `reviewed-patterns/`. Those notes should describe repeated ideas in our own words, not reproduce somebody's exact bank.
+
+## Current Limitation
+
+The cropper supports PNG/JPEG through Windows `System.Drawing`.
+
+Many Reddit downloads are WebP. Convert those screenshots to PNG before cropping. If ImageMagick or ffmpeg is installed later, we can add a bulk conversion helper.
