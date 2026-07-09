@@ -50,18 +50,7 @@ public final class PresetItemSorter
 
 		if ("combat-gear".equals(categoryKey))
 		{
-			return rank(name, subcategory,
-				group(0, "helmet", "helm", "coif", "hat", "mask"),
-				group(10, "cape", "cloak"),
-				group(20, "amulet", "necklace"),
-				group(30, "body", "platebody", "robe top"),
-				group(40, "legs", "platelegs", "plateskirt", "chaps", "robe bottom"),
-				group(50, "gloves", "vambraces"),
-				group(60, "boots"),
-				group(70, "shield", "defender", "book"),
-				group(80, "sword", "scimitar", "mace", "dagger", "spear", "halberd", "whip",
-					"bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe"),
-				group(90, "arrow", "bolt", "dart", "javelin", "cannonball", "chinchompa"));
+			return GearItemSorter.rank(item);
 		}
 
 		if ("potions-food".equals(categoryKey))

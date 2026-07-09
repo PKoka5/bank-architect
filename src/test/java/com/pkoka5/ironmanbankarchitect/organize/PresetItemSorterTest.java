@@ -13,7 +13,7 @@ import org.junit.Test;
 public class PresetItemSorterTest
 {
 	@Test
-	public void combatGearSortsWearSlotsBeforeWeaponsAndAmmo()
+	public void combatGearSortsWearRowsBeforeWeaponsAndAmmo()
 	{
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"), Arrays.asList(
 			item(5, "Rune arrow", ItemCategory.GEAR),

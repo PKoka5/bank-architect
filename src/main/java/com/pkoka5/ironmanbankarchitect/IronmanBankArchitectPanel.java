@@ -11,7 +11,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -46,8 +49,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		"Overlay preview compares physical bank slots with the sorted blueprint.";
 	private static final int STATUS_REFRESH_MILLIS = 500;
 	private static final int BANK_GRID_COLUMNS = 8;
-	private static final int CELL_WIDTH = 40;
-	private static final int CELL_HEIGHT = 34;
+	private static final int CELL_WIDTH = 36;
+	private static final int CELL_HEIGHT = 32;
+	private static final int CELL_GAP = 2;
 	private static final int DIALOG_WIDTH = 560;
 	private static final int DIALOG_HEIGHT = 640;
 	private static final Color BANK_BG = new Color(38, 38, 38);
@@ -315,18 +319,24 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private JPanel categoryGrid(List<BankPreviewItem> items)
 	{
-		JPanel grid = new JPanel(new GridLayout(0, BANK_GRID_COLUMNS, 3, 3));
+		if (items.isEmpty())
+		{
+			return emptyCategoryPanel();
+		}
+
+		JPanel grid = new JPanel(new GridBagLayout());
 		grid.setBackground(BANK_BG);
 		grid.setOpaque(true);
 		grid.setAlignmentX(Component.LEFT_ALIGNMENT);
-		for (BankPreviewItem item : items)
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.insets = new Insets(0, 0, CELL_GAP, CELL_GAP);
+		for (int i = 0; i < items.size(); i++)
 		{
-			grid.add(itemCell(item));
-		}
-
-		if (items.isEmpty())
-		{
-			grid.add(emptyCell());
+			constraints.gridx = i % BANK_GRID_COLUMNS;
+			constraints.gridy = i / BANK_GRID_COLUMNS;
+			grid.add(itemCell(items.get(i)), constraints);
 		}
 
 		return grid;
@@ -341,7 +351,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		label.setOpaque(true);
 		label.setBackground(BANK_PANEL);
 		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
-		label.setPreferredSize(new Dimension(CELL_WIDTH, CELL_HEIGHT));
+		Dimension cellSize = new Dimension(CELL_WIDTH, CELL_HEIGHT);
+		label.setPreferredSize(cellSize);
+		label.setMinimumSize(cellSize);
+		label.setMaximumSize(cellSize);
 		itemIconRenderer.accept(item, label);
 		return label;
 	}
@@ -424,15 +437,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return label;
 	}
 
-	private static JLabel emptyCell()
+	private static JPanel emptyCategoryPanel()
 	{
-		JLabel label = new JLabel("-", SwingConstants.CENTER);
+		JPanel panel = verticalPanel();
+		panel.setBackground(BANK_BG);
+		panel.setOpaque(true);
+		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		JLabel label = label("No owned items");
 		label.setForeground(new Color(140, 140, 140));
-		label.setOpaque(true);
-		label.setBackground(BANK_PANEL);
-		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
-		label.setPreferredSize(new Dimension(CELL_WIDTH, CELL_HEIGHT));
-		return label;
+		panel.add(label);
+		return panel;
 	}
 
 	private static String toHtmlLines(String text)
