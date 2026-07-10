@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
+import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
@@ -17,6 +18,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +39,8 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.AsyncBufferedImage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @PluginDescriptor(
 	name = "Ironman Bank Architect",
@@ -46,6 +50,8 @@ import net.runelite.client.util.AsyncBufferedImage;
 public final class IronmanBankArchitectPlugin extends Plugin
 {
 	static final String PLUGIN_NAME = "Ironman Bank Architect";
+
+	private static final Logger log = LoggerFactory.getLogger(IronmanBankArchitectPlugin.class);
 
 	@Inject
 	private ClientToolbar clientToolbar;
@@ -148,9 +154,12 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			}
 
 			BankSnapshot bankSnapshot = snapshot.get();
+			// Item stats can only be read on the client thread; collect them here so
+			// the analysis thread works from a plain map.
+			Map<Integer, GearStats> gearStatsById = collectGearStats(bankSnapshot);
 			try
 			{
-				executor.execute(() -> publishBankAnalysis(controller, bankSnapshot));
+				executor.execute(() -> publishBankAnalysis(controller, bankSnapshot, gearStatsById));
 			}
 			catch (RejectedExecutionException ignored)
 			{
@@ -159,17 +168,37 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		});
 	}
 
-	private void publishBankAnalysis(BankGuideController controller, BankSnapshot bankSnapshot)
+	private void publishBankAnalysis(BankGuideController controller, BankSnapshot bankSnapshot,
+		Map<Integer, GearStats> gearStatsById)
 	{
 		if (guideController != controller)
 		{
 			return;
 		}
 
-		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
-			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
-			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, this::gearStatsFor));
+		try
+		{
+			controller.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
+				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
+			controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
+				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
+				itemId -> Optional.ofNullable(gearStatsById.get(itemId))));
+		}
+		catch (RuntimeException ex)
+		{
+			log.error("Bank analysis failed", ex);
+		}
+	}
+
+	private Map<Integer, GearStats> collectGearStats(BankSnapshot snapshot)
+	{
+		Map<Integer, GearStats> statsById = new HashMap<>();
+		for (BankItemSnapshot item : snapshot.getItems())
+		{
+			gearStatsFor(item.getItemId()).ifPresent(stats -> statsById.put(item.getItemId(), stats));
+		}
+
+		return statsById;
 	}
 
 	private Optional<GearStats> gearStatsFor(int itemId)
