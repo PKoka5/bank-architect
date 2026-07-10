@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 final class GearItemSorter
@@ -39,10 +40,15 @@ final class GearItemSorter
 
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
 	{
-		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items);
+		return layout(items, GearStatsSource.NONE);
+	}
+
+	static List<BankPreviewItem> layout(List<BankPreviewItem> items, GearStatsSource gearStats)
+	{
+		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items, gearStats);
 		if (bestSetupItems.isEmpty())
 		{
-			return sort(items);
+			return sort(items, gearStats);
 		}
 
 		List<BankPreviewItem> laidOut = new ArrayList<>();
@@ -79,13 +85,18 @@ final class GearItemSorter
 			laidOut.addAll(rowCells);
 		}
 
-		laidOut.addAll(remainingSorted(items, usedItemIds));
+		laidOut.addAll(remainingSorted(items, usedItemIds, gearStats));
 		return laidOut;
 	}
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
 	{
-		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items);
+		return sort(items, GearStatsSource.NONE);
+	}
+
+	static List<BankPreviewItem> sort(List<BankPreviewItem> items, GearStatsSource gearStats)
+	{
+		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items, gearStats);
 
 		List<BankPreviewItem> sorted = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
@@ -101,18 +112,17 @@ final class GearItemSorter
 			}
 		}
 
-		sorted.addAll(remainingSorted(items, usedItemIds));
+		sorted.addAll(remainingSorted(items, usedItemIds, gearStats));
 		return sorted;
 	}
 
-	private static Map<String, BankPreviewItem> bestSetupItems(List<BankPreviewItem> items)
+	private static Map<String, BankPreviewItem> bestSetupItems(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		Map<String, BankPreviewItem> bestSetupItems = new LinkedHashMap<>();
 		for (BankPreviewItem item : items)
 		{
-			String name = normalizedName(item.getDisplayName());
-			int style = styleRank(name);
-			int slot = slotRank(name);
+			int style = styleRankOf(item, gearStats);
+			int slot = slotRankOf(item, gearStats);
 			if (style == STYLE_OTHER || slot >= 12)
 			{
 				continue;
@@ -120,7 +130,7 @@ final class GearItemSorter
 
 			String key = style + ":" + slot;
 			BankPreviewItem current = bestSetupItems.get(key);
-			if (current == null || gearScore(item) > gearScore(current))
+			if (current == null || scoreOf(item, gearStats) > scoreOf(current, gearStats))
 			{
 				bestSetupItems.put(key, item);
 			}
@@ -129,7 +139,8 @@ final class GearItemSorter
 		return bestSetupItems;
 	}
 
-	private static List<BankPreviewItem> remainingSorted(List<BankPreviewItem> items, Set<Integer> usedItemIds)
+	private static List<BankPreviewItem> remainingSorted(List<BankPreviewItem> items, Set<Integer> usedItemIds,
+		GearStatsSource gearStats)
 	{
 		List<BankPreviewItem> remaining = new ArrayList<>();
 		for (BankPreviewItem item : items)
@@ -141,8 +152,8 @@ final class GearItemSorter
 		}
 
 		remaining.sort(Comparator
-			.comparingInt(GearItemSorter::rank)
-			.thenComparing((BankPreviewItem item) -> -gearScore(item))
+			.comparingInt((BankPreviewItem item) -> rankOf(item, gearStats))
+			.thenComparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return remaining;
@@ -152,6 +163,40 @@ final class GearItemSorter
 	{
 		String name = normalizedName(item.getDisplayName());
 		return slotRank(name) * 100 + styleRank(name);
+	}
+
+	private static int rankOf(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		return slotRankOf(item, gearStats) * 100 + styleRankOf(item, gearStats);
+	}
+
+	private static int slotRankOf(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
+		if (stats.isPresent())
+		{
+			return stats.get().slotRank();
+		}
+
+		return slotRank(normalizedName(item.getDisplayName()));
+	}
+
+	private static int styleRankOf(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
+		if (stats.isPresent())
+		{
+			return stats.get().style().ordinal();
+		}
+
+		return styleRank(normalizedName(item.getDisplayName()));
+	}
+
+	private static int scoreOf(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		int score = gearScore(item);
+		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
+		return stats.isPresent() ? score + stats.get().score() : score;
 	}
 
 	private static int slotRank(String name)

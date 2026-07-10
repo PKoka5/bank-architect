@@ -9,6 +9,8 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
+import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
+import com.pkoka5.ironmanbankarchitect.organize.GearStats;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
@@ -26,7 +28,9 @@ import javax.swing.JLabel;
 import net.runelite.api.Client;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.game.ItemEquipmentStats;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemStats;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
@@ -165,7 +169,28 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
 			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
 		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
-			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
+			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, this::gearStatsFor));
+	}
+
+	private Optional<GearStats> gearStatsFor(int itemId)
+	{
+		ItemStats stats = itemManager.getItemStats(itemId);
+		if (stats == null || !stats.isEquipable() || stats.getEquipment() == null)
+		{
+			return Optional.empty();
+		}
+
+		ItemEquipmentStats equipment = stats.getEquipment();
+		GearSlot slot = GearSlot.fromRuneLiteSlot(equipment.getSlot());
+		if (slot == null)
+		{
+			return Optional.empty();
+		}
+
+		int defenceSum = equipment.getDstab() + equipment.getDslash() + equipment.getDcrush()
+			+ equipment.getDmagic() + equipment.getDrange();
+		return Optional.of(new GearStats(slot, equipment.getAstab(), equipment.getAslash(), equipment.getAcrush(),
+			equipment.getAmagic(), equipment.getArange(), equipment.getStr(), equipment.getRstr(), defenceSum));
 	}
 
 	private void renderItemIcon(BankPreviewItem item, JLabel label)

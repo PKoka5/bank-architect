@@ -18,9 +18,16 @@ public final class BankOrganizationPreviewBuilder
 
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset)
 	{
+		return build(snapshot, catalog, preset, GearStatsSource.NONE);
+	}
+
+	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
+		GearStatsSource gearStats)
+	{
 		Objects.requireNonNull(snapshot, "snapshot");
 		Objects.requireNonNull(catalog, "catalog");
 		Objects.requireNonNull(preset, "preset");
+		Objects.requireNonNull(gearStats, "gearStats");
 
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
 		for (BankCategory category : preset.getCategories())
@@ -44,7 +51,7 @@ public final class BankOrganizationPreviewBuilder
 		List<BankCategoryPreview> categories = new ArrayList<>();
 		for (MutableCategoryPreview preview : previewsByCategory.values())
 		{
-			categories.add(preview.toImmutable());
+			categories.add(preview.toImmutable(gearStats));
 		}
 
 		return new BankOrganizationPreview(preset, categories);
@@ -65,9 +72,9 @@ public final class BankOrganizationPreviewBuilder
 			items.add(new BankPreviewItem(catalogItem, quantity));
 		}
 
-		private BankCategoryPreview toImmutable()
+		private BankCategoryPreview toImmutable(GearStatsSource gearStats)
 		{
-			return new BankCategoryPreview(category, PresetItemSorter.sort(category, items));
+			return new BankCategoryPreview(category, PresetItemSorter.sort(category, items, gearStats));
 		}
 	}
 }
