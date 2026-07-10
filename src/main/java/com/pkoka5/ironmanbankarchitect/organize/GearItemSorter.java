@@ -18,26 +18,16 @@ final class GearItemSorter
 	private static final int[] SETUP_STYLES = {STYLE_MELEE, STYLE_RANGED, STYLE_MAGIC};
 	private static final int[] SETUP_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
-	// Must match the popup grid width so each lane row renders as one visual row.
-	static final int LANE_GRID_COLUMNS = 8;
-	// One row per equipment slot; index = style column (melee, ranged, magic), -1 = no cell for that style.
-	private static final int[][] LANE_ROWS = {
-		{0, 0, 0},
-		{1, 1, 1},
-		{2, 2, 2},
-		{3, 3, 3},
-		{4, 4, 4},
-		{5, 5, 5},
-		{6, 6, 6},
-		{7, 7, 7},
-		{8, 9, 10},
-		{-1, 11, -1}
-	};
-
 	private GearItemSorter()
 	{
 	}
 
+	/**
+	 * Dense layout: the bank always compacts items left-to-right, so the plan
+	 * must never contain gaps. Gear is grouped as one contiguous run per combat
+	 * style (melee, then ranged, then magic), each run in equipment-slot order
+	 * head..weapon/ammo, followed by sidegrades and everything else.
+	 */
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
 	{
 		return layout(items, GearStatsSource.NONE);
@@ -46,74 +36,23 @@ final class GearItemSorter
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items, gearStats);
-		if (bestSetupItems.isEmpty())
-		{
-			return sort(items, gearStats);
-		}
 
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
-		for (int[] laneRow : LANE_ROWS)
+		for (int style : SETUP_STYLES)
 		{
-			List<BankPreviewItem> rowCells = new ArrayList<>();
-			boolean rowHasItem = false;
-			for (int style : SETUP_STYLES)
-			{
-				int slot = laneRow[style];
-				BankPreviewItem item = slot < 0 ? null : bestSetupItems.get(style + ":" + slot);
-				if (item != null && usedItemIds.add(item.getItemId()))
-				{
-					rowCells.add(item);
-					rowHasItem = true;
-				}
-				else
-				{
-					rowCells.add(BankPreviewItem.blank());
-				}
-			}
-
-			if (!rowHasItem)
-			{
-				continue;
-			}
-
-			while (rowCells.size() < LANE_GRID_COLUMNS)
-			{
-				rowCells.add(BankPreviewItem.blank());
-			}
-
-			laidOut.addAll(rowCells);
-		}
-
-		laidOut.addAll(remainingSorted(items, usedItemIds, gearStats));
-		return laidOut;
-	}
-
-	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
-	{
-		return sort(items, GearStatsSource.NONE);
-	}
-
-	static List<BankPreviewItem> sort(List<BankPreviewItem> items, GearStatsSource gearStats)
-	{
-		Map<String, BankPreviewItem> bestSetupItems = bestSetupItems(items, gearStats);
-
-		List<BankPreviewItem> sorted = new ArrayList<>();
-		Set<Integer> usedItemIds = new LinkedHashSet<>();
-		for (int slot : SETUP_SLOTS)
-		{
-			for (int style : SETUP_STYLES)
+			for (int slot : SETUP_SLOTS)
 			{
 				BankPreviewItem item = bestSetupItems.get(style + ":" + slot);
 				if (item != null && usedItemIds.add(item.getItemId()))
 				{
-					sorted.add(item);
+					laidOut.add(item);
 				}
 			}
 		}
 
-		sorted.addAll(remainingSorted(items, usedItemIds, gearStats));
-		return sorted;
+		laidOut.addAll(remainingSorted(items, usedItemIds, gearStats));
+		return laidOut;
 	}
 
 	private static Map<String, BankPreviewItem> bestSetupItems(List<BankPreviewItem> items, GearStatsSource gearStats)

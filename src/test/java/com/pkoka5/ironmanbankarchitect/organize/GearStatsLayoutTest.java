@@ -2,7 +2,6 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
@@ -31,14 +30,10 @@ public class GearStatsLayoutTest
 			item(3, "Trophy of stars")
 		), sourceOf(stats));
 
-		assertEquals(8, laidOut.size());
+		assertEquals(3, laidOut.size());
 		assertEquals("Trophy of valor", laidOut.get(0).getDisplayName());
 		assertEquals("Trophy of winds", laidOut.get(1).getDisplayName());
 		assertEquals("Trophy of stars", laidOut.get(2).getDisplayName());
-		for (int i = 3; i < 8; i++)
-		{
-			assertTrue(laidOut.get(i).isBlank());
-		}
 	}
 
 	@Test
@@ -54,7 +49,7 @@ public class GearStatsLayoutTest
 		), sourceOf(stats));
 
 		assertEquals("Guard's bucket", laidOut.get(0).getDisplayName());
-		assertEquals("Guard's kettle", laidOut.get(8).getDisplayName());
+		assertEquals("Guard's kettle", laidOut.get(1).getDisplayName());
 	}
 
 	@Test
@@ -67,9 +62,8 @@ public class GearStatsLayoutTest
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(
 			Collections.singletonList(item(1, "Mystic hat")), sourceOf(stats));
 
+		assertEquals(1, laidOut.size());
 		assertEquals("Mystic hat", laidOut.get(0).getDisplayName());
-		assertTrue(laidOut.get(1).isBlank());
-		assertTrue(laidOut.get(2).isBlank());
 	}
 
 	@Test
@@ -85,7 +79,7 @@ public class GearStatsLayoutTest
 		), sourceOf(stats));
 
 		assertEquals("Trophy of valor", laidOut.get(0).getDisplayName());
-		assertEquals("Circle of dawn", laidOut.get(8).getDisplayName());
+		assertEquals("Circle of dawn", laidOut.get(1).getDisplayName());
 	}
 
 	@Test

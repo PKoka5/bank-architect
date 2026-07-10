@@ -2,7 +2,6 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
@@ -15,7 +14,7 @@ import org.junit.Test;
 public class GearItemSorterTest
 {
 	@Test
-	public void laysOutStyleLanesAsColumnsWithBlankPadding()
+	public void laysOutOneDenseRunPerCombatStyle()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),
 			Arrays.asList(
@@ -30,26 +29,39 @@ public class GearItemSorterTest
 				item(9, "Rune full helm")
 			));
 
-		assertEquals(24, laidOut.size());
-
-		assertEquals("Rune full helm", laidOut.get(0).getDisplayName());
-		assertEquals("Black d'hide coif", laidOut.get(1).getDisplayName());
-		assertEquals("Mystic hat", laidOut.get(2).getDisplayName());
-		assertBlank(laidOut, 3, 7);
-
-		assertEquals("Rune platebody", laidOut.get(8).getDisplayName());
-		assertEquals("Black d'hide body", laidOut.get(9).getDisplayName());
-		assertEquals("Mystic robe top", laidOut.get(10).getDisplayName());
-		assertBlank(laidOut, 11, 15);
-
-		assertEquals("Rune platelegs", laidOut.get(16).getDisplayName());
-		assertEquals("Black d'hide chaps", laidOut.get(17).getDisplayName());
-		assertEquals("Mystic robe bottom", laidOut.get(18).getDisplayName());
-		assertBlank(laidOut, 19, 23);
+		assertEquals(Arrays.asList(
+			"Rune full helm",
+			"Rune platebody",
+			"Rune platelegs",
+			"Black d'hide coif",
+			"Black d'hide body",
+			"Black d'hide chaps",
+			"Mystic hat",
+			"Mystic robe top",
+			"Mystic robe bottom"
+		), names(laidOut));
 	}
 
 	@Test
-	public void promotesBestOwnedGearIntoSetupLanes()
+	public void planNeverContainsBlankSlotsBecauseTheBankCompacts()
+	{
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),
+			Arrays.asList(
+				item(1, "Rune full helm"),
+				item(2, "Magic shortbow"),
+				item(3, "Adamant arrow"),
+				item(4, "Mystic robe top")
+			));
+
+		assertEquals(4, laidOut.size());
+		for (BankPreviewItem item : laidOut)
+		{
+			assertFalse("plan must be dense, found blank slot", item.isBlank());
+		}
+	}
+
+	@Test
+	public void promotesBestOwnedGearIntoSetupRuns()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),
 			Arrays.asList(
@@ -63,26 +75,20 @@ public class GearItemSorterTest
 				item(8, "Armadyl chainskirt")
 			));
 
-		assertEquals(20, laidOut.size());
-
-		assertEquals("Bandos chestplate", laidOut.get(0).getDisplayName());
-		assertBlank(laidOut, 1, 7);
-
-		assertEquals("Bandos tassets", laidOut.get(8).getDisplayName());
-		assertEquals("Armadyl chainskirt", laidOut.get(9).getDisplayName());
-		assertEquals("Ahrim's robeskirt", laidOut.get(10).getDisplayName());
-		assertBlank(laidOut, 11, 15);
-
 		assertEquals(Arrays.asList(
+			"Bandos chestplate",
+			"Bandos tassets",
+			"Armadyl chainskirt",
+			"Ahrim's robeskirt",
 			"Rune platebody",
 			"Rune platelegs",
 			"Black d'hide chaps",
 			"Mystic robe bottom"
-		), names(laidOut.subList(16, 20)));
+		), names(laidOut));
 	}
 
 	@Test
-	public void leavesSidegradesAfterPrimarySetupLanes()
+	public void leavesSidegradesAfterPrimarySetupRuns()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),
 			Arrays.asList(
@@ -94,37 +100,26 @@ public class GearItemSorterTest
 				item(6, "Rune crossbow")
 			));
 
-		assertEquals(19, laidOut.size());
-
-		assertEquals("Bandos tassets", laidOut.get(0).getDisplayName());
-		assertBlank(laidOut, 1, 7);
-
-		assertEquals("Abyssal whip", laidOut.get(8).getDisplayName());
-		assertEquals("Magic shortbow", laidOut.get(9).getDisplayName());
-		assertBlank(laidOut, 10, 15);
-
-		assertEquals(Arrays.asList("Rune platelegs", "Dragon scimitar", "Rune crossbow"),
-			names(laidOut.subList(16, 19)));
+		assertEquals(Arrays.asList(
+			"Bandos tassets",
+			"Abyssal whip",
+			"Magic shortbow",
+			"Rune platelegs",
+			"Dragon scimitar",
+			"Rune crossbow"
+		), names(laidOut));
 	}
 
 	@Test
-	public void placesRangedAmmoInRangedLaneColumn()
+	public void ammoJoinsTheRangedRunAfterTheWeapon()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),
 			Arrays.asList(
-				item(1, "Magic shortbow"),
-				item(2, "Adamant arrow")
+				item(1, "Adamant arrow"),
+				item(2, "Magic shortbow")
 			));
 
-		assertEquals(16, laidOut.size());
-
-		assertTrue(laidOut.get(0).isBlank());
-		assertEquals("Magic shortbow", laidOut.get(1).getDisplayName());
-		assertBlank(laidOut, 2, 7);
-
-		assertTrue(laidOut.get(8).isBlank());
-		assertEquals("Adamant arrow", laidOut.get(9).getDisplayName());
-		assertBlank(laidOut, 10, 15);
+		assertEquals(Arrays.asList("Magic shortbow", "Adamant arrow"), names(laidOut));
 	}
 
 	@Test
@@ -137,10 +132,6 @@ public class GearItemSorterTest
 			));
 
 		assertEquals(Arrays.asList("Salve amulet", "Cannonball"), names(laidOut));
-		for (BankPreviewItem item : laidOut)
-		{
-			assertFalse(item.isBlank());
-		}
 	}
 
 	@Test
@@ -148,21 +139,6 @@ public class GearItemSorterTest
 	{
 		assertEquals(true, GearItemSorter.rank(item(1, "Rune platebody")) < GearItemSorter.rank(item(2, "Dragon scimitar")));
 		assertEquals(true, GearItemSorter.rank(item(3, "Magic shortbow")) < GearItemSorter.rank(item(4, "Mystic staff")));
-	}
-
-	@Test
-	public void laneRowsMatchPopupGridWidth()
-	{
-		assertEquals(8, GearItemSorter.LANE_GRID_COLUMNS);
-	}
-
-	private static void assertBlank(List<BankPreviewItem> items, int fromIndex, int toIndex)
-	{
-		for (int i = fromIndex; i <= toIndex; i++)
-		{
-			assertTrue("expected blank at index " + i + " but was " + items.get(i).getDisplayName(),
-				items.get(i).isBlank());
-		}
 	}
 
 	private static BankPreviewItem item(int itemId, String name)

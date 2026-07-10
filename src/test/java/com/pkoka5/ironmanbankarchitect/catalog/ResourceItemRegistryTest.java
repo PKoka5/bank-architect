@@ -57,6 +57,30 @@ public class ResourceItemRegistryTest
 		assertCategory(3, "Nulodion's notes", ItemCategory.CLEANUP);
 	}
 
+	@Test
+	public void runeThrownWeaponsAreGearNotRunes()
+	{
+		assertCategory(805, "Rune thrownaxe", ItemCategory.GEAR);
+		assertCategory(868, "Rune knife", ItemCategory.GEAR);
+	}
+
+	@Test
+	public void mislabelledWeaponsAreGearNotSkilling()
+	{
+		assertCategory(13576, "Dragon warhammer", ItemCategory.GEAR);
+		assertCategory(4747, "Torag's hammers", ItemCategory.GEAR);
+	}
+
+	@Test
+	public void skillingToolsAndOutfitsGetTheirOwnToolCategory()
+	{
+		assertCategory(1359, "Rune axe", ItemCategory.TOOL);
+		assertCategory(11920, "Dragon pickaxe", ItemCategory.TOOL);
+		assertCategory(2347, "Hammer", ItemCategory.TOOL);
+		assertCategory(11854, "Graceful top", ItemCategory.TOOL);
+		assertCategory(13259, "Angler top", ItemCategory.TOOL);
+	}
+
 	private static void assertCategory(int itemId, String expectedName, ItemCategory expectedCategory)
 	{
 		Optional<CatalogItem> item = ResourceItemRegistry.INSTANCE.findById(itemId);

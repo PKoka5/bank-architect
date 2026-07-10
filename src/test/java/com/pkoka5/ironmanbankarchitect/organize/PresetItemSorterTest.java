@@ -23,8 +23,8 @@ public class PresetItemSorterTest
 			item(4, "Rune boots", ItemCategory.GEAR)
 		));
 
-		assertEquals(Arrays.asList("Neitiznot helm", "Mystic robe bottom", "Rune boots", "Dragon scimitar", "Rune arrow"),
-			nonBlankNames(sorted));
+		assertEquals(Arrays.asList("Neitiznot helm", "Rune boots", "Dragon scimitar", "Rune arrow", "Mystic robe bottom"),
+			names(sorted));
 	}
 
 	@Test
@@ -106,14 +106,6 @@ public class PresetItemSorterTest
 	private static List<String> names(List<BankPreviewItem> items)
 	{
 		return items.stream()
-			.map(BankPreviewItem::getDisplayName)
-			.collect(Collectors.toList());
-	}
-
-	private static List<String> nonBlankNames(List<BankPreviewItem> items)
-	{
-		return items.stream()
-			.filter(item -> !item.isBlank())
 			.map(BankPreviewItem::getDisplayName)
 			.collect(Collectors.toList());
 	}

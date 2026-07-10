@@ -51,6 +51,10 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("farming-herblore");
 		}
+		if (category == ItemCategory.TOOL)
+		{
+			return preset.getCategory("skilling-tools");
+		}
 		if (category == ItemCategory.SKILLING)
 		{
 			return preset.getCategory("resources");
@@ -86,7 +90,7 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("farming-herblore");
 		}
-		if (category == ItemCategory.SKILLING)
+		if (category == ItemCategory.SKILLING || category == ItemCategory.TOOL)
 		{
 			return preset.getCategory("skilling-supplies");
 		}
@@ -179,7 +183,7 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("herblore-materials");
 		}
-		if (category == ItemCategory.SKILLING)
+		if (category == ItemCategory.SKILLING || category == ItemCategory.TOOL)
 		{
 			return preset.getCategory("tools-outfits-pets");
 		}

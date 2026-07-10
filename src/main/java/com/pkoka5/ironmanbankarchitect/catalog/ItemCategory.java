@@ -6,6 +6,7 @@ public enum ItemCategory
 	FARMING,
 	POTION,
 	GEAR,
+	TOOL,
 	RUNE,
 	TELEPORT,
 	SKILLING,

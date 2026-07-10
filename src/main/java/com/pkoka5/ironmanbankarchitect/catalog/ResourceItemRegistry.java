@@ -14,6 +14,19 @@ public final class ResourceItemRegistry implements ItemCatalog
 {
 	static final String RESOURCE_PATH = "/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv";
 
+	// Weapon names the generated registry mislabelled as SKILLING or RUNE.
+	private static final String[] GEAR_OVERRIDE_NEEDLES = {
+		"warhammer", "thrownaxe", "torag's hammers"
+	};
+
+	// Equipable skilling tools and outfits the generated registry labels GEAR
+	// (they have equipment slots) plus tool names mislabelled RUNE/SKILLING.
+	private static final String[] TOOL_OVERRIDE_NEEDLES = {
+		"pickaxe", " axe", "harpoon", "machete", "butterfly net", "fishing rod", "lobster pot",
+		"fishing net", "graceful", "angler", "prospector", "pyromancer", "lumberjack",
+		"carpenter", "farmer's", "rogue "
+	};
+
 	private static final String[] TELEPORT_NEEDLES = {
 		"ring of dueling", "games necklace", "amulet of glory", "skills necklace",
 		"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
@@ -127,9 +140,17 @@ public final class ResourceItemRegistry implements ItemCatalog
 		{
 			return ItemCategory.TELEPORT;
 		}
+		if (containsAny(name, GEAR_OVERRIDE_NEEDLES))
+		{
+			return ItemCategory.GEAR;
+		}
+		if (containsAny(name, TOOL_OVERRIDE_NEEDLES))
+		{
+			return ItemCategory.TOOL;
+		}
 		if (explicitCategory == ItemCategory.RUNE && !isActualRune(displayName))
 		{
-			return refineCategory(displayName, constantName, ItemCategory.RUNE);
+			return refineCategory(displayName, constantName, ItemCategory.CLEANUP);
 		}
 		if (explicitCategory != null)
 		{
@@ -148,8 +169,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 	private static ItemCategory refineCategory(String displayName, String constantName, ItemCategory category)
 	{
 		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
-		if (containsAny(name, "clue scroll", "reward casket", "ornament kit", "graceful", "pyromancer",
-			"prospector", "angler", "rogue", "lumberjack", "farmer's", "carpenter", "cosmetic",
+		if (containsAny(name, "clue scroll", "reward casket", "ornament kit", "cosmetic",
 			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
 			"burnt fish", "burntfish", "burnt lobster", "burnt shark", "burnt swordfish",
 			"burnt manta", "burnt mantaray", "burnt sea turtle", "burnt seaturtle",
@@ -188,11 +208,11 @@ public final class ResourceItemRegistry implements ItemCatalog
 		}
 		if (containsAny(name, "pickaxe", " axe", "harpoon", "lobster pot", "small fishing net",
 			"big fishing net", "chisel", "hammer", "saw", "rake", "seed dibber", "secateurs",
-			"watering can", "tinderbox", "knife", "pestle and mortar", "glassblowing pipe",
+			"watering can", "tinderbox", "pestle and mortar", "glassblowing pipe",
 			"spade", "needle", "thread", "mould", "hammerstone", "fishing rod", "fly fishing rod",
 			"small pouch", "medium pouch", "large pouch", "giant pouch", "colossal pouch"))
 		{
-			return ItemCategory.SKILLING;
+			return ItemCategory.TOOL;
 		}
 		if (containsAny(name, "arrow", "bolt", "dart", "knife", "javelin", "cannonball", "chinchompa",
 			"bolt rack", "toktz", "tzhaar", "helmet", "helm", "coif", "body", "chaps", "vambraces",

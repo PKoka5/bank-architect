@@ -28,6 +28,15 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
+	public void ironmanMapsToolsIntoSkillingToolsTab()
+	{
+		assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(ItemCategory.TOOL, "Dragon pickaxe")).getKey());
+		assertEquals("resources", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(ItemCategory.SKILLING, "Iron ore")).getKey());
+	}
+
+	@Test
 	public void pvmSeparatesRunesIntoMagicGear()
 	{
 		BankCategory category = PresetCategoryMapper.map(BankPresets.PVM,
