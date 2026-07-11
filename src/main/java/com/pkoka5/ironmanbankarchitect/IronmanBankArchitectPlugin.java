@@ -219,7 +219,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		int defenceSum = equipment.getDstab() + equipment.getDslash() + equipment.getDcrush()
 			+ equipment.getDmagic() + equipment.getDrange();
 		return Optional.of(new GearStats(slot, equipment.getAstab(), equipment.getAslash(), equipment.getAcrush(),
-			equipment.getAmagic(), equipment.getArange(), equipment.getStr(), equipment.getRstr(), defenceSum));
+			equipment.getAmagic(), equipment.getArange(), equipment.getStr(), equipment.getRstr(),
+			equipment.getPrayer(), defenceSum));
 	}
 
 	private void renderItemIcon(BankPreviewItem item, JLabel label)

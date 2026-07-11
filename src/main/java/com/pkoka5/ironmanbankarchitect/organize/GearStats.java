@@ -17,10 +17,11 @@ public final class GearStats
 	private final int rangedAttack;
 	private final int meleeStrength;
 	private final int rangedStrength;
+	private final int prayerBonus;
 	private final int defenceSum;
 
 	public GearStats(GearSlot slot, int stabAttack, int slashAttack, int crushAttack, int magicAttack,
-		int rangedAttack, int meleeStrength, int rangedStrength, int defenceSum)
+		int rangedAttack, int meleeStrength, int rangedStrength, int prayerBonus, int defenceSum)
 	{
 		this.slot = Objects.requireNonNull(slot, "slot");
 		this.stabAttack = stabAttack;
@@ -30,6 +31,7 @@ public final class GearStats
 		this.rangedAttack = rangedAttack;
 		this.meleeStrength = meleeStrength;
 		this.rangedStrength = rangedStrength;
+		this.prayerBonus = prayerBonus;
 		this.defenceSum = defenceSum;
 	}
 
@@ -54,6 +56,10 @@ public final class GearStats
 		if (magic > 0)
 		{
 			return GearStyle.MAGIC;
+		}
+		if (prayerBonus > 0)
+		{
+			return GearStyle.PRAYER;
 		}
 
 		// Pure defensive pieces (plate armour) carry no positive offensive
@@ -87,7 +93,8 @@ public final class GearStats
 			case FEET:
 				return 7;
 			case WEAPON:
-				return 8 + style().ordinal();
+				// Prayer has no weapon column; group prayer weapons with melee.
+				return style() == GearStyle.PRAYER ? 8 : 8 + style().ordinal();
 			case AMMO:
 				return 11;
 			case RING:
@@ -107,6 +114,6 @@ public final class GearStats
 			+ Math.max(0, rangedAttack)
 			+ Math.max(0, rangedStrength)
 			+ Math.max(0, magicAttack);
-		return offence * 4 + Math.max(0, defenceSum);
+		return offence * 4 + Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
 	}
 }

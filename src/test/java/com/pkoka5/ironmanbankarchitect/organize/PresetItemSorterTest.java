@@ -23,7 +23,7 @@ public class PresetItemSorterTest
 			item(4, "Rune boots", ItemCategory.GEAR)
 		));
 
-		assertEquals(Arrays.asList("Neitiznot helm", "Rune boots", "Dragon scimitar", "Rune arrow", "Mystic robe bottom"),
+		assertEquals(Arrays.asList("Neitiznot helm", "Rune boots", "Dragon scimitar", "Mystic robe bottom", "Rune arrow"),
 			names(sorted));
 	}
 

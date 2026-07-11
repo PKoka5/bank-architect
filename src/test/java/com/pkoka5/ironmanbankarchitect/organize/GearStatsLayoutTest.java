@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -20,9 +21,9 @@ public class GearStatsLayoutTest
 	{
 		// Names carry no recognizable gear words; only the stats say what these are.
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
-		stats.put(1, new GearStats(GearSlot.WEAPON, 0, 82, 0, 0, 0, 82, 0, 0));
-		stats.put(2, new GearStats(GearSlot.WEAPON, 0, 0, 0, 0, 70, 0, 0, 0));
-		stats.put(3, new GearStats(GearSlot.WEAPON, 0, 0, 0, 25, 0, 0, 0, 0));
+		stats.put(1, new GearStats(GearSlot.WEAPON, 0, 82, 0, 0, 0, 82, 0, 0, 0));
+		stats.put(2, new GearStats(GearSlot.WEAPON, 0, 0, 0, 0, 70, 0, 0, 0, 0));
+		stats.put(3, new GearStats(GearSlot.WEAPON, 0, 0, 0, 25, 0, 0, 0, 0, 0));
 
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(Arrays.asList(
 			item(1, "Trophy of valor"),
@@ -40,8 +41,8 @@ public class GearStatsLayoutTest
 	public void higherStatsWinTheSetupCell()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
-		stats.put(1, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 12));
-		stats.put(2, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 60));
+		stats.put(1, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 0, 12));
+		stats.put(2, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 0, 60));
 
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(Arrays.asList(
 			item(1, "Guard's kettle"),
@@ -57,7 +58,7 @@ public class GearStatsLayoutTest
 	{
 		// The name suggests a magic hat, but the stats say melee tank helm.
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
-		stats.put(1, new GearStats(GearSlot.HEAD, 0, 0, 0, -6, -3, 0, 0, 55));
+		stats.put(1, new GearStats(GearSlot.HEAD, 0, 0, 0, -6, -3, 0, 0, 0, 55));
 
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(
 			Collections.singletonList(item(1, "Mystic hat")), sourceOf(stats));
@@ -70,8 +71,8 @@ public class GearStatsLayoutTest
 	public void ringsAndUnknownSlotsStayOutOfSetupLanes()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
-		stats.put(1, new GearStats(GearSlot.RING, 0, 0, 0, 0, 0, 4, 0, 0));
-		stats.put(2, new GearStats(GearSlot.WEAPON, 0, 60, 0, 0, 0, 55, 0, 0));
+		stats.put(1, new GearStats(GearSlot.RING, 0, 0, 0, 0, 0, 4, 0, 0, 0));
+		stats.put(2, new GearStats(GearSlot.WEAPON, 0, 60, 0, 0, 0, 55, 0, 0, 0));
 
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(Arrays.asList(
 			item(1, "Circle of dawn"),
@@ -83,23 +84,62 @@ public class GearStatsLayoutTest
 	}
 
 	@Test
+	public void buildsAlignedSetColumnsWhenFillerIsAvailable()
+	{
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(1, new GearStats(GearSlot.HEAD, 5, 0, 0, 0, 0, 4, 0, 0, 40));
+		stats.put(2, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 20, 0, 0, 0, 30));
+		stats.put(3, new GearStats(GearSlot.HEAD, 0, 0, 0, 20, 0, 0, 0, 0, 20));
+		stats.put(4, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 6, 25));
+		List<BankPreviewItem> items = new ArrayList<>();
+		items.add(item(1, "Crown of iron"));
+		items.add(item(2, "Crown of winds"));
+		items.add(item(3, "Crown of stars"));
+		items.add(item(4, "Crown of light"));
+		for (int ringId = 10; ringId < 22; ringId++)
+		{
+			stats.put(ringId, new GearStats(GearSlot.RING, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+			items.add(item(ringId, "Signet " + ringId));
+		}
+
+		List<BankPreviewItem> laidOut = GearItemSorter.layout(items, sourceOf(stats));
+
+		// Head row: melee, ranged, magic, prayer columns, then grouped filler.
+		assertEquals(16, laidOut.size());
+		assertEquals("Crown of iron", laidOut.get(0).getDisplayName());
+		assertEquals("Crown of winds", laidOut.get(1).getDisplayName());
+		assertEquals("Crown of stars", laidOut.get(2).getDisplayName());
+		assertEquals("Crown of light", laidOut.get(3).getDisplayName());
+		for (int i = 4; i < 16; i++)
+		{
+			assertEquals("cell " + i + " should be a grouped ring", true,
+				laidOut.get(i).getDisplayName().startsWith("Signet"));
+		}
+	}
+
+	@Test
 	public void styleClassificationFollowsBonuses()
 	{
-		assertEquals(GearStyle.MELEE, new GearStats(GearSlot.BODY, 0, 0, 0, -30, -10, 0, 0, 82).style());
-		assertEquals(GearStyle.RANGED, new GearStats(GearSlot.BODY, 0, 0, 0, -15, 30, 0, 0, 55).style());
-		assertEquals(GearStyle.MAGIC, new GearStats(GearSlot.BODY, 0, 0, 0, 30, -14, 0, 0, 48).style());
-		assertEquals(GearStyle.RANGED, new GearStats(GearSlot.AMMO, 0, 0, 0, 0, 0, 0, 31, 0).style());
-		assertEquals(GearStyle.MELEE, new GearStats(GearSlot.CAPE, 1, 1, 1, 2, 2, 4, 0, 11).style());
+		assertEquals(GearStyle.MELEE, new GearStats(GearSlot.BODY, 0, 0, 0, -30, -10, 0, 0, 0, 82).style());
+		assertEquals(GearStyle.RANGED, new GearStats(GearSlot.BODY, 0, 0, 0, -15, 30, 0, 0, 0, 55).style());
+		assertEquals(GearStyle.MAGIC, new GearStats(GearSlot.BODY, 0, 0, 0, 30, -14, 0, 0, 0, 48).style());
+		assertEquals(GearStyle.RANGED, new GearStats(GearSlot.AMMO, 0, 0, 0, 0, 0, 0, 31, 0, 0).style());
+		assertEquals(GearStyle.MELEE, new GearStats(GearSlot.CAPE, 1, 1, 1, 2, 2, 4, 0, 2, 11).style());
+		// Pure prayer armour (proselyte-like): no offensive bonuses, prayer positive.
+		assertEquals(GearStyle.PRAYER, new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 0, 0, 4, 45).style());
 	}
 
 	@Test
 	public void ammoRanksIntoTheRangedAmmoRow()
 	{
-		GearStats arrows = new GearStats(GearSlot.AMMO, 0, 0, 0, 0, 0, 0, 31, 0);
+		GearStats arrows = new GearStats(GearSlot.AMMO, 0, 0, 0, 0, 0, 0, 31, 0, 0);
 		assertEquals(11, arrows.slotRank());
 
-		GearStats staff = new GearStats(GearSlot.WEAPON, 0, 0, 10, 17, 0, 5, 0, 3);
+		GearStats staff = new GearStats(GearSlot.WEAPON, 0, 0, 10, 17, 0, 5, 0, 0, 3);
 		assertEquals(10, staff.slotRank());
+
+		GearStats prayerWeapon = new GearStats(GearSlot.WEAPON, 0, 0, 0, 0, 0, 0, 0, 5, 0);
+		assertEquals(8, prayerWeapon.slotRank());
 	}
 
 	@Test
