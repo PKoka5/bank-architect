@@ -63,7 +63,7 @@ public class CompositeItemCatalogTest
 			.orElseThrow(() -> new AssertionError("expected shark")).getCategory());
 		assertEquals(ItemCategory.GEAR, CompositeItemCatalog.DEFAULT.findById(2)
 			.orElseThrow(() -> new AssertionError("expected cannonball")).getCategory());
-		assertEquals(ItemCategory.SKILLING, CompositeItemCatalog.DEFAULT.findById(1275)
+		assertEquals(ItemCategory.TOOL, CompositeItemCatalog.DEFAULT.findById(1275)
 			.orElseThrow(() -> new AssertionError("expected rune pickaxe")).getCategory());
 		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(2552)
 			.orElseThrow(() -> new AssertionError("expected ring of dueling")).getCategory());
@@ -74,7 +74,7 @@ public class CompositeItemCatalogTest
 	{
 		assertEquals(ItemCategory.CLEANUP, CompositeItemCatalog.DEFAULT.findById(1919)
 			.orElseThrow(() -> new AssertionError("expected beer glass")).getCategory());
-		assertEquals(ItemCategory.SKILLING, CompositeItemCatalog.DEFAULT.findById(5514)
+		assertEquals(ItemCategory.TOOL, CompositeItemCatalog.DEFAULT.findById(5514)
 			.orElseThrow(() -> new AssertionError("expected giant pouch")).getCategory());
 		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(25818)
 			.orElseThrow(() -> new AssertionError("expected book of the dead")).getCategory());

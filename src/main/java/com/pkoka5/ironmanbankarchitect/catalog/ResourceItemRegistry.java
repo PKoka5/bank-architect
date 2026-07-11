@@ -152,6 +152,11 @@ public final class ResourceItemRegistry implements ItemCatalog
 		{
 			return refineCategory(displayName, constantName, ItemCategory.CLEANUP);
 		}
+		if (explicitCategory == ItemCategory.SKILLING
+			&& refineCategory(displayName, constantName, ItemCategory.SKILLING) == ItemCategory.TOOL)
+		{
+			return ItemCategory.TOOL;
+		}
 		if (explicitCategory != null)
 		{
 			return explicitCategory;
