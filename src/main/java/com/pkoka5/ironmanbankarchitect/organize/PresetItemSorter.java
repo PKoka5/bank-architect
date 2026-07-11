@@ -23,6 +23,10 @@ public final class PresetItemSorter
 		{
 			return GearItemSorter.layout(items, gearStats);
 		}
+		if ("farming-herblore".equals(category.getKey()))
+		{
+			return HerbloreItemSorter.layout(items);
+		}
 
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator

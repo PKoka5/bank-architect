@@ -31,8 +31,8 @@ public class BankOrganizationPreviewBuilderTest
 		assertEquals(2, preview.getCategories().get(4).getItemCount());
 		assertEquals(1, preview.getCategories().get(9).getItemCount());
 		assertEquals("Super attack (3)", preview.getCategories().get(3).getSampleItems().get(0));
-		assertEquals("Irit seed x3", preview.getCategories().get(4).getSampleItems().get(0));
-		assertEquals("Grimy irit x2", preview.getCategories().get(4).getSampleItems().get(1));
+		assertEquals("Grimy irit x2", preview.getCategories().get(4).getSampleItems().get(0));
+		assertEquals("Irit seed x3", preview.getCategories().get(4).getSampleItems().get(1));
 		assertEquals("Unknown item #999999", preview.getCategories().get(9).getSampleItems().get(0));
 	}
 

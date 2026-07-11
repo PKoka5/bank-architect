@@ -49,7 +49,8 @@ public class PresetItemSorterTest
 			item(4, "Irit seed", ItemCategory.FARMING)
 		));
 
-		assertEquals(Arrays.asList("Irit seed", "Grimy irit", "Eye of newt", "Irit potion (unf)"), names(sorted));
+		// Recipe row order: grimy herb, seed, unfinished potion, secondary.
+		assertEquals(Arrays.asList("Grimy irit", "Irit seed", "Irit potion (unf)", "Eye of newt"), names(sorted));
 	}
 
 	@Test
