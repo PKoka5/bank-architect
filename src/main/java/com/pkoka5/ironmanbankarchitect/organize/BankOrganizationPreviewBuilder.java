@@ -9,25 +9,39 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class BankOrganizationPreviewBuilder
 {
+	// An item is an alch candidate when this many strictly better items of the
+	// same style and slot are owned (best + one backup stay in combat gear).
+	private static final int OUTCLASSED_BY_COUNT = 2;
+	private static final int ALCH_VALUE_THRESHOLD = 5000;
+	private static final String ALCH_CATEGORY_KEY = "slayer-boss-loot";
+
 	private BankOrganizationPreviewBuilder()
 	{
 	}
 
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset)
 	{
-		return build(snapshot, catalog, preset, GearStatsSource.NONE);
+		return build(snapshot, catalog, preset, GearStatsSource.NONE, ItemValueSource.NONE);
 	}
 
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
 		GearStatsSource gearStats)
 	{
+		return build(snapshot, catalog, preset, gearStats, ItemValueSource.NONE);
+	}
+
+	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
+		GearStatsSource gearStats, ItemValueSource itemValues)
+	{
 		Objects.requireNonNull(snapshot, "snapshot");
 		Objects.requireNonNull(catalog, "catalog");
 		Objects.requireNonNull(preset, "preset");
 		Objects.requireNonNull(gearStats, "gearStats");
+		Objects.requireNonNull(itemValues, "itemValues");
 
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
 		for (BankCategory category : preset.getCategories())
@@ -35,10 +49,25 @@ public final class BankOrganizationPreviewBuilder
 			previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category));
 		}
 
+		Map<String, List<Integer>> gearScoresByKey = new LinkedHashMap<>();
+		for (BankItemSnapshot bankItem : snapshot.getItems())
+		{
+			Optional<GearStats> stats = gearStats.statsFor(bankItem.getItemId());
+			if (stats.isPresent())
+			{
+				gearScoresByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
+					.add(stats.get().score());
+			}
+		}
+
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
 			CatalogItem catalogItem = catalog.describeOrUnknown(bankItem.getItemId());
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem);
+			if (isAlchCandidate(preset, category, bankItem.getItemId(), gearStats, itemValues, gearScoresByKey))
+			{
+				category = preset.getCategory(ALCH_CATEGORY_KEY);
+			}
 			MutableCategoryPreview preview = previewsByCategory.get(category.getKey());
 			if (preview == null)
 			{
@@ -55,6 +84,54 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		return new BankOrganizationPreview(preset, categories);
+	}
+
+	/**
+	 * Ironman alch rule: a combat gear item whose style+slot already has two
+	 * strictly better owned items is a duplicate the player will realistically
+	 * never wear again; when it is also worth alching it moves to the alch
+	 * review tab instead of cluttering the gear columns.
+	 */
+	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, int itemId,
+		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<Integer>> gearScoresByKey)
+	{
+		if (preset.getType() != BankPresetType.IRONMAN || !"combat-gear".equals(category.getKey()))
+		{
+			return false;
+		}
+		if (itemValues.highAlchValue(itemId) < ALCH_VALUE_THRESHOLD)
+		{
+			return false;
+		}
+
+		Optional<GearStats> stats = gearStats.statsFor(itemId);
+		if (!stats.isPresent())
+		{
+			return false;
+		}
+
+		List<Integer> scores = gearScoresByKey.get(gearKey(stats.get()));
+		if (scores == null)
+		{
+			return false;
+		}
+
+		int ownScore = stats.get().score();
+		int strictlyBetter = 0;
+		for (int score : scores)
+		{
+			if (score > ownScore)
+			{
+				strictlyBetter++;
+			}
+		}
+
+		return strictlyBetter >= OUTCLASSED_BY_COUNT;
+	}
+
+	private static String gearKey(GearStats stats)
+	{
+		return stats.style().ordinal() + ":" + stats.slotRank();
 	}
 
 	private static final class MutableCategoryPreview

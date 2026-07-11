@@ -28,6 +28,7 @@ import java.util.concurrent.RejectedExecutionException;
 import javax.inject.Inject;
 import javax.swing.JLabel;
 import net.runelite.api.Client;
+import net.runelite.api.ItemComposition;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemEquipmentStats;
@@ -154,12 +155,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			}
 
 			BankSnapshot bankSnapshot = snapshot.get();
-			// Item stats can only be read on the client thread; collect them here so
-			// the analysis thread works from a plain map.
+			// Item stats and prices can only be read on the client thread; collect
+			// them here so the analysis thread works from plain maps.
 			Map<Integer, GearStats> gearStatsById = collectGearStats(bankSnapshot);
+			Map<Integer, Integer> alchValuesById = collectAlchValues(bankSnapshot);
 			try
 			{
-				executor.execute(() -> publishBankAnalysis(controller, bankSnapshot, gearStatsById));
+				executor.execute(() -> publishBankAnalysis(controller, bankSnapshot, gearStatsById, alchValuesById));
 			}
 			catch (RejectedExecutionException ignored)
 			{
@@ -169,7 +171,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	}
 
 	private void publishBankAnalysis(BankGuideController controller, BankSnapshot bankSnapshot,
-		Map<Integer, GearStats> gearStatsById)
+		Map<Integer, GearStats> gearStatsById, Map<Integer, Integer> alchValuesById)
 	{
 		if (guideController != controller)
 		{
@@ -182,12 +184,28 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
 			controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
 				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
-				itemId -> Optional.ofNullable(gearStatsById.get(itemId))));
+				itemId -> Optional.ofNullable(gearStatsById.get(itemId)),
+				itemId -> alchValuesById.getOrDefault(itemId, 0)));
 		}
 		catch (RuntimeException ex)
 		{
 			log.error("Bank analysis failed", ex);
 		}
+	}
+
+	private Map<Integer, Integer> collectAlchValues(BankSnapshot snapshot)
+	{
+		Map<Integer, Integer> valueById = new HashMap<>();
+		for (BankItemSnapshot item : snapshot.getItems())
+		{
+			ItemComposition composition = itemManager.getItemComposition(item.getItemId());
+			if (composition != null && composition.isTradeable())
+			{
+				valueById.put(item.getItemId(), composition.getHaPrice());
+			}
+		}
+
+		return valueById;
 	}
 
 	private Map<Integer, GearStats> collectGearStats(BankSnapshot snapshot)
