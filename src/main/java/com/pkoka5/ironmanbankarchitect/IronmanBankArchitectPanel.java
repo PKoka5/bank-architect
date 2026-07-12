@@ -343,11 +343,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return content;
 	}
 
-	private JPanel categoryGrid(BankCategoryPreview category)
-	{
-		return categoryGrid(category.getItems());
-	}
-
 	private JPanel categoryGrid(List<BankPreviewItem> items)
 	{
 		if (items.isEmpty())

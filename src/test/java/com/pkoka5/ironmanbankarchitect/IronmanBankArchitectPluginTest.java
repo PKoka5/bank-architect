@@ -8,6 +8,9 @@ import org.junit.Test;
 
 public class IronmanBankArchitectPluginTest
 {
+	// loadBuiltin is a generic varargs method; the array creation warning at
+	// the call site is inherent to RuneLite's plugin test launcher template.
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception
 	{
 		ExternalPluginManager.loadBuiltin(IronmanBankArchitectPlugin.class);

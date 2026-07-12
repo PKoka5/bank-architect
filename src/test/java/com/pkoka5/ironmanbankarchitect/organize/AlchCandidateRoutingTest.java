@@ -1,7 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
@@ -267,7 +266,6 @@ public class AlchCandidateRoutingTest
 			}
 		}
 
-		assertNotNull("category " + key + " not found", null);
-		return null;
+		throw new AssertionError("category " + key + " not found");
 	}
 }
