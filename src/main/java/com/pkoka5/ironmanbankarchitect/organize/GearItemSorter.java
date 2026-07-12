@@ -61,7 +61,13 @@ final class GearItemSorter
 		{
 			int style = styleRankOf(item, gearStats);
 			int slot = slotRankOf(item, gearStats);
-			if (style == STYLE_OTHER || slot >= 12 || slot == 11)
+			if (slot == 11)
+			{
+				// Ammo is a separate dense block after equipment. It must never
+				// disguise a missing wearable in the aligned setup rows.
+				continue;
+			}
+			if (style == STYLE_OTHER || slot >= 12)
 			{
 				filler.add(item);
 			}
@@ -209,12 +215,18 @@ final class GearItemSorter
 	static int rank(BankPreviewItem item)
 	{
 		String name = normalizedName(item.getDisplayName());
-		return slotRank(name) * 100 + styleRank(name);
+		return terminalSlotRank(slotRank(name)) * 100 + styleRank(name);
 	}
 
 	private static int rankOf(BankPreviewItem item, GearStatsSource gearStats)
 	{
-		return slotRankOf(item, gearStats) * 100 + styleRankOf(item, gearStats);
+		return terminalSlotRank(slotRankOf(item, gearStats)) * 100 + styleRankOf(item, gearStats);
+	}
+
+	private static int terminalSlotRank(int slot)
+	{
+		// Generic accessories/utilities use slot 12; ammo must remain after them.
+		return slot == 11 ? 13 : slot;
 	}
 
 	private static int slotRankOf(BankPreviewItem item, GearStatsSource gearStats)
@@ -293,7 +305,8 @@ final class GearItemSorter
 		{
 			return 10;
 		}
-		if (containsAny(name, "arrow", "bolt", "dart", "javelin", "cannonball", "chinchompa", "bolt rack"))
+		if (containsAny(name, "arrow", "bolt", "dart", "javelin", "cannonball", "chinchompa",
+			"bolt rack", "grapple"))
 		{
 			return 11;
 		}

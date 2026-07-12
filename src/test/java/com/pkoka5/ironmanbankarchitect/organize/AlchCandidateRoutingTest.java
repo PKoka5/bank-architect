@@ -40,7 +40,7 @@ public class AlchCandidateRoutingTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
-			new BankItemSnapshot(3, 1, 2),
+			new BankItemSnapshot(3, 17, 2),
 			new BankItemSnapshot(4, 1, 3)
 		)), GEAR_CATALOG, BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
@@ -52,6 +52,26 @@ public class AlchCandidateRoutingTest
 		assertEquals(3, combatGear.getItemCount());
 		assertEquals(1, alchTab.getItemCount());
 		assertEquals("Gear 3", alchTab.getItems().get(0).getDisplayName());
+	}
+
+	@Test
+	public void singleCopyOutclassedGearNeverBecomesAnAlchCandidate()
+	{
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(1, meleeBody(300));
+		stats.put(2, meleeBody(200));
+		stats.put(3, meleeBody(100));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1, 1, 0),
+			new BankItemSnapshot(2, 1, 1),
+			new BankItemSnapshot(3, 1, 2)
+		)), GEAR_CATALOG, BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> 39000);
+
+		assertEquals(3, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 	}
 
 	@Test

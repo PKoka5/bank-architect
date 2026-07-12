@@ -2,12 +2,14 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -120,6 +122,37 @@ public class GearItemSorterTest
 			));
 
 		assertEquals(Arrays.asList("Magic shortbow", "Adamant arrow"), names(laidOut));
+	}
+
+	@Test
+	public void ammoNeverFillsAMissingEquipmentCell()
+	{
+		List<BankPreviewItem> input = Arrays.asList(
+				item(1, "Helm of neitiznot"), item(2, "Archer helm"), item(3, "Farseer helm"),
+				item(4, "Proselyte sallet"), item(5, "Gold ring"), item(6, "Emerald ring"),
+				item(7, "Sapphire ring"), item(8, "Ring of life"), item(9, "Dragon arrow")
+			);
+		GearStatsSource stats = itemId -> {
+			if (itemId == 1) return Optional.of(new GearStats(GearSlot.HEAD, 1, 0, 0, 0, 0, 0, 0, 0, 1));
+			if (itemId == 2) return Optional.of(new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 1, 0, 0, 0, 1));
+			if (itemId == 3) return Optional.of(new GearStats(GearSlot.HEAD, 0, 0, 0, 1, 0, 0, 0, 0, 1));
+			if (itemId == 4) return Optional.of(new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 1, 1));
+			return Optional.empty();
+		};
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
+
+		assertTrue("ammo must follow the aligned equipment row", names(laidOut).indexOf("Dragon arrow") >= 8);
+	}
+
+	@Test
+	public void terminalAmmoBlockFollowsGenericAccessories()
+	{
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), Arrays.asList(
+				item(1, "Adamant arrow"), item(2, "Gold ring"), item(3, "Salve amulet")));
+
+		assertEquals(Arrays.asList("Salve amulet", "Gold ring", "Adamant arrow"), names(laidOut));
 	}
 
 	@Test

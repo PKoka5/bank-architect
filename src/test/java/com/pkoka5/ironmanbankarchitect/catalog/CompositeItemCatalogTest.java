@@ -74,7 +74,7 @@ public class CompositeItemCatalogTest
 	{
 		assertEquals(ItemCategory.CLEANUP, CompositeItemCatalog.DEFAULT.findById(1919)
 			.orElseThrow(() -> new AssertionError("expected beer glass")).getCategory());
-		assertEquals(ItemCategory.TOOL, CompositeItemCatalog.DEFAULT.findById(5514)
+		assertEquals(ItemCategory.RUNE, CompositeItemCatalog.DEFAULT.findById(5514)
 			.orElseThrow(() -> new AssertionError("expected giant pouch")).getCategory());
 		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(25818)
 			.orElseThrow(() -> new AssertionError("expected book of the dead")).getCategory());

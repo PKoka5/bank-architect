@@ -18,11 +18,14 @@ public final class BankSnapshot
 
 		Map<Integer, Integer> quantityByItemId = new LinkedHashMap<>();
 		Map<Integer, Integer> firstSlotByItemId = new LinkedHashMap<>();
+		Map<Integer, Boolean> placeholderByItemId = new LinkedHashMap<>();
 		List<Integer> firstSeenOrder = new ArrayList<>();
 
 		for (BankItemSnapshot raw : rawEntries)
 		{
-			if (raw == null || raw.getItemId() <= 0 || raw.getQuantity() <= 0)
+			if (raw == null || raw.getItemId() <= 0
+				|| (!raw.isPlaceholder() && raw.getQuantity() <= 0)
+				|| (raw.isPlaceholder() && raw.getQuantity() != 0))
 			{
 				continue;
 			}
@@ -32,7 +35,12 @@ public final class BankSnapshot
 			{
 				quantityByItemId.put(itemId, 0);
 				firstSlotByItemId.put(itemId, raw.getSlotIndex());
+				placeholderByItemId.put(itemId, raw.isPlaceholder());
 				firstSeenOrder.add(itemId);
+			}
+			else if (!raw.isPlaceholder())
+			{
+				placeholderByItemId.put(itemId, false);
 			}
 
 			quantityByItemId.put(itemId, quantityByItemId.get(itemId) + raw.getQuantity());
@@ -41,7 +49,8 @@ public final class BankSnapshot
 		List<BankItemSnapshot> aggregated = new ArrayList<>();
 		for (int itemId : firstSeenOrder)
 		{
-			aggregated.add(new BankItemSnapshot(itemId, quantityByItemId.get(itemId), firstSlotByItemId.get(itemId)));
+			aggregated.add(new BankItemSnapshot(itemId, quantityByItemId.get(itemId), firstSlotByItemId.get(itemId),
+				placeholderByItemId.get(itemId)));
 		}
 
 		this.items = Collections.unmodifiableList(aggregated);

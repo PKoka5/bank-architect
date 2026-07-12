@@ -29,6 +29,23 @@ public class ReviewItemSorterTest
 		assertEquals(90, ReviewItemSorter.rank(new BankPreviewItem(CatalogItem.unknown(999999), 1)));
 	}
 
+	@Test
+	public void keyMatchingDoesNotMistakeMonkeyNamesForKeys()
+	{
+		assertEquals(30, ReviewItemSorter.rank(item(1, "Fetid key", ItemCategory.CLEANUP)));
+		assertEquals(70, ReviewItemSorter.rank(item(2, "Monkey nuts", ItemCategory.CLEANUP)));
+		assertEquals(30, ReviewItemSorter.rank(item(3, "Karamjan monkey greegree", ItemCategory.CLEANUP)));
+	}
+
+	@Test
+	public void ambiguousItemsStayGeneralInsteadOfBeingCalledJunk()
+	{
+		BankPreviewItem item = item(1, "Mysterious reusable object", ItemCategory.CLEANUP);
+
+		assertEquals(70, ReviewItemSorter.rank(item));
+		assertEquals("General Review", ReviewItemSorter.label(item));
+	}
+
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
 	{
 		return new BankPreviewItem(new CatalogItem(itemId, name, category,

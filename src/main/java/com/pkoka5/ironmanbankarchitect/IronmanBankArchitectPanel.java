@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect;
 
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.PresetItemSorter;
@@ -16,6 +17,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,6 +74,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private JDialog bankDialog;
 	private JTabbedPane bankTabs;
+	private JButton exportBlueprintButton;
 
 	IronmanBankArchitectPanel(BankGuideController guideController)
 	{
@@ -231,11 +235,27 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			bankTabs.setTabPlacement(JTabbedPane.LEFT);
 			bankTabs.setBackground(BANK_BG);
 			bankTabs.setForeground(Color.WHITE);
+			exportBlueprintButton = new JButton("Copy Blueprint Export");
+			exportBlueprintButton.addActionListener(event -> copyBlueprintExport());
 			bankDialog.add(bankTabs, BorderLayout.CENTER);
+			bankDialog.add(exportBlueprintButton, BorderLayout.SOUTH);
 		}
 
 		refreshBankDialog(preview);
 		bankDialog.setVisible(true);
+	}
+
+	private void copyBlueprintExport()
+	{
+		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		if (preview == null)
+		{
+			return;
+		}
+
+		String export = BankBlueprintTextExporter.export(preview);
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(export), null);
+		exportBlueprintButton.setText("Copied Blueprint Export");
 	}
 
 	private void refreshBankDialog(BankOrganizationPreview preview)
@@ -267,7 +287,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		wrapper.setBackground(BANK_BG);
 		wrapper.setOpaque(true);
 		wrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-		wrapper.add(label(category.getCategory().getName() + " - " + category.getItemCount() + " owned item IDs"));
+		wrapper.add(label(category.getCategory().getName() + " - " + category.getItemCount() + " planned item IDs"));
 		wrapper.add(Box.createVerticalStrut(8));
 		wrapper.add(categoryContent(category));
 

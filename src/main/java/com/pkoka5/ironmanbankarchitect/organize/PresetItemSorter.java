@@ -27,6 +27,36 @@ public final class PresetItemSorter
 		{
 			return HerbloreItemSorter.layout(items);
 		}
+		if ("teleports-runes".equals(category.getKey()))
+		{
+			return TeleportItemSorter.sort(items);
+		}
+		if ("clues-cosmetics".equals(category.getKey()))
+		{
+			List<BankPreviewItem> sorted = new ArrayList<>(items);
+			sorted.sort(Comparator
+				.comparingInt(PresetItemSorter::clueRank)
+				.thenComparing(item -> normalizedName(item.getDisplayName()))
+				.thenComparingInt(BankPreviewItem::getItemId));
+			return sorted;
+		}
+		if ("skilling-tools".equals(category.getKey()))
+		{
+			return ToolItemSorter.sort(items);
+		}
+		if ("resources".equals(category.getKey()))
+		{
+			return ResourceItemSorter.sort(items);
+		}
+		if ("slayer-boss-loot".equals(category.getKey()))
+		{
+			List<BankPreviewItem> sorted = new ArrayList<>(items);
+			sorted.sort(Comparator
+				.comparingInt(PresetItemSorter::bossLootRank)
+				.thenComparing(item -> normalizedName(item.getDisplayName()))
+				.thenComparingInt(BankPreviewItem::getItemId));
+			return sorted;
+		}
 
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
@@ -72,10 +102,11 @@ public final class PresetItemSorter
 		{
 			return rank(name, subcategory,
 				group(0, "brew", "restore", "prayer potion", "stamina", "super combat",
-					"ranging potion", "magic potion", "attack", "strength", "defence"),
+					"ranging potion", "magic potion", "attack", "strength", "defence", "holy wrench"),
 				group(30, "shark", "monkfish", "karambwan", "manta", "anglerfish", "lobster",
 					"swordfish", "tuna", "salmon", "trout", "pizza", "pie", "potato", "cake"),
-				group(60, "wine", "stew", "curry", "kebab", "fruit"));
+				group(60, "wine", "stew", "curry", "kebab", "fruit", "stout", "mind bomb",
+					"lizardkicker"));
 		}
 
 		if ("farming-herblore".equals(categoryKey))
@@ -157,6 +188,33 @@ public final class PresetItemSorter
 	private static String normalizedName(String value)
 	{
 		return value == null ? "" : value.toLowerCase();
+	}
+
+	private static int clueRank(BankPreviewItem item)
+	{
+		String name = normalizedName(item.getDisplayName());
+		String[] order = {"beginner", "easy", "medium", "hard", "elite", "master"};
+		for (int i = 0; i < order.length; i++)
+		{
+			if (name.contains("(" + order[i] + ")"))
+			{
+				return i;
+			}
+		}
+		return 20;
+	}
+
+	private static int bossLootRank(BankPreviewItem item)
+	{
+		if (item.getItemCategory() == ItemCategory.UNIQUE)
+		{
+			return 0;
+		}
+		if (item.getItemCategory() == ItemCategory.GEAR)
+		{
+			return 20;
+		}
+		return 10;
 	}
 
 	private static final class Group

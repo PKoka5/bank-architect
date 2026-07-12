@@ -98,6 +98,34 @@ public class PresetItemSorterTest
 			new BankPreviewItem(CatalogItem.unknown(999999), 1)));
 	}
 
+	@Test
+	public void cluesFollowDifficultyOrderInsteadOfAlphabeticalOrder()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("clues-cosmetics"), Arrays.asList(
+				item(1, "Clue scroll (elite)", ItemCategory.CLUE),
+				item(2, "Clue scroll (easy)", ItemCategory.CLUE),
+				item(3, "Clue scroll (hard)", ItemCategory.CLUE),
+				item(4, "Clue scroll (medium)", ItemCategory.CLUE),
+				item(5, "Clue scroll (beginner)", ItemCategory.CLUE)));
+
+		assertEquals(Arrays.asList("Clue scroll (beginner)", "Clue scroll (easy)",
+			"Clue scroll (medium)", "Clue scroll (hard)", "Clue scroll (elite)"), names(sorted));
+	}
+
+	@Test
+	public void bossLootKeepsUniqueUpgradesSeparateFromAlchCandidates()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("slayer-boss-loot"), Arrays.asList(
+				item(1, "Adamant platebody", ItemCategory.GEAR),
+				item(2, "Pegasian crystal", ItemCategory.UNIQUE),
+				item(3, "Crystal weapon seed", ItemCategory.UNIQUE)));
+
+		assertEquals(Arrays.asList("Crystal weapon seed", "Pegasian crystal", "Adamant platebody"),
+			names(sorted));
+	}
+
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
 	{
 		return new BankPreviewItem(new CatalogItem(itemId, name, category,

@@ -6,6 +6,7 @@ import java.util.Optional;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
+import net.runelite.api.ItemComposition;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
@@ -37,12 +38,16 @@ public final class BankSnapshotReader
 		for (int slotIndex = 0; slotIndex < items.length; slotIndex++)
 		{
 			Item item = items[slotIndex];
-			if (item == null || !isSnapshotItem(item.getId(), item.getQuantity()))
+			if (item == null)
 			{
 				continue;
 			}
 
-			rawEntries.add(new BankItemSnapshot(item.getId(), item.getQuantity(), slotIndex));
+			ItemComposition composition = client.getItemDefinition(item.getId());
+			int placeholderTemplateId = composition == null ? -1 : composition.getPlaceholderTemplateId();
+			int placeholderItemId = composition == null ? -1 : composition.getPlaceholderId();
+			snapshotItem(item.getId(), item.getQuantity(), placeholderTemplateId, placeholderItemId, slotIndex)
+				.ifPresent(rawEntries::add);
 		}
 
 		return Optional.of(new BankSnapshot(rawEntries));
@@ -51,5 +56,24 @@ public final class BankSnapshotReader
 	static boolean isSnapshotItem(int itemId, int quantity)
 	{
 		return itemId > 0 && quantity > 0 && itemId != ItemID.BANK_FILLER;
+	}
+
+	static Optional<BankItemSnapshot> snapshotItem(int itemId, int quantity, int placeholderTemplateId,
+		int placeholderItemId, int slotIndex)
+	{
+		if (itemId <= 0 || itemId == ItemID.BANK_FILLER)
+		{
+			return Optional.empty();
+		}
+		if (placeholderTemplateId != -1)
+		{
+			int canonicalItemId = placeholderItemId > 0 ? placeholderItemId : itemId;
+			return Optional.of(new BankItemSnapshot(canonicalItemId, 0, slotIndex, true));
+		}
+		if (!isSnapshotItem(itemId, quantity))
+		{
+			return Optional.empty();
+		}
+		return Optional.of(new BankItemSnapshot(itemId, quantity, slotIndex));
 	}
 }

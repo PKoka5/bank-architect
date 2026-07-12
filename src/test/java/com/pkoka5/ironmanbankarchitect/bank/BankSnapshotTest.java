@@ -47,4 +47,29 @@ public class BankSnapshotTest
 		assertEquals(8, snapshot.getTotalQuantity(209));
 		assertEquals(7, snapshot.getItems().get(0).getSlotIndex());
 	}
+
+	@Test
+	public void preservesPlaceholderWithoutTreatingItAsOwned()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(6687, 0, 14, true)
+		));
+
+		assertEquals(1, snapshot.getItems().size());
+		assertEquals(0, snapshot.getTotalQuantity(6687));
+		assertEquals(14, snapshot.getItems().get(0).getSlotIndex());
+		assertEquals(true, snapshot.getItems().get(0).isPlaceholder());
+	}
+
+	@Test
+	public void ownedStackWinsIfPlaceholderAndOwnedEntryShareAnItemId()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(6687, 0, 14, true),
+			new BankItemSnapshot(6687, 3, 20)
+		));
+
+		assertEquals(3, snapshot.getTotalQuantity(6687));
+		assertEquals(false, snapshot.getItems().get(0).isPlaceholder());
+	}
 }

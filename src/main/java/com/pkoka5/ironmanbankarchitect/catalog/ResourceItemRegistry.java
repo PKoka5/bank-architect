@@ -24,7 +24,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 	private static final String[] TOOL_OVERRIDE_NEEDLES = {
 		"pickaxe", " axe", "harpoon", "machete", "butterfly net", "fishing rod", "lobster pot",
 		"fishing net", "graceful", "angler", "prospector", "pyromancer", "lumberjack",
-		"carpenter", "farmer's", "rogue "
+		"carpenter", "farmer's strawhat", "farmer's jacket", "farmer's shirt",
+		"farmer's boro trousers", "farmer's boots", "rogue "
 	};
 
 	private static final String[] TELEPORT_NEEDLES = {
@@ -95,9 +96,11 @@ public final class ResourceItemRegistry implements ItemCatalog
 				String displayName = fields[1];
 				ItemCategory explicitCategory = parseRegistryCategory(fields.length >= 3 ? fields[2] : "");
 				String constantName = fields.length >= 4 ? fields[3] : "";
-				ItemCategory category = resolveCategory(displayName, constantName, explicitCategory);
-				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, category,
-					category.getDisplayLabel().toLowerCase(), Collections.emptySet(), null));
+				ItemCategory legacyCategory = resolveCategory(displayName, constantName, explicitCategory);
+				ItemClassificationRefiner.Classification classification =
+					ItemClassificationRefiner.refine(displayName, constantName, legacyCategory);
+				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, classification.getCategory(),
+					classification.getSubcategory(), Collections.emptySet(), null));
 			}
 		}
 		catch (IOException ex)

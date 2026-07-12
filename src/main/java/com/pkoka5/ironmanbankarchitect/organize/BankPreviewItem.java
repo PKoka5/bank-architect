@@ -17,24 +17,30 @@ public final class BankPreviewItem
 	private final ItemCategory itemCategory;
 	private final String subcategory;
 	private final Set<String> tags;
+	private final boolean placeholder;
 
 	public BankPreviewItem(int itemId, String displayName, int quantity)
 	{
-		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet());
+		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet(), false);
 	}
 
 	public BankPreviewItem(CatalogItem catalogItem, int quantity)
 	{
+		this(catalogItem, quantity, false);
+	}
+
+	public BankPreviewItem(CatalogItem catalogItem, int quantity, boolean placeholder)
+	{
 		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
-			catalogItem.getSubcategory(), catalogItem.getTags());
+			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder);
 	}
 
 	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
-		String subcategory, Set<String> tags)
+		String subcategory, Set<String> tags, boolean placeholder)
 	{
-		if (quantity <= 0)
+		if (quantity < 0 || (quantity == 0 && !placeholder))
 		{
-			throw new IllegalArgumentException("quantity must be positive");
+			throw new IllegalArgumentException("quantity must be positive unless the item is a placeholder");
 		}
 
 		this.itemId = itemId;
@@ -45,6 +51,7 @@ public final class BankPreviewItem
 		this.tags = tags == null || tags.isEmpty()
 			? Collections.emptySet()
 			: Collections.unmodifiableSet(new LinkedHashSet<>(tags));
+		this.placeholder = placeholder;
 	}
 
 	public static BankPreviewItem blank()
@@ -87,8 +94,17 @@ public final class BankPreviewItem
 		return tags.contains(tag);
 	}
 
+	public boolean isPlaceholder()
+	{
+		return placeholder;
+	}
+
 	public String toCompactLabel()
 	{
+		if (placeholder)
+		{
+			return displayName + " (placeholder)";
+		}
 		return quantity > 1 ? displayName + " x" + quantity : displayName;
 	}
 

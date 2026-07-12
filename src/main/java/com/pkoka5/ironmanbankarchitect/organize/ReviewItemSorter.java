@@ -23,8 +23,8 @@ final class ReviewItemSorter
 			group(20, "graceful", "pyromancer", "prospector", "angler", "rogue", "lumberjack",
 				"farmer's", "carpenter", "costume", "cosmetic", "mask", "gown", "robe top",
 				"robe bottom"),
-			group(30, "quest", "key", "notes", "letter", "book", "scroll", "manual", "certificate",
-				"sample", "specimen", "plaque", "report", "tome", "binding book"),
+			group(30, "quest", "key", "greegree", "notes", "letter", "book", "scroll", "manual",
+				"certificate", "sample", "specimen", "plaque", "report", "tome", "binding book"),
 			group(40, "christmas", "easter", "halloween", "holiday", "santa", "partyhat", "pumpkin",
 				"snow", "event"),
 			group(50, "burnt", "beer glass", "junk", "old boot", "buttons", "broken", "empty"),
@@ -76,14 +76,41 @@ final class ReviewItemSorter
 		{
 			for (String needle : group.needles)
 			{
-				if (name.contains(needle))
+				if (matches(name, needle))
 				{
 					return group.rank;
 				}
 			}
 		}
 
-		return 50;
+		return 70;
+	}
+
+	private static boolean matches(String name, String needle)
+	{
+		if (!"key".equals(needle))
+		{
+			return name.contains(needle);
+		}
+
+		int fromIndex = 0;
+		while (fromIndex < name.length())
+		{
+			int index = name.indexOf(needle, fromIndex);
+			if (index < 0)
+			{
+				return false;
+			}
+			int end = index + needle.length();
+			boolean startBoundary = index == 0 || !Character.isLetterOrDigit(name.charAt(index - 1));
+			boolean endBoundary = end == name.length() || !Character.isLetterOrDigit(name.charAt(end));
+			if (startBoundary && endBoundary)
+			{
+				return true;
+			}
+			fromIndex = index + 1;
+		}
+		return false;
 	}
 
 	private static Group group(int rank, String... needles)

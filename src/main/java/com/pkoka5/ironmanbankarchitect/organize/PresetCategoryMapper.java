@@ -45,6 +45,10 @@ public final class PresetCategoryMapper
 		}
 		if (category == ItemCategory.POTION)
 		{
+			if (isPartialPotionDose(item.getSubcategory()))
+			{
+				return preset.getCategory("farming-herblore");
+			}
 			return preset.getCategory("potions-food");
 		}
 		if (category == ItemCategory.FARMING || category == ItemCategory.HERBLORE)
@@ -59,12 +63,27 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("resources");
 		}
+		if (category == ItemCategory.UNIQUE)
+		{
+			return preset.getCategory("slayer-boss-loot");
+		}
+		if (category == ItemCategory.CLUE)
+		{
+			return preset.getCategory("clues-cosmetics");
+		}
 		if (category == ItemCategory.CLEANUP || category == ItemCategory.UNKNOWN || category == ItemCategory.UNCATEGORIZED)
 		{
 			return preset.getCategory("storage-cleanup");
 		}
 
 		return preset.getCategory("storage-cleanup");
+	}
+
+	private static boolean isPartialPotionDose(String subcategory)
+	{
+		return "potion-dose-1".equals(subcategory) || "potion-dose-2".equals(subcategory)
+			|| "potion-dose-3".equals(subcategory) || "dose-1".equals(subcategory)
+			|| "dose-2".equals(subcategory) || "dose-3".equals(subcategory);
 	}
 
 	private static BankCategory mapMain(BankPreset preset, CatalogItem item)
@@ -89,6 +108,14 @@ public final class PresetCategoryMapper
 		if (category == ItemCategory.FARMING || category == ItemCategory.HERBLORE)
 		{
 			return preset.getCategory("farming-herblore");
+		}
+		if (category == ItemCategory.UNIQUE)
+		{
+			return preset.getCategory("boss-slayer-loot");
+		}
+		if (category == ItemCategory.CLUE)
+		{
+			return preset.getCategory("clues-collection-log");
 		}
 		if (category == ItemCategory.SKILLING || category == ItemCategory.TOOL)
 		{
@@ -125,6 +152,10 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("melee-gear");
 		}
+		if (category == ItemCategory.UNIQUE || category == ItemCategory.CLUE)
+		{
+			return preset.getCategory("loot-drops");
+		}
 		if (category == ItemCategory.CLEANUP || category == ItemCategory.UNKNOWN || category == ItemCategory.UNCATEGORIZED)
 		{
 			return preset.getCategory("low-use-review");
@@ -156,6 +187,10 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("melee-pk-gear");
 		}
+		if (category == ItemCategory.UNIQUE || category == ItemCategory.CLUE)
+		{
+			return preset.getCategory("loot-keys-review");
+		}
 		if (category == ItemCategory.CLEANUP || category == ItemCategory.UNKNOWN || category == ItemCategory.UNCATEGORIZED)
 		{
 			return preset.getCategory("loot-keys-review");
@@ -186,6 +221,10 @@ public final class PresetCategoryMapper
 		if (category == ItemCategory.SKILLING || category == ItemCategory.TOOL)
 		{
 			return preset.getCategory("tools-outfits-pets");
+		}
+		if (category == ItemCategory.UNIQUE || category == ItemCategory.CLUE)
+		{
+			return preset.getCategory("loot-clues-storage");
 		}
 		if (category == ItemCategory.CLEANUP || category == ItemCategory.GEAR || category == ItemCategory.UNKNOWN || category == ItemCategory.UNCATEGORIZED)
 		{

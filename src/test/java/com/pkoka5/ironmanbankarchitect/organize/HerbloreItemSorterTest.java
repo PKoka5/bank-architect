@@ -53,16 +53,37 @@ public class HerbloreItemSorterTest
 			item(19, "Torstol potion (unf)")
 		));
 
-		// Ranarr row: 3 chain cells + 5 filler = 8, so the torstol row starts
-		// exactly at index 8.
+		// Missing semantic cells are filled in-place, and the next recipe still
+		// starts on a bank row boundary.
 		assertEquals(8, indexOf(laidOut, "Grimy torstol"));
 		assertEquals("Grimy ranarr weed", laidOut.get(0).getDisplayName());
-		assertEquals("Ranarr seed", laidOut.get(1).getDisplayName());
-		assertEquals("Snape grass", laidOut.get(2).getDisplayName());
+		assertEquals("Ranarr seed", laidOut.get(2).getDisplayName());
+		assertEquals("Snape grass", laidOut.get(4).getDisplayName());
 		assertEquals("Grimy torstol", laidOut.get(8).getDisplayName());
+		// Only four fillers remain, so this final incomplete row deliberately
+		// falls back to a dense chain instead of inventing an empty slot.
 		assertEquals("Torstol seed", laidOut.get(9).getDisplayName());
 		assertEquals("Torstol potion (unf)", laidOut.get(10).getDisplayName());
 		assertEquals(15, laidOut.size());
+	}
+
+	@Test
+	public void placesPotionDosesInStableRecipeColumns()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy irit"),
+			item(2, "Clean irit"),
+			item(3, "Irit seed"),
+			item(4, "Irit potion (unf)"),
+			item(5, "Eye of newt"),
+			item(6, "Super attack (3)"),
+			item(7, "Super attack (2)"),
+			item(8, "Super attack (1)")));
+
+		assertEquals(Arrays.asList(
+			"Grimy irit", "Clean irit", "Irit seed", "Irit potion (unf)",
+			"Eye of newt", "Super attack (3)", "Super attack (2)", "Super attack (1)"
+		), names(laidOut));
 	}
 
 	@Test
@@ -77,6 +98,50 @@ public class HerbloreItemSorterTest
 		));
 
 		assertEquals(Arrays.asList("Grimy irit", "Irit seed", "Eye of newt"), names(laidOut));
+	}
+
+	@Test
+	public void sharedSecondaryPrefersHighestTierOwnedRecipe()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Guam leaf"),
+			item(2, "Guam seed"),
+			item(3, "Grimy irit"),
+			item(4, "Irit seed"),
+			item(5, "Eye of newt"),
+			item(6, "Grimy tarromin"),
+			item(7, "Tarromin seed"),
+			item(8, "Grimy kwuarm"),
+			item(9, "Kwuarm seed"),
+			item(10, "Limpwurt root"),
+			item(11, "Compost"),
+			item(12, "Plant cure"),
+			item(13, "Seed dibber"),
+			item(14, "Rake"),
+			item(15, "Spade"),
+			item(16, "Trowel"),
+			item(17, "Secateurs"),
+			item(18, "Watering can"),
+			item(19, "Empty sack"),
+			item(20, "Basket"),
+			item(21, "Compost potion"),
+			item(22, "Gardening boots"),
+			item(23, "Gardening gloves"),
+			item(24, "Gardening hat"),
+			item(25, "Gardening top"),
+			item(26, "Gardening legs"),
+			item(27, "Gardening cape"),
+			item(28, "Gardening amulet"),
+			item(29, "Gardening ring"),
+			item(30, "Gardening bucket"),
+			item(31, "Gardening basket"),
+			item(32, "Gardening pouch")
+		));
+
+		assertEquals(4, indexOf(laidOut, "Eye of newt") % 8);
+		assertEquals(4, indexOf(laidOut, "Limpwurt root") % 8);
+		assertEquals(true, indexOf(laidOut, "Eye of newt") > indexOf(laidOut, "Grimy irit"));
+		assertEquals(true, indexOf(laidOut, "Limpwurt root") > indexOf(laidOut, "Grimy kwuarm"));
 	}
 
 	@Test

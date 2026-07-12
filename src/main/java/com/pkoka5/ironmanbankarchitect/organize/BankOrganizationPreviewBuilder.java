@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +53,10 @@ public final class BankOrganizationPreviewBuilder
 		Map<String, List<Integer>> gearScoresByKey = new LinkedHashMap<>();
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
+			if (bankItem.isPlaceholder())
+			{
+				continue;
+			}
 			Optional<GearStats> stats = gearStats.statsFor(bankItem.getItemId());
 			if (stats.isPresent())
 			{
@@ -62,9 +67,11 @@ public final class BankOrganizationPreviewBuilder
 
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
-			CatalogItem catalogItem = catalog.describeOrUnknown(bankItem.getItemId());
+			CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
+				bankItem.getItemId(), gearStats);
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem);
-			if (isAlchCandidate(preset, category, bankItem.getItemId(), gearStats, itemValues, gearScoresByKey))
+			if (isAlchCandidate(preset, category, bankItem.getItemId(), bankItem.getQuantity(),
+				gearStats, itemValues, gearScoresByKey))
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
 			}
@@ -74,7 +81,7 @@ public final class BankOrganizationPreviewBuilder
 				throw new IllegalStateException("Preset mapper returned unknown category: " + category.getKey());
 			}
 
-			preview.add(catalogItem, bankItem.getQuantity());
+			preview.add(catalogItem, bankItem.getQuantity(), bankItem.isPlaceholder());
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -86,16 +93,37 @@ public final class BankOrganizationPreviewBuilder
 		return new BankOrganizationPreview(preset, categories);
 	}
 
+	private static CatalogItem effectiveCatalogItem(CatalogItem item, int itemId, GearStatsSource gearStats)
+	{
+		Optional<GearStats> stats = gearStats.statsFor(itemId);
+		if (stats.isPresent() && (item.getCategory() == ItemCategory.GEAR
+			|| ((item.getCategory() == ItemCategory.CLEANUP
+				|| item.getCategory() == ItemCategory.UNKNOWN
+				|| item.getCategory() == ItemCategory.UNCATEGORIZED)
+				&& stats.get().score() > 0)))
+		{
+			return new CatalogItem(item.getItemId(), item.getDisplayName(), ItemCategory.GEAR,
+				stats.get().getSlot().name().toLowerCase(), item.getTags(),
+				item.getWorkflowKey().orElse(null));
+		}
+
+		return item;
+	}
+
 	/**
 	 * Ironman alch rule: a combat gear item whose style+slot already has two
 	 * strictly better owned items is a duplicate the player will realistically
 	 * never wear again; when it is also worth alching it moves to the alch
 	 * review tab instead of cluttering the gear columns.
 	 */
-	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, int itemId,
+	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, int itemId, int quantity,
 		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<Integer>> gearScoresByKey)
 	{
 		if (preset.getType() != BankPresetType.IRONMAN || !"combat-gear".equals(category.getKey()))
+		{
+			return false;
+		}
+		if (quantity <= 1)
 		{
 			return false;
 		}
@@ -144,9 +172,9 @@ public final class BankOrganizationPreviewBuilder
 			this.category = category;
 		}
 
-		private void add(CatalogItem catalogItem, int quantity)
+		private void add(CatalogItem catalogItem, int quantity, boolean placeholder)
 		{
-			items.add(new BankPreviewItem(catalogItem, quantity));
+			items.add(new BankPreviewItem(catalogItem, quantity, placeholder));
 		}
 
 		private BankCategoryPreview toImmutable(GearStatsSource gearStats)

@@ -7,33 +7,31 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Lays out the farming/herblore tab as one production row per potion recipe:
- * grimy herb, clean herb, seed, unfinished potion, secondaries — the order a
- * player works through the chain. Rows are padded to the full grid width with
- * leftover items so the recipe rows stay aligned after bank compaction; once
- * filler runs out the remaining items continue densely.
+ * Lays out owned Herblore chains in stable eight-cell rows:
+ * grimy, clean, seed, unfinished, secondary, dose 3, dose 2, dose 1.
+ * Missing cells are filled with non-chain farming items because the real bank
+ * compacts empty slots. If a full row cannot be filled, the remainder stays dense.
  */
 final class HerbloreItemSorter
 {
 	private static final int GRID_COLUMNS = 8;
 	private static final int MIN_CHAIN_CELLS = 2;
 
-	// Herb level order, low to high. Secondaries listed per chain.
 	private static final Chain[] CHAINS = {
-		chain("guam", "eye of newt"),
-		chain("marrentill", "unicorn horn"),
-		chain("tarromin", "limpwurt"),
-		chain("harralander", "red spiders"),
-		chain("ranarr", "snape grass"),
-		chain("toadflax", "crushed nest"),
-		chain("irit", "eye of newt"),
-		chain("avantoe", "mort myre fungus"),
-		chain("kwuarm", "limpwurt"),
-		chain("snapdragon", "red spiders"),
-		chain("cadantine", "white berries"),
-		chain("lantadyme", "dragon scale"),
-		chain("dwarf weed", "wine of zamorak"),
-		chain("torstol", "vial of water")
+		chain("guam", "attack potion", "eye of newt"),
+		chain("marrentill", "antipoison", "unicorn horn"),
+		chain("tarromin", "strength potion", "limpwurt"),
+		chain("harralander", "restore potion", "red spiders"),
+		chain("ranarr", "prayer potion", "snape grass"),
+		chain("toadflax", "saradomin brew", "crushed nest"),
+		chain("irit", "super attack", "eye of newt"),
+		chain("avantoe", "super energy", "mort myre fungus"),
+		chain("kwuarm", "super strength", "limpwurt"),
+		chain("snapdragon", "super restore", "red spiders"),
+		chain("cadantine", "super defence", "white berries"),
+		chain("lantadyme", "antifire", "dragon scale"),
+		chain("dwarf weed", "ranging potion", "wine of zamorak"),
+		chain("torstol", "super combat", "vial of water")
 	};
 
 	private HerbloreItemSorter()
@@ -43,14 +41,18 @@ final class HerbloreItemSorter
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
 	{
 		Set<BankPreviewItem> unused = new LinkedHashSet<>(items);
-		List<List<BankPreviewItem>> recipeRows = new ArrayList<>();
-		for (Chain chain : CHAINS)
+		List<RecipeRow> recipeRows = new ArrayList<>();
+		// Allocate shared secondaries from the highest-tier owned chain down.
+		// Insert accepted rows at the front so the final visual order remains
+		// low-to-high even though ownership is resolved high-to-low.
+		for (int chainIndex = CHAINS.length - 1; chainIndex >= 0; chainIndex--)
 		{
-			List<BankPreviewItem> cells = matchChain(chain, unused);
-			if (cells.size() >= MIN_CHAIN_CELLS)
+			Chain chain = CHAINS[chainIndex];
+			RecipeRow row = matchChain(chain, unused);
+			if (row.itemCount() >= MIN_CHAIN_CELLS && row.hasHerbInput())
 			{
-				recipeRows.add(cells);
-				unused.removeAll(cells);
+				recipeRows.add(0, row);
+				unused.removeAll(row.items());
 			}
 		}
 
@@ -62,14 +64,23 @@ final class HerbloreItemSorter
 
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		int fillerIndex = 0;
-		for (List<BankPreviewItem> cells : recipeRows)
+		for (int rowIndex = 0; rowIndex < recipeRows.size(); rowIndex++)
 		{
-			laidOut.addAll(cells);
-			int padding = GRID_COLUMNS - cells.size();
-			if (padding > 0 && fillerIndex + padding <= filler.size())
+			RecipeRow row = recipeRows.get(rowIndex);
+			int missing = GRID_COLUMNS - row.itemCount();
+			if (fillerIndex + missing > filler.size())
 			{
-				laidOut.addAll(filler.subList(fillerIndex, fillerIndex + padding));
-				fillerIndex += padding;
+				for (int remaining = rowIndex; remaining < recipeRows.size(); remaining++)
+				{
+					laidOut.addAll(recipeRows.get(remaining).items());
+				}
+				laidOut.addAll(filler.subList(fillerIndex, filler.size()));
+				return laidOut;
+			}
+
+			for (BankPreviewItem cell : row.cells)
+			{
+				laidOut.add(cell == null ? filler.get(fillerIndex++) : cell);
 			}
 		}
 
@@ -77,14 +88,9 @@ final class HerbloreItemSorter
 		return laidOut;
 	}
 
-	private static List<BankPreviewItem> matchChain(Chain chain, Set<BankPreviewItem> unused)
+	private static RecipeRow matchChain(Chain chain, Set<BankPreviewItem> unused)
 	{
-		BankPreviewItem grimy = null;
-		BankPreviewItem clean = null;
-		BankPreviewItem seed = null;
-		BankPreviewItem unfinished = null;
-		List<BankPreviewItem> secondaries = new ArrayList<>();
-
+		BankPreviewItem[] cells = new BankPreviewItem[GRID_COLUMNS];
 		for (BankPreviewItem item : unused)
 		{
 			String name = normalizedName(item.getDisplayName());
@@ -92,47 +98,54 @@ final class HerbloreItemSorter
 			{
 				if (name.contains("grimy"))
 				{
-					grimy = first(grimy, item);
+					cells[0] = first(cells[0], item);
 				}
 				else if (name.contains("seed"))
 				{
-					seed = first(seed, item);
+					cells[2] = first(cells[2], item);
 				}
 				else if (name.contains("unf"))
 				{
-					unfinished = first(unfinished, item);
+					cells[3] = first(cells[3], item);
 				}
 				else if (!name.contains("potion"))
 				{
-					clean = first(clean, item);
+					cells[1] = first(cells[1], item);
 				}
 				continue;
 			}
+
+			if (name.contains(chain.product))
+			{
+				int dose = doseOf(name);
+				if (dose >= 1 && dose <= 3)
+				{
+					cells[8 - dose] = first(cells[8 - dose], item);
+				}
+				continue;
+			}
+
 			for (String secondary : chain.secondaries)
 			{
 				if (name.contains(secondary))
 				{
-					secondaries.add(item);
+					cells[4] = first(cells[4], item);
 					break;
 				}
 			}
 		}
+		return new RecipeRow(cells);
+	}
 
-		List<BankPreviewItem> cells = new ArrayList<>();
-		addIfPresent(cells, grimy);
-		addIfPresent(cells, clean);
-		addIfPresent(cells, seed);
-		addIfPresent(cells, unfinished);
-		for (BankPreviewItem secondary : secondaries)
+	private static int doseOf(String name)
+	{
+		int length = name.length();
+		if (length >= 3 && name.charAt(length - 3) == '(' && name.charAt(length - 1) == ')')
 		{
-			if (cells.size() >= GRID_COLUMNS)
-			{
-				break;
-			}
-			cells.add(secondary);
+			char value = name.charAt(length - 2);
+			return value >= '1' && value <= '4' ? value - '0' : -1;
 		}
-
-		return cells;
+		return -1;
 	}
 
 	private static BankPreviewItem first(BankPreviewItem current, BankPreviewItem candidate)
@@ -140,33 +153,60 @@ final class HerbloreItemSorter
 		return current == null ? candidate : current;
 	}
 
-	private static void addIfPresent(List<BankPreviewItem> cells, BankPreviewItem item)
-	{
-		if (item != null)
-		{
-			cells.add(item);
-		}
-	}
-
 	private static String normalizedName(String value)
 	{
 		return value == null ? "" : value.toLowerCase();
 	}
 
-	private static Chain chain(String herb, String... secondaries)
+	private static Chain chain(String herb, String product, String... secondaries)
 	{
-		return new Chain(herb, secondaries);
+		return new Chain(herb, product, secondaries);
 	}
 
 	private static final class Chain
 	{
 		private final String herb;
+		private final String product;
 		private final String[] secondaries;
 
-		private Chain(String herb, String[] secondaries)
+		private Chain(String herb, String product, String[] secondaries)
 		{
 			this.herb = herb;
+			this.product = product;
 			this.secondaries = secondaries;
+		}
+	}
+
+	private static final class RecipeRow
+	{
+		private final BankPreviewItem[] cells;
+
+		private RecipeRow(BankPreviewItem[] cells)
+		{
+			this.cells = cells;
+		}
+
+		private int itemCount()
+		{
+			return items().size();
+		}
+
+		private boolean hasHerbInput()
+		{
+			return cells[0] != null || cells[1] != null || cells[2] != null || cells[3] != null;
+		}
+
+		private List<BankPreviewItem> items()
+		{
+			List<BankPreviewItem> items = new ArrayList<>();
+			for (BankPreviewItem cell : cells)
+			{
+				if (cell != null)
+				{
+					items.add(cell);
+				}
+			}
+			return items;
 		}
 	}
 }
