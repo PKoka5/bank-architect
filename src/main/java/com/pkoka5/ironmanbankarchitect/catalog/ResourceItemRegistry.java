@@ -244,7 +244,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 		{
 			return ItemCategory.FARMING;
 		}
-		if (containsAny(name, "grimy", "clean", "herb", "secondary", "unf", "potion unfinished",
+		if (containsAny(name, "grimy", "secondary",
 			"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus",
 			"unidentified guam", "unidentified marentill", "unidentified marrentill",
 			"unidentified tarromin", "unidentified harralander", "unidentified ranarr",
@@ -253,7 +253,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 			"guam", "marentill", "marrentill", "tarromin", "harralander", "ranarr weed",
 			"irit leaf", "avantoe", "kwuarm", "cadantine", "dwarf weed", "torstol",
 			"unicorn horn", "jangerberries", "weapon poison", "snakeweed mixture",
-			"ardrigal mixture", "cadava berries", "cadavaberries"))
+			"ardrigal mixture", "cadava berries", "cadavaberries") || containsWord(name, "herb"))
 		{
 			return ItemCategory.HERBLORE;
 		}
@@ -277,6 +277,28 @@ public final class ResourceItemRegistry implements ItemCatalog
 			}
 		}
 
+		return false;
+	}
+
+	private static boolean containsWord(String value, String word)
+	{
+		int fromIndex = 0;
+		while (fromIndex < value.length())
+		{
+			int index = value.indexOf(word, fromIndex);
+			if (index < 0)
+			{
+				return false;
+			}
+			int end = index + word.length();
+			boolean startBoundary = index == 0 || !Character.isLetterOrDigit(value.charAt(index - 1));
+			boolean endBoundary = end == value.length() || !Character.isLetterOrDigit(value.charAt(end));
+			if (startBoundary && endBoundary)
+			{
+				return true;
+			}
+			fromIndex = index + 1;
+		}
 		return false;
 	}
 }

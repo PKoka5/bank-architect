@@ -18,6 +18,9 @@ public final class BankOrganizationPreviewBuilder
 	// same style and slot are owned (best + one backup stay in combat gear).
 	private static final int OUTCLASSED_BY_COUNT = 2;
 	private static final int ALCH_VALUE_THRESHOLD = 5000;
+	// Owning this many copies of one wearable marks it as production stock
+	// (smithing/crafting output), not a gear option the player switches to.
+	private static final int BULK_STOCK_QUANTITY = 8;
 	private static final String ALCH_CATEGORY_KEY = "slayer-boss-loot";
 
 	private BankOrganizationPreviewBuilder()
@@ -60,8 +63,14 @@ public final class BankOrganizationPreviewBuilder
 			Optional<GearStats> stats = gearStats.statsFor(bankItem.getItemId());
 			if (stats.isPresent())
 			{
+				CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
+					bankItem.getItemId(), gearStats);
+				if (catalogItem.getCategory() != ItemCategory.GEAR)
+				{
+					continue;
+				}
 				gearScoresByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
-					.add(stats.get().score());
+					.add(GearItemSorter.score(new BankPreviewItem(catalogItem, bankItem.getQuantity()), gearStats));
 			}
 		}
 
@@ -70,7 +79,7 @@ public final class BankOrganizationPreviewBuilder
 			CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
 				bankItem.getItemId(), gearStats);
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem);
-			if (isAlchCandidate(preset, category, bankItem.getItemId(), bankItem.getQuantity(),
+			if (isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
 				gearStats, itemValues, gearScoresByKey))
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
@@ -116,7 +125,7 @@ public final class BankOrganizationPreviewBuilder
 	 * never wear again; when it is also worth alching it moves to the alch
 	 * review tab instead of cluttering the gear columns.
 	 */
-	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, int itemId, int quantity,
+	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
 		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<Integer>> gearScoresByKey)
 	{
 		if (preset.getType() != BankPresetType.IRONMAN || !"combat-gear".equals(category.getKey()))
@@ -127,12 +136,8 @@ public final class BankOrganizationPreviewBuilder
 		{
 			return false;
 		}
-		if (itemValues.highAlchValue(itemId) < ALCH_VALUE_THRESHOLD)
-		{
-			return false;
-		}
 
-		Optional<GearStats> stats = gearStats.statsFor(itemId);
+		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
 		if (!stats.isPresent())
 		{
 			return false;
@@ -144,7 +149,7 @@ public final class BankOrganizationPreviewBuilder
 			return false;
 		}
 
-		int ownScore = stats.get().score();
+		int ownScore = GearItemSorter.score(new BankPreviewItem(catalogItem, quantity), gearStats);
 		int strictlyBetter = 0;
 		for (int score : scores)
 		{
@@ -154,7 +159,18 @@ public final class BankOrganizationPreviewBuilder
 			}
 		}
 
-		return strictlyBetter >= OUTCLASSED_BY_COUNT;
+		// Bulk production stock (rune platebodies, crafted jewellery) moves out
+		// regardless of alch value, but weapons and ammo stay: high quantities
+		// there are consumables (chinchompas, thrown weapons), not stock.
+		GearSlot slot = stats.get().getSlot();
+		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
+			&& strictlyBetter >= 1)
+		{
+			return true;
+		}
+
+		return itemValues.highAlchValue(catalogItem.getItemId()) >= ALCH_VALUE_THRESHOLD
+			&& strictlyBetter >= OUTCLASSED_BY_COUNT;
 	}
 
 	private static String gearKey(GearStats stats)

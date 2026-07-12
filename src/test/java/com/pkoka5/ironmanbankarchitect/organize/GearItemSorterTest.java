@@ -156,6 +156,19 @@ public class GearItemSorterTest
 	}
 
 	@Test
+	public void terminalAmmoBlockGroupsFamiliesBeforeTiers()
+	{
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), Arrays.asList(
+				item(1, "Steel cannonball"), item(2, "Rune arrow"), item(3, "Adamant bolts"),
+				item(4, "Dragon arrow"), item(5, "Mithril bolts"), item(6, "Rune cannonball"),
+				item(7, "Mith grapple")));
+
+		assertEquals(Arrays.asList("Dragon arrow", "Rune arrow", "Adamant bolts", "Mithril bolts",
+			"Rune cannonball", "Steel cannonball", "Mith grapple"), names(laidOut));
+	}
+
+	@Test
 	public void fallsBackToFlatSortWithoutRecognizedSetupGear()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),

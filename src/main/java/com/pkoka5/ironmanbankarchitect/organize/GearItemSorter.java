@@ -206,6 +206,8 @@ final class GearItemSorter
 
 		remaining.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> rankOf(item, gearStats))
+			.thenComparingInt(item -> ammoFamilyRank(item, gearStats))
+			.thenComparingInt(GearItemSorter::ammoTierRank)
 			.thenComparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
@@ -215,18 +217,39 @@ final class GearItemSorter
 	static int rank(BankPreviewItem item)
 	{
 		String name = normalizedName(item.getDisplayName());
-		return terminalSlotRank(slotRank(name)) * 100 + styleRank(name);
+		int slot = slotRank(name);
+		return slot == 11 ? 1300 : slot * 100 + styleRank(name);
 	}
 
 	private static int rankOf(BankPreviewItem item, GearStatsSource gearStats)
 	{
-		return terminalSlotRank(slotRankOf(item, gearStats)) * 100 + styleRankOf(item, gearStats);
+		int slot = slotRankOf(item, gearStats);
+		return slot == 11 ? 1300 : slot * 100 + styleRankOf(item, gearStats);
 	}
 
-	private static int terminalSlotRank(int slot)
+	private static int ammoFamilyRank(BankPreviewItem item, GearStatsSource gearStats)
 	{
-		// Generic accessories/utilities use slot 12; ammo must remain after them.
-		return slot == 11 ? 13 : slot;
+		if (slotRankOf(item, gearStats) != 11) return 0;
+		String name = normalizedName(item.getDisplayName());
+		if (containsAny(name, "arrow", "brutal")) return 0;
+		if (containsAny(name, "bolt", "bolt rack")) return 10;
+		if (name.contains("dart")) return 20;
+		if (name.contains("javelin")) return 30;
+		if (name.contains("cannonball")) return 40;
+		if (name.contains("grapple")) return 50;
+		return 60;
+	}
+
+	private static int ammoTierRank(BankPreviewItem item)
+	{
+		String name = normalizedName(item.getDisplayName());
+		String[] tiers = {"diamond", "dragon", "amethyst", "rune", "adamant", "broad",
+			"mithril", "bone", "steel", "iron", "bronze"};
+		for (int i = 0; i < tiers.length; i++)
+		{
+			if (name.contains(tiers[i])) return i;
+		}
+		return 100;
 	}
 
 	private static int slotRankOf(BankPreviewItem item, GearStatsSource gearStats)
@@ -256,6 +279,11 @@ final class GearItemSorter
 		int score = gearScore(item);
 		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
 		return stats.isPresent() ? score + stats.get().score() : score;
+	}
+
+	static int score(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		return scoreOf(item, gearStats);
 	}
 
 	private static int slotRank(String name)

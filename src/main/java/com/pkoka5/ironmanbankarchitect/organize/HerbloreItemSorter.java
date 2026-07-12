@@ -21,7 +21,7 @@ final class HerbloreItemSorter
 		chain("guam", "attack potion", "eye of newt"),
 		chain("marrentill", "antipoison", "unicorn horn"),
 		chain("tarromin", "strength potion", "limpwurt"),
-		chain("harralander", "restore potion", "red spiders"),
+		chain("harralander", "energy potion", "chocolate dust"),
 		chain("ranarr", "prayer potion", "snape grass"),
 		chain("toadflax", "saradomin brew", "crushed nest"),
 		chain("irit", "super attack", "eye of newt"),
@@ -29,7 +29,7 @@ final class HerbloreItemSorter
 		chain("kwuarm", "super strength", "limpwurt"),
 		chain("snapdragon", "super restore", "red spiders"),
 		chain("cadantine", "super defence", "white berries"),
-		chain("lantadyme", "antifire", "dragon scale"),
+		chain("lantadyme", "magic potion", "potato cactus"),
 		chain("dwarf weed", "ranging potion", "wine of zamorak"),
 		chain("torstol", "super combat", "vial of water")
 	};
@@ -127,7 +127,7 @@ final class HerbloreItemSorter
 
 			for (String secondary : chain.secondaries)
 			{
-				if (name.contains(secondary))
+				if (!name.endsWith(" seed") && name.contains(secondary))
 				{
 					cells[4] = first(cells[4], item);
 					break;

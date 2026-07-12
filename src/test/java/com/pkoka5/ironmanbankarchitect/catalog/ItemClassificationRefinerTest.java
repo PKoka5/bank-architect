@@ -23,6 +23,10 @@ public class ItemClassificationRefinerTest
 			ItemCategory.UNIQUE, "equipment-charge");
 		assertClassification("Vial of blood", "MYQ4_BLOOD_VIAL", ItemCategory.CLEANUP,
 			ItemCategory.CLEANUP, "cleanup");
+		assertClassification("Sunfire splinters", ItemCategory.HERBLORE,
+			ItemCategory.UNIQUE, "equipment-charge");
+		assertClassification("Salve shard", ItemCategory.CLEANUP,
+			ItemCategory.UNIQUE, "equipment-upgrade");
 	}
 
 	@Test
@@ -39,9 +43,17 @@ public class ItemClassificationRefinerTest
 		assertClassification("Soul bearer", ItemCategory.CLEANUP,
 			ItemCategory.TOOL, "utility-container");
 		assertClassification("Diving apparatus", ItemCategory.CLEANUP,
-			ItemCategory.TOOL, "skilling-utility");
+			ItemCategory.TOOL, "quest-utility");
 		assertClassification("Holy wrench", ItemCategory.CLEANUP,
 			ItemCategory.POTION, "pvm-utility");
+		assertClassification("Open seed box", ItemCategory.FARMING,
+			ItemCategory.TOOL, "resource-container");
+		assertClassification("Open herb sack", ItemCategory.HERBLORE,
+			ItemCategory.TOOL, "resource-container");
+		assertClassification("Seed dibber", ItemCategory.FARMING,
+			ItemCategory.TOOL, "tool");
+		assertClassification("Vyre noble top", ItemCategory.GEAR,
+			ItemCategory.TOOL, "quest-utility");
 	}
 
 	@Test
@@ -61,6 +73,26 @@ public class ItemClassificationRefinerTest
 			ItemCategory.SKILLING, "cooking-material");
 		assertClassification("Ancient codex", ItemCategory.CLEANUP,
 			ItemCategory.CLEANUP, "cleanup");
+		assertClassification("Limpwurt seed", ItemCategory.HERBLORE,
+			ItemCategory.FARMING, "herb-seed");
+		assertClassification("Snape grass seed", ItemCategory.HERBLORE,
+			ItemCategory.FARMING, "herb-seed");
+		assertClassification("Redberries", ItemCategory.HERBLORE,
+			ItemCategory.FARMING, "farming");
+		assertClassification("White lily", ItemCategory.HERBLORE,
+			ItemCategory.FARMING, "farming");
+		assertClassification("Bullseye lantern (unf)", ItemCategory.HERBLORE,
+			ItemCategory.SKILLING, "crafting-material");
+		assertClassification("Battlestaff", ItemCategory.GEAR,
+			ItemCategory.SKILLING, "crafting-material");
+		assertClassification("Cheese", ItemCategory.CLEANUP,
+			ItemCategory.SKILLING, "cooking-material");
+		assertClassification("Sulliuscep cap", ItemCategory.CLEANUP,
+			ItemCategory.SKILLING, "cooking-material");
+		assertClassification("Emerald ring", ItemCategory.GEAR,
+			ItemCategory.SKILLING, "crafting-jewellery");
+		assertClassification("Bow string", ItemCategory.SKILLING,
+			ItemCategory.SKILLING, "textile");
 	}
 
 	@Test
@@ -79,10 +111,25 @@ public class ItemClassificationRefinerTest
 	{
 		assertClassification("Mith grapple", ItemCategory.GEAR,
 			ItemCategory.GEAR, "ammo");
-		assertClassification("Vyre noble top", ItemCategory.CLEANUP,
-			ItemCategory.GEAR, "body");
-		assertClassification("Vyre noble shoes", ItemCategory.CLEANUP,
-			ItemCategory.GEAR, "feet");
+		assertClassification("Gold ring", ItemCategory.GEAR,
+			ItemCategory.SKILLING, "crafting-jewellery");
+	}
+
+	@Test
+	public void herbSubstringsInsideOtherWordsDoNotMakeHerbs()
+	{
+		// "catherby" contains "herb"; the book must never become a herb.
+		assertClassification("Mayor of catherby", ItemCategory.CLEANUP,
+			ItemCategory.CLEANUP, "quest-item");
+	}
+
+	@Test
+	public void barbarianMixesArePartialDoseHerbloreProducts()
+	{
+		assertClassification("Superattack mix(2)", ItemCategory.POTION,
+			ItemCategory.POTION, "potion-dose-2");
+		assertClassification("Prayer mix(1)", ItemCategory.POTION,
+			ItemCategory.POTION, "potion-dose-1");
 	}
 
 	private static void assertClassification(String name, ItemCategory legacyCategory,

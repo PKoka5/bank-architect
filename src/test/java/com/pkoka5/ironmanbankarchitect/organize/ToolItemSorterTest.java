@@ -58,6 +58,26 @@ public class ToolItemSorterTest
 			"Farmer's boots"), names(sorted));
 	}
 
+	@Test
+	public void groupsQuestKitsCookingToolsAndChargedContainers()
+	{
+		List<BankPreviewItem> sorted = ToolItemSorter.sort(Arrays.asList(
+			item(1, "Diving apparatus", "quest-utility"),
+			item(2, "Fishbowl helmet", "quest-utility"),
+			item(3, "Vyre noble shoes", "quest-utility"),
+			item(4, "Vyre noble top", "quest-utility"),
+			item(5, "Vyre noble legs", "quest-utility"),
+			item(6, "Waterskin(0)", "utility-container"),
+			item(7, "Waterskin(3)", "utility-container"),
+			item(8, "Cake tin", "cooking-tool"),
+			item(9, "Cooking gauntlets", "skilling-utility")
+		));
+
+		assertEquals(Arrays.asList("Cake tin", "Cooking gauntlets", "Fishbowl helmet",
+			"Diving apparatus", "Vyre noble top", "Vyre noble legs", "Vyre noble shoes",
+			"Waterskin(3)", "Waterskin(0)"), names(sorted));
+	}
+
 	private static BankPreviewItem item(int id, String name, String subcategory)
 	{
 		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.TOOL, subcategory,

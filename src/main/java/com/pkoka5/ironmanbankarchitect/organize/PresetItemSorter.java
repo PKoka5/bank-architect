@@ -23,6 +23,10 @@ public final class PresetItemSorter
 		{
 			return GearItemSorter.layout(items, gearStats);
 		}
+		if ("potions-food".equals(category.getKey()))
+		{
+			return SupplyItemSorter.sort(items);
+		}
 		if ("farming-herblore".equals(category.getKey()))
 		{
 			return HerbloreItemSorter.layout(items);

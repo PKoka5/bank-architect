@@ -17,6 +17,7 @@ final class ToolItemSorter
 			.comparingInt(ToolItemSorter::roleRank)
 			.thenComparing(ToolItemSorter::family)
 			.thenComparingInt(ToolItemSorter::slotRank)
+			.thenComparingInt(item -> -charge(item.getDisplayName()))
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
@@ -28,6 +29,10 @@ final class ToolItemSorter
 		if (subcategory.contains("outfit"))
 		{
 			return 0;
+		}
+		if (subcategory.contains("quest-utility"))
+		{
+			return 25;
 		}
 		if (subcategory.contains("mould"))
 		{
@@ -65,6 +70,12 @@ final class ToolItemSorter
 		{
 			return String.format("%02d", skillRank(name));
 		}
+		if (role == 25)
+		{
+			if (containsAny(name, "fishbowl helmet", "diving apparatus")) return "underwater-kit";
+			if (name.startsWith("vyre noble ")) return "vyre-noble";
+			return name;
+		}
 		return "";
 	}
 
@@ -72,7 +83,7 @@ final class ToolItemSorter
 	{
 		if (containsAny(name, "pickaxe", "mining", "celestial ring", "coal bag", "gem bag",
 			"goldsmith gauntlets")) return 0;
-		if (containsAny(name, " axe", "machete", "forestry", "log basket")) return 1;
+		if (containsAny(name, " axe", "machete", "forestry", "log basket", "strung rabbit foot")) return 1;
 		if (containsAny(name, "harpoon", "fishing", "lobster pot", "karambwan vessel",
 			"fish barrel", "barbarian rod") || name.endsWith(" fishing rod")) return 2;
 		if (containsAny(name, "rake", "spade", "seed dibber", "secateurs", "watering can", "trowel")) return 3;
@@ -81,14 +92,15 @@ final class ToolItemSorter
 		if (containsAny(name, "snare", "trap", "butterfly net", "noose", "teasing",
 			"fur pouch", "meat pouch")) return 6;
 		if (containsAny(name, "lockpick", "house keys")) return 7;
-		if (containsAny(name, "tinderbox", "warm gloves")) return 8;
+		if (containsAny(name, "tinderbox", "warm gloves", "lantern", "torch")) return 8;
 		if (containsAny(name, "cooking gauntlets", "cake tin")) return 9;
 		return 20;
 	}
 
 	private static int slotRank(BankPreviewItem item)
 	{
-		if (roleRank(item) != 0)
+		int role = roleRank(item);
+		if (role != 0 && role != 25)
 		{
 			return 0;
 		}
@@ -100,6 +112,21 @@ final class ToolItemSorter
 		if (containsAny(name, "boots")) return 4;
 		if (containsAny(name, "cape")) return 5;
 		return 6;
+	}
+
+	private static int charge(String value)
+	{
+		String name = normalized(value);
+		int open = name.lastIndexOf('(');
+		if (open < 0 || !name.endsWith(")")) return -1;
+		try
+		{
+			return Integer.parseInt(name.substring(open + 1, name.length() - 1));
+		}
+		catch (NumberFormatException ignored)
+		{
+			return -1;
+		}
 	}
 
 	private static boolean containsAny(String value, String... needles)

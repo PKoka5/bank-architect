@@ -155,6 +155,34 @@ public class HerbloreItemSorterTest
 		assertEquals(2, laidOut.size());
 	}
 
+	@Test
+	public void seedNamesNeverMasqueradeAsPotionSecondaries()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy tarromin"), item(2, "Tarromin seed"), item(3, "Limpwurt seed"),
+			item(4, "Z filler one"), item(5, "Z filler two"), item(6, "Z filler three"),
+			item(7, "Z filler four"), item(8, "Z filler five")
+		));
+
+		assertEquals(1, indexOf(laidOut, "Limpwurt seed"));
+	}
+
+	@Test
+	public void usesHighestStandardHarralanderAndLantadymeRecipes()
+	{
+		List<BankPreviewItem> harralander = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy harralander"), item(2, "Harralander potion (unf)"),
+			item(3, "Chocolate dust"), item(4, "Energy potion(3)")));
+		List<BankPreviewItem> lantadyme = HerbloreItemSorter.layout(Arrays.asList(
+			item(5, "Grimy lantadyme"), item(6, "Lantadyme potion (unf)"),
+			item(7, "Potato cactus"), item(8, "Magic potion(3)")));
+
+		assertEquals(Arrays.asList("Grimy harralander", "Harralander potion (unf)",
+			"Chocolate dust", "Energy potion(3)"), names(harralander));
+		assertEquals(Arrays.asList("Grimy lantadyme", "Lantadyme potion (unf)",
+			"Potato cactus", "Magic potion(3)"), names(lantadyme));
+	}
+
 	private static int indexOf(List<BankPreviewItem> items, String name)
 	{
 		for (int i = 0; i < items.size(); i++)

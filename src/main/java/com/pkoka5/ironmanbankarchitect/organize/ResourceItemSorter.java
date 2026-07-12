@@ -50,7 +50,7 @@ final class ResourceItemSorter
 		if (isWood(name)) return WOOD;
 		if (containsAny(name, "hide", "leather") || name.endsWith(" fur")) return HIDE;
 		if (subcategory.contains("ammo-component")) return AMMO_COMPONENT;
-		if (subcategory.contains("gem") || isGem(name)) return GEM;
+		if (subcategory.contains("gem") || subcategory.contains("jewellery") || isGem(name)) return GEM;
 		if (subcategory.contains("prayer") || containsWord(name, "bone")
 			|| containsWord(name, "bones") || containsWord(name, "remains")) return PRAYER;
 		if (isGlassMaterial(name, subcategory)) return GLASS;
@@ -59,7 +59,7 @@ final class ResourceItemSorter
 			|| name.startsWith("leaping ")) return RAW_FOOD;
 		if (subcategory.contains("cooking")) return COOKING;
 		if (isTextile(name, subcategory)) return TEXTILE;
-		if (isConstructionMaterial(name)) return CONSTRUCTION;
+		if (subcategory.contains("construction") || isConstructionMaterial(name)) return CONSTRUCTION;
 		if (subcategory.contains("resource")) return VALUABLE_RESOURCE;
 		return OTHER;
 	}
@@ -112,9 +112,9 @@ final class ResourceItemSorter
 				return 4;
 			case AMMO_COMPONENT:
 				if (name.contains("shaft")) return 0;
-				if (name.contains("headless")) return 1;
-				if (containsAny(name, "tip", "head", "limbs")) return 2;
-				if (name.contains("string")) return 3;
+				if (name.equals("feather")) return 1;
+				if (name.contains("headless")) return 2;
+				if (containsAny(name, "tip", "head", "limbs")) return 3;
 				return 4;
 			case TEXTILE:
 				if (name.equals("flax")) return 0;
@@ -198,10 +198,12 @@ final class ResourceItemSorter
 
 	private static int foodRank(String name)
 	{
+		if (name.contains("leaping trout")) return 200;
+		if (name.contains("leaping salmon")) return 210;
+		if (name.contains("leaping sturgeon")) return 220;
 		String[] food = {"shrimp", "sardine", "herring", "anchovies", "mackerel", "trout",
 			"salmon", "tuna", "lobster", "swordfish", "monkfish", "karambwan", "shark",
-			"sea turtle", "manta ray", "anglerfish", "leaping trout", "leaping salmon",
-			"leaping sturgeon"};
+			"sea turtle", "manta ray", "anglerfish", "eel", "dark crab"};
 		return orderedMatch(name, food);
 	}
 

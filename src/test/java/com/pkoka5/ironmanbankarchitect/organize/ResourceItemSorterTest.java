@@ -73,10 +73,26 @@ public class ResourceItemSorterTest
 	{
 		List<BankPreviewItem> sorted = ResourceItemSorter.sort(Arrays.asList(
 			item(1, "Uncut ruby", "uncut-gem"), item(2, "Ruby", "gem"),
-			item(3, "Ruby bolt tips", "ammo-component"), item(4, "Arrow shaft", "ammo-component")
+			item(3, "Ruby bolt tips", "ammo-component"), item(4, "Arrow shaft", "ammo-component"),
+			item(5, "Feather", "ammo-component"), item(6, "Headless arrow", "ammo-component")
 		));
 
-		assertEquals(Arrays.asList("Uncut ruby", "Ruby", "Arrow shaft", "Ruby bolt tips"), names(sorted));
+		assertEquals(Arrays.asList("Uncut ruby", "Ruby", "Arrow shaft", "Feather",
+			"Headless arrow", "Ruby bolt tips"), names(sorted));
+	}
+
+	@Test
+	public void keepsCraftingJewelleryAndBarbarianFishFamiliesTogether()
+	{
+		List<BankPreviewItem> sorted = ResourceItemSorter.sort(Arrays.asList(
+			item(1, "Sapphire ring", "crafting-jewellery"), item(2, "Sapphire", "gem"),
+			item(3, "Uncut sapphire", "uncut-gem"), item(4, "Leaping sturgeon", "raw-food"),
+			item(5, "Leaping trout", "raw-food"), item(6, "Leaping salmon", "raw-food"),
+			item(7, "Raw shark", "raw-food")
+		));
+
+		assertEquals(Arrays.asList("Uncut sapphire", "Sapphire", "Sapphire ring", "Raw shark",
+			"Leaping trout", "Leaping salmon", "Leaping sturgeon"), names(sorted));
 	}
 
 	private static BankPreviewItem item(int id, String name, String subcategory)

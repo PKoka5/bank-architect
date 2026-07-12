@@ -312,6 +312,23 @@ public class ResourceItemRegistryTest
 		assertCategory(7534, "Fishbowl helmet", ItemCategory.TOOL);
 	}
 
+	@Test
+	public void exportDrivenUtilityAndWorkflowOverridesBeatBadSourceLabels()
+	{
+		assertCategory(5100, "Limpwurt seed", ItemCategory.FARMING);
+		assertCategory(22879, "Snape grass seed", ItemCategory.FARMING);
+		assertCategory(5343, "Seed dibber", ItemCategory.TOOL);
+		assertCategory(24482, "Open seed box", ItemCategory.TOOL);
+		assertCategory(24478, "Open herb sack", ItemCategory.TOOL);
+		assertCategory(4544, "Bullseye lantern (unf)", ItemCategory.SKILLING);
+		assertCategory(28924, "Sunfire splinters", ItemCategory.UNIQUE);
+		assertCategory(1391, "Battlestaff", ItemCategory.SKILLING);
+		assertCategory(1635, "Gold ring", ItemCategory.SKILLING);
+		assertCategory(7918, "Bonesack", ItemCategory.CLUE);
+		assertCategory(4084, "Sled", ItemCategory.CLEANUP);
+		assertCategory(31331, "Mayor of catherby", ItemCategory.CLEANUP);
+	}
+
 	private static void assertCategory(int itemId, String expectedName, ItemCategory expectedCategory)
 	{
 		Optional<CatalogItem> item = ResourceItemRegistry.INSTANCE.findById(itemId);

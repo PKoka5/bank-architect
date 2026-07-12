@@ -12,13 +12,31 @@ final class ItemClassificationRefiner
 		String constant = constantName.toLowerCase();
 		String searchable = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
 
-		if (containsAny(name, "clue scroll", "reward casket", "scroll box"))
+		if (containsAny(name, "clue scroll", "reward casket", "scroll box", "clue bottle",
+			"clue geode", "clue nest"))
 		{
 			return new Classification(ItemCategory.CLUE, "treasure-trail");
+		}
+		if ("mayor of catherby".equals(name))
+		{
+			// A book; without this rule the "herb" inside "catherby" makes it a herb.
+			return new Classification(ItemCategory.CLEANUP, "quest-item");
 		}
 		if (isFishTrophy(name))
 		{
 			return new Classification(ItemCategory.CLUE, "collection-trophy");
+		}
+		if ("bonesack".equals(name))
+		{
+			return new Classification(ItemCategory.CLUE, "cosmetic");
+		}
+		if ("phoenix".equals(name) || "hell cat".equals(name))
+		{
+			return new Classification(ItemCategory.CLUE, "collection-pet");
+		}
+		if ("sled".equals(name))
+		{
+			return new Classification(ItemCategory.CLEANUP, "quest-item");
 		}
 		if (name.startsWith("burnt ") && containsFishSpecies(name))
 		{
@@ -26,7 +44,7 @@ final class ItemClassificationRefiner
 		}
 		if ("burnt page".equals(name) || "searing page".equals(name) || "soaked page".equals(name)
 			|| "desiccated page".equals(name)
-			|| "zulrah's scales".equals(name))
+			|| "zulrah's scales".equals(name) || "sunfire splinters".equals(name))
 		{
 			return new Classification(ItemCategory.UNIQUE, "equipment-charge");
 		}
@@ -34,6 +52,11 @@ final class ItemClassificationRefiner
 			|| "barronite handle".equals(name) || "barronite guard".equals(name))
 		{
 			return new Classification(ItemCategory.UNIQUE, "weapon-upgrade");
+		}
+		if ("salve shard".equals(name) || name.contains("crystal armour seed")
+			|| name.contains("crystal tool seed"))
+		{
+			return new Classification(ItemCategory.UNIQUE, "equipment-upgrade");
 		}
 		if ("vial of blood".equals(name) && "vial_blood".equals(constant))
 		{
@@ -51,7 +74,8 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "slayer-tool");
 		}
-		if (containsAny(name, "large fur pouch", "large meat pouch"))
+		if (containsAny(name, "large fur pouch", "large meat pouch", "seed box", "herb sack",
+			"bottomless compost bucket"))
 		{
 			return new Classification(ItemCategory.TOOL, "resource-container");
 		}
@@ -59,10 +83,24 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "utility-container");
 		}
-		if (containsAny(name, "diving apparatus", "druid pouch", "crystal chime", "gas mask",
-			"strung rabbit foot", "brown apron"))
+		if (containsAny(name, "strung rabbit foot", "brown apron"))
 		{
 			return new Classification(ItemCategory.TOOL, "skilling-utility");
+		}
+		if (containsAny(name, "diving apparatus", "druid pouch", "crystal chime", "gas mask")
+			|| name.startsWith("vyre noble "))
+		{
+			return new Classification(ItemCategory.TOOL, "quest-utility");
+		}
+		if ("basket".equals(name) || "bucket".equals(name) || "bucket of water".equals(name)
+			|| "jug".equals(name) || "jug of water".equals(name) || "pot".equals(name))
+		{
+			return new Classification(ItemCategory.TOOL, "utility-container");
+		}
+		if ("seed dibber".equals(name) || "emerald lantern".equals(name) || "unlit torch".equals(name))
+		{
+			return new Classification(ItemCategory.TOOL,
+				"seed dibber".equals(name) ? "tool" : "light-source");
 		}
 		if ("teasing stick".equals(name))
 		{
@@ -72,8 +110,17 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.POTION, "pvm-utility");
 		}
+		if ("dwarven rock cake".equals(name))
+		{
+			return new Classification(ItemCategory.POTION, "pvm-utility");
+		}
+		if ("botanical pie".equals(name) || "half a botanical pie".equals(name)
+			|| "cake".equals(name) || "kebab".equals(name) || "stew".equals(name))
+		{
+			return new Classification(ItemCategory.POTION, "food");
+		}
 		if (containsAny(name, "dwarven stout", "wizard's mind bomb", "lizardkicker")
-			|| "jug of wine".equals(name))
+			|| "jug of wine".equals(name) || "bandit's brew".equals(name))
 		{
 			return new Classification(ItemCategory.POTION, "drink");
 		}
@@ -86,15 +133,22 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.HERBLORE, "secondary");
 		}
-		if ("spirit flakes".equals(name))
+		if ("spirit flakes".equals(name) || "jerboa tail".equals(name) || "kebbit claws".equals(name))
 		{
-			return new Classification(ItemCategory.SKILLING, "resource");
+			return new Classification(ItemCategory.SKILLING,
+				"spirit flakes".equals(name) ? "resource" : "hunter-resource");
 		}
-		if ("vyre noble top".equals(name) || "vyre noble legs".equals(name)
-			|| "vyre noble shoes".equals(name))
+		if ("swamp paste".equals(name))
 		{
-			String slot = name.endsWith(" top") ? "body" : name.endsWith(" legs") ? "legs" : "feet";
-			return new Classification(ItemCategory.GEAR, slot);
+			return new Classification(ItemCategory.SKILLING, "construction-material");
+		}
+		if (isCookingMaterial(name))
+		{
+			return new Classification(ItemCategory.SKILLING, "cooking-material");
+		}
+		if (isUnenchantedJewellery(name))
+		{
+			return new Classification(ItemCategory.SKILLING, "crafting-jewellery");
 		}
 		if ("chronicle".equals(name) || name.contains("quetzal whistle"))
 		{
@@ -175,11 +229,19 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.HERBLORE, "unfinished-potion");
 		}
-		if (name.endsWith(" seed") && isKnownHerb(name.substring(0, name.length() - " seed".length())))
+		if (name.endsWith(" seed"))
 		{
-			return new Classification(ItemCategory.FARMING, "herb-seed");
+			String crop = name.substring(0, name.length() - " seed".length());
+			return new Classification(ItemCategory.FARMING,
+				isHerbloreCrop(crop) ? "herb-seed" : "farming");
 		}
 		int potionDose = potionDose(name);
+		if (potionDose > 0 && name.contains(" mix("))
+		{
+			// Barbarian mixes only exist as (2)/(1); they are herblore products,
+			// not ready-to-use supplies, so give them a partial dose subcategory.
+			return new Classification(ItemCategory.POTION, "potion-dose-" + Math.min(potionDose, 3));
+		}
 		if (legacyCategory == ItemCategory.POTION && potionDose > 0 && isStandardPotionFamily(name))
 		{
 			return new Classification(ItemCategory.POTION, "potion-dose-" + potionDose);
@@ -190,11 +252,12 @@ final class ItemClassificationRefiner
 				name.startsWith("grimy ") ? "grimy-herb" : "clean-herb");
 		}
 		if (containsAny(name, "bird nest", "crushed nest", "cactus spine", "potato cactus",
-			"redberries", "white lily", "snake weed"))
+			"snake weed"))
 		{
 			return new Classification(ItemCategory.HERBLORE, "secondary");
 		}
-		if ("acorn".equals(name) || name.startsWith("bird's egg"))
+		if ("acorn".equals(name) || name.startsWith("bird's egg") || "redberries".equals(name)
+			|| "white lily".equals(name))
 		{
 			return new Classification(ItemCategory.FARMING, "farming");
 		}
@@ -207,7 +270,12 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "glass-material");
 		}
-		if (name.endsWith(" fur") || name.contains("fabric roll") || containsAny(name,
+		if (name.contains("fabric roll") || "jute fibre".equals(name)
+			|| containsAny(name, "bow string", "crossbow string"))
+		{
+			return new Classification(ItemCategory.SKILLING, "textile");
+		}
+		if (name.endsWith(" fur") || containsAny(name,
 			"crystal shard", "rope", "repair kit", "hull parts", "dynamite", "saltpetre"))
 		{
 			return new Classification(ItemCategory.SKILLING, "resource");
@@ -238,13 +306,21 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, toolSubcategory(name));
 		}
-		if ("cake tin".equals(name) || name.startsWith("waterskin("))
+		if ("cake tin".equals(name))
+		{
+			return new Classification(ItemCategory.TOOL, "cooking-tool");
+		}
+		if (name.startsWith("waterskin("))
 		{
 			return new Classification(ItemCategory.TOOL, "utility-container");
 		}
 		if (containsAny(name, "pie dish", "pie shell", "orange spice", "sacred oil", "chocolate bar"))
 		{
 			return new Classification(ItemCategory.SKILLING, "cooking-material");
+		}
+		if ("bullseye lantern (unf)".equals(name) || "battlestaff".equals(name))
+		{
+			return new Classification(ItemCategory.SKILLING, "crafting-material");
 		}
 		if (name.startsWith("cabbages(") || name.startsWith("onions("))
 		{
@@ -267,8 +343,12 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.POTION, "food");
 		}
+		if ("feather".equals(name))
+		{
+			return new Classification(ItemCategory.SKILLING, "ammo-component");
+		}
 		if (containsAny(name, "arrowtips", "arrowheads", "arrow shaft", "headless arrow",
-			"dart tip", "spear tips", "grapple tip", "bow string", "crossbow string",
+			"dart tip", "spear tips", "grapple tip",
 			"crossbow limbs", "blurite limbs"))
 		{
 			return new Classification(ItemCategory.SKILLING, "ammo-component");
@@ -357,10 +437,10 @@ final class ItemClassificationRefiner
 
 	private static boolean containsFishSpecies(String name)
 	{
-		String[] species = {"swordfish", "shark", "monkfish", "karambwan", "karambwanji",
+		String[] species = {"swordfish", "shark", "monkfish", "karambwan", "karambwanji", "eel",
 			"anglerfish", "harpoonfish", "lobster", "tuna", "salmon", "trout", "sturgeon",
 			"mackerel", "sardine", "herring", "anchovies", "shrimp", "cod", "pike", "bass"};
-		if (containsAny(name, "manta ray", "sea turtle"))
+		if (containsAny(name, "manta ray", "sea turtle", "dark crab"))
 		{
 			return true;
 		}
@@ -382,10 +462,41 @@ final class ItemClassificationRefiner
 			|| "watermelon".equals(name);
 	}
 
+	private static boolean isCookingMaterial(String name)
+	{
+		return "barley malt".equals(name) || "cheese".equals(name) || "egg".equals(name)
+			|| "gnome spice".equals(name) || "spice".equals(name) || "mushroom".equals(name)
+			|| "sulliuscep cap".equals(name);
+	}
+
+	private static boolean isUnenchantedJewellery(String name)
+	{
+		String base = name.endsWith(" (u)") ? name.substring(0, name.length() - 4) : name;
+		String[] materials = {"gold", "silver", "opal", "jade", "red topaz", "sapphire",
+			"emerald", "ruby", "diamond", "dragon", "dragonstone", "onyx", "zenyte"};
+		String[] types = {"ring", "necklace", "bracelet", "amulet"};
+		for (String material : materials)
+		{
+			for (String type : types)
+			{
+				if (base.equals(material + " " + type))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean isHerbloreCrop(String name)
+	{
+		return isKnownHerb(name) || "limpwurt".equals(name) || "snape grass".equals(name);
+	}
+
 	private static boolean isKnownHerb(String name)
 	{
 		String herb = name.startsWith("grimy ") ? name.substring("grimy ".length()) : name;
-		return containsAny(herb, "guam leaf", "marrentill", "tarromin", "harralander", "ranarr weed",
+		return containsAny(herb, "guam leaf", "marrentill", "tarromin", "harralander", "ranarr weed", "ranarr",
 			"toadflax", "irit leaf", "clean irit", "avantoe", "kwuarm", "snapdragon",
 			"cadantine", "lantadyme", "dwarf weed", "torstol");
 	}
