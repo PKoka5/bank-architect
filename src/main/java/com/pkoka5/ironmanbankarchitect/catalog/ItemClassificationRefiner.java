@@ -312,6 +312,16 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.RUNE, "runecrafting-focus");
 		}
+		if (containsAny(name, "lobster pot", "karambwan vessel")
+			|| "gadderhammer".equals(name))
+		{
+			// Checked before the fish rule: "lobster pot" and "karambwan
+			// vessel" contain fish names but are tools, and gadderhammer is a
+			// weapon despite the "hammer" in its name.
+			return "gadderhammer".equals(name)
+				? new Classification(ItemCategory.GEAR, "weapon")
+				: new Classification(ItemCategory.TOOL, "tool");
+		}
 		if (name.startsWith("raw ") && isFish(name))
 		{
 			return new Classification(ItemCategory.SKILLING, "raw-food");

@@ -124,6 +124,17 @@ public class ItemClassificationRefinerTest
 	}
 
 	@Test
+	public void fishNamesInsideToolNamesDoNotMakeFood()
+	{
+		assertClassification("Lobster pot", ItemCategory.TOOL,
+			ItemCategory.TOOL, "tool");
+		assertClassification("Karambwan vessel", ItemCategory.SKILLING,
+			ItemCategory.TOOL, "tool");
+		assertClassification("Gadderhammer", ItemCategory.TOOL,
+			ItemCategory.GEAR, "weapon");
+	}
+
+	@Test
 	public void barbarianMixesArePartialDoseHerbloreProducts()
 	{
 		assertClassification("Superattack mix(2)", ItemCategory.POTION,
