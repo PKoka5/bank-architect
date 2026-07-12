@@ -43,10 +43,11 @@ final class GearItemSorter
 	/**
 	 * Set-column layout: rows are equipment slots, the first four columns are
 	 * the melee/ranged/magic/prayer setups (best owned item first, sidegrades
-	 * below it in the same column), and the remaining cells of each row are
-	 * filled with grouped leftover items. The bank always compacts, so a row is
-	 * only emitted when all {@link #GRID_COLUMNS} cells can be filled; as soon
-	 * as filler runs out the layout falls back to dense per-style runs.
+	 * below it in the same column). Remaining cells of a row are filled with
+	 * more items of the same slot (spare helms complete the helm row, tier
+	 * order), then with grouped leftover items. The bank always compacts, so a
+	 * row is only emitted when all {@link #GRID_COLUMNS} cells can be filled;
+	 * as soon as that fails the layout falls back to dense per-style runs.
 	 */
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
 	{
@@ -109,14 +110,11 @@ final class GearItemSorter
 				BankPreviewItem cell = null;
 				if (column < SET_COLUMNS && setRow[column] >= 0)
 				{
-					String key = column + ":" + setRow[column];
-					List<BankPreviewItem> candidates = setCandidates.get(key);
-					int taken = takenPerKey.getOrDefault(key, 0);
-					if (candidates != null && taken < candidates.size())
-					{
-						cell = candidates.get(taken);
-						takenThisRow.merge(key, 1, Integer::sum);
-					}
+					cell = takeFromKey(column + ":" + setRow[column], setCandidates, takenPerKey, takenThisRow);
+				}
+				if (cell == null)
+				{
+					cell = takeSameSlotSpillover(setRow, setCandidates, takenPerKey, takenThisRow, byTier);
 				}
 				if (cell == null && rowFillerIndex < filler.size())
 				{
@@ -169,6 +167,70 @@ final class GearItemSorter
 
 		laidOut.addAll(remainingSorted(items, usedItemIds, gearStats));
 		return laidOut;
+	}
+
+	private static BankPreviewItem takeFromKey(String key, Map<String, List<BankPreviewItem>> setCandidates,
+		Map<String, Integer> takenPerKey, Map<String, Integer> takenThisRow)
+	{
+		List<BankPreviewItem> candidates = setCandidates.get(key);
+		if (candidates == null)
+		{
+			return null;
+		}
+
+		int taken = takenPerKey.getOrDefault(key, 0) + takenThisRow.getOrDefault(key, 0);
+		if (taken >= candidates.size())
+		{
+			return null;
+		}
+
+		takenThisRow.merge(key, 1, Integer::sum);
+		return candidates.get(taken);
+	}
+
+	/**
+	 * Completes a row with more items of the row's own slot: spare helms fill
+	 * the helm row (best tier first, any style) before generic filler is used.
+	 */
+	private static BankPreviewItem takeSameSlotSpillover(int[] setRow,
+		Map<String, List<BankPreviewItem>> setCandidates, Map<String, Integer> takenPerKey,
+		Map<String, Integer> takenThisRow, Comparator<BankPreviewItem> byTier)
+	{
+		String bestKey = null;
+		BankPreviewItem best = null;
+		for (int column = 0; column < SET_COLUMNS; column++)
+		{
+			if (setRow[column] < 0)
+			{
+				continue;
+			}
+
+			String key = column + ":" + setRow[column];
+			List<BankPreviewItem> candidates = setCandidates.get(key);
+			if (candidates == null)
+			{
+				continue;
+			}
+			int taken = takenPerKey.getOrDefault(key, 0) + takenThisRow.getOrDefault(key, 0);
+			if (taken >= candidates.size())
+			{
+				continue;
+			}
+
+			BankPreviewItem candidate = candidates.get(taken);
+			if (best == null || byTier.compare(candidate, best) < 0)
+			{
+				best = candidate;
+				bestKey = key;
+			}
+		}
+
+		if (bestKey != null)
+		{
+			takenThisRow.merge(bestKey, 1, Integer::sum);
+		}
+
+		return best;
 	}
 
 	private static boolean rowHasSetItem(int[] setRow, Map<String, List<BankPreviewItem>> setCandidates,

@@ -183,6 +183,76 @@ public class GearItemSorterTest
 	}
 
 	@Test
+	public void spareSameSlotItemsCompleteTheRowInTierOrder()
+	{
+		// Four style helms plus four spare helms: the helm row fills itself
+		// with the spares (best first) instead of needing generic filler.
+		List<BankPreviewItem> input = Arrays.asList(
+			item(1, "Melee helm"), item(2, "Ranged helm"), item(3, "Magic helm"),
+			item(4, "Prayer helm"), item(5, "Spare helm strong"), item(6, "Spare helm weak"),
+			item(7, "Spare helm medium"), item(8, "Spare helm minor")
+		);
+		GearStatsSource stats = itemId -> {
+			switch (itemId)
+			{
+				case 1: return Optional.of(new GearStats(GearSlot.HEAD, 5, 0, 0, 0, 0, 0, 0, 0, 90));
+				case 2: return Optional.of(new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 5, 0, 0, 0, 80));
+				case 3: return Optional.of(new GearStats(GearSlot.HEAD, 0, 0, 0, 5, 0, 0, 0, 0, 70));
+				case 4: return Optional.of(new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 0, 0, 0, 5, 60));
+				case 5: return Optional.of(new GearStats(GearSlot.HEAD, 4, 0, 0, 0, 0, 0, 0, 0, 50));
+				case 6: return Optional.of(new GearStats(GearSlot.HEAD, 1, 0, 0, 0, 0, 0, 0, 0, 10));
+				case 7: return Optional.of(new GearStats(GearSlot.HEAD, 2, 0, 0, 0, 0, 0, 0, 0, 30));
+				case 8: return Optional.of(new GearStats(GearSlot.HEAD, 1, 0, 0, 0, 0, 0, 0, 0, 20));
+				default: return Optional.empty();
+			}
+		};
+
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
+
+		assertEquals(Arrays.asList(
+			"Melee helm", "Ranged helm", "Magic helm", "Prayer helm",
+			"Spare helm strong", "Spare helm medium", "Spare helm minor", "Spare helm weak"
+		), names(laidOut));
+	}
+
+	@Test
+	public void completeSlotRowsStayAlignedWithoutGenericFiller()
+	{
+		// Two full slot rows and zero rings/utility filler: both rows must
+		// still come out aligned instead of collapsing into dense runs.
+		List<BankPreviewItem> input = Arrays.asList(
+			item(1, "Body m"), item(2, "Body r"), item(3, "Body g"), item(4, "Body p"),
+			item(5, "Body s1"), item(6, "Body s2"), item(7, "Body s3"), item(8, "Body s4"),
+			item(11, "Legs m"), item(12, "Legs r"), item(13, "Legs g"), item(14, "Legs p"),
+			item(15, "Legs s1"), item(16, "Legs s2"), item(17, "Legs s3"), item(18, "Legs s4")
+		);
+		GearStatsSource stats = itemId -> {
+			GearSlot slot = itemId < 10 ? GearSlot.BODY : GearSlot.LEGS;
+			int style = itemId % 10;
+			int stab = style == 1 ? 5 : style >= 5 ? 1 : 0;
+			int ranged = style == 2 ? 5 : 0;
+			int magic = style == 3 ? 5 : 0;
+			int prayer = style == 4 ? 5 : 0;
+			int defence = 100 - style * 10;
+			return Optional.of(new GearStats(slot, stab, 0, 0, magic, ranged, 0, 0, prayer, defence));
+		};
+
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
+
+		assertEquals(16, laidOut.size());
+		assertEquals("Body m", laidOut.get(0).getDisplayName());
+		assertEquals("Body r", laidOut.get(1).getDisplayName());
+		assertEquals("Body g", laidOut.get(2).getDisplayName());
+		assertEquals("Body p", laidOut.get(3).getDisplayName());
+		assertEquals("Legs m", laidOut.get(8).getDisplayName());
+		assertEquals("Legs r", laidOut.get(9).getDisplayName());
+		assertEquals("Legs g", laidOut.get(10).getDisplayName());
+		assertEquals("Legs p", laidOut.get(11).getDisplayName());
+	}
+
+	@Test
 	public void fallsBackToFlatSortWithoutRecognizedSetupGear()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),
