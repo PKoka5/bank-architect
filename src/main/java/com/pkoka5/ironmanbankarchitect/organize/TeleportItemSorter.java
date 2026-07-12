@@ -17,6 +17,7 @@ final class TeleportItemSorter
 		sorted.sort(Comparator
 			.comparingInt(TeleportItemSorter::roleRank)
 			.thenComparingInt(TeleportItemSorter::runeRank)
+			.thenComparingInt(TeleportItemSorter::pouchRank)
 			.thenComparing(TeleportItemSorter::familyName)
 			.thenComparingInt(item -> -charge(item.getDisplayName()))
 			.thenComparing(item -> normalized(item.getDisplayName()))
@@ -34,11 +35,11 @@ final class TeleportItemSorter
 			{
 				return 10;
 			}
-			if (subcategory.contains("focus") || subcategory.contains("container")
-				|| subcategory.contains("utility"))
-			{
-				return 20;
-			}
+			if (subcategory.contains("focus")) return 20;
+			if (isEssencePouch(name)) return 21;
+			if (name.equals("rune pouch")) return 22;
+			if (subcategory.contains("container")) return 22;
+			if (subcategory.contains("utility")) return 23;
 			return 0;
 		}
 		if (isJewellery(name))
@@ -59,7 +60,8 @@ final class TeleportItemSorter
 
 	private static int runeRank(BankPreviewItem item)
 	{
-		if (roleRank(item) != 0)
+		int role = roleRank(item);
+		if (role != 0 && role != 20)
 		{
 			return 100;
 		}
@@ -68,12 +70,31 @@ final class TeleportItemSorter
 			"nature", "law", "death", "blood", "soul", "astral", "wrath"};
 		for (int i = 0; i < order.length; i++)
 		{
-			if (name.equals(order[i] + " rune"))
+			if ((role == 0 && name.equals(order[i] + " rune"))
+				|| (role == 20 && name.startsWith(order[i] + " ")))
 			{
 				return i;
 			}
 		}
 		return 90;
+	}
+
+	private static int pouchRank(BankPreviewItem item)
+	{
+		if (roleRank(item) != 21) return 100;
+		String name = normalized(item.getDisplayName());
+		String[] order = {"small", "medium", "large", "giant", "colossal"};
+		for (int i = 0; i < order.length; i++)
+		{
+			if (name.startsWith(order[i] + " pouch")) return i;
+		}
+		return 90;
+	}
+
+	private static boolean isEssencePouch(String name)
+	{
+		return containsAny(name, "small pouch", "medium pouch", "large pouch", "giant pouch",
+			"colossal pouch");
 	}
 
 	private static boolean isJewellery(String name)

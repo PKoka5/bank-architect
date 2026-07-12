@@ -22,6 +22,14 @@ final class ItemClassificationRefiner
 			// A book; without this rule the "herb" inside "catherby" makes it a herb.
 			return new Classification(ItemCategory.CLEANUP, "quest-item");
 		}
+		if (constant.startsWith("cert_arravshield"))
+		{
+			return new Classification(ItemCategory.CLEANUP, "quest-item");
+		}
+		if (name.contains("ornament kit"))
+		{
+			return new Classification(ItemCategory.CLUE, "cosmetic");
+		}
 		if (isFishTrophy(name))
 		{
 			return new Classification(ItemCategory.CLUE, "collection-trophy");
@@ -170,7 +178,9 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "textile");
 		}
-		if (containsAny(name, "coal bag", "forestry kit", "fish barrel", "log basket", "plank sack", "gem bag"))
+		if (containsAny(name, "forestry kit", "fish barrel", "log basket", "plank sack")
+			|| (name.contains("coal bag") && constant.startsWith("coal_bag"))
+			|| (name.contains("gem bag") && constant.startsWith("gem_bag")))
 		{
 			return new Classification(ItemCategory.TOOL, "resource-container");
 		}
@@ -302,6 +312,18 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.RUNE, "runecrafting-focus");
 		}
+		if (name.startsWith("raw ") && isFish(name))
+		{
+			return new Classification(ItemCategory.SKILLING, "raw-food");
+		}
+		if (name.startsWith("leaping ") && isFish(name))
+		{
+			return new Classification(ItemCategory.SKILLING, "raw-food");
+		}
+		if (isFish(name))
+		{
+			return new Classification(ItemCategory.POTION, "food");
+		}
 		if (legacyCategory == ItemCategory.TOOL)
 		{
 			return new Classification(ItemCategory.TOOL, toolSubcategory(name));
@@ -331,25 +353,15 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "tool");
 		}
-		if (name.startsWith("raw ") && isFish(name))
-		{
-			return new Classification(ItemCategory.SKILLING, "raw-food");
-		}
-		if (name.startsWith("leaping ") && isFish(name))
-		{
-			return new Classification(ItemCategory.SKILLING, "raw-food");
-		}
-		if (isFish(name))
-		{
-			return new Classification(ItemCategory.POTION, "food");
-		}
 		if ("feather".equals(name))
 		{
 			return new Classification(ItemCategory.SKILLING, "ammo-component");
 		}
 		if (containsAny(name, "arrowtips", "arrowheads", "arrow shaft", "headless arrow",
-			"dart tip", "spear tips", "grapple tip",
-			"crossbow limbs", "blurite limbs"))
+			"bolt tips", "dart tip", "dart shaft", "javelin tips", "javelin shaft",
+			"spear tips", "grapple tip", "crossbow limbs", "blurite limbs")
+			|| searchable.contains("crossbow limbs") || searchable.contains("crossbow stock")
+			|| (name.startsWith("broad bolt") && name.contains("unf")))
 		{
 			return new Classification(ItemCategory.SKILLING, "ammo-component");
 		}
@@ -432,7 +444,8 @@ final class ItemClassificationRefiner
 
 	private static boolean isFishTrophy(String name)
 	{
-		return (name.startsWith("big ") || name.startsWith("stuffed ")) && containsFishSpecies(name);
+		return (name.startsWith("big ") || name.startsWith("stuffed ") || name.startsWith("mounted "))
+			&& containsFishSpecies(name);
 	}
 
 	private static boolean containsFishSpecies(String name)
@@ -472,7 +485,7 @@ final class ItemClassificationRefiner
 	private static boolean isUnenchantedJewellery(String name)
 	{
 		String base = name.endsWith(" (u)") ? name.substring(0, name.length() - 4) : name;
-		String[] materials = {"gold", "silver", "opal", "jade", "red topaz", "sapphire",
+		String[] materials = {"gold", "opal", "jade", "red topaz", "sapphire",
 			"emerald", "ruby", "diamond", "dragon", "dragonstone", "onyx", "zenyte"};
 		String[] types = {"ring", "necklace", "bracelet", "amulet"};
 		for (String material : materials)
@@ -512,13 +525,33 @@ final class ItemClassificationRefiner
 
 	private static boolean isSkillCapeOrSkillingGear(String name)
 	{
-		if (!name.contains("cape"))
+		if (name.contains("cape") && containsAny(name, "agility", "cooking", "construction", "crafting",
+			"farming", "firemaking", "fishing", "fletching", "herblore", "hunter", "mining",
+			"runecraft", "runecrafting", "slayer", "smithing", "thieving", "woodcutting"))
 		{
-			return false;
+			return true;
 		}
-		return containsAny(name, "agility", "cooking", "construction", "crafting", "farming",
-			"firemaking", "fishing", "fletching", "herblore", "hunter", "mining",
-			"runecraft", "runecrafting", "slayer", "smithing", "thieving", "woodcutting");
+		return equalsAny(name,
+			"angler hat", "angler top", "angler waders", "angler boots",
+			"spirit angler headband", "spirit angler top", "spirit angler waders", "spirit angler boots",
+			"prospector helmet", "prospector jacket", "prospector legs", "prospector boots",
+			"pyromancer hood", "pyromancer garb", "pyromancer robe", "pyromancer boots",
+			"lumberjack hat", "lumberjack top", "lumberjack legs", "lumberjack boots",
+			"carpenter's helmet", "carpenter's shirt", "carpenter's trousers", "carpenter's boots",
+			"farmer's strawhat", "farmer's jacket", "farmer's shirt", "farmer's boro trousers",
+			"farmer's boots", "rogue mask", "rogue top", "rogue trousers", "rogue gloves", "rogue boots")
+			|| name.startsWith("graceful hood") || name.startsWith("graceful top")
+			|| name.startsWith("graceful legs") || name.startsWith("graceful gloves")
+			|| name.startsWith("graceful boots") || name.startsWith("graceful cape");
+	}
+
+	private static boolean equalsAny(String value, String... candidates)
+	{
+		for (String candidate : candidates)
+		{
+			if (value.equals(candidate)) return true;
+		}
+		return false;
 	}
 
 	private static int potionDose(String name)

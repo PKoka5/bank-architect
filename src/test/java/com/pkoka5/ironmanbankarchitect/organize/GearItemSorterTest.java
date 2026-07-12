@@ -169,6 +169,20 @@ public class GearItemSorterTest
 	}
 
 	@Test
+	public void ammoMaterialNamesNeverOverrideNonAmmoGearScores()
+	{
+		List<BankPreviewItem> input = Arrays.asList(
+			item(1, "Best body"), item(2, "Useful body"), item(3, "Rune body"));
+		GearStatsSource stats = itemId -> Optional.of(new GearStats(GearSlot.BODY,
+			0, 0, 0, 0, 0, 0, 0, 0, itemId == 1 ? 3000 : itemId == 2 ? 2000 : 100));
+
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
+
+		assertEquals(Arrays.asList("Best body", "Useful body", "Rune body"), names(laidOut));
+	}
+
+	@Test
 	public void fallsBackToFlatSortWithoutRecognizedSetupGear()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),

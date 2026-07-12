@@ -41,8 +41,23 @@ public class TeleportItemSorterTest
 			item(4, "Small pouch", ItemCategory.RUNE, "rune-container")
 		));
 
-		assertEquals(Arrays.asList("Water rune", "Pure essence", "Binding necklace", "Small pouch"),
+		assertEquals(Arrays.asList("Water rune", "Pure essence", "Small pouch", "Binding necklace"),
 			names(sorted));
+	}
+
+	@Test
+	public void ordersRunecraftingFocusesAndEssencePouchesSemantically()
+	{
+		List<BankPreviewItem> sorted = TeleportItemSorter.sort(Arrays.asList(
+			item(1, "Water talisman", ItemCategory.RUNE, "runecrafting-focus"),
+			item(2, "Air talisman", ItemCategory.RUNE, "runecrafting-focus"),
+			item(3, "Medium pouch", ItemCategory.RUNE, "rune-container"),
+			item(4, "Small pouch", ItemCategory.RUNE, "rune-container"),
+			item(5, "Rune pouch", ItemCategory.RUNE, "rune-container"),
+			item(6, "Binding necklace", ItemCategory.RUNE, "runecrafting-utility")));
+
+		assertEquals(Arrays.asList("Air talisman", "Water talisman", "Small pouch", "Medium pouch",
+			"Rune pouch", "Binding necklace"), names(sorted));
 	}
 
 	@Test

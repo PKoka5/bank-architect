@@ -14,6 +14,12 @@ final class ReviewItemSorter
 		{
 			return 90;
 		}
+		if ("quest-item".equals(item.getSubcategory()))
+		{
+			// Wiki-confirmed quest items go straight to the quest lane, no
+			// name guessing needed.
+			return 30;
+		}
 
 		String name = normalizedName(item.getDisplayName());
 		return rankByName(name,

@@ -5,6 +5,7 @@ import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.catalog.WikiItemLists;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +19,10 @@ public final class BankOrganizationPreviewBuilder
 	// same style and slot are owned (best + one backup stay in combat gear).
 	private static final int OUTCLASSED_BY_COUNT = 2;
 	private static final int ALCH_VALUE_THRESHOLD = 5000;
+	// Bulk smithing output can still be worth processing below the normal
+	// threshold, but very cheap utility clothing (for example Monk's robes)
+	// must never move merely because the player owns a stack.
+	private static final int BULK_STOCK_MIN_ALCH_VALUE = 1000;
 	// Owning this many copies of one wearable marks it as production stock
 	// (smithing/crafting output), not a gear option the player switches to.
 	private static final int BULK_STOCK_QUANTITY = 8;
@@ -136,6 +141,12 @@ public final class BankOrganizationPreviewBuilder
 		{
 			return false;
 		}
+		if (WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
+		{
+			// Special attack weapons keep niche value regardless of raw stats
+			// (dragon dagger, magic shortbow); never suggest alching them.
+			return false;
+		}
 
 		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
 		if (!stats.isPresent())
@@ -163,13 +174,14 @@ public final class BankOrganizationPreviewBuilder
 		// regardless of alch value, but weapons and ammo stay: high quantities
 		// there are consumables (chinchompas, thrown weapons), not stock.
 		GearSlot slot = stats.get().getSlot();
+		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
 		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
-			&& strictlyBetter >= 1)
+			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1)
 		{
 			return true;
 		}
 
-		return itemValues.highAlchValue(catalogItem.getItemId()) >= ALCH_VALUE_THRESHOLD
+		return highAlchValue >= ALCH_VALUE_THRESHOLD
 			&& strictlyBetter >= OUTCLASSED_BY_COUNT;
 	}
 

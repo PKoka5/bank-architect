@@ -120,16 +120,29 @@ public class PresetItemSorterTest
 			BankPresets.IRONMAN.getCategory("slayer-boss-loot"), Arrays.asList(
 				item(1, "Adamant platebody", ItemCategory.GEAR),
 				item(2, "Pegasian crystal", ItemCategory.UNIQUE),
-				item(3, "Crystal weapon seed", ItemCategory.UNIQUE)));
+				item(3, "Crystal weapon seed", ItemCategory.UNIQUE),
+				item(4, "Enhanced crystal weapon seed", ItemCategory.UNIQUE),
+				item(5, "Soaked page", ItemCategory.UNIQUE),
+				item(6, "Burnt page", ItemCategory.UNIQUE)));
 
-		assertEquals(Arrays.asList("Crystal weapon seed", "Pegasian crystal", "Adamant platebody"),
-			names(sorted));
+		assertEquals(Arrays.asList("Crystal weapon seed", "Enhanced crystal weapon seed",
+			"Pegasian crystal", "Burnt page", "Soaked page", "Adamant platebody"), names(sorted));
 	}
 
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
 	{
+		String subcategory = category == ItemCategory.UNIQUE
+			? uniqueSubcategory(name) : category.getDisplayLabel().toLowerCase();
 		return new BankPreviewItem(new CatalogItem(itemId, name, category,
-			category.getDisplayLabel().toLowerCase(), Collections.emptySet(), null), 1);
+			subcategory, Collections.emptySet(), null), 1);
+	}
+
+	private static String uniqueSubcategory(String name)
+	{
+		if (name.contains("weapon seed")) return "weapon-upgrade";
+		if (name.contains("crystal")) return "equipment-upgrade";
+		if (name.contains("page")) return "equipment-charge";
+		return "unique";
 	}
 
 	private static List<String> names(List<BankPreviewItem> items)

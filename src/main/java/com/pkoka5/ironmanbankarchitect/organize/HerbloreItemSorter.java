@@ -31,7 +31,7 @@ final class HerbloreItemSorter
 		chain("cadantine", "super defence", "white berries"),
 		chain("lantadyme", "magic potion", "potato cactus"),
 		chain("dwarf weed", "ranging potion", "wine of zamorak"),
-		chain("torstol", "super combat", "vial of water")
+		chain("torstol", "super combat potion")
 	};
 
 	private HerbloreItemSorter()
@@ -63,19 +63,18 @@ final class HerbloreItemSorter
 			.thenComparingInt(BankPreviewItem::getItemId));
 
 		List<BankPreviewItem> laidOut = new ArrayList<>();
+		List<BankPreviewItem> deferred = new ArrayList<>();
 		int fillerIndex = 0;
-		for (int rowIndex = 0; rowIndex < recipeRows.size(); rowIndex++)
+		for (RecipeRow row : recipeRows)
 		{
-			RecipeRow row = recipeRows.get(rowIndex);
 			int missing = GRID_COLUMNS - row.itemCount();
 			if (fillerIndex + missing > filler.size())
 			{
-				for (int remaining = rowIndex; remaining < recipeRows.size(); remaining++)
-				{
-					laidOut.addAll(recipeRows.get(remaining).items());
-				}
-				laidOut.addAll(filler.subList(fillerIndex, filler.size()));
-				return laidOut;
+				// Keep the current output on an eight-cell boundary so a later
+				// complete recipe can still retain its visual row. Sparse rows move
+				// to the dense tail when there is not enough real filler for them.
+				deferred.addAll(row.items());
+				continue;
 			}
 
 			for (BankPreviewItem cell : row.cells)
@@ -84,6 +83,7 @@ final class HerbloreItemSorter
 			}
 		}
 
+		laidOut.addAll(deferred);
 		laidOut.addAll(filler.subList(fillerIndex, filler.size()));
 		return laidOut;
 	}
@@ -94,28 +94,14 @@ final class HerbloreItemSorter
 		for (BankPreviewItem item : unused)
 		{
 			String name = normalizedName(item.getDisplayName());
-			if (name.contains(chain.herb))
+			int herbCell = herbCell(chain.herb, name);
+			if (herbCell >= 0)
 			{
-				if (name.contains("grimy"))
-				{
-					cells[0] = first(cells[0], item);
-				}
-				else if (name.contains("seed"))
-				{
-					cells[2] = first(cells[2], item);
-				}
-				else if (name.contains("unf"))
-				{
-					cells[3] = first(cells[3], item);
-				}
-				else if (!name.contains("potion"))
-				{
-					cells[1] = first(cells[1], item);
-				}
+				cells[herbCell] = first(cells[herbCell], item);
 				continue;
 			}
 
-			if (name.contains(chain.product))
+			if (potionFamily(name).equals(chain.product))
 			{
 				int dose = doseOf(name);
 				if (dose >= 1 && dose <= 3)
@@ -135,6 +121,42 @@ final class HerbloreItemSorter
 			}
 		}
 		return new RecipeRow(cells);
+	}
+
+	private static int herbCell(String herb, String name)
+	{
+		if (name.equals(seedName(herb))) return 2;
+		if (name.equals(herb + " potion (unf)")) return 3;
+		if (isGrimyHerb(herb, name)) return 0;
+		if (isCleanHerb(herb, name)) return 1;
+		return -1;
+	}
+
+	private static String seedName(String herb)
+	{
+		return herb + " seed";
+	}
+
+	private static boolean isGrimyHerb(String herb, String name)
+	{
+		if ("guam".equals(herb)) return name.equals("grimy guam leaf") || name.equals("grimy guam");
+		if ("ranarr".equals(herb)) return name.equals("grimy ranarr weed") || name.equals("grimy ranarr");
+		if ("irit".equals(herb)) return name.equals("grimy irit leaf") || name.equals("grimy irit");
+		return name.equals("grimy " + herb);
+	}
+
+	private static boolean isCleanHerb(String herb, String name)
+	{
+		if ("guam".equals(herb)) return name.equals("guam leaf") || name.equals("clean guam");
+		if ("ranarr".equals(herb)) return name.equals("ranarr weed") || name.equals("clean ranarr");
+		if ("irit".equals(herb)) return name.equals("irit leaf") || name.equals("clean irit")
+			|| name.equals("irit");
+		return name.equals(herb) || name.equals("clean " + herb);
+	}
+
+	private static String potionFamily(String name)
+	{
+		return doseOf(name) > 0 ? name.substring(0, name.length() - 3).trim() : name;
 	}
 
 	private static int doseOf(String name)

@@ -183,6 +183,48 @@ public class HerbloreItemSorterTest
 			"Potato cactus", "Magic potion(3)"), names(lantadyme));
 	}
 
+	@Test
+	public void productFamiliesDoNotMatchTheirSuperVariantsBySubstring()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy harralander"), item(2, "Harralander potion (unf)"),
+			item(3, "Super energy(3)"), item(4, "Energy potion(3)"),
+			item(5, "A filler"), item(6, "B filler"), item(7, "C filler"), item(8, "D filler")
+		));
+
+		assertEquals(5, indexOf(laidOut, "Energy potion(3)"));
+		assertEquals(true, indexOf(laidOut, "Super energy(3)") != 5);
+	}
+
+	@Test
+	public void herbStagesUseExactNamesInsteadOfEmbeddedLetterSequences()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy guam leaf"), item(2, "Guam potion (unf)"), item(3, "Eye of newt"),
+			item(4, "Spirit seed"), item(5, "A filler"), item(6, "B filler"),
+			item(7, "C filler"), item(8, "D filler")
+		));
+
+		assertEquals(indexOf(laidOut, "Grimy guam leaf") / 8, indexOf(laidOut, "Eye of newt") / 8);
+		assertEquals(4, indexOf(laidOut, "Eye of newt") % 8);
+	}
+
+	@Test
+	public void sparseEarlyRecipeDoesNotBreakALaterCompleteRow()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy guam leaf"), item(2, "Guam potion (unf)"),
+			item(3, "Grimy irit"), item(4, "Clean irit"), item(5, "Irit seed"),
+			item(6, "Irit potion (unf)"), item(7, "Eye of newt"),
+			item(8, "Super attack (3)"), item(9, "Super attack (2)"),
+			item(10, "Super attack (1)")
+		));
+
+		assertEquals(0, indexOf(laidOut, "Grimy irit"));
+		assertEquals(7, indexOf(laidOut, "Super attack (1)"));
+		assertEquals(8, indexOf(laidOut, "Grimy guam leaf"));
+	}
+
 	private static int indexOf(List<BankPreviewItem> items, String name)
 	{
 		for (int i = 0; i < items.size(); i++)

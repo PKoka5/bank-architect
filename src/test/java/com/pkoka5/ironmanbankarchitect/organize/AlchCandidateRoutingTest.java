@@ -164,6 +164,49 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
+	public void cheapBulkUtilityWearablesStayInGear()
+	{
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(1, meleeBody(300));
+		stats.put(2, meleeBody(100));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1, 1, 0),
+			new BankItemSnapshot(2, 19, 1)
+		)), GEAR_CATALOG, BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> 30);
+
+		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
+	public void specialAttackWeaponsAreNeverAlchCandidates()
+	{
+		// A stack of dragon daggers is outclassed and valuable, but spec
+		// weapons keep niche value and must stay in combat gear.
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			itemId == 3 ? "Dragon dagger" : "Gear " + itemId,
+			ItemCategory.GEAR, "gear", Collections.emptySet(), null));
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(1, new GearStats(GearSlot.WEAPON, 0, 60, 0, 0, 0, 55, 0, 0, 0));
+		stats.put(2, new GearStats(GearSlot.WEAPON, 0, 50, 0, 0, 0, 45, 0, 0, 0));
+		stats.put(3, new GearStats(GearSlot.WEAPON, 25, 0, 0, 0, 0, 20, 0, 0, 0));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1, 1, 0),
+			new BankItemSnapshot(2, 1, 1),
+			new BankItemSnapshot(3, 12, 2)
+		)), catalog, BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> 40000);
+
+		assertEquals(3, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
 	public void bulkStockWithoutABetterAlternativeStaysInGear()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();

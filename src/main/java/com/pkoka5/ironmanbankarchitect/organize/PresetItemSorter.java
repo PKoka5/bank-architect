@@ -23,6 +23,10 @@ public final class PresetItemSorter
 		{
 			return GearItemSorter.layout(items, gearStats);
 		}
+		if ("currency-utilities".equals(category.getKey()))
+		{
+			return CurrencyItemSorter.sort(items);
+		}
 		if ("potions-food".equals(category.getKey()))
 		{
 			return SupplyItemSorter.sort(items);
@@ -57,6 +61,7 @@ public final class PresetItemSorter
 			List<BankPreviewItem> sorted = new ArrayList<>(items);
 			sorted.sort(Comparator
 				.comparingInt(PresetItemSorter::bossLootRank)
+				.thenComparing(PresetItemSorter::bossLootFamily)
 				.thenComparing(item -> normalizedName(item.getDisplayName()))
 				.thenComparingInt(BankPreviewItem::getItemId));
 			return sorted;
@@ -212,13 +217,25 @@ public final class PresetItemSorter
 	{
 		if (item.getItemCategory() == ItemCategory.UNIQUE)
 		{
-			return 0;
+			String subcategory = normalizedName(item.getSubcategory());
+			if (subcategory.contains("weapon-upgrade")) return 0;
+			if (subcategory.contains("equipment-upgrade")) return 10;
+			if (subcategory.contains("charge")) return 20;
+			return 30;
 		}
 		if (item.getItemCategory() == ItemCategory.GEAR)
 		{
-			return 20;
+			return 100;
 		}
-		return 10;
+		return 50;
+	}
+
+	private static String bossLootFamily(BankPreviewItem item)
+	{
+		String name = normalizedName(item.getDisplayName());
+		if (name.contains("crystal weapon seed")) return "crystal-weapon-seed";
+		if (name.endsWith(" page")) return "charge-page";
+		return name;
 	}
 
 	private static final class Group

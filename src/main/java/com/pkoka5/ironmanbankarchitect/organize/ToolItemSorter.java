@@ -86,7 +86,8 @@ final class ToolItemSorter
 		if (containsAny(name, " axe", "machete", "forestry", "log basket", "strung rabbit foot")) return 1;
 		if (containsAny(name, "harpoon", "fishing", "lobster pot", "karambwan vessel",
 			"fish barrel", "barbarian rod") || name.endsWith(" fishing rod")) return 2;
-		if (containsAny(name, "rake", "spade", "seed dibber", "secateurs", "watering can", "trowel")) return 3;
+		if (containsAny(name, "rake", "spade", "seed dibber", "secateurs", "watering can", "trowel",
+			"seed box", "compost bucket")) return 3;
 		if (containsAny(name, "hammer", "saw", "plank sack")) return 4;
 		if (containsAny(name, "chisel", "glassblowing", "needle")) return 5;
 		if (containsAny(name, "snare", "trap", "butterfly net", "noose", "teasing",
@@ -94,6 +95,7 @@ final class ToolItemSorter
 		if (containsAny(name, "lockpick", "house keys")) return 7;
 		if (containsAny(name, "tinderbox", "warm gloves", "lantern", "torch")) return 8;
 		if (containsAny(name, "cooking gauntlets", "cake tin")) return 9;
+		if (containsAny(name, "pestle and mortar", "herb sack")) return 10;
 		return 20;
 	}
 

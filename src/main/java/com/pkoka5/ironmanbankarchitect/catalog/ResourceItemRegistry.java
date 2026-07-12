@@ -14,20 +14,6 @@ public final class ResourceItemRegistry implements ItemCatalog
 {
 	static final String RESOURCE_PATH = "/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv";
 
-	// Weapon names the generated registry mislabelled as SKILLING or RUNE.
-	private static final String[] GEAR_OVERRIDE_NEEDLES = {
-		"warhammer", "thrownaxe", "torag's hammers"
-	};
-
-	// Equipable skilling tools and outfits the generated registry labels GEAR
-	// (they have equipment slots) plus tool names mislabelled RUNE/SKILLING.
-	private static final String[] TOOL_OVERRIDE_NEEDLES = {
-		"pickaxe", " axe", "harpoon", "machete", "butterfly net", "fishing rod", "lobster pot",
-		"fishing net", "graceful", "angler", "prospector", "pyromancer", "lumberjack",
-		"carpenter", "farmer's strawhat", "farmer's jacket", "farmer's shirt",
-		"farmer's boro trousers", "farmer's boots", "rogue "
-	};
-
 	private static final String[] TELEPORT_NEEDLES = {
 		"ring of dueling", "games necklace", "amulet of glory", "skills necklace",
 		"combat bracelet", "burning amulet", "necklace of passage", "digsite pendant", "ring of wealth",
@@ -99,8 +85,17 @@ public final class ResourceItemRegistry implements ItemCatalog
 				ItemCategory legacyCategory = resolveCategory(displayName, constantName, explicitCategory);
 				ItemClassificationRefiner.Classification classification =
 					ItemClassificationRefiner.refine(displayName, constantName, legacyCategory);
+				String subcategory = classification.getSubcategory();
+				if (classification.getCategory() == ItemCategory.CLEANUP
+					&& "cleanup".equals(subcategory)
+					&& WikiItemLists.INSTANCE.isQuestItem(displayName))
+				{
+					// Wiki-confirmed quest items get an honest review label
+					// instead of the generic cleanup bucket.
+					subcategory = "quest-item";
+				}
 				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, classification.getCategory(),
-					classification.getSubcategory(), Collections.emptySet(), null));
+					subcategory, Collections.emptySet(), null));
 			}
 		}
 		catch (IOException ex)
@@ -143,11 +138,11 @@ public final class ResourceItemRegistry implements ItemCatalog
 		{
 			return ItemCategory.TELEPORT;
 		}
-		if (containsAny(name, GEAR_OVERRIDE_NEEDLES))
+		if (isGearOverride(displayName))
 		{
 			return ItemCategory.GEAR;
 		}
-		if (containsAny(name, TOOL_OVERRIDE_NEEDLES))
+		if (isToolOverride(displayName))
 		{
 			return ItemCategory.TOOL;
 		}
@@ -158,6 +153,8 @@ public final class ResourceItemRegistry implements ItemCatalog
 		if (explicitCategory == ItemCategory.SKILLING
 			&& refineCategory(displayName, constantName, ItemCategory.SKILLING) == ItemCategory.TOOL)
 		{
+			// Plain tools (hammer, saw, chisel) carry an explicit SKILLING label
+			// in the generated registry but belong in the tools tab.
 			return ItemCategory.TOOL;
 		}
 		if (explicitCategory != null)
@@ -166,6 +163,36 @@ public final class ResourceItemRegistry implements ItemCatalog
 		}
 
 		return refineCategory(displayName, constantName, ItemCategory.CLEANUP);
+	}
+
+	private static boolean isGearOverride(String displayName)
+	{
+		String name = displayName.toLowerCase();
+		if (name.startsWith("torag's hammers")) return true;
+		if (name.contains("thrownaxe") && !containsAny(name, "head", "crate", "ornament kit")) return true;
+		return containsWord(name, "warhammer") && !containsAny(name, "crate", "ornament kit");
+	}
+
+	private static boolean isToolOverride(String displayName)
+	{
+		String name = displayName.toLowerCase();
+		String base = name.replaceFirst("\\s*\\([^)]*\\)$", "").trim();
+		if (containsWord(name, "pickaxe") && !containsAny(name, "head", "handle", "kit", "crate")) return true;
+		if ((base.equals("harpoon") || base.endsWith(" harpoon")) && !name.contains("crate")) return true;
+		if ((base.equals("machete") || base.endsWith(" machete")) && !name.contains("crate")) return true;
+		if (base.endsWith("butterfly net") || base.endsWith("fishing rod")
+			|| base.equals("barbarian rod") || base.equals("lobster pot") || base.endsWith("fishing net"))
+		{
+			return true;
+		}
+
+		String[] axeMaterials = {"bronze", "iron", "steel", "black", "mithril", "adamant",
+			"rune", "dragon", "crystal", "infernal", "3rd age", "gilded", "blessed", "imcando"};
+		for (String material : axeMaterials)
+		{
+			if (base.equals(material + " axe") || base.equals(material + " felling axe")) return true;
+		}
+		return false;
 	}
 
 	private static boolean isActualRune(String displayName)

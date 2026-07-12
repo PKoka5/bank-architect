@@ -207,7 +207,7 @@ final class GearItemSorter
 		remaining.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> rankOf(item, gearStats))
 			.thenComparingInt(item -> ammoFamilyRank(item, gearStats))
-			.thenComparingInt(GearItemSorter::ammoTierRank)
+			.thenComparingInt(item -> ammoTierRank(item, gearStats))
 			.thenComparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
@@ -240,8 +240,9 @@ final class GearItemSorter
 		return 60;
 	}
 
-	private static int ammoTierRank(BankPreviewItem item)
+	private static int ammoTierRank(BankPreviewItem item, GearStatsSource gearStats)
 	{
+		if (slotRankOf(item, gearStats) != 11) return 0;
 		String name = normalizedName(item.getDisplayName());
 		String[] tiers = {"diamond", "dragon", "amethyst", "rune", "adamant", "broad",
 			"mithril", "bone", "steel", "iron", "bronze"};
