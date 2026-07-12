@@ -91,8 +91,10 @@ public class IronmanBankArchitectPanelTest
 		assertTrue(panelText.contains("Blueprint"));
 		assertTrue(panelText.contains("Show My Bank"));
 		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
-		assertTrue(panelText.contains("Bank guide preview is temporary"));
-		assertTrue(panelText.contains("Overlay preview compares physical bank slots"));
+		assertTrue(panelText.contains("Guided mode highlights one manual source and target"));
+		assertTrue(panelText.contains("vanilla All items + Swap mode"));
+		assertTrue(panelText.contains("physical tab boundaries are not checked yet"));
+		assertTrue(panel.getGuideProgressLabel().getText().contains("Analyze your bank"));
 		assertFalse(panelText.contains("Advanced preview block"));
 		assertFalse(panelText.contains("Owned:"));
 		assertFalse(panelText.contains("Missing:"));

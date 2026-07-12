@@ -204,6 +204,7 @@ public class BankGuideControllerTest
 
 		assertEquals("Analyzing bank snapshot...", controller.getCatalogSummaryText());
 		assertEquals("Analyzing bank snapshot...", controller.getOrganizationPreviewText());
+		assertEquals("Analyzing bank snapshot...", controller.getGuideProgressText());
 		assertEquals(null, controller.getLatestCatalogSummary());
 		assertEquals(null, controller.getLatestOrganizationPreview());
 	}
@@ -221,6 +222,22 @@ public class BankGuideControllerTest
 		assertEquals(preview, controller.getLatestOrganizationPreview());
 		assertEquals(preview.toPreviewText(), controller.getOrganizationPreviewText());
 		assertTrue(controller.getOrganizationPreviewText().contains("Suggested Bank Blueprint"));
+	}
+
+	@Test
+	public void liveGuideProgressIsShownOnlyForAnOpenEnabledGuide()
+	{
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(995, 1, 0)
+		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
+		controller.publishOrganizationPreview(preview);
+		controller.publishGuideProgressText("Currency: 50% item-order progress.");
+
+		assertEquals(BankGuideController.GUIDANCE_BANK_CLOSED_STATUS, controller.getGuideProgressText());
+		controller.setBankOpen(true);
+		assertEquals(BankGuideController.GUIDANCE_DISABLED_STATUS, controller.getGuideProgressText());
+		controller.setGuideEnabled(true);
+		assertEquals("Currency: 50% item-order progress.", controller.getGuideProgressText());
 	}
 
 	@Test

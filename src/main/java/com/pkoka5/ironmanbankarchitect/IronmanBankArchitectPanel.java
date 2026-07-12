@@ -47,9 +47,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
 	private static final String BLUEPRINT_ACTION_LABEL = "Blueprint";
 	private static final String PREVIEW_BLOCK_HELP =
-		"Bank guide preview is temporary while whole-bank planning is being built.";
+		"Guided mode highlights one manual source and target at a time.";
 	private static final String PREVIEW_OVERLAY_NOTE =
-		"Overlay preview compares physical bank slots with the sorted blueprint.";
+		"Guides item order in vanilla All items + Swap mode; physical tab boundaries are not checked yet.";
 	private static final int STATUS_REFRESH_MILLIS = 500;
 	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
@@ -70,6 +70,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JLabel statusLabel;
 	private final JLabel catalogSummaryLabel;
 	private final JLabel organizationPreviewLabel;
+	private final JLabel guideProgressLabel;
 	private final Timer statusTimer;
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private JDialog bankDialog;
@@ -120,6 +121,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		statusLabel = label("");
 		catalogSummaryLabel = label("");
 		organizationPreviewLabel = label("");
+		guideProgressLabel = label("");
 
 		controls.add(Box.createVerticalStrut(4));
 		controls.add(label(MAIN_ACTION_LABEL));
@@ -140,6 +142,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		controls.add(toggleButton);
 		controls.add(Box.createVerticalStrut(8));
 		controls.add(statusLabel);
+		controls.add(Box.createVerticalStrut(8));
+		controls.add(guideProgressLabel);
 
 		JScrollPane scrollPane = new JScrollPane(controls);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -187,6 +191,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return organizationPreviewLabel;
 	}
 
+	JLabel getGuideProgressLabel()
+	{
+		return guideProgressLabel;
+	}
+
 	private void onToggleGuide()
 	{
 		guideController.toggleGuide();
@@ -202,6 +211,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshStatus()
 	{
 		statusLabel.setText(guideController.getStatusText());
+		guideProgressLabel.setText(toHtmlLines(guideController.getGuideProgressText()));
 		refreshAnalysis();
 	}
 

@@ -69,6 +69,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Inject
 	private ItemManager itemManager;
 
+	@Inject
+	private IronmanBankArchitectConfig config;
+
 	private NavigationButton navigationButton;
 	private IronmanBankArchitectPanel panel;
 	private BankGuideController guideController;
@@ -85,7 +88,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			return thread;
 		});
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
-		guideOverlay = new BankGuideOverlay(this, client, guideController);
+		guideOverlay = new BankGuideOverlay(this, client, guideController, config);
 		overlayManager.add(guideOverlay);
 
 		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon);
