@@ -63,6 +63,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final Color BANK_PANEL = new Color(31, 31, 31);
 	private static final Color SLOT_BORDER = new Color(78, 78, 78);
 	private static final Color BLANK_SLOT_BORDER = new Color(52, 52, 52);
+	// PluginPanel is ~225px wide; leave room for panel padding, card padding
+	// and the scrollbar so wrapped text never clips at the right edge.
+	private static final int SIDEBAR_TEXT_WIDTH = 160;
 
 	private final BankGuideController guideController;
 	private final BiConsumer<BankPreviewItem, JLabel> itemIconRenderer;
@@ -226,7 +229,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshStatus()
 	{
 		statusLabel.setText(guideController.getStatusText());
-		guideProgressLabel.setText(toHtmlLines(guideController.getGuideProgressText()));
+		guideProgressLabel.setText(sidebarHtml(guideController.getGuideProgressText()));
 		int percent = guideController.getGuideProgressPercent();
 		guideProgressBar.setVisible(percent >= 0);
 		if (percent >= 0)
@@ -239,9 +242,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshAnalysis()
 	{
-		catalogSummaryLabel.setText(toHtmlLines(guideController.getCatalogSummaryText()));
+		catalogSummaryLabel.setText(sidebarHtml(guideController.getCatalogSummaryText()));
 		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
-		organizationPreviewLabel.setText(toHtmlLines(blueprintStatusText(preview)));
+		organizationPreviewLabel.setText(sidebarHtml(blueprintStatusText(preview)));
 		showBankButton.setEnabled(preview != null);
 		if (bankDialog != null && bankDialog.isVisible())
 		{
@@ -554,5 +557,23 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			.replace("<", "&lt;")
 			.replace(">", "&gt;")
 			.replace("\n", "<br>") + "</html>";
+	}
+
+	/**
+	 * Sidebar labels need an explicit width so long lines wrap inside the
+	 * plugin panel instead of pushing the cards past its right edge.
+	 */
+	private static String sidebarHtml(String text)
+	{
+		if (text == null || text.isEmpty())
+		{
+			return "";
+		}
+
+		return "<html><body style='width:" + SIDEBAR_TEXT_WIDTH + "px'>" + text
+			.replace("&", "&amp;")
+			.replace("<", "&lt;")
+			.replace(">", "&gt;")
+			.replace("\n", "<br>") + "</body></html>";
 	}
 }

@@ -1,5 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.overlay;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -139,6 +140,18 @@ public class BankGuideOverlayTest
 			new Rectangle(20, 20, 30, 30)));
 		assertFalse(BankGuideOverlay.isFullyVisible(viewport,
 			new Rectangle(20, 95, 30, 30)));
+	}
+
+	@Test
+	public void sectionRangeUsesTabCountPrefixSums()
+	{
+		int[] counts = {3, 2, 4, 0, 0, 0, 0, 0, 0};
+
+		assertArrayEquals(new int[]{0, 3}, BankGuideOverlay.sectionRangeForTab(counts, 1));
+		assertArrayEquals(new int[]{3, 5}, BankGuideOverlay.sectionRangeForTab(counts, 2));
+		assertArrayEquals(new int[]{5, 9}, BankGuideOverlay.sectionRangeForTab(counts, 3));
+		assertNull(BankGuideOverlay.sectionRangeForTab(counts, 4));
+		assertNull(BankGuideOverlay.sectionRangeForTab(counts, 0));
 	}
 
 	@Test

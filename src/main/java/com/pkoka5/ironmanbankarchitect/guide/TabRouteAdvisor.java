@@ -26,6 +26,18 @@ public final class TabRouteAdvisor
 
 	public static Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts)
 	{
+		return assess(actualItemIds, plan, tabCounts, 0);
+	}
+
+	/**
+	 * @param focusTabNumber 1-based bank tab whose interior sorting should be
+	 * served first (the tab the player is currently viewing); 0 for the
+	 * default order. Earlier phases (recovery, collapse, create, distribute)
+	 * are unaffected because those require the All items view anyway.
+	 */
+	public static Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
+		int focusTabNumber)
+	{
 		Objects.requireNonNull(actualItemIds, "actualItemIds");
 		Objects.requireNonNull(plan, "plan");
 		Objects.requireNonNull(tabCounts, "tabCounts");
@@ -108,6 +120,22 @@ public final class TabRouteAdvisor
 
 		int correctPositions = correctPositionCount(actualItemIds, plan.getFlattenedItems());
 		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length);
+		if (focusTabNumber >= 1 && focusTabNumber <= targets.size())
+		{
+			int focusStart = 0;
+			for (int tabIndex = 0; tabIndex < focusTabNumber - 1; tabIndex++)
+			{
+				focusStart += targets.get(tabIndex).getItems().size();
+			}
+			TargetTab focus = targets.get(focusTabNumber - 1);
+			Move focusSwap = nextSectionSwap(actualItemIds, focusStart, focus.getItems(),
+				focus.getBankTabNumber(), focus.getBlueprintCategoryNumber(),
+				focus.getCategoryName());
+			if (focusSwap != null)
+			{
+				return Assessment.ready(focusSwap, sorting);
+			}
+		}
 		Move mainSwap = nextSectionSwap(actualItemIds, mainStart, plan.getMainItems(),
 			0, 1, plan.getMainCategoryName());
 		if (mainSwap != null)
@@ -424,11 +452,13 @@ public final class TabRouteAdvisor
 		private BankTabPlan pinnedPlan;
 		private int[] pinnedActualItemIds;
 		private int[] pinnedTabCounts;
+		private int pinnedFocusTab;
 		private Assessment pinnedAssessment;
 		private int[] pendingActualItemIds;
 		private int[] pendingTabCounts;
 		private int pendingSinceTick;
 		private int syntheticTick;
+		private int focusTabNumber;
 
 		public Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts)
 		{
@@ -438,10 +468,17 @@ public final class TabRouteAdvisor
 		public Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
 			int tickCount)
 		{
+			return assess(actualItemIds, plan, tabCounts, tickCount, 0);
+		}
+
+		public Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
+			int tickCount, int focusTabNumber)
+		{
 			Objects.requireNonNull(actualItemIds, "actualItemIds");
 			Objects.requireNonNull(plan, "plan");
 			Objects.requireNonNull(tabCounts, "tabCounts");
 
+			this.focusTabNumber = focusTabNumber;
 			if (pinnedPlan != plan)
 			{
 				reset();
@@ -451,6 +488,13 @@ public final class TabRouteAdvisor
 				&& Arrays.equals(pinnedActualItemIds, actualItemIds)
 				&& Arrays.equals(pinnedTabCounts, tabCounts))
 			{
+				if (pinnedFocusTab != focusTabNumber)
+				{
+					// Only the viewed tab changed; the bank itself did not, so
+					// recompute directly without transition verification.
+					pin(actualItemIds, tabCounts,
+						TabRouteAdvisor.assess(actualItemIds, plan, tabCounts, focusTabNumber));
+				}
 				clearPending();
 				return pinnedAssessment;
 			}
@@ -465,7 +509,8 @@ public final class TabRouteAdvisor
 				}
 			}
 
-			pin(actualItemIds, tabCounts, TabRouteAdvisor.assess(actualItemIds, plan, tabCounts));
+			pin(actualItemIds, tabCounts,
+				TabRouteAdvisor.assess(actualItemIds, plan, tabCounts, focusTabNumber));
 			return pinnedAssessment;
 		}
 
@@ -486,7 +531,8 @@ public final class TabRouteAdvisor
 				return Assessment.blocked(Status.WAITING_FOR_BANK,
 					pinnedAssessment.getProgress());
 			}
-			Assessment alternative = TabRouteAdvisor.assess(actualItemIds, plan, tabCounts);
+			Assessment alternative = TabRouteAdvisor.assess(actualItemIds, plan, tabCounts,
+				focusTabNumber);
 			if (isSafeAlternative(alternative)
 				&& matchesSafeManualTransition(pinnedActualItemIds, pinnedTabCounts,
 					actualItemIds, tabCounts))
@@ -509,6 +555,7 @@ public final class TabRouteAdvisor
 		{
 			pinnedActualItemIds = Arrays.copyOf(actualItemIds, actualItemIds.length);
 			pinnedTabCounts = Arrays.copyOf(tabCounts, tabCounts.length);
+			pinnedFocusTab = focusTabNumber;
 			pinnedAssessment = assessment;
 			clearPending();
 		}

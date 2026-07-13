@@ -118,7 +118,9 @@ public final class BankGuideOverlay extends Overlay
 			return null;
 		}
 
-		if (client.getVarbitValue(VarbitID.BANK_CURRENTTAB) != ALL_ITEMS_TAB)
+		int currentBankTab = client.getVarbitValue(VarbitID.BANK_CURRENTTAB);
+		if (currentBankTab != ALL_ITEMS_TAB
+			&& (currentBankTab < 1 || currentBankTab > TabRouteAdvisor.MAX_TABS))
 		{
 			return blocked(graphics, gridBounds,
 				"Open the vanilla All items tab for item-order guidance.");
@@ -140,10 +142,24 @@ public final class BankGuideOverlay extends Overlay
 		int[] actualItemIds = readCanonicalBankItemIds(canonicalItemIdCache);
 		List<BankSlotWidget> bankSlots = collectBankSlots(bankItems, actualItemIds.length,
 			canonicalItemIdCache);
-		if (!viewMatchesLogicalBank(bankSlots, actualItemIds))
+		int[] sectionRange = null;
+		if (currentBankTab == ALL_ITEMS_TAB)
 		{
-			return blocked(graphics, gridBounds,
-				"Bank view cannot be mapped safely. Clear search/tag views and remove fillers or gaps.");
+			if (!viewMatchesLogicalBank(bankSlots, actualItemIds))
+			{
+				return blocked(graphics, gridBounds,
+					"Bank view cannot be mapped safely. Clear search/tag views and remove fillers or gaps.");
+			}
+		}
+		else
+		{
+			sectionRange = sectionRangeForTab(tabCounts, currentBankTab);
+			if (sectionRange == null
+				|| !viewMatchesSection(bankSlots, actualItemIds, sectionRange[0], sectionRange[1]))
+			{
+				return blocked(graphics, gridBounds,
+					"This tab view cannot be mapped safely. Open the All items tab to continue.");
+			}
 		}
 
 		Map<Integer, BankSlotWidget> allByLogicalSlot = new HashMap<>();
@@ -161,11 +177,12 @@ public final class BankGuideOverlay extends Overlay
 		if (suggestNextMove)
 		{
 			assessment = tabRouteSession.assess(actualItemIds, cachedTabPlan, tabCounts,
-				client.getTickCount());
+				client.getTickCount(), currentBankTab);
 		}
 		else
 		{
-			assessment = TabRouteAdvisor.assess(actualItemIds, cachedTabPlan, tabCounts);
+			assessment = TabRouteAdvisor.assess(actualItemIds, cachedTabPlan, tabCounts,
+				currentBankTab);
 		}
 		if (assessment.getStatus() != TabRouteAdvisor.Status.READY
 			&& assessment.getStatus() != TabRouteAdvisor.Status.COMPLETE)
@@ -174,6 +191,13 @@ public final class BankGuideOverlay extends Overlay
 		}
 
 		Move move = assessment.getMove().orElse(null);
+		if (sectionRange != null && move != null
+			&& !isSectionLocalSwap(move, sectionRange[0], sectionRange[1]))
+		{
+			return blocked(graphics, gridBounds,
+				"Nothing left to sort in this tab right now.\nOpen the All items tab to continue guidance.",
+				assessment.getProgress().getPercent());
+		}
 		boolean tabTargetMove = suggestNextMove
 			&& move != null && isTabTargetMove(move.getType());
 		Widget tabTarget = tabTargetMove
@@ -253,9 +277,68 @@ public final class BankGuideOverlay extends Overlay
 
 	private Dimension blocked(Graphics2D graphics, Rectangle gridBounds, String message)
 	{
-		guideController.publishGuideProgress(message, -1);
+		return blocked(graphics, gridBounds, message, -1);
+	}
+
+	private Dimension blocked(Graphics2D graphics, Rectangle gridBounds, String message, int percent)
+	{
+		guideController.publishGuideProgress(message, percent);
 		drawStatus(graphics, gridBounds, message);
 		return null;
+	}
+
+	/**
+	 * Container slot range [start, end) of a 1-based numbered bank tab, or
+	 * null when that tab does not currently exist.
+	 */
+	static int[] sectionRangeForTab(int[] tabCounts, int tabNumber)
+	{
+		if (tabNumber < 1 || tabNumber > tabCounts.length || tabCounts[tabNumber - 1] <= 0)
+		{
+			return null;
+		}
+		int start = 0;
+		for (int tabIndex = 0; tabIndex < tabNumber - 1; tabIndex++)
+		{
+			if (tabCounts[tabIndex] <= 0)
+			{
+				return null;
+			}
+			start += tabCounts[tabIndex];
+		}
+		return new int[]{start, start + tabCounts[tabNumber - 1]};
+	}
+
+	/**
+	 * A numbered-tab view only shows that tab's container range; every visible
+	 * slot must map inside it and match the live container contents.
+	 */
+	static boolean viewMatchesSection(List<BankSlotWidget> bankSlots, int[] actualItemIds,
+		int sectionStart, int sectionEnd)
+	{
+		if (bankSlots.isEmpty() || bankSlots.size() != sectionEnd - sectionStart)
+		{
+			return false;
+		}
+		Set<Integer> seenSlots = new HashSet<>();
+		for (BankSlotWidget slot : bankSlots)
+		{
+			if (slot.logicalSlot < sectionStart || slot.logicalSlot >= sectionEnd
+				|| slot.logicalSlot >= actualItemIds.length
+				|| actualItemIds[slot.logicalSlot] != slot.itemId
+				|| !seenSlots.add(slot.logicalSlot))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	static boolean isSectionLocalSwap(Move move, int sectionStart, int sectionEnd)
+	{
+		return isGridSwap(move.getType())
+			&& move.getFromSlot() >= sectionStart && move.getFromSlot() < sectionEnd
+			&& move.getToSlot() >= sectionStart && move.getToSlot() < sectionEnd;
 	}
 
 	private int[] readBankTabCounts()

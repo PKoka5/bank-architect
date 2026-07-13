@@ -114,6 +114,26 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
+	public void focusTabServesItsInteriorSwapBeforeMain()
+	{
+		BankTabPlan plan = plan(items(9, 8), items(1, 2), items(3));
+		int[] bank = new int[]{2, 1, 3, 8, 9};
+
+		// Viewing tab 1: its interior swap is served before the main swap.
+		Assessment focused = TabRouteAdvisor.assess(bank, plan, counts(2, 1), 1);
+		assertMove(focused, MoveType.SWAP_SECTION, 1, 1, 0, 1, 2);
+
+		// Default order still starts with main.
+		Assessment unfocused = TabRouteAdvisor.assess(bank, plan, counts(2, 1), 0);
+		assertMove(unfocused, MoveType.SWAP_SECTION, 9, 4, 3, 0, 1);
+
+		// A focused tab that is already sorted falls back to the default order.
+		Assessment cleanFocus = TabRouteAdvisor.assess(new int[]{1, 2, 3, 8, 9},
+			plan, counts(2, 1), 2);
+		assertMove(cleanFocus, MoveType.SWAP_SECTION, 9, 4, 3, 0, 1);
+	}
+
+	@Test
 	public void exactCountsMembershipAndOrderAreComplete()
 	{
 		Assessment result = TabRouteAdvisor.assess(new int[]{1, 2, 3, 9, 8},
