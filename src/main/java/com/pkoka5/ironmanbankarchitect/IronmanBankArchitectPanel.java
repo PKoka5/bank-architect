@@ -47,9 +47,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
 	private static final String BLUEPRINT_ACTION_LABEL = "Blueprint";
 	private static final String PREVIEW_BLOCK_HELP =
-		"Guided mode highlights one manual source and target at a time.";
+		"Guided mode highlights one manual bank action at a time.";
 	private static final String PREVIEW_OVERLAY_NOTE =
-		"Guides item order in vanilla All items + Swap mode; physical tab boundaries are not checked yet.";
+		"Guides tab creation and item order in vanilla All items + Swap mode; every move stays manual.";
 	private static final int STATUS_REFRESH_MILLIS = 500;
 	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
@@ -285,7 +285,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		int tabNumber = 1;
 		for (BankCategoryPreview category : preview.getCategories())
 		{
-			String title = tabNumber + "  " + shortCategoryName(category) + "  " + category.getItemCount();
+			String placement = tabNumber == 1 ? "MAIN" : "TAB " + tabNumber;
+			String title = placement + "  " + shortCategoryName(category)
+				+ "  " + category.getItemCount();
 			bankTabs.addTab(title, categoryScrollPane(category));
 			tabNumber++;
 		}

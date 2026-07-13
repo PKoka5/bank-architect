@@ -2,13 +2,11 @@ package com.pkoka5.ironmanbankarchitect.overlay;
 
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor.Assessment;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor.GuideProgress;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor.NextMove;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor.Session;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor.Status;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
+import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
+import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
+import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Move;
+import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.MoveType;
+import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Phase;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.awt.BasicStroke;
@@ -34,6 +32,7 @@ import net.runelite.api.ItemContainer;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.plugins.Plugin;
@@ -45,6 +44,17 @@ public final class BankGuideOverlay extends Overlay
 {
 	private static final int ALL_ITEMS_TAB = 0;
 	private static final int SWAP_MODE = 0;
+	private static final int[] BANK_TAB_VARBITS = {
+		VarbitID.BANK_TAB_1,
+		VarbitID.BANK_TAB_2,
+		VarbitID.BANK_TAB_3,
+		VarbitID.BANK_TAB_4,
+		VarbitID.BANK_TAB_5,
+		VarbitID.BANK_TAB_6,
+		VarbitID.BANK_TAB_7,
+		VarbitID.BANK_TAB_8,
+		VarbitID.BANK_TAB_9
+	};
 
 	private static final Color CORRECT_FILL = new Color(75, 190, 95, 50);
 	private static final Color CORRECT_BORDER = new Color(75, 220, 95, 190);
@@ -54,7 +64,6 @@ public final class BankGuideOverlay extends Overlay
 	private static final Color WRONG_BORDER = new Color(230, 80, 80, 190);
 	private static final Color UNKNOWN_FILL = new Color(150, 150, 150, 35);
 	private static final Color UNKNOWN_BORDER = new Color(150, 150, 150, 130);
-	private static final Color BADGE_COLOR = new Color(255, 255, 255, 220);
 	private static final Color MOVE_SOURCE = new Color(255, 205, 60, 240);
 	private static final Color MOVE_TARGET = new Color(90, 200, 255, 240);
 	private static final Color STATUS_BACKGROUND = new Color(0, 0, 0, 205);
@@ -63,9 +72,10 @@ public final class BankGuideOverlay extends Overlay
 	private final Client client;
 	private final BankGuideController guideController;
 	private final IronmanBankArchitectConfig config;
-	private final Session moveSession = new Session();
+	private final TabRouteAdvisor.Session tabRouteSession = new TabRouteAdvisor.Session();
 	private final Map<Integer, Integer> canonicalItemIdCache = new HashMap<>();
 	private BankOrganizationPreview cachedPreview;
+	private BankTabPlan cachedTabPlan;
 	private List<BankPreviewItem> cachedPlannedItems;
 	private Map<Integer, Integer> cachedPlannedSlotByItemId;
 
@@ -118,6 +128,12 @@ public final class BankGuideOverlay extends Overlay
 			return blocked(graphics, gridBounds,
 				"Switch the bank rearrange mode to Swap for safe guided moves.");
 		}
+		if (isFilteredBankView())
+		{
+			return blocked(graphics, gridBounds,
+				"Clear bank search and bank-tag filters before using item-order guidance.");
+		}
+		int[] tabCounts = readBankTabCounts();
 
 		refreshPlanCache(preview);
 		List<BankPreviewItem> plannedItems = cachedPlannedItems;
@@ -140,16 +156,40 @@ public final class BankGuideOverlay extends Overlay
 				visibleByLogicalSlot.put(slot.logicalSlot, slot);
 			}
 		}
-		Assessment assessment = moveSession.assess(actualItemIds, plannedItems,
-			visibleByLogicalSlot.keySet());
-		if (assessment.getStatus() != Status.READY && assessment.getStatus() != Status.COMPLETE)
+		boolean suggestNextMove = config.suggestNextMove();
+		TabRouteAdvisor.Assessment assessment;
+		if (suggestNextMove)
 		{
-			return blocked(graphics, gridBounds, blockedMessage(assessment.getStatus()));
+			assessment = tabRouteSession.assess(actualItemIds, cachedTabPlan, tabCounts,
+				client.getTickCount());
+		}
+		else
+		{
+			assessment = TabRouteAdvisor.assess(actualItemIds, cachedTabPlan, tabCounts);
+		}
+		if (assessment.getStatus() != TabRouteAdvisor.Status.READY
+			&& assessment.getStatus() != TabRouteAdvisor.Status.COMPLETE)
+		{
+			return blocked(graphics, gridBounds, tabBlockedMessage(assessment.getStatus()));
 		}
 
-		String guideText = guideText(preview, actualItemIds, assessment, visibleByLogicalSlot.keySet());
+		Move move = assessment.getMove().orElse(null);
+		boolean tabTargetMove = suggestNextMove
+			&& move != null && isTabTargetMove(move.getType());
+		Widget tabTarget = tabTargetMove
+			? resolveTabTarget(client.getWidget(InterfaceID.Bankmain.TABS), move) : null;
+		if (tabTargetMove && tabTarget == null)
+		{
+			return blocked(graphics, gridBounds, missingTabTargetMessage(move.getType()));
+		}
+
+		String guideText = tabGuideText(assessment, visibleByLogicalSlot.keySet(),
+			allByLogicalSlot, gridBounds);
+		String hudText = tabHudText(assessment, suggestNextMove);
 		guideController.publishGuideProgressText(guideText);
 		Map<Integer, Integer> plannedSlotByItemId = cachedPlannedSlotByItemId;
+		boolean showFinalValidation = assessment.getProgress().getPhase() == Phase.SORTING
+			|| assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE;
 
 		Graphics2D bankGraphics = (Graphics2D) graphics.create();
 		try
@@ -157,27 +197,27 @@ public final class BankGuideOverlay extends Overlay
 			bankGraphics.clip(gridBounds);
 			bankGraphics.setFont(bankGraphics.getFont().deriveFont(Font.BOLD, 11f));
 			bankGraphics.setStroke(new BasicStroke(1f));
-			for (BankSlotWidget slot : bankSlots)
+			if (showFinalValidation)
 			{
-				if (!gridBounds.intersects(slot.bounds))
+				for (BankSlotWidget slot : bankSlots)
 				{
-					continue;
+					if (!gridBounds.intersects(slot.bounds))
+					{
+						continue;
+					}
+					SlotValidationState state = stateFor(plannedItems, plannedSlotByItemId,
+						slot.logicalSlot, slot.itemId);
+					bankGraphics.setColor(fillFor(state));
+					bankGraphics.fill(slot.bounds);
+					bankGraphics.setColor(borderFor(state));
+					bankGraphics.draw(slot.bounds);
 				}
-				SlotValidationState state = stateFor(plannedItems, plannedSlotByItemId,
-					slot.logicalSlot, slot.itemId);
-				bankGraphics.setColor(fillFor(state));
-				bankGraphics.fill(slot.bounds);
-				bankGraphics.setColor(borderFor(state));
-				bankGraphics.draw(slot.bounds);
-				bankGraphics.setColor(BADGE_COLOR);
-				bankGraphics.drawString(Integer.toString(slot.logicalSlot + 1),
-					slot.bounds.x + 3, slot.bounds.y + 12);
 			}
 
-			if (config.suggestNextMove() && assessment.getMove().isPresent())
+			if (suggestNextMove && move != null && isGridSwap(move.getType()))
 			{
-				drawMove(bankGraphics, assessment.getMove().get(), allByLogicalSlot,
-					visibleByLogicalSlot, gridBounds);
+				drawSwapMove(bankGraphics, move.getFromSlot(), move.getToSlot(),
+					allByLogicalSlot, visibleByLogicalSlot, gridBounds);
 			}
 		}
 		finally
@@ -185,7 +225,29 @@ public final class BankGuideOverlay extends Overlay
 			bankGraphics.dispose();
 		}
 
-		drawStatus(graphics, gridBounds, guideText);
+		if (tabTargetMove)
+		{
+			Graphics2D connectorGraphics = (Graphics2D) graphics.create();
+			try
+			{
+				connectorGraphics.setFont(connectorGraphics.getFont().deriveFont(Font.BOLD, 11f));
+				drawTabMove(connectorGraphics, move, tabTarget.getBounds(), allByLogicalSlot,
+					visibleByLogicalSlot, gridBounds);
+			}
+			finally
+			{
+				connectorGraphics.dispose();
+			}
+		}
+
+		Rectangle hudSource = suggestNextMove && move != null && move.getFromSlot() >= 0
+			&& allByLogicalSlot.containsKey(move.getFromSlot())
+			? allByLogicalSlot.get(move.getFromSlot()).bounds : null;
+		Rectangle hudTarget = tabTargetMove ? tabTarget.getBounds()
+			: suggestNextMove && move != null && move.getToSlot() >= 0
+				&& allByLogicalSlot.containsKey(move.getToSlot())
+				? allByLogicalSlot.get(move.getToSlot()).bounds : null;
+		drawStatus(graphics, gridBounds, hudText, true, hudSource, hudTarget);
 		return null;
 	}
 
@@ -196,6 +258,29 @@ public final class BankGuideOverlay extends Overlay
 		return null;
 	}
 
+	private int[] readBankTabCounts()
+	{
+		int[] counts = new int[BANK_TAB_VARBITS.length];
+		for (int index = 0; index < BANK_TAB_VARBITS.length; index++)
+		{
+			counts[index] = client.getVarbitValue(BANK_TAB_VARBITS[index]);
+		}
+		return counts;
+	}
+
+	private boolean isFilteredBankView()
+	{
+		return client.getVarcIntValue(VarClientID.BANKTAGS_ACTIVE_TAG) != -1
+			|| isBankSearching(client.getVarcIntValue(VarClientID.MESLAYERMODE),
+				client.getVarcStrValue(VarClientID.MESLAYERINPUT));
+	}
+
+	static boolean isBankSearching(int inputType, String inputText)
+	{
+		return inputType == 11
+			|| inputType <= 0 && inputText != null && !inputText.isEmpty();
+	}
+
 	private void refreshPlanCache(BankOrganizationPreview preview)
 	{
 		if (cachedPreview == preview)
@@ -203,9 +288,10 @@ public final class BankGuideOverlay extends Overlay
 			return;
 		}
 		cachedPreview = preview;
-		cachedPlannedItems = preview.getPlannedItems();
+		cachedTabPlan = BankTabPlan.fromPreview(preview);
+		cachedPlannedItems = cachedTabPlan.getFlattenedItems();
 		cachedPlannedSlotByItemId = plannedSlotByItemId(cachedPlannedItems);
-		moveSession.reset();
+		tabRouteSession.reset();
 	}
 
 	private int[] readCanonicalBankItemIds(Map<Integer, Integer> canonicalItemIds)
@@ -304,7 +390,7 @@ public final class BankGuideOverlay extends Overlay
 
 	private static boolean viewMatchesLogicalBank(List<BankSlotWidget> bankSlots, int[] actualItemIds)
 	{
-		if (bankSlots.isEmpty() || bankSlots.size() != actualItemIds.length)
+		if (bankSlots.size() != actualItemIds.length)
 		{
 			return false;
 		}
@@ -337,7 +423,7 @@ public final class BankGuideOverlay extends Overlay
 
 	static SlotValidationState stateFor(BankOrganizationPreview preview, int physicalSlotIndex, int actualItemId)
 	{
-		List<BankPreviewItem> planned = preview.getPlannedItems();
+		List<BankPreviewItem> planned = BankTabPlan.fromPreview(preview).getFlattenedItems();
 		return stateFor(planned, plannedSlotByItemId(planned), physicalSlotIndex, actualItemId);
 	}
 
@@ -362,103 +448,250 @@ public final class BankGuideOverlay extends Overlay
 			? SlotValidationState.MISPLACED : SlotValidationState.WRONG;
 	}
 
-	private static String blockedMessage(Status status)
+	static String tabBlockedMessage(TabRouteAdvisor.Status status)
 	{
 		switch (status)
 		{
 			case RESCAN_REQUIRED:
-				return "Bank contents changed. Run Analyze My Bank again.";
+				return "Bank contents changed.\nRun Analyze My Bank again.";
 			case DUPLICATE_ITEMS:
-				return "Duplicate live/planned item IDs are unsupported; analyze after the bank compacts.";
-			case UNSTABLE_TARGET:
-				return "Bank fillers or true gaps detected. Remove them before guided swaps.";
+				return "Duplicate item IDs detected.\nAnalyze again after the bank compacts.";
+			case UNSTABLE_BANK:
+				return "Bank layout cannot be mapped safely.\nStop and Analyze My Bank again.";
 			case UNSUPPORTED_PLAN:
 				return "This blueprint contains unsupported blank targets.";
+			case WAITING_FOR_BANK:
+				return "Bank update settling.\nDo not move another item yet.";
+			case MANUAL_RECOVERY_REQUIRED:
+				return "Unexpected bank move.\nUndo that move manually,\nor run Analyze My Bank again.";
+			case MECHANICS_MISMATCH:
+				return "Bank changed differently than expected.\nGuidance stopped.\nRun Analyze My Bank again.";
 			default:
-				return "No safe manual move is available. Analyze the bank again.";
+				return "No safe manual move is available.\nRun Analyze My Bank again.";
 		}
 	}
 
-	private String guideText(BankOrganizationPreview preview, int[] actualItemIds, Assessment assessment,
-		Set<Integer> visibleSlots)
+	static String missingTabTargetMessage(MoveType type)
 	{
-		GuideProgress total = assessment.getProgress();
-		if (assessment.getStatus() == Status.COMPLETE)
-		{
-			return "Blueprint item order matches: " + total.getCorrectSlots() + "/" + total.getPlannedSlots()
-				+ " slots. Physical tab boundaries are not yet validated.";
-		}
+		return type == MoveType.RETURN_TO_MAIN
+			? "Show the vanilla bank tab bar.\nThe infinity (All items) target is unavailable."
+			: "Show the vanilla bank tab bar.\nThe required tab or New tab target is unavailable.";
+	}
 
-		NextMove move = assessment.getMove().get();
-		int categoryOffset = 0;
-		String categoryName = "Whole bank";
-		GuideProgress categoryProgress = total;
-		for (BankCategoryPreview category : preview.getCategories())
+	private String tabGuideText(TabRouteAdvisor.Assessment assessment, Set<Integer> visibleSlots,
+		Map<Integer, BankSlotWidget> allByLogicalSlot, Rectangle viewportBounds)
+	{
+		TabRouteAdvisor.Progress progress = assessment.getProgress();
+		String progressLine = progressText(progress);
+		if (assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE)
 		{
-			int categorySize = category.getItems().size();
-			if (move.getToSlot() < categoryOffset + categorySize)
-			{
-				categoryName = category.getCategory().getName();
-				categoryProgress = NextMoveAdvisor.progress(actualItemIds, category.getItems(), categoryOffset);
-				break;
-			}
-			categoryOffset += categorySize;
+			return "Blueprint complete: Main and blueprint tabs 2-10 match their final order.";
 		}
-
-		String progressLine = categoryName + ": " + categoryProgress.getPercent()
-			+ "% item-order progress (" + categoryProgress.getCorrectSlots() + "/"
-			+ categoryProgress.getPlannedSlots() + ").";
 		if (!config.suggestNextMove())
 		{
 			return progressLine + "\nNext-move highlight is disabled in plugin settings.";
 		}
-		String moveLine = "Next manual swap: All-items slot " + (move.getFromSlot() + 1)
-			+ " -> " + (move.getToSlot() + 1) + ".";
-		String itemLine = "Move " + move.getDisplayName() + ".";
-		boolean sourceVisible = visibleSlots.contains(move.getFromSlot());
-		boolean targetVisible = visibleSlots.contains(move.getToSlot());
-		if (sourceVisible && targetVisible)
+
+		Move move = assessment.getMove().get();
+		String instruction;
+			switch (move.getType())
 		{
-			return progressLine + "\n" + moveLine + "\n" + itemLine
-				+ "\nFollow the FROM -> TO arrow.";
+			case COLLAPSE_TAB:
+				instruction = "Right-click bank tab position " + (move.getTargetTab() + 1)
+					+ " (Main is position 1) and choose Collapse tab.";
+				break;
+			case DRAG_TO_NEW_TAB:
+				instruction = "Drag " + move.getDisplayName() + " from Main to + to create "
+					+ "blueprint tab " + move.getBlueprintTabNumber() + " ("
+					+ move.getCategoryName() + ") at bank position "
+					+ (move.getTargetTab() + 1) + ".";
+				break;
+			case DISTRIBUTE_TO_TAB:
+				instruction = "Drag " + move.getDisplayName() + " from Main to blueprint tab "
+					+ move.getBlueprintTabNumber() + " (" + move.getCategoryName()
+					+ ", bank position " + (move.getTargetTab() + 1)
+					+ "). Main is processed from top to bottom.";
+				break;
+			case TRANSFER_TO_TAB:
+				instruction = "Recovery: drag misplaced " + move.getDisplayName()
+					+ " from bank position " + (move.getSourceTab() + 1)
+					+ " to blueprint tab " + move.getBlueprintTabNumber() + " ("
+					+ move.getCategoryName() + ", bank position "
+					+ (move.getTargetTab() + 1) + ").";
+				break;
+			case RETURN_TO_MAIN:
+				instruction = "Recovery: drag misplaced " + move.getDisplayName()
+					+ " from bank position " + (move.getSourceTab() + 1)
+					+ " onto the infinity (All items) icon to return it to Main.";
+				break;
+			case SWAP_SECTION:
+			default:
+				String section = move.getTargetTab() == 0
+					? "Main"
+					: "blueprint tab " + move.getBlueprintTabNumber();
+				instruction = "Sort " + section + " (" + move.getCategoryName()
+					+ "): swap the highlighted FROM item to TO: "
+					+ move.getDisplayName() + ".";
+				break;
 		}
-		if (!sourceVisible && targetVisible)
+		if (move.getFromSlot() >= 0 && !visibleSlots.contains(move.getFromSlot()))
 		{
-			return progressLine + "\n" + moveLine + "\n" + itemLine + "\nFROM is "
-				+ directionForSlot(move.getFromSlot(), visibleSlots) + ".";
+			BankSlotWidget source = allByLogicalSlot.get(move.getFromSlot());
+			instruction += " Scroll " + offscreenDirection(
+				source == null ? null : source.bounds, viewportBounds)
+				+ " to FROM.";
 		}
-		if (sourceVisible)
-		{
-			return progressLine + "\n" + moveLine + "\n" + itemLine + "\nTO is "
-				+ directionForSlot(move.getToSlot(), visibleSlots) + ".";
-		}
-		return progressLine + "\n" + moveLine + "\n" + itemLine + "\nScroll "
-			+ directionForSlot(move.getFromSlot(), visibleSlots) + " to FROM.";
+		return progressLine + "\n" + instruction;
 	}
 
-	static String directionForSlot(int logicalSlot, Set<Integer> visibleSlots)
+	private static String progressText(TabRouteAdvisor.Progress progress)
 	{
-		if (visibleSlots.isEmpty()) return "off-screen";
-		int firstVisible = Integer.MAX_VALUE;
-		int lastVisible = Integer.MIN_VALUE;
-		for (int visibleSlot : visibleSlots)
+		String phase;
+		switch (progress.getPhase())
 		{
-			firstVisible = Math.min(firstVisible, visibleSlot);
-			lastVisible = Math.max(lastVisible, visibleSlot);
+			case RECOVERING:
+				phase = "Recovering misplaced items";
+				break;
+			case REPAIRING:
+				phase = "Repairing tab buckets";
+				break;
+			case CREATING:
+				phase = "Creating tabs";
+				break;
+			case DISTRIBUTING:
+				phase = "Distributing Main top-to-bottom";
+				break;
+			case SORTING:
+				phase = "Sorting inside each tab";
+				break;
+			case COMPLETE:
+			default:
+				phase = "Blueprint complete";
+				break;
 		}
-		if (logicalSlot < firstVisible) return "above this view";
-		if (logicalSlot > lastVisible) return "below this view";
+		return phase + ": " + progress.getPercent() + "% ("
+			+ progress.getCompleted() + "/" + progress.getTotal() + ").";
+	}
+
+	static String tabHudText(TabRouteAdvisor.Assessment assessment, boolean suggestNextMove)
+	{
+		if (assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE)
+		{
+			return "BLUEPRINT COMPLETE\nMain + tabs 2-10 are sorted";
+		}
+		Move move = assessment.getMove().orElse(null);
+		if (!suggestNextMove)
+		{
+			return assessment.getProgress().getPhase().name() + "  "
+				+ assessment.getProgress().getPercent() + "%\nHighlights disabled in settings";
+		}
+		if (move == null)
+		{
+			return progressText(assessment.getProgress());
+		}
+		String progress = assessment.getProgress().getPhase().name() + "  "
+			+ assessment.getProgress().getPercent() + "%";
+			switch (move.getType())
+		{
+			case COLLAPSE_TAB:
+				return progress + "\nTAB POSITION " + (move.getTargetTab() + 1)
+					+ ": RIGHT-CLICK\nChoose Collapse tab";
+			case DRAG_TO_NEW_TAB:
+				return progress + "\nFROM: " + move.getDisplayName()
+					+ "\nTO + : NEW BP TAB " + move.getBlueprintTabNumber();
+			case DISTRIBUTE_TO_TAB:
+				return progress + "\nFROM: " + move.getDisplayName() + "\nTO BP TAB "
+					+ move.getBlueprintTabNumber() + " / POS " + (move.getTargetTab() + 1);
+			case TRANSFER_TO_TAB:
+				return "RECOVERY\nFROM: " + move.getDisplayName() + " / POS "
+					+ (move.getSourceTab() + 1) + "\nTO BP TAB "
+					+ move.getBlueprintTabNumber() + " / POS " + (move.getTargetTab() + 1);
+			case RETURN_TO_MAIN:
+				return "RECOVERY\nFROM: " + move.getDisplayName() + " / POS "
+					+ (move.getSourceTab() + 1) + "\nTO INFINITY -> MAIN";
+			case SWAP_SECTION:
+			default:
+				String section = move.getTargetTab() == 0 ? "MAIN"
+					: "TAB " + move.getBlueprintTabNumber();
+				return progress + "  SORT " + section
+					+ "\nFROM -> TO\n" + move.getDisplayName();
+		}
+	}
+
+	static boolean isTabTargetMove(MoveType type)
+	{
+		return type == MoveType.COLLAPSE_TAB || type == MoveType.DRAG_TO_NEW_TAB
+			|| type == MoveType.DISTRIBUTE_TO_TAB || type == MoveType.TRANSFER_TO_TAB
+			|| type == MoveType.RETURN_TO_MAIN;
+	}
+
+	static boolean isGridSwap(MoveType type)
+	{
+		return type == MoveType.SWAP_SECTION;
+	}
+
+	private static Widget resolveTabTarget(Widget tabs, Move move)
+	{
+		boolean mainTarget = move.getType() == MoveType.RETURN_TO_MAIN;
+		if (tabs == null || tabs.isHidden() || !mainTarget && (move.getTargetTab() < 1
+			|| move.getTargetTab() > TabRouteAdvisor.MAX_TABS))
+		{
+			return null;
+		}
+		int childIndex = mainTarget ? 10 : tabActionChildIndex(move.getTargetTab());
+		Widget child = tabs.getChild(childIndex);
+		if (child == null || child.isHidden() || child.getIndex() != childIndex
+			|| !isSafeGeometry(child.getBounds()))
+		{
+			return null;
+		}
+		String requiredAction = mainTarget ? "View all items"
+			: move.getType() == MoveType.DRAG_TO_NEW_TAB ? "New tab"
+				: move.getType() == MoveType.COLLAPSE_TAB ? "Collapse tab" : "View tab";
+		return hasAction(child.getActions(), requiredAction) ? child : null;
+	}
+
+	static int tabActionChildIndex(int tabNumber)
+	{
+		return 10 + tabNumber;
+	}
+
+	static boolean hasAction(String[] actions, String expectedAction)
+	{
+		if (actions == null)
+		{
+			return false;
+		}
+		for (String action : actions)
+		{
+			if (expectedAction.equals(action))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	static String offscreenDirection(Rectangle slotBounds, Rectangle viewportBounds)
+	{
+		if (slotBounds == null)
+		{
+			return "off-screen";
+		}
+		if (slotBounds.y < viewportBounds.y) return "above this view";
+		if (slotBounds.y + slotBounds.height
+			> viewportBounds.y + viewportBounds.height) return "below this view";
 		return "outside the visible bank area";
 	}
 
-	private static void drawMove(Graphics2D graphics, NextMove move,
+	private static void drawSwapMove(Graphics2D graphics, int fromSlot, int toSlot,
 		Map<Integer, BankSlotWidget> allByLogicalSlot,
 		Map<Integer, BankSlotWidget> visibleByLogicalSlot, Rectangle viewportBounds)
 	{
-		BankSlotWidget source = visibleByLogicalSlot.get(move.getFromSlot());
-		BankSlotWidget target = visibleByLogicalSlot.get(move.getToSlot());
-		BankSlotWidget logicalSource = allByLogicalSlot.get(move.getFromSlot());
-		BankSlotWidget logicalTarget = allByLogicalSlot.get(move.getToSlot());
+		BankSlotWidget source = visibleByLogicalSlot.get(fromSlot);
+		BankSlotWidget target = visibleByLogicalSlot.get(toSlot);
+		BankSlotWidget logicalSource = allByLogicalSlot.get(fromSlot);
+		BankSlotWidget logicalTarget = allByLogicalSlot.get(toSlot);
 
 		if (source != null && target != null)
 		{
@@ -471,29 +704,29 @@ public final class BankGuideOverlay extends Overlay
 
 		if (source != null)
 		{
-			int targetY = edgeY(move.getToSlot(), visibleByLogicalSlot.keySet(), viewportBounds);
+			int targetY = edgeY(logicalTarget, viewportBounds);
 			int targetX = edgeX(logicalTarget, centerX(source.bounds), viewportBounds);
 			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds), targetX, targetY);
 			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, "FROM");
 			drawEdgeBadge(graphics, targetX, targetY, MOVE_TARGET,
-				"TO " + (move.getToSlot() + 1), targetY <= viewportBounds.y + 14, viewportBounds);
+				"TO", targetY <= viewportBounds.y + 14, viewportBounds);
 			return;
 		}
 
 		if (target != null)
 		{
-			int sourceY = edgeY(move.getFromSlot(), visibleByLogicalSlot.keySet(), viewportBounds);
+			int sourceY = edgeY(logicalSource, viewportBounds);
 			int sourceX = edgeX(logicalSource, centerX(target.bounds), viewportBounds);
 			drawArrowConnector(graphics, sourceX, sourceY, centerX(target.bounds), centerY(target.bounds));
 			drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
-				"FROM " + (move.getFromSlot() + 1), sourceY <= viewportBounds.y + 14, viewportBounds);
+				"FROM", sourceY <= viewportBounds.y + 14, viewportBounds);
 			drawMoveCell(graphics, target.bounds, MOVE_TARGET, "TO");
 			return;
 		}
 
-		// No endpoint is currently visible. Use their logical order (and their
-		// off-screen widget bounds when available) to point the player toward FROM.
-		int sourceY = edgeY(move.getFromSlot(), visibleByLogicalSlot.keySet(), viewportBounds);
+		// No endpoint is visible. Use the source widget's actual off-screen
+		// geometry to point the player toward FROM.
+		int sourceY = edgeY(logicalSource, viewportBounds);
 		int sourceX = viewportBounds.x + viewportBounds.width / 2;
 		if (logicalSource != null)
 		{
@@ -501,7 +734,45 @@ public final class BankGuideOverlay extends Overlay
 				viewportBounds.x + viewportBounds.width - 14);
 		}
 		drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
-			"FROM " + (move.getFromSlot() + 1), sourceY <= viewportBounds.y + 14, viewportBounds);
+			"FROM", sourceY <= viewportBounds.y + 14, viewportBounds);
+	}
+
+	private static void drawTabMove(Graphics2D graphics, Move move, Rectangle targetBounds,
+		Map<Integer, BankSlotWidget> allByLogicalSlot,
+		Map<Integer, BankSlotWidget> visibleByLogicalSlot, Rectangle viewportBounds)
+	{
+		String targetLabel = move.getType() == MoveType.RETURN_TO_MAIN
+			? "ALL -> MAIN"
+			: move.getType() == MoveType.COLLAPSE_TAB
+			? "POS " + (move.getTargetTab() + 1)
+			: move.getType() == MoveType.DRAG_TO_NEW_TAB
+				? "NEW BP " + move.getBlueprintTabNumber()
+				: "BP " + move.getBlueprintTabNumber();
+		if (move.getType() == MoveType.COLLAPSE_TAB)
+		{
+			drawMoveCell(graphics, targetBounds, MOVE_TARGET, targetLabel);
+			return;
+		}
+
+		BankSlotWidget source = visibleByLogicalSlot.get(move.getFromSlot());
+		BankSlotWidget logicalSource = allByLogicalSlot.get(move.getFromSlot());
+		if (source != null)
+		{
+			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds),
+				centerX(targetBounds), centerY(targetBounds));
+			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, "FROM");
+			drawMoveCell(graphics, targetBounds, MOVE_TARGET, targetLabel);
+			return;
+		}
+
+		int sourceY = edgeY(logicalSource, viewportBounds);
+		int sourceX = logicalSource == null ? viewportBounds.x + viewportBounds.width / 2
+			: clamp(centerX(logicalSource.bounds), viewportBounds.x + 14,
+				viewportBounds.x + viewportBounds.width - 14);
+		drawArrowConnector(graphics, sourceX, sourceY, centerX(targetBounds), centerY(targetBounds));
+		drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
+			"FROM", sourceY <= viewportBounds.y + 14, viewportBounds);
+		drawMoveCell(graphics, targetBounds, MOVE_TARGET, targetLabel);
 	}
 
 	private static int edgeX(BankSlotWidget offscreenSlot, int fallbackX, Rectangle viewportBounds)
@@ -568,15 +839,9 @@ public final class BankGuideOverlay extends Overlay
 		graphics.drawString(label, x + 5, y + 12);
 	}
 
-	private static int edgeY(int logicalSlot, Set<Integer> visibleSlots, Rectangle viewportBounds)
+	private static int edgeY(BankSlotWidget offscreenSlot, Rectangle viewportBounds)
 	{
-		if (visibleSlots.isEmpty()) return viewportBounds.y + viewportBounds.height - 7;
-		int firstVisible = Integer.MAX_VALUE;
-		for (int visibleSlot : visibleSlots)
-		{
-			firstVisible = Math.min(firstVisible, visibleSlot);
-		}
-		return logicalSlot < firstVisible
+		return offscreenSlot != null && offscreenSlot.bounds.y < viewportBounds.y
 			? viewportBounds.y + 7
 			: viewportBounds.y + viewportBounds.height - 7;
 	}
@@ -588,15 +853,21 @@ public final class BankGuideOverlay extends Overlay
 
 	private static void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text)
 	{
+		drawStatus(graphics, gridBounds, text, false, null, null);
+	}
+
+	private static void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text,
+		boolean preferOutside, Rectangle firstAvoid, Rectangle secondAvoid)
+	{
 		Graphics2D statusGraphics = (Graphics2D) graphics.create();
 		try
 		{
-			Font font = statusGraphics.getFont().deriveFont(Font.BOLD, 11f);
+			Font font = statusGraphics.getFont().deriveFont(Font.BOLD, 14f);
 			statusGraphics.setFont(font);
 			FontMetrics metrics = statusGraphics.getFontMetrics(font);
 			String[] rawLines = text.split("\\n", -1);
 			String[] lines = new String[rawLines.length];
-			int maxTextWidth = Math.max(80, gridBounds.width - 16);
+			int maxTextWidth = Math.max(20, Math.min(280, gridBounds.width - 24));
 			int width = 0;
 			for (int i = 0; i < rawLines.length; i++)
 			{
@@ -604,27 +875,78 @@ public final class BankGuideOverlay extends Overlay
 				width = Math.max(width, metrics.stringWidth(lines[i]));
 			}
 			int lineHeight = metrics.getHeight();
-			int height = lineHeight * lines.length + 6;
-			int x = gridBounds.x + 5;
-			int y = Math.max(2, gridBounds.y - height - 3);
-			if (y + height > gridBounds.y)
-			{
-				y = gridBounds.y + 4;
-			}
+			int height = lineHeight * lines.length + 10;
+			Rectangle statusBounds = statusBounds(statusGraphics.getClipBounds(), gridBounds,
+				width + 14, height, firstAvoid, secondAvoid, preferOutside);
+			int x = statusBounds.x;
+			int y = statusBounds.y;
 
 			statusGraphics.setColor(STATUS_BACKGROUND);
-			statusGraphics.fillRoundRect(x, y, width + 10, height, 6, 6);
+			statusGraphics.fillRoundRect(x, y, width + 14, height, 7, 7);
 			statusGraphics.setColor(STATUS_FOREGROUND);
 			for (int i = 0; i < lines.length; i++)
 			{
-				statusGraphics.drawString(lines[i], x + 5,
-					y + 3 + metrics.getAscent() + i * lineHeight);
+				statusGraphics.drawString(lines[i], x + 7,
+					y + 5 + metrics.getAscent() + i * lineHeight);
 			}
 		}
 		finally
 		{
 			statusGraphics.dispose();
 		}
+	}
+
+	static Rectangle statusBounds(Rectangle canvasBounds, Rectangle gridBounds,
+		int width, int height, Rectangle firstAvoid, Rectangle secondAvoid,
+		boolean preferOutside)
+	{
+		Rectangle canvas = isSafeGeometry(canvasBounds) ? canvasBounds : gridBounds;
+		List<Rectangle> candidates = new ArrayList<>();
+		int gap = 6;
+		if (preferOutside)
+		{
+			candidates.add(new Rectangle(gridBounds.x - width - gap, gridBounds.y + 4,
+				width, height));
+			candidates.add(new Rectangle(gridBounds.x + gridBounds.width + gap,
+				gridBounds.y + 4, width, height));
+		}
+		candidates.add(new Rectangle(gridBounds.x + gridBounds.width - width - 4,
+			gridBounds.y + 4, width, height));
+		candidates.add(new Rectangle(gridBounds.x + 4, gridBounds.y + 4, width, height));
+		candidates.add(new Rectangle(gridBounds.x + gridBounds.width - width - 4,
+			gridBounds.y + gridBounds.height - height - 4, width, height));
+		candidates.add(new Rectangle(gridBounds.x + 4,
+			gridBounds.y + gridBounds.height - height - 4, width, height));
+
+		for (Rectangle candidate : candidates)
+		{
+			if (canvas.contains(candidate) && !intersects(candidate, firstAvoid)
+				&& !intersects(candidate, secondAvoid))
+			{
+				return candidate;
+			}
+		}
+		for (Rectangle candidate : candidates)
+		{
+			if (canvas.contains(candidate))
+			{
+				return candidate;
+			}
+		}
+		return new Rectangle(gridBounds.x + 4, gridBounds.y + 4,
+			Math.min(width, Math.max(1, gridBounds.width - 8)),
+			Math.min(height, Math.max(1, gridBounds.height - 8)));
+	}
+
+	private static boolean intersects(Rectangle candidate, Rectangle avoid)
+	{
+		if (!isSafeGeometry(avoid))
+		{
+			return false;
+		}
+		Rectangle expanded = new Rectangle(avoid);
+		expanded.grow(4, 4);
+		return candidate.intersects(expanded);
 	}
 
 	private static String fitText(String text, FontMetrics metrics, int maxWidth)
@@ -690,7 +1012,7 @@ public final class BankGuideOverlay extends Overlay
 			return new Rectangle(itemBounds);
 		}
 		Rectangle intersection = itemBounds.intersection(outerBounds);
-		return isSafeGeometry(intersection) ? intersection : new Rectangle(itemBounds);
+		return isSafeGeometry(intersection) ? intersection : null;
 	}
 
 	static boolean isFullyVisible(Rectangle viewportBounds, Rectangle slotBounds)

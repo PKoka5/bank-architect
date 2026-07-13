@@ -20,6 +20,7 @@ public final class BankBlueprintTextExporter
 		{
 			builder.append('\n')
 				.append("TAB ").append(tabNumber)
+				.append(" | placement=").append(tabNumber == 1 ? "MAIN" : "NUMBERED_CANDIDATE")
 				.append(" | key=").append(category.getCategory().getKey())
 				.append(" | name=").append(category.getCategory().getName())
 				.append(" | items=").append(category.getItemCount())

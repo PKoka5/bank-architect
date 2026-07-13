@@ -53,7 +53,7 @@ public class BankOrganizationPreviewBuilderTest
 
 		assertTrue(text.contains("Suggested Bank Blueprint"));
 		assertTrue(text.contains("Ironman - All-Round Bank"));
-		assertTrue(text.contains("1. Currency & Account Utilities: 0"));
+		assertTrue(text.contains("MAIN. Currency & Account Utilities: 0"));
 		assertTrue(text.contains("Irit seed"));
 		assertTrue(text.contains("4. Potions, Food & PvM Supplies: 0"));
 		assertTrue(text.contains("Super attack (3)"));

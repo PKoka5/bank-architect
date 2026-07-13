@@ -84,7 +84,7 @@ public final class BankOrganizationPreview
 		for (BankCategoryPreview category : categories)
 		{
 			builder.append('\n')
-				.append(tabNumber)
+				.append(tabNumber == 1 ? "MAIN" : "TAB " + tabNumber)
 				.append(". ")
 				.append(category.getCategory().getName())
 				.append(": ")

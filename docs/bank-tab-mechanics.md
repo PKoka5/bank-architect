@@ -1,82 +1,169 @@
-# OSRS bank tab mechanics (verified)
+# OSRS bank tab mechanics and safe bucket route
 
-Ground truth for the tab-aware guidance planner. Sources: the OSRS client
-scripts (`bank_gettabrange`, `bankmain_build`, via the public cs2-scripts
-mirror), RuneLite `VarbitID`, and the OSRS Wiki Bank page (CC BY-NC-SA 3.0).
+Research/design contract for tab-aware manual guidance. Runtime code stays
+read-only: it may inspect bank state and draw instructions, but the player
+performs every collapse, drag and swap.
 
-## Container layout
+Sources checked in July 2026:
 
-- The bank is ONE flat item container (capacity 1220).
-- Tab membership is defined by per-tab item COUNTS in varbits:
-  `BANK_TAB_1..BANK_TAB_9` = varbits 4171..4179.
-- Container order is **tab 1 first, then tab 2 ... tab 9, then the main
-  (untabbed) tab as the remainder**:
-  - tab 1 = slots `[0, count1)`
-  - tab k = slots `[sum(count1..k-1), sum(count1..k))`
-  - main tab = slots `[sum(all counts), 1220)`
-  (verbatim from clientscript `bank_gettabrange`.)
-- The **visual** All-items view draws the MAIN tab first, then tabs 1..9
-  with separator lines (`bankmain_build` draws the untabbed range before
-  tab ranges). Visual order is therefore NOT container order once tabs
-  exist; any widget-to-container mapping must go through child indices,
-  never through on-screen position.
-- `BANK_CURRENTTAB` (varbit 4150): 0 = All items view.
-- `BANK_INSERTMODE` (varbit 3959): 0 = Swap, 1 = Insert.
+- current public RuneLite client scripts:
+  <https://github.com/runelite/cs2-scripts/tree/master/scripts>
+- RuneLite `InterfaceID`, `InventoryID`, `VarClientID` and `VarbitID` from the
+  current API;
+- OSRS Wiki Bank page: <https://oldschool.runescape.wiki/w/Bank>.
 
-## Player actions and their exact effects
+## Container, All view and blueprint numbering
 
-| Action | Effect on container | Effect on tab counts |
-|---|---|---|
-| Swap drag (item A onto item B) | positions of A and B exchange | none — items crossing a boundary change tab membership |
-| Insert drag | item removed at source, inserted at target; range between shifts by one | none for same-tab moves; crossing boundaries shifts membership by position |
-| Drag item onto an existing tab icon | item removed, appended at the END of that tab | that tab +1, source tab -1 |
-| Drag item onto the "+" icon | new tab created holding that item | new tab count = 1, source tab -1 |
-| Collapse tab (right-click tab icon) | all its items move back to the main tab | that tab 0; higher tabs renumber down |
-| Emptying a tab (withdraw/move all) | — | tab auto-removes, higher tabs renumber |
+- The bank is one flat item container with 1410 possible slots.
+- `BANK_TAB_1..BANK_TAB_9` store the nine physical numbered-tab counts.
+- Flat container order is physical tabs first, then untabbed/main:
+  - physical tab 1 = `[0, count1)`;
+  - physical tab k starts at the sum of all earlier physical counts;
+  - main starts at `sum(count1..count9)`.
+- The vanilla infinity icon opens **All items**. It is not a main-only tab.
+- All items renders the untabbed/main range first, then physical tabs 1..9.
+- Dynamic item child indices still identify flat container slots and are
+  validated against `InventoryID.BANK`; screen order must not be inferred from
+  flat slot numbers across section boundaries.
+- `BANK_CURRENTTAB == 0` is the vanilla All-items view.
+- `BANK_INSERTMODE == 0` is Swap mode.
 
-Notes:
-- A tab's icon is its first item.
-- Placeholders occupy container slots like items; some items never leave
-  placeholders (clue scrolls etc.).
-- Bank fillers occupy slots and block a clean mapping — guidance stays
-  fail-closed when fillers are present.
+The product's blueprint numbering intentionally follows the visual/player
+model:
 
-## Blueprint mapping
+- **Blueprint tab 1 = Main/untabbed**. It already exists and is never created.
+- **Blueprint tabs 2..10 = physical tab candidates** backed by
+  `BANK_TAB_1..BANK_TAB_9`.
+- Empty candidates among blueprint tabs 2..10 are omitted because OSRS cannot
+  retain an empty physical tab. Remaining candidates map densely in blueprint
+  order while retaining their original blueprint number, key and name.
 
-The Ironman preset has 10 categories; the bank has 9 tabs + the main tab.
-Mapping: category 1..9 -> bank tab 1..9, category 10 (Storage & Cleanup
-Review) -> main tab. Because the container order is tabs-first-then-main,
-the blueprint's concatenated category order IS the target container order.
+Target flat container order is therefore the non-empty blueprint tabs 2..10,
+followed by blueprint tab 1/main. The blueprint dialog may continue to display
+the player-facing order: Main/tab 1 first, then tabs 2..10.
 
-## Route algorithm (tab-aware guidance V2)
+## Supported manual actions
 
-Target state: container order == blueprint order AND tab counts == category
-sizes. Every advised action is one of the verified player actions above;
-the plugin never automates anything.
+| Action | Contract |
+|---|---|
+| Collapse highest physical tab | Lower physical tab counts/content stay intact; collapsed items return to main in server-defined order. |
+| Drag main item to `+` | Creates the next dense physical tab containing that one anchor. |
+| Drag main item to an existing tab icon | Target count rises by one and the item becomes a member of that target tab. Exact landing position is deliberately irrelevant. |
+| Drag misplaced numbered-tab item to its correct existing tab | Source count falls by one, target count rises by one and only that item changes bucket. Source must retain at least one item. |
+| Drag misplaced numbered-tab item to infinity/All | Intended recovery to Main/untabbed; source must retain at least one item. The server result remains a required live probe. |
+| Same-section Swap | Two item positions inside one physical tab or inside main exchange; counts do not change. |
+| Cross-section item-grid drag | Unsupported by `bankmain_reorder`; guidance never suggests it. |
 
-Phase 0 — Preconditions (fail-closed, as today): vanilla All-items view,
-Swap mode, no fillers/duplicates/stale scan.
+## Safe, scroll-efficient bucket route
 
-Phase 1 — Tab skeleton: while fewer than 9 tabs exist, advise dragging the
-planned FIRST item of the next missing category onto the "+" icon. This
-simultaneously creates the tab and places that category's anchor item.
-Existing tabs are reused, never collapsed unless their target count is 0.
+The invariant is a **clean bucket skeleton**. Every existing physical tab k:
 
-Phase 2 — Append pass (the workhorse): for each category k in blueprint
-order, advise dragging its next planned item onto tab k's icon. Each drag
-is simultaneously a count fix AND an order fix (append = next planned
-position). Skip items already inside their target tab. Arrow points from
-the item to the tab icon.
+- maps to dense target bucket k;
+- has a positive count no larger than that target bucket;
+- contains only item IDs belonging to that target bucket.
 
-Phase 3 — Interior swaps: items that were already in their target tab may
-be internally misordered; finish with the existing shortest-distance swap
-guidance, now scoped per tab section.
+Internal order does not matter during bucket construction.
 
-Cost: every item outside its target tab costs exactly one drag (phase 2);
-items inside their tab cost at most one swap (phase 3). This is within a
-factor ~2 of the theoretical minimum number of manual drags, and every
-individual instruction is trivially executable (drag to a tab icon that is
-always on screen, or a short in-tab swap).
+### Phase 0 - fail closed
 
-Progress definition ("complete"): all tab counts match category sizes AND
-container order matches the blueprint.
+- Require vanilla All items, Swap mode and no active search/tag filter.
+- Require exactly nine contiguous tab-count inputs.
+- Require dense, unique canonical bank IDs with no fillers or true gaps.
+- Require the live and planned item sets to match exactly.
+
+### Phase 1 - recover mistakes, then repair structure
+
+- If a tab with at least two items contains a foreign item and its correct
+  physical destination already exists, guide that one item directly there.
+- If that foreign item belongs to Main, guide it to the infinity/All target.
+- These local moves reduce the foreign-item count without deleting or
+  renumbering any tab.
+- Only structural states that cannot be repaired locally may use highest-tab
+  collapse during an explicit analysis route.
+- After an unexpected in-session move, destructive collapse is never accepted
+  as automatic recovery. Guidance pauses when no local recovery is available.
+- Reassess after every collapse. Highest-first prevents lower numbering from
+  changing and eventually leaves a clean leading skeleton or zero tabs.
+
+### Phase 2 - create missing buckets
+
+- Create missing non-empty blueprint tabs in blueprint order.
+- For the next required target, choose its first matching item encountered in
+  current main order and guide it to `+`.
+- The anchor comes only from main, so no existing tab can disappear.
+
+### Phase 3 - distribute Main top-to-bottom
+
+- Once every target bucket exists, scan current main from its first visual item
+  downward.
+- Guide the first item that belongs to a physical target onto that target's
+  icon.
+- After removal, later main items shift upward; repeating this rule creates a
+  monotonic top-to-bottom sweep instead of searching the full bank for a
+  planned-order item.
+- Validate section membership and counts after every drag. Do not assume the
+  server placed the item at the start or end.
+
+### Phase 4 - sort locally in visual order
+
+- When section memberships/counts are complete, sort main/blueprint tab 1
+  first.
+- Then sort physical buckets in visual order (blueprint tabs 2..10).
+- For each section, fix its first mismatched target slot by swapping in the
+  expected item from the same section only.
+
+### Completion and termination
+
+Complete requires exact physical counts, exact membership and exact internal
+order for every physical bucket and main.
+
+The route terminates because each action decreases a finite measure:
+
+1. local recovery decreases the number of foreign bucket members;
+2. structural repair decreases the number of existing dirty/surplus tabs;
+3. creation decreases the number of missing target buckets;
+4. distribution decreases the number of physical-target items left in main;
+5. every local swap fixes at least one previously incorrect slot.
+
+## Transition acknowledgement
+
+- Collapse: same unique item set; lower counts/content preserved; target and
+  higher counts become zero; main landing order ignored.
+- Create: earlier buckets preserved; new count is one; anchor is the new
+  bucket's sole member; main loses only the anchor.
+- Distribution: target count rises by one; target membership gains only the
+  advised item; other buckets are unchanged; main loses only that item.
+- Tab-to-tab recovery: source count falls by one, target count rises by one,
+  source loses only the item, target gains only it and all other sets remain.
+- Return-to-Main recovery: source count falls by one, source loses only the
+  item, Main gains only it and all other tab sets remain.
+- Local swap: counts unchanged and the exact two advised slots exchange.
+
+If independently sampled varbits and container IDs briefly disagree, guidance
+shows no new action until the same unexpected snapshot remains stable across a
+later RuneLite game tick. A different
+manual action is reassessed only when exact item-set and tab-count deltas prove
+one non-destructive drag; a foreign item then becomes a local recovery step.
+An unexpected tab removal or state that would require structural collapse is
+paused as `MANUAL_RECOVERY_REQUIRED`.
+
+## Required live mechanics probe before release
+
+Use disposable items and record pre/post IDs, section sets and counts:
+
+1. Existing target `{A, B}`, X in main: drag X to the target icon and confirm
+   target membership becomes `{A, B, X}`, target count rises by one, main loses
+   X and other buckets remain unchanged. Record the actual landing position,
+   but do not depend on it.
+2. Drag X to `+`: confirm the next dense singleton bucket is created.
+3. Collapse the highest tab: confirm lower buckets stay unchanged and the
+   collapsed membership returns to main.
+4. Perform one Swap inside main and one inside a physical tab; confirm counts
+   stay unchanged and only the selected slots exchange.
+5. With at least two disposable items in the source tab, move one foreign item
+   to another existing tab and confirm exact source/target set and count deltas.
+6. With at least two disposable items in the source tab, drop one item on the
+   infinity/All target and confirm it leaves that tab and joins Main while all
+   other tabs remain unchanged.
+
+Guidance remains a development feature until this probe is recorded.
