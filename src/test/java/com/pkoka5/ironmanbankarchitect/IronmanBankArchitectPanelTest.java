@@ -130,6 +130,34 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	@Test
+	public void guideProgressBarOnlyShowsWithAMeaningfulPercent()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(new BankItemSnapshot(5297, 1, 0)));
+		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot,
+			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		controller.setBankOpen(true);
+		controller.toggleGuide();
+		controller.publishGuideProgress("Sorting", 42);
+
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+
+		assertTrue(panel.getGuideProgressBar().isVisible());
+		assertEquals(42, panel.getGuideProgressBar().getValue());
+		panel.shutdown();
+	}
+
+	@Test
+	public void guideProgressBarStaysHiddenWithoutGuidance()
+	{
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
+			new BankGuideController(AllRoundIronmanPreset.create()), () -> {});
+
+		assertFalse(panel.getGuideProgressBar().isVisible());
+		panel.shutdown();
+	}
+
+	@Test
 	public void panelSourceHasNoRuneLiteClientApiImports() throws Exception
 	{
 		String source = new String(Files.readAllBytes(Paths.get("src/main/java/com/pkoka5/ironmanbankarchitect/IronmanBankArchitectPanel.java")), StandardCharsets.UTF_8);

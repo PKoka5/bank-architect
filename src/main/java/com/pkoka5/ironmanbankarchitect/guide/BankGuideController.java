@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class BankGuideController
@@ -39,6 +40,7 @@ public final class BankGuideController
 	private final AtomicReference<BankOrganizationPreview> latestOrganizationPreview = new AtomicReference<>();
 	private final AtomicReference<String> organizationPreviewText = new AtomicReference<>(NO_ORGANIZATION_PREVIEW_STATUS);
 	private final AtomicReference<String> guideProgressText = new AtomicReference<>(NO_GUIDANCE_PROGRESS_STATUS);
+	private final AtomicInteger guideProgressPercent = new AtomicInteger(-1);
 	private final AtomicBoolean bankOpen = new AtomicBoolean(false);
 
 	public BankGuideController(BankProfile profile)
@@ -119,6 +121,7 @@ public final class BankGuideController
 		latestOrganizationPreview.set(null);
 		organizationPreviewText.set(NO_ORGANIZATION_PREVIEW_STATUS);
 		guideProgressText.set(NO_GUIDANCE_PROGRESS_STATUS);
+		guideProgressPercent.set(-1);
 	}
 
 	public void publishAnalysisStarted()
@@ -128,6 +131,7 @@ public final class BankGuideController
 		latestOrganizationPreview.set(null);
 		organizationPreviewText.set(ANALYSIS_RUNNING_STATUS);
 		guideProgressText.set(ANALYSIS_RUNNING_STATUS);
+		guideProgressPercent.set(-1);
 	}
 
 	public void publishMatchResult(BlockMatchResult result)
@@ -191,6 +195,25 @@ public final class BankGuideController
 	public void publishGuideProgressText(String text)
 	{
 		guideProgressText.set(Objects.requireNonNull(text, "text"));
+	}
+
+	/**
+	 * Publishes the guidance status line together with an overall progress
+	 * percentage; pass -1 when no meaningful percentage is available.
+	 */
+	public void publishGuideProgress(String text, int percent)
+	{
+		publishGuideProgressText(text);
+		guideProgressPercent.set(Math.max(-1, Math.min(100, percent)));
+	}
+
+	public int getGuideProgressPercent()
+	{
+		if (latestOrganizationPreview.get() == null || !bankOpen.get() || !isGuideEnabled())
+		{
+			return -1;
+		}
+		return guideProgressPercent.get();
 	}
 
 	public String getGuideProgressText()

@@ -14,7 +14,6 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.Toolkit;
@@ -31,11 +30,14 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JTabbedPane;
 import javax.swing.Timer;
+import net.runelite.client.ui.ColorScheme;
+import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 
 final class IronmanBankArchitectPanel extends PluginPanel
@@ -71,6 +73,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JLabel catalogSummaryLabel;
 	private final JLabel organizationPreviewLabel;
 	private final JLabel guideProgressLabel;
+	private final JProgressBar guideProgressBar;
 	private final Timer statusTimer;
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private JDialog bankDialog;
@@ -93,18 +96,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		this.guideController = guideController;
 		this.itemIconRenderer = itemIconRenderer;
 
-		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createEmptyBorder(16, 12, 16, 12));
+		setLayout(new BorderLayout(0, 8));
+		setBackground(ColorScheme.DARK_GRAY_COLOR);
+		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		JPanel identity = new JPanel(new GridLayout(0, 1, 0, 8));
+		JLabel titleLabel = new JLabel(TITLE);
+		titleLabel.setFont(FontManager.getRunescapeBoldFont());
+		titleLabel.setForeground(Color.WHITE);
+		JPanel identity = card(null, titleLabel, mutedLabel(SUMMARY), mutedLabel(SAFETY_NOTE));
 		identity.setOpaque(false);
-		identity.add(label(TITLE));
-		identity.add(label(SUMMARY));
-		identity.add(label(SAFETY_NOTE));
-
-		JPanel controls = verticalPanel();
-		controls.add(Box.createVerticalStrut(12));
-		controls.add(label(profileLine()));
 
 		toggleButton = new JButton();
 		toggleButton.addActionListener(event -> onToggleGuide());
@@ -123,29 +123,39 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		organizationPreviewLabel = label("");
 		guideProgressLabel = label("");
 
-		controls.add(Box.createVerticalStrut(4));
-		controls.add(label(MAIN_ACTION_LABEL));
-		controls.add(analyzeButton);
-		controls.add(Box.createVerticalStrut(4));
-		controls.add(label(BLUEPRINT_ACTION_LABEL));
-		controls.add(showBankButton);
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(label(WHOLE_BANK_SCAN_LABEL));
-		controls.add(catalogSummaryLabel);
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(organizationPreviewLabel);
-		controls.add(Box.createVerticalStrut(12));
-		controls.add(label(PREVIEW_BLOCK_HELP));
-		controls.add(Box.createVerticalStrut(4));
-		controls.add(label(PREVIEW_OVERLAY_NOTE));
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(toggleButton);
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(statusLabel);
-		controls.add(Box.createVerticalStrut(8));
-		controls.add(guideProgressLabel);
+		guideProgressBar = new JProgressBar(0, 100);
+		guideProgressBar.setStringPainted(true);
+		guideProgressBar.setForeground(ColorScheme.PROGRESS_COMPLETE_COLOR);
+		guideProgressBar.setBackground(ColorScheme.DARKER_GRAY_COLOR.darker());
+		guideProgressBar.setVisible(false);
 
-		JScrollPane scrollPane = new JScrollPane(controls);
+		JPanel content = new JPanel(new GridBagLayout());
+		content.setOpaque(false);
+		GridBagConstraints cardConstraints = new GridBagConstraints();
+		cardConstraints.gridx = 0;
+		cardConstraints.gridy = 0;
+		cardConstraints.weightx = 1;
+		cardConstraints.fill = GridBagConstraints.HORIZONTAL;
+		cardConstraints.insets = new Insets(0, 0, 8, 0);
+		content.add(card("Profile", mutedLabel(AllRoundIronmanPreset.PROFILE_NAME)), cardConstraints);
+		cardConstraints.gridy++;
+		content.add(card(MAIN_ACTION_LABEL, analyzeButton,
+			headerLabel(BLUEPRINT_ACTION_LABEL), showBankButton), cardConstraints);
+		cardConstraints.gridy++;
+		content.add(card(WHOLE_BANK_SCAN_LABEL, catalogSummaryLabel, organizationPreviewLabel),
+			cardConstraints);
+		cardConstraints.gridy++;
+		content.add(card("Bank Guide", toggleButton, statusLabel, guideProgressBar,
+			guideProgressLabel, mutedLabel(PREVIEW_BLOCK_HELP), mutedLabel(PREVIEW_OVERLAY_NOTE)),
+			cardConstraints);
+		cardConstraints.gridy++;
+		cardConstraints.weighty = 1;
+		cardConstraints.fill = GridBagConstraints.BOTH;
+		JPanel filler = new JPanel();
+		filler.setOpaque(false);
+		content.add(filler, cardConstraints);
+
+		JScrollPane scrollPane = new JScrollPane(content);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 		scrollPane.setOpaque(false);
 		scrollPane.getViewport().setOpaque(false);
@@ -196,6 +206,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return guideProgressLabel;
 	}
 
+	JProgressBar getGuideProgressBar()
+	{
+		return guideProgressBar;
+	}
+
 	private void onToggleGuide()
 	{
 		guideController.toggleGuide();
@@ -212,6 +227,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		statusLabel.setText(guideController.getStatusText());
 		guideProgressLabel.setText(toHtmlLines(guideController.getGuideProgressText()));
+		int percent = guideController.getGuideProgressPercent();
+		guideProgressBar.setVisible(percent >= 0);
+		if (percent >= 0)
+		{
+			guideProgressBar.setValue(percent);
+			guideProgressBar.setString(percent + "% organized");
+		}
 		refreshAnalysis();
 	}
 
@@ -452,9 +474,44 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return category.getCategory().getName();
 	}
 
-	private String profileLine()
+	private static JPanel card(String title, Component... rows)
 	{
-		return "Profile: " + AllRoundIronmanPreset.PROFILE_NAME;
+		JPanel card = new JPanel(new GridBagLayout());
+		card.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		card.setBorder(BorderFactory.createEmptyBorder(8, 8, 4, 8));
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		constraints.weightx = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.insets = new Insets(0, 0, 6, 0);
+		if (title != null)
+		{
+			card.add(headerLabel(title), constraints);
+			constraints.gridy++;
+		}
+		for (Component row : rows)
+		{
+			card.add(row, constraints);
+			constraints.gridy++;
+		}
+		return card;
+	}
+
+	private static JLabel headerLabel(String text)
+	{
+		JLabel label = new JLabel(text);
+		label.setFont(FontManager.getRunescapeBoldFont());
+		label.setForeground(ColorScheme.BRAND_ORANGE);
+		return label;
+	}
+
+	private static JLabel mutedLabel(String text)
+	{
+		JLabel label = new JLabel(toHtmlLines(text));
+		label.setFont(FontManager.getRunescapeSmallFont());
+		label.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		return label;
 	}
 
 	private static JPanel verticalPanel()

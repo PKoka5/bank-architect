@@ -186,7 +186,7 @@ public final class BankGuideOverlay extends Overlay
 		String guideText = tabGuideText(assessment, visibleByLogicalSlot.keySet(),
 			allByLogicalSlot, gridBounds);
 		String hudText = tabHudText(assessment, suggestNextMove);
-		guideController.publishGuideProgressText(guideText);
+		guideController.publishGuideProgress(guideText, assessment.getProgress().getPercent());
 		Map<Integer, Integer> plannedSlotByItemId = cachedPlannedSlotByItemId;
 		boolean showFinalValidation = assessment.getProgress().getPhase() == Phase.SORTING
 			|| assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE;
@@ -253,7 +253,7 @@ public final class BankGuideOverlay extends Overlay
 
 	private Dimension blocked(Graphics2D graphics, Rectangle gridBounds, String message)
 	{
-		guideController.publishGuideProgressText(message);
+		guideController.publishGuideProgress(message, -1);
 		drawStatus(graphics, gridBounds, message);
 		return null;
 	}

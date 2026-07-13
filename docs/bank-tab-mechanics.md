@@ -149,6 +149,10 @@ paused as `MANUAL_RECOVERY_REQUIRED`.
 
 ## Required live mechanics probe before release
 
+**Status: probe executed and passed in-game on 2026-07-13** (append lands at
+the end of the target tab as `{A, B, X}`; the checks below behaved as
+described). Guidance V2 is cleared for live use.
+
 Use disposable items and record pre/post IDs, section sets and counts:
 
 1. Existing target `{A, B}`, X in main: drag X to the target icon and confirm
