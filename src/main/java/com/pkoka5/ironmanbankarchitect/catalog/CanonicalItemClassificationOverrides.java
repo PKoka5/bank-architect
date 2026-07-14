@@ -462,11 +462,6 @@ final class CanonicalItemClassificationOverrides
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.TOOL, "cooking-tool"));
 	}
 
-	private static Optional<ItemClassificationRefiner.Classification> utilityContainer()
-	{
-		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.TOOL, "utility-container"));
-	}
-
 	private static Optional<ItemClassificationRefiner.Classification> resourceContainer()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.TOOL, "resource-container"));
