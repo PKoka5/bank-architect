@@ -25,16 +25,16 @@ public class BankTabPlanTest
 		assertEquals(3, plan.getNumberedTabs().size());
 		assertEquals(1, plan.getNumberedTabs().get(0).getBankTabNumber());
 		assertEquals(2, plan.getNumberedTabs().get(0).getBlueprintCategoryNumber());
-		assertEquals("Teleports, Runes & Jewellery",
+		assertEquals("Combat Gear",
 			plan.getNumberedTabs().get(0).getCategoryName());
 		assertEquals(2, plan.getNumberedTabs().get(1).getBankTabNumber());
 		assertEquals(4, plan.getNumberedTabs().get(1).getBlueprintCategoryNumber());
-		assertEquals("Potions, Food & PvM Supplies",
+		assertEquals("Herblore & Potion Making",
 			plan.getNumberedTabs().get(1).getCategoryName());
 		assertEquals(3, plan.getNumberedTabs().get(2).getBankTabNumber());
 		assertEquals(10, plan.getNumberedTabs().get(2).getBlueprintCategoryNumber());
 		assertEquals(Arrays.asList(20, 40, 100, 10), ids(plan.getFlattenedItems()));
-		assertEquals("Currency & Account Utilities", plan.getMainCategoryName());
+		assertEquals("Frequently Used, Runes & Teleports", plan.getMainCategoryName());
 		assertEquals(Arrays.asList(10), ids(plan.getMainItems()));
 	}
 

@@ -85,6 +85,23 @@ public final class ResourceItemRegistry implements ItemCatalog
 				ItemCategory legacyCategory = resolveCategory(displayName, constantName, explicitCategory);
 				ItemClassificationRefiner.Classification classification =
 					ItemClassificationRefiner.refine(displayName, constantName, legacyCategory);
+				Optional<ItemSortMetadata> sortMetadata =
+					ResourceItemSortMetadataCatalog.INSTANCE.findById(itemId);
+				if (sortMetadata.isPresent() && sortMetadata.get().isFood())
+				{
+					// ID facts catch potatoes and hunter meats without broad display-name
+					// rules that could also capture raw or non-edible items.
+					classification = new ItemClassificationRefiner.Classification(ItemCategory.POTION, "food");
+				}
+				else if (sortMetadata.isPresent()
+					&& sortMetadata.get().getVariantKind() == ItemSortMetadata.VariantKind.DOSE
+					&& classification.getCategory() == ItemCategory.POTION)
+				{
+					// A curated canonical ID disambiguates true potion doses from jewellery,
+					// waterskins and other unrelated items with numeric name suffixes.
+					classification = new ItemClassificationRefiner.Classification(ItemCategory.POTION,
+						"potion-dose-" + sortMetadata.get().getVariantValue());
+				}
 				String subcategory = classification.getSubcategory();
 				if (classification.getCategory() == ItemCategory.CLEANUP
 					&& "cleanup".equals(subcategory)
@@ -94,7 +111,18 @@ public final class ResourceItemRegistry implements ItemCatalog
 					// instead of the generic cleanup bucket.
 					subcategory = "quest-item";
 				}
-				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, classification.getCategory(),
+				ItemCategory category = classification.getCategory();
+				Optional<ItemClassificationRefiner.Classification> canonicalOverride =
+					CanonicalItemClassificationOverrides.find(itemId);
+				if (canonicalOverride.isPresent())
+				{
+					// Exact item-ID overrides for canonical equipment run last, so cert,
+					// placeholder, and Battle Royale records sharing a display name or
+					// constant family never inherit them.
+					category = canonicalOverride.get().getCategory();
+					subcategory = canonicalOverride.get().getSubcategory();
+				}
+				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, category,
 					subcategory, Collections.emptySet(), null));
 			}
 		}

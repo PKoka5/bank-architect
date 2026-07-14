@@ -40,9 +40,58 @@ public class PresetItemSorterTest
 	}
 
 	@Test
+	public void ironmanSupplyPresetUsesIdBasedDirectHealingOrder()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("potions-food"), Arrays.asList(
+				item(379, "Lobster", ItemCategory.POTION),
+				item(3144, "Cooked karambwan", ItemCategory.POTION),
+				item(385, "Shark", ItemCategory.POTION)));
+
+		assertEquals(Arrays.asList("Shark", "Cooked karambwan", "Lobster"), names(sorted));
+	}
+
+	@Test
+	public void ironmanSupplyPresetUsesIdBasedPotionFamiliesAndDoses()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("potions-food"), Arrays.asList(
+				item(143, "Prayer potion(1)", ItemCategory.POTION),
+				item(121, "Attack potion(3)", ItemCategory.POTION),
+				item(2434, "Prayer potion(4)", ItemCategory.POTION),
+				item(2428, "Attack potion(4)", ItemCategory.POTION)));
+
+		assertEquals(Arrays.asList("Attack potion(4)", "Attack potion(3)",
+			"Prayer potion(4)", "Prayer potion(1)"), names(sorted));
+	}
+
+	@Test
+	public void pvpSupplyCategoryReusesDoseAwareSupplySorting()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.PVP.getCategory("food-potions"), Arrays.asList(
+				item(385, "Shark", ItemCategory.POTION),
+				item(143, "Prayer potion(1)", ItemCategory.POTION),
+				item(2434, "Prayer potion(4)", ItemCategory.POTION)));
+
+		assertEquals(Arrays.asList("Prayer potion(4)", "Prayer potion(1)", "Shark"), names(sorted));
+	}
+
+	@Test
+	public void mainReviewCategoryReusesSafeUnknownLastSorting()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.MAIN.getCategory("junk-review"), Arrays.asList(
+				new BankPreviewItem(CatalogItem.unknown(999999), 1),
+				item(1, "Burnt shark", ItemCategory.CLEANUP)));
+
+		assertEquals(Arrays.asList("Burnt shark", "Unknown item #999999"), names(sorted));
+	}
+
+	@Test
 	public void farmingHerbloreSortsSeedsHerbsSecondariesUnfinished()
 	{
-		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("farming-herblore"), Arrays.asList(
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("herblore"), Arrays.asList(
 			item(1, "Eye of newt", ItemCategory.HERBLORE),
 			item(2, "Irit potion (unf)", ItemCategory.HERBLORE),
 			item(3, "Grimy irit", ItemCategory.HERBLORE),
@@ -111,6 +160,46 @@ public class PresetItemSorterTest
 
 		assertEquals(Arrays.asList("Clue scroll (beginner)", "Clue scroll (easy)",
 			"Clue scroll (medium)", "Clue scroll (hard)", "Clue scroll (elite)"), names(sorted));
+	}
+
+	@Test
+	public void activityRewardsStayTogetherAfterTreasureTrailItems()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("clues-cosmetics"), Arrays.asList(
+				item(6183, "Frog token", ItemCategory.CURRENCY),
+				item(1, "Clue scroll (hard)", ItemCategory.CLUE),
+				item(2, "Reward casket (hard)", ItemCategory.CLUE),
+				item(6529, "Tokkul", ItemCategory.CURRENCY),
+				item(6306, "Trading sticks", ItemCategory.CURRENCY),
+				item(12012, "Golden nugget", ItemCategory.CURRENCY),
+				item(25527, "Stardust", ItemCategory.CURRENCY),
+				item(21555, "Numulite", ItemCategory.CURRENCY),
+				item(3, "Bob shirt", ItemCategory.CLUE)));
+
+		assertEquals(Arrays.asList("Clue scroll (hard)", "Reward casket (hard)",
+			"Frog token", "Golden nugget", "Numulite", "Stardust", "Tokkul", "Trading sticks",
+			"Bob shirt"), names(sorted));
+	}
+
+	@Test
+	public void ironmanMainSortsChargedJewelleryDownWithinAlphabeticalFamilies()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("currency-utilities"), Arrays.asList(
+				item(3867, "Games necklace(1)", ItemCategory.TELEPORT),
+				item(21175, "Burning amulet(1)", ItemCategory.TELEPORT),
+				item(2558, "Ring of dueling(5)", ItemCategory.TELEPORT),
+				item(3853, "Games necklace(8)", ItemCategory.TELEPORT),
+				item(21166, "Burning amulet(5)", ItemCategory.TELEPORT),
+				item(2566, "Ring of dueling(1)", ItemCategory.TELEPORT),
+				item(21171, "Burning amulet(3)", ItemCategory.TELEPORT),
+				item(3859, "Games necklace(5)", ItemCategory.TELEPORT),
+				item(2552, "Ring of dueling(8)", ItemCategory.TELEPORT)));
+
+		assertEquals(Arrays.asList("Burning amulet(5)", "Burning amulet(3)", "Burning amulet(1)",
+			"Games necklace(8)", "Games necklace(5)", "Games necklace(1)",
+			"Ring of dueling(8)", "Ring of dueling(5)", "Ring of dueling(1)"), names(sorted));
 	}
 
 	@Test

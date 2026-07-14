@@ -6,6 +6,18 @@ import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.WikiItemLists;
+import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutEntry;
+import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutPlacement;
+import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutRequest;
+import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutResult;
+import com.pkoka5.ironmanbankarchitect.organize.layout.MainQuickAccessSemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.PotionDoseSemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.ResourceSemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.RuneSemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.SemanticBlockLayoutEngine;
+import com.pkoka5.ironmanbankarchitect.organize.layout.ToolOutfitSemanticRuleSet;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,6 +71,7 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		Map<String, List<Integer>> gearScoresByKey = new LinkedHashMap<>();
+		java.util.Set<Integer> quickToolIds = IronmanQuickToolSelector.select(snapshot);
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
 			if (bankItem.isPlaceholder())
@@ -84,7 +97,13 @@ public final class BankOrganizationPreviewBuilder
 			CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
 				bankItem.getItemId(), gearStats);
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem);
-			if (isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
+			if (preset.getType() == BankPresetType.IRONMAN
+				&& quickToolIds.contains(catalogItem.getItemId()))
+			{
+				category = preset.getCategory("currency-utilities");
+			}
+			if (!bankItem.isPlaceholder()
+				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
 				gearStats, itemValues, gearScoresByKey))
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
@@ -95,7 +114,7 @@ public final class BankOrganizationPreviewBuilder
 				throw new IllegalStateException("Preset mapper returned unknown category: " + category.getKey());
 			}
 
-			preview.add(catalogItem, bankItem.getQuantity(), bankItem.isPlaceholder());
+			preview.add(toLayoutEntry(bankItem, catalogItem));
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -124,6 +143,14 @@ public final class BankOrganizationPreviewBuilder
 		return item;
 	}
 
+	static LayoutEntry toLayoutEntry(BankItemSnapshot bankItem, CatalogItem catalogItem)
+	{
+		Objects.requireNonNull(bankItem, "bankItem");
+		Objects.requireNonNull(catalogItem, "catalogItem");
+		return LayoutEntry.of(new BankPreviewItem(catalogItem, bankItem.getQuantity(),
+			bankItem.isPlaceholder()), bankItem.getSlotIndex());
+	}
+
 	/**
 	 * Ironman alch rule: a combat gear item whose style+slot already has two
 	 * strictly better owned items is a duplicate the player will realistically
@@ -137,17 +164,22 @@ public final class BankOrganizationPreviewBuilder
 		{
 			return false;
 		}
-		if (quantity <= 1)
-		{
-			return false;
-		}
 		if (WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
 		{
-			// Special attack weapons keep niche value regardless of raw stats
-			// (dragon dagger, magic shortbow); never suggest alching them.
+			// A bank layout cannot split duplicate copies across tabs. Keep the
+			// complete stack of important niche/spec weapons in combat gear.
 			return false;
 		}
-
+		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());
+		if (reviewedAlchable && quantity > 1)
+		{
+			// Reviewed non-special stock belongs in the manual alch workflow.
+			return itemValues.highAlchValue(catalogItem.getItemId()) > 0;
+		}
+		if (quantity <= 1 && !reviewedAlchable)
+		{
+			return false;
+		}
 		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
 		if (!stats.isPresent())
 		{
@@ -181,8 +213,10 @@ public final class BankOrganizationPreviewBuilder
 			return true;
 		}
 
-		return highAlchValue >= ALCH_VALUE_THRESHOLD
-			&& strictlyBetter >= OUTCLASSED_BY_COUNT;
+		int requiredBetterItems = reviewedAlchable ? 1 : OUTCLASSED_BY_COUNT;
+		int requiredAlchValue = reviewedAlchable ? 1 : ALCH_VALUE_THRESHOLD;
+		return highAlchValue >= requiredAlchValue
+			&& strictlyBetter >= requiredBetterItems;
 	}
 
 	private static String gearKey(GearStats stats)
@@ -193,21 +227,136 @@ public final class BankOrganizationPreviewBuilder
 	private static final class MutableCategoryPreview
 	{
 		private final BankCategory category;
-		private final List<BankPreviewItem> items = new ArrayList<>();
+		private final List<LayoutEntry> entries = new ArrayList<>();
 
 		private MutableCategoryPreview(BankCategory category)
 		{
 			this.category = category;
 		}
 
-		private void add(CatalogItem catalogItem, int quantity, boolean placeholder)
+		private void add(LayoutEntry entry)
 		{
-			items.add(new BankPreviewItem(catalogItem, quantity, placeholder));
+			entries.add(Objects.requireNonNull(entry, "entry"));
 		}
 
 		private BankCategoryPreview toImmutable(GearStatsSource gearStats)
 		{
-			return new BankCategoryPreview(category, PresetItemSorter.sort(category, items, gearStats));
+			List<BankPreviewItem> items = items(entries);
+				switch (category.getSortMode())
+				{
+				case MAIN:
+					return new BankCategoryPreview(category, semanticLayout(
+						IronmanMainItemSorter.sort(items), MainQuickAccessSemanticRuleSet.forEntries(entries)));
+				case RESOURCES:
+					return new BankCategoryPreview(category, semanticLayout(
+						ResourceItemSorter.sort(items), ResourceSemanticRuleSet.forEntries(entries)));
+				case TELEPORTS:
+					return new BankCategoryPreview(category, semanticLayout(
+						TeleportItemSorter.sort(items), RuneSemanticRuleSet.forEntries(entries)));
+				case SUPPLIES:
+					return new BankCategoryPreview(category, semanticLayout(
+						SupplyItemSorter.sort(items), PotionDoseSemanticRuleSet.forEntries(entries)));
+				case TOOLS:
+					return new BankCategoryPreview(category, semanticLayout(
+						ToolItemSorter.sort(items), ToolOutfitSemanticRuleSet.forEntries(entries)));
+				case CURRENCY:
+					return new BankCategoryPreview(category, semanticLayout(
+						CurrencyItemSorter.sort(items), AchievementDiarySemanticRuleSet.forEntries(entries)));
+				case FARMING:
+					return new BankCategoryPreview(category, FarmingItemSorter.layout(items, 0));
+				case GEAR:
+					return new BankCategoryPreview(category, gearLayout(items, gearStats));
+				default:
+					return new BankCategoryPreview(category,
+						PresetItemSorter.sort(category, items, gearStats));
+			}
+		}
+
+		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
+		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
+		{
+			GearItemSorter.GearLayout gear = GearItemSorter.plan(items, gearStats);
+			List<BankPreviewItem> planned = new ArrayList<>(items.size());
+			planned.addAll(gear.getSetupRows());
+
+			List<LayoutEntry> tailEntries = entriesForItems(entries, gear.getTail());
+			LayoutRequest tailRequest = GearSetSemanticRuleSet.forEntries(tailEntries)
+				.withGridStartColumn(planned.size() % GearItemSorter.GRID_COLUMNS);
+			planned.addAll(semanticLayout(gear.getTail(), tailRequest));
+			return planned;
+		}
+
+		private static List<BankPreviewItem> items(List<LayoutEntry> source)
+		{
+			List<BankPreviewItem> items = new ArrayList<>(source.size());
+			for (LayoutEntry entry : source)
+			{
+				items.add(entry.getItem());
+			}
+			return items;
+		}
+
+		private static List<LayoutEntry> entriesForItems(List<LayoutEntry> source,
+			List<BankPreviewItem> selected)
+		{
+			Map<Integer, LayoutEntry> byItemId = new LinkedHashMap<>();
+			for (LayoutEntry entry : source)
+			{
+				byItemId.put(entry.getItem().getItemId(), entry);
+			}
+
+			List<LayoutEntry> result = new ArrayList<>(selected.size());
+			for (BankPreviewItem item : selected)
+			{
+				LayoutEntry entry = byItemId.get(item.getItemId());
+				if (entry == null)
+				{
+					throw new IllegalStateException("Missing layout entry for item " + item.getItemId());
+				}
+				result.add(entry);
+			}
+			return result;
+		}
+
+		private List<BankPreviewItem> semanticLayout(List<BankPreviewItem> fallback,
+			LayoutRequest request)
+		{
+			List<Integer> fallbackItemIds = new ArrayList<>(fallback.size());
+			for (BankPreviewItem item : fallback)
+			{
+				fallbackItemIds.add(item.getItemId());
+			}
+
+			LayoutResult result = new SemanticBlockLayoutEngine().plan(request, fallbackItemIds);
+			if (!result.isSuccess())
+			{
+				throw new IllegalStateException("Semantic layout failed for category "
+					+ category.getKey() + ": " + result.getConflicts());
+			}
+
+			BankPreviewItem[] byTarget = new BankPreviewItem[fallback.size()];
+			for (LayoutPlacement placement : result.getPlacements())
+			{
+				int target = placement.getTargetIndex();
+				if (target < 0 || target >= byTarget.length || byTarget[target] != null)
+				{
+					throw new IllegalStateException("Semantic layout for category " + category.getKey()
+						+ " returned invalid target " + target);
+				}
+				byTarget[target] = placement.getItem();
+			}
+
+			List<BankPreviewItem> planned = new ArrayList<>(byTarget.length);
+			for (int target = 0; target < byTarget.length; target++)
+			{
+				if (byTarget[target] == null)
+				{
+					throw new IllegalStateException("Semantic layout for category "
+						+ category.getKey() + " omitted target " + target);
+				}
+				planned.add(byTarget[target]);
+			}
+			return planned;
 		}
 	}
 }

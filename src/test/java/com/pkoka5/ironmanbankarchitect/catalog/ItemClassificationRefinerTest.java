@@ -135,7 +135,7 @@ public class ItemClassificationRefinerTest
 	}
 
 	@Test
-	public void barbarianMixesArePartialDoseHerbloreProducts()
+	public void barbarianMixesRemainSeparatePartialDosePotions()
 	{
 		assertClassification("Superattack mix(2)", ItemCategory.POTION,
 			ItemCategory.POTION, "potion-dose-2");

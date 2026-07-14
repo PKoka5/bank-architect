@@ -14,16 +14,21 @@ and clue/storage review.
 Ironman keeps gear together because Ironman accounts accumulate many sidegrades, niche pieces,
 slayer items, clue gear, god items, and progression items.
 
-1. Currency & Account Utilities
-2. Teleports, Runes & Jewellery
-3. Combat Gear
-4. Potions, Food & PvM Supplies
-5. Farming & Herblore
+1. Frequently Used, Runes & Teleports
+2. Combat Gear
+3. Potions, Food & PvM Supplies
+4. Herblore & Potion Making
+5. Seeds & Farming
 6. Skilling Tools
 7. Raw & Processed Resources
 8. Slayer, Boss Loot & Unique Drops
 9. Clues, Cosmetics & Collection Log
 10. Storage & Cleanup Review
+
+Main contains Coins, the reviewed quick-access utilities, the standard Graceful set, runes,
+teleports, Hammer, and exactly one highest-tier owned pickaxe and axe. Active clue items remain in
+the Clues category. Herb seeds stay with their eight-cell Herblore recipe chain; other seeds,
+produce, compost, and farming materials use Seeds & Farming.
 
 ## Main - General Bank
 

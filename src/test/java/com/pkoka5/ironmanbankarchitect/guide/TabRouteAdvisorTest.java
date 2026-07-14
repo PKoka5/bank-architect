@@ -30,7 +30,7 @@ public class TabRouteAdvisorTest
 
 		assertMove(result, MoveType.DRAG_TO_NEW_TAB, 2, 1, -1, 1, 2);
 		assertEquals(Phase.CREATING, result.getProgress().getPhase());
-		assertEquals("Teleports, Runes & Jewellery",
+		assertEquals("Combat Gear",
 			result.getMove().get().getCategoryName());
 	}
 
@@ -417,6 +417,22 @@ public class TabRouteAdvisorTest
 		swapSession.assess(new int[]{2, 1, 3, 9}, plan, counts(2, 1));
 		assertEquals(Status.COMPLETE,
 			swapSession.assess(new int[]{1, 2, 3, 9}, plan, counts(2, 1)).getStatus());
+	}
+
+	@Test
+	public void sessionAdvancesAnExpectedSwapWithinTheSameGameTick()
+	{
+		BankTabPlan plan = plan(items(9), items(1, 2), items(3));
+		Session session = new Session();
+		Assessment swap = session.assess(
+			new int[]{2, 1, 3, 9}, plan, counts(2, 1), 100);
+		assertEquals(MoveType.SWAP_SECTION, swap.getMove().get().getType());
+
+		Assessment after = session.assess(
+			new int[]{1, 2, 3, 9}, plan, counts(2, 1), 100);
+
+		assertEquals(Status.COMPLETE, after.getStatus());
+		assertFalse(after.getMove().isPresent());
 	}
 
 	@Test

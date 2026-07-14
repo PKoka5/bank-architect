@@ -1,7 +1,12 @@
 # V1 Product Contract
 
+> Historical milestone fixture: the fixed two-block examples below are retained for V1 regression
+> tests and do not define the active ten-category organizer. Current routing and sorting rules live
+> in `bank-organisation-rules.md` and `universal-preset-roadmap.md`; finished potion doses no longer
+> belong to the active Herblore prep category.
+
 ## Long-Term Product Goal
-Ironman Bank Architect is a standalone RuneLite sidebar plugin for analysing an Ironman player's bank and generating a manual organisation blueprint.
+Bank Architect is a standalone RuneLite sidebar plugin for analysing a player's bank and generating a manual organisation blueprint. Its V1 preset remains Ironman-focused.
 
 The long-term product may:
 - read `InventoryID.BANK` through supported RuneLite APIs;

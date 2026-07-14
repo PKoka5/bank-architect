@@ -193,6 +193,26 @@ final class ItemClassificationRefiner
 			return new Classification(ItemCategory.GEAR,
 				name.contains("anchor") ? "weapon" : "body");
 		}
+		if (isBarrowsWeaponFamily(name)
+			|| equalsAny(name, "zombie axe", "blisterwood flail", "eclipse atlatl", "emberlight",
+				"arkan blade", "abyssal bludgeon"))
+		{
+			// Confirmed unique weapons the generated registry either missed (no combat
+			// keyword in the name) or mislabelled as SKILLING/CLEANUP. Barrows weapons
+			// are matched at every 100/75/50/25/0 charge state, still the same weapon.
+			return new Classification(ItemCategory.GEAR, "weapon");
+		}
+		if (equalsAny(name, "occult necklace", "occult necklace (or)",
+			"necklace of anguish", "necklace of anguish (or)"))
+		{
+			// Exact names only: "Occult Necklace Ornament" shares a constant with
+			// "Occult necklace (or)" but is a separate, unproven record.
+			return new Classification(ItemCategory.GEAR, "neck");
+		}
+		if ("neitiznot faceguard".equals(name))
+		{
+			return new Classification(ItemCategory.GEAR, "head");
+		}
 		if ("fishbowl helmet".equals(name))
 		{
 			return new Classification(ItemCategory.TOOL, "quest-utility");
@@ -205,18 +225,36 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.CURRENCY, "currency");
 		}
+		if (name.startsWith("slayer ring")
+			|| (name.startsWith("wilderness sword") && constant.startsWith("wilderness_sword_"))
+			|| "camulet".equals(name) || name.startsWith("giantsoul amulet"))
+		{
+			// Same-function teleport devices across all charge states; the generated
+			// registry read these as plain equippable GEAR. The constant guard keeps
+			// out ID 3981 ("Wilderness sword", CERT_REINITIALISATION_15_INACTIVE), an
+			// unrelated record that happens to share the display name prefix.
+			return new Classification(ItemCategory.TELEPORT, "teleport");
+		}
 		if (legacyCategory == ItemCategory.TELEPORT)
 		{
 			return new Classification(ItemCategory.TELEPORT, "teleport");
 		}
-		if (isSkillCapeOrSkillingGear(name))
+		if (isSkillCapeOrSkillingGear(name) || isRaimentsOfTheEye(name))
 		{
 			return new Classification(ItemCategory.TOOL, "skilling-outfit");
 		}
 		if (containsAny(name, "celestial ring", "mining helmet", "cooking gauntlets",
-			"goldsmith gauntlets", "noose wand", "steel key ring"))
+			"goldsmith gauntlets", "noose wand", "steel key ring", "ice gloves"))
 		{
 			return new Classification(ItemCategory.TOOL, "skilling-utility");
+		}
+		if ("fletching knife".equals(name))
+		{
+			return new Classification(ItemCategory.TOOL, "skilling-utility");
+		}
+		if ("gricoller's can".equals(name))
+		{
+			return new Classification(ItemCategory.TOOL, "tool");
 		}
 		if (containsAny(name, "bird snare", "rabbit snare", "box trap", "lockpick", "ogre bellows"))
 		{
@@ -391,7 +429,8 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.GEAR, "body");
 		}
-		if (containsAny(name, "platelegs", "plateskirt", "robe bottom", "chaps", "cuisse"))
+		if (containsAny(name, "platelegs", "plateskirt", "robe bottom", "chaps", "cuisse")
+			|| (name.contains("tassets") && !name.contains("broken")))
 		{
 			return new Classification(ItemCategory.GEAR, "legs");
 		}
@@ -533,6 +572,29 @@ final class ItemClassificationRefiner
 			|| "zenyte".equals(gem);
 	}
 
+	private static boolean isBarrowsWeaponFamily(String name)
+	{
+		return isBarrowsWeaponVariant(name, "dharok's greataxe")
+			|| isBarrowsWeaponVariant(name, "guthan's warspear")
+			|| isBarrowsWeaponVariant(name, "verac's flail");
+	}
+
+	private static boolean isBarrowsWeaponVariant(String name, String baseName)
+	{
+		if (name.equals(baseName))
+		{
+			return true;
+		}
+		return equalsAny(name, baseName + " 100", baseName + " 75", baseName + " 50",
+			baseName + " 25", baseName + " 0");
+	}
+
+	private static boolean isRaimentsOfTheEye(String name)
+	{
+		return name.startsWith("hat of the eye") || name.startsWith("robe top of the eye")
+			|| name.startsWith("robe bottoms of the eye") || name.startsWith("boots of the eye");
+	}
+
 	private static boolean isSkillCapeOrSkillingGear(String name)
 	{
 		if (name.contains("cape") && containsAny(name, "agility", "cooking", "construction", "crafting",
@@ -545,6 +607,8 @@ final class ItemClassificationRefiner
 			"angler hat", "angler top", "angler waders", "angler boots",
 			"spirit angler headband", "spirit angler top", "spirit angler waders", "spirit angler boots",
 			"prospector helmet", "prospector jacket", "prospector legs", "prospector boots",
+			"golden prospector helmet", "golden prospector jacket", "golden prospector legs",
+			"golden prospector boots",
 			"pyromancer hood", "pyromancer garb", "pyromancer robe", "pyromancer boots",
 			"lumberjack hat", "lumberjack top", "lumberjack legs", "lumberjack boots",
 			"carpenter's helmet", "carpenter's shirt", "carpenter's trousers", "carpenter's boots",

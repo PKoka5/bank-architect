@@ -47,13 +47,13 @@ public class CompositeItemCatalogTest
 	}
 
 	@Test
-	public void generatedRegistryRefinesCannonToolkitToGear()
+	public void generatedRegistryRefinesCannonToolkitToQuestCleanup()
 	{
 		CatalogItem toolkit = CompositeItemCatalog.DEFAULT.findById(1)
 			.orElseThrow(() -> new AssertionError("expected toolkit"));
 
 		assertEquals("Toolkit", toolkit.getDisplayName());
-		assertEquals(ItemCategory.GEAR, toolkit.getCategory());
+		assertEquals(ItemCategory.CLEANUP, toolkit.getCategory());
 	}
 
 	@Test
@@ -89,14 +89,14 @@ public class CompositeItemCatalogTest
 	}
 
 	@Test
-	public void registryFallbackAssignsEveryKnownItemToPresetCategory()
+	public void registryFallbackAssignsKnownCleanupItemToReviewCategory()
 	{
 		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0)
 		)), CompositeItemCatalog.DEFAULT, com.pkoka5.ironmanbankarchitect.organize.BankPresets.IRONMAN);
 
-		assertEquals(1, summary.countFor(ItemCategory.GEAR));
-		assertEquals(1, summary.countForPresetCategory("combat-gear"));
+		assertEquals(1, summary.countFor(ItemCategory.CLEANUP));
+		assertEquals(1, summary.countForPresetCategory("storage-cleanup"));
 		assertEquals(0, summary.getReviewEntries().size());
 	}
 }

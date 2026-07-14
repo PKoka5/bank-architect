@@ -11,7 +11,7 @@ public final class BankBlueprintTextExporter
 	public static String export(BankOrganizationPreview preview)
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append("Ironman Bank Architect blueprint export\n")
+		builder.append("Bank Architect blueprint export\n")
 			.append("Preset: ").append(preview.getPreset().getName()).append('\n')
 			.append("Columns: ").append(BANK_COLUMNS).append('\n');
 

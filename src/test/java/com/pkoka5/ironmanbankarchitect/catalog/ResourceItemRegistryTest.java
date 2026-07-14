@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
@@ -24,6 +25,23 @@ public class ResourceItemRegistryTest
 		assertCategory(383, "Raw shark", ItemCategory.SKILLING);
 		assertCategory(371, "Raw swordfish", ItemCategory.SKILLING);
 		assertCategory(373, "Swordfish", ItemCategory.POTION);
+	}
+
+	@Test
+	public void curatedFoodIdsOverrideUnreliableGeneratedCategories()
+	{
+		assertCategory(6705, "Potato with cheese", ItemCategory.POTION);
+		assertCategory(7058, "Mushroom potato", ItemCategory.POTION);
+		assertCategory(7946, "Monkfish", ItemCategory.POTION);
+		assertCategory(29143, "Cooked moonlight antelope", ItemCategory.POTION);
+		assertCategory(29128, "Cooked wild kebbit", ItemCategory.POTION);
+		assertCategory(31556, "Swordtip squid", ItemCategory.POTION);
+		assertCategory(31564, "Jumbo squid", ItemCategory.POTION);
+		assertCategory(32312, "Giant krill", ItemCategory.POTION);
+		assertCategory(32320, "Haddock", ItemCategory.POTION);
+		assertCategory(32328, "Yellowfin", ItemCategory.POTION);
+		assertCategory(32352, "Marlin", ItemCategory.POTION);
+		assertSubcategory(29143, "food");
 	}
 
 	@Test
@@ -163,7 +181,6 @@ public class ResourceItemRegistryTest
 		assertCategory(1603, "Ruby", ItemCategory.SKILLING);
 		assertCategory(1617, "Uncut diamond", ItemCategory.SKILLING);
 		assertCategory(229, "Vial", ItemCategory.SKILLING);
-		assertCategory(227, "Vial of water", ItemCategory.SKILLING);
 		assertCategory(1783, "Bucket of sand", ItemCategory.SKILLING);
 	}
 
@@ -232,7 +249,10 @@ public class ResourceItemRegistryTest
 	public void farmingAndPrayerInputsHaveStableFamilies()
 	{
 		assertCategory(5312, "Acorn", ItemCategory.FARMING);
-		assertCategory(5076, "Bird's egg", ItemCategory.FARMING);
+		// Corrected by the Batch 2B canonical override: SKILLING/prayer-resource,
+		// not FARMING produce. See canonicalSkillingPrayerResourceOverrides.
+		assertCategory(5076, "Bird's egg", ItemCategory.SKILLING);
+		assertSubcategory(5076, "prayer-resource");
 		assertCategory(13496, "Ensouled bloodveld head", ItemCategory.SKILLING);
 		assertCategory(13511, "Ensouled dragon head", ItemCategory.SKILLING);
 	}
@@ -245,7 +265,6 @@ public class ResourceItemRegistryTest
 		assertCategory(21545, "Pyrophosphite", ItemCategory.SKILLING);
 		assertCategory(22595, "Efh salt", ItemCategory.SKILLING);
 		assertCategory(21562, "Unidentified small fossil", ItemCategory.SKILLING);
-		assertCategory(6049, "Yew roots", ItemCategory.SKILLING);
 		assertCategory(5931, "Jute fibre", ItemCategory.SKILLING);
 	}
 
@@ -263,6 +282,11 @@ public class ResourceItemRegistryTest
 		assertSubcategory(141, "potion-dose-2");
 		assertSubcategory(139, "potion-dose-3");
 		assertSubcategory(2434, "potion-dose-4");
+		assertSubcategory(179, "potion-dose-1");
+		assertSubcategory(177, "potion-dose-2");
+		assertSubcategory(175, "potion-dose-3");
+		assertSubcategory(2446, "potion-dose-4");
+		assertSubcategory(6687, "potion-dose-3");
 		assertSubcategory(21175, "teleport");
 		assertSubcategory(5464, "produce-container");
 		assertSubcategory(7484, "cooking-material");
@@ -329,6 +353,725 @@ public class ResourceItemRegistryTest
 		assertCategory(31331, "Mayor of catherby", ItemCategory.CLEANUP);
 	}
 
+	@Test
+	public void teleportFunctionOverridesEquippableRingsAndAmulets()
+	{
+		// These charge/degrade across states but always function purely as
+		// teleport devices; the generated registry read them as plain GEAR.
+		assertCategory(11866, "Slayer ring (8)", ItemCategory.TELEPORT);
+		assertSubcategory(11866, "teleport");
+		assertCategory(6707, "Camulet", ItemCategory.TELEPORT);
+		assertSubcategory(6707, "teleport");
+		assertCategory(13110, "Wilderness sword 3", ItemCategory.TELEPORT);
+		assertSubcategory(13110, "teleport");
+		assertCategory(30638, "Giantsoul amulet", ItemCategory.TELEPORT);
+		assertSubcategory(30638, "teleport");
+	}
+
+	@Test
+	public void skillingToolsAndOutfitsWithNoNameKeywordsAreRecognized()
+	{
+		assertCategory(31043, "Fletching knife", ItemCategory.TOOL);
+		assertSubcategory(31043, "skilling-utility");
+		assertCategory(13353, "Gricoller's can", ItemCategory.TOOL);
+		assertSubcategory(13353, "tool");
+		assertCategory(1580, "Ice gloves", ItemCategory.TOOL);
+		assertSubcategory(1580, "skilling-utility");
+		assertCategory(25553, "Golden prospector legs", ItemCategory.TOOL);
+		assertSubcategory(25553, "skilling-outfit");
+		assertCategory(26852, "Robe top of the eye", ItemCategory.TOOL);
+		assertSubcategory(26852, "skilling-outfit");
+	}
+
+	@Test
+	public void uniqueWeaponsAndJewelleryMissedByGeneratedKeywordsAreGear()
+	{
+		// None of these names contain a combat keyword the generated registry
+		// recognizes, so they were left in CLEANUP or SKILLING.
+		assertCategory(29045, "Blood moon tassets", ItemCategory.GEAR);
+		assertSubcategory(29045, "legs");
+		assertCategory(29000, "Eclipse atlatl", ItemCategory.GEAR);
+		assertSubcategory(29000, "weapon");
+		assertCategory(24699, "Blisterwood flail", ItemCategory.GEAR);
+		assertSubcategory(24699, "weapon");
+		assertCategory(29589, "Emberlight", ItemCategory.GEAR);
+		assertSubcategory(29589, "weapon");
+		assertCategory(30955, "Arkan blade", ItemCategory.GEAR);
+		assertSubcategory(30955, "weapon");
+		assertCategory(19547, "Necklace of anguish", ItemCategory.GEAR);
+		assertSubcategory(19547, "neck");
+		assertCategory(12002, "Occult necklace", ItemCategory.GEAR);
+		assertSubcategory(12002, "neck");
+		assertCategory(13263, "Abyssal bludgeon", ItemCategory.GEAR);
+		assertSubcategory(13263, "weapon");
+		assertCategory(24271, "Neitiznot faceguard", ItemCategory.GEAR);
+		assertSubcategory(24271, "head");
+		assertCategory(4726, "Guthan's warspear", ItemCategory.GEAR);
+		assertSubcategory(4726, "weapon");
+		assertCategory(4755, "Verac's flail", ItemCategory.GEAR);
+		assertSubcategory(4755, "weapon");
+		assertCategory(4718, "Dharok's greataxe", ItemCategory.GEAR);
+		assertSubcategory(4718, "weapon");
+		assertCategory(28810, "Zombie axe", ItemCategory.GEAR);
+		assertSubcategory(28810, "weapon");
+	}
+
+	@Test
+	public void barrowsWeaponFamiliesStayGearAcrossEveryChargeState()
+	{
+		// Bounded family recognition: base name plus the 100/75/50/25/0 charge
+		// suffixes only, still the same weapon at every degradation state.
+		assertCategory(4718, "Dharok's greataxe", ItemCategory.GEAR);
+		assertCategory(4886, "Dharok's greataxe 100", ItemCategory.GEAR);
+		assertCategory(4887, "Dharok's greataxe 75", ItemCategory.GEAR);
+		assertCategory(4888, "Dharok's greataxe 50", ItemCategory.GEAR);
+		assertCategory(4889, "Dharok's greataxe 25", ItemCategory.GEAR);
+		assertCategory(4890, "Dharok's greataxe 0", ItemCategory.GEAR);
+		assertSubcategory(4886, "weapon");
+		assertSubcategory(4887, "weapon");
+		assertSubcategory(4888, "weapon");
+		assertSubcategory(4889, "weapon");
+		assertSubcategory(4890, "weapon");
+
+		assertCategory(4726, "Guthan's warspear", ItemCategory.GEAR);
+		assertCategory(4910, "Guthan's warspear 100", ItemCategory.GEAR);
+		assertCategory(4911, "Guthan's warspear 75", ItemCategory.GEAR);
+		assertCategory(4912, "Guthan's warspear 50", ItemCategory.GEAR);
+		assertCategory(4913, "Guthan's warspear 25", ItemCategory.GEAR);
+		assertCategory(4914, "Guthan's warspear 0", ItemCategory.GEAR);
+		assertSubcategory(4910, "weapon");
+		assertSubcategory(4911, "weapon");
+		assertSubcategory(4912, "weapon");
+		assertSubcategory(4913, "weapon");
+		assertSubcategory(4914, "weapon");
+
+		assertCategory(4755, "Verac's flail", ItemCategory.GEAR);
+		assertCategory(4982, "Verac's flail 100", ItemCategory.GEAR);
+		assertCategory(4983, "Verac's flail 75", ItemCategory.GEAR);
+		assertCategory(4984, "Verac's flail 50", ItemCategory.GEAR);
+		assertCategory(4985, "Verac's flail 25", ItemCategory.GEAR);
+		assertCategory(4986, "Verac's flail 0", ItemCategory.GEAR);
+		assertSubcategory(4982, "weapon");
+		assertSubcategory(4983, "weapon");
+		assertSubcategory(4984, "weapon");
+		assertSubcategory(4985, "weapon");
+		assertSubcategory(4986, "weapon");
+	}
+
+	@Test
+	public void raimentsOfTheEyeOutfitIsFullyRecognizedWithoutTouchingTheAmulet()
+	{
+		assertCategory(26850, "Hat of the eye", ItemCategory.TOOL);
+		assertCategory(26852, "Robe top of the eye", ItemCategory.TOOL);
+		assertCategory(26854, "Robe bottoms of the eye", ItemCategory.TOOL);
+		assertCategory(26856, "Boots of the eye", ItemCategory.TOOL);
+		assertSubcategory(26850, "skilling-outfit");
+		assertSubcategory(26852, "skilling-outfit");
+		assertSubcategory(26854, "skilling-outfit");
+		assertSubcategory(26856, "skilling-outfit");
+
+		// One full color variant set, confirming the bounded prefix also
+		// covers recolored copies of each garment.
+		assertCategory(26858, "Hat of the eye (red)", ItemCategory.TOOL);
+		assertCategory(26860, "Robe top of the eye (red)", ItemCategory.TOOL);
+		assertCategory(26862, "Robe bottoms of the eye (red)", ItemCategory.TOOL);
+		assertSubcategory(26858, "skilling-outfit");
+		assertSubcategory(26860, "skilling-outfit");
+		assertSubcategory(26862, "skilling-outfit");
+
+		// Canonical green variant set.
+		assertCategory(26864, "Hat of the eye (green)", ItemCategory.TOOL);
+		assertCategory(26866, "Robe top of the eye (green)", ItemCategory.TOOL);
+		assertCategory(26868, "Robe bottoms of the eye (green)", ItemCategory.TOOL);
+		assertSubcategory(26864, "skilling-outfit");
+		assertSubcategory(26866, "skilling-outfit");
+		assertSubcategory(26868, "skilling-outfit");
+
+		// Canonical blue variant set.
+		assertCategory(26870, "Hat of the eye (blue)", ItemCategory.TOOL);
+		assertCategory(26872, "Robe top of the eye (blue)", ItemCategory.TOOL);
+		assertCategory(26874, "Robe bottoms of the eye (blue)", ItemCategory.TOOL);
+		assertSubcategory(26870, "skilling-outfit");
+		assertSubcategory(26872, "skilling-outfit");
+		assertSubcategory(26874, "skilling-outfit");
+
+		// Negative controls: Amulet of the eye shares the "of the eye" phrase but
+		// not the "hat"/"robe top"/"robe bottoms"/"boots" prefix, so it must stay
+		// GEAR and never be swept into the skilling-outfit rule.
+		assertCategory(26914, "Amulet of the eye", ItemCategory.GEAR);
+		assertCategory(26990, "Amulet of the eye", ItemCategory.GEAR);
+		assertCategory(26992, "Amulet of the eye", ItemCategory.GEAR);
+		assertCategory(26994, "Amulet of the eye", ItemCategory.GEAR);
+	}
+
+	@Test
+	public void prefixLeakageIntoUnrelatedRecordsIsBlocked()
+	{
+		// Shares a display-name prefix with the real Wilderness sword rewards but is
+		// an unrelated cert record; must not be swept into TELEPORT.
+		assertCategory(3981, "Wilderness sword", ItemCategory.GEAR);
+
+		// Shares a constant (OCCULT_NECKLACE_ORNAMENT) with the legitimate
+		// "Occult necklace (or)" record but is a separate, unproven display name;
+		// must not be swept into GEAR by a broad "occult necklace" prefix.
+		assertCategory(19721, "Occult Necklace Ornament", ItemCategory.CLEANUP);
+	}
+
+	@Test
+	public void negativeControlsFromThePriorCategoryBatchStayUnchanged()
+	{
+		assertCategory(10858, "Shadow sword", ItemCategory.GEAR);
+		assertCategory(31906, "Bronze cannonball", ItemCategory.GEAR);
+		assertSubcategory(31906, "ammo");
+		assertCategory(22586, "Looting bag", ItemCategory.TOOL);
+		assertCategory(1777, "Bow string", ItemCategory.SKILLING);
+	}
+
+	@Test
+	public void canonicalWeaponOverridesCoverDualMacuahuitlAndLeafBladedFamily()
+	{
+		// The generated registry mislabels all four as HERBLORE/UNKNOWN; the exact
+		// item IDs are pinned to GEAR/weapon regardless of that generated label.
+		assertCategory(28997, "Dual macuahuitl", ItemCategory.GEAR);
+		assertSubcategory(28997, "weapon");
+		assertCategory(4158, "Leaf-bladed spear", ItemCategory.GEAR);
+		assertSubcategory(4158, "weapon");
+		assertCategory(11902, "Leaf-bladed sword", ItemCategory.GEAR);
+		assertSubcategory(11902, "weapon");
+		assertCategory(20727, "Leaf-bladed battleaxe", ItemCategory.GEAR);
+		assertSubcategory(20727, "weapon");
+	}
+
+	@Test
+	public void canonicalGearOverridesCoverAvaAndMasoriAssemblers()
+	{
+		assertCategory(10498, "Ava's attractor", ItemCategory.GEAR);
+		assertSubcategory(10498, "gear");
+		assertCategory(10499, "Ava's accumulator", ItemCategory.GEAR);
+		assertSubcategory(10499, "gear");
+		assertCategory(22109, "Ava's assembler", ItemCategory.GEAR);
+		assertSubcategory(22109, "gear");
+		assertCategory(24222, "Ava's assembler (l)", ItemCategory.GEAR);
+		assertSubcategory(24222, "gear");
+		assertCategory(27374, "Masori assembler", ItemCategory.GEAR);
+		assertSubcategory(27374, "gear");
+		assertCategory(27376, "Masori assembler (l)", ItemCategory.GEAR);
+		assertSubcategory(27376, "gear");
+	}
+
+	@Test
+	public void canonicalAmmoOverridesCoverBoltRackAndGodBlessings()
+	{
+		assertCategory(4740, "Bolt rack", ItemCategory.GEAR);
+		assertSubcategory(4740, "ammo");
+		assertCategory(20220, "Holy blessing", ItemCategory.GEAR);
+		assertSubcategory(20220, "ammo");
+		assertCategory(20223, "Unholy blessing", ItemCategory.GEAR);
+		assertSubcategory(20223, "ammo");
+		assertCategory(20226, "Peaceful blessing", ItemCategory.GEAR);
+		assertSubcategory(20226, "ammo");
+		assertCategory(20229, "Honourable blessing", ItemCategory.GEAR);
+		assertSubcategory(20229, "ammo");
+		assertCategory(20232, "War blessing", ItemCategory.GEAR);
+		assertSubcategory(20232, "ammo");
+		assertCategory(20235, "Ancient blessing", ItemCategory.GEAR);
+		assertSubcategory(20235, "ammo");
+	}
+
+	@Test
+	public void canonicalFeetOverridesCoverAvernicTreadsFamily()
+	{
+		assertCategory(31088, "Avernic treads", ItemCategory.GEAR);
+		assertSubcategory(31088, "feet");
+		assertCategory(31091, "Avernic treads (pr)", ItemCategory.GEAR);
+		assertSubcategory(31091, "feet");
+		assertCategory(31092, "Avernic treads (pe)", ItemCategory.GEAR);
+		assertSubcategory(31092, "feet");
+		assertCategory(31093, "Avernic treads (et)", ItemCategory.GEAR);
+		assertSubcategory(31093, "feet");
+		assertCategory(31094, "Avernic treads (pr)(pe)", ItemCategory.GEAR);
+		assertSubcategory(31094, "feet");
+		assertCategory(31095, "Avernic treads (pr)(et)", ItemCategory.GEAR);
+		assertSubcategory(31095, "feet");
+		assertCategory(31096, "Avernic treads (pe)(et)", ItemCategory.GEAR);
+		assertSubcategory(31096, "feet");
+		assertCategory(31097, "Avernic treads (max)", ItemCategory.GEAR);
+		assertSubcategory(31097, "feet");
+	}
+
+	@Test
+	public void canonicalWeaponOverrideCoversWarpedSceptre()
+	{
+		assertCategory(28583, "Warped sceptre (uncharged)", ItemCategory.GEAR);
+		assertSubcategory(28583, "weapon");
+		assertCategory(28585, "Warped sceptre", ItemCategory.GEAR);
+		assertSubcategory(28585, "weapon");
+	}
+
+	@Test
+	public void canonicalHerbloreSecondaryOverridesCoverDustsAndWine()
+	{
+		assertCategory(235, "Unicorn horn dust", ItemCategory.HERBLORE);
+		assertSubcategory(235, "secondary");
+		assertCategory(241, "Dragon scale dust", ItemCategory.HERBLORE);
+		assertSubcategory(241, "secondary");
+		assertCategory(245, "Wine of zamorak", ItemCategory.HERBLORE);
+		assertSubcategory(245, "secondary");
+	}
+
+	@Test
+	public void vettedQuestAndJunkCorrectionsUseOnlyCanonicalIds()
+	{
+		assertClassifications(
+			new int[] {1, 14, 16, 74, 75, 286, 287, 288, 295, 762, 9054, 9055, 9056,
+				9057, 9058, 9059, 26567},
+			new String[] {"Toolkit", "Railing", "Magic whistle", "Khazard helmet",
+				"Khazard armour", "Orange goblin mail", "Blue goblin mail", "Goblin mail",
+				"Glarial's amulet", "Falador shield", "Red goblin mail", "Black goblin mail",
+				"Yellow goblin mail", "Green goblin mail", "Purple goblin mail",
+				"Pink goblin mail", "White goblin mail"},
+			ItemCategory.CLEANUP, "quest-item");
+		assertClassification(686, "Rusty sword", ItemCategory.CLEANUP, "junk");
+	}
+
+	@Test
+	public void canonicalGnomeClothingIsACompleteCosmeticFamily()
+	{
+		assertClassifications(
+			new int[] {626, 628, 630, 632, 634, 636, 638, 640, 642, 644, 646, 648, 650,
+				652, 654, 656, 658, 660, 662, 664},
+			new String[] {"Pink boots", "Green boots", "Blue boots", "Cream boots",
+				"Turquoise boots", "Pink robe top", "Green robe top", "Blue robe top",
+				"Cream robe top", "Turquoise robe top", "Pink robe bottoms",
+				"Green robe bottoms", "Blue robe bottoms", "Cream robe bottoms",
+				"Turquoise robe bottoms", "Pink hat", "Green hat", "Blue hat", "Cream hat",
+				"Turquoise hat"},
+			ItemCategory.CLUE, "cosmetic");
+	}
+
+	@Test
+	public void canonicalTuxedoClothingIsACompleteCosmeticFamily()
+	{
+		assertClassifications(
+			new int[] {19958, 19961, 19964, 19967, 19970, 19973, 19976, 19979, 19982, 19985},
+			new String[] {"Dark tuxedo jacket", "Dark tuxedo cuffs", "Dark trousers",
+				"Dark tuxedo shoes", "Dark bow tie", "Light tuxedo jacket",
+				"Light tuxedo cuffs", "Light trousers", "Light tuxedo shoes", "Light bow tie"},
+			ItemCategory.CLUE, "cosmetic");
+	}
+
+	@Test
+	public void canonicalSkillingUtilitiesAndMissingOutfitPiecesStayOutOfGear()
+	{
+		assertClassification(88, "Boots of lightness", ItemCategory.TOOL, "skilling-utility");
+		assertClassification(1005, "White apron", ItemCategory.TOOL, "cooking-tool");
+		assertClassifications(
+			new int[] {20713, 25434, 25436, 25438, 25440, 25597, 27031, 28172, 28176},
+			new String[] {"Pyromancer Gloves", "Zealot's robe top", "Zealot's robe bottom",
+				"Zealot's helm", "Zealot's boots", "Spirit Angler Legs", "Smiths gloves (i)",
+				"Forestry Lumberjack Legs", "Forestry Lumberjack Boots"},
+			ItemCategory.TOOL, "skilling-outfit");
+	}
+
+	@Test
+	public void canonicalBlueDragonScaleAndCombatUtilitiesUseSpecificSemantics()
+	{
+		assertClassification(243, "Blue dragon scale", ItemCategory.HERBLORE, "secondary");
+		assertClassification(10, "Cannon barrels", ItemCategory.GEAR, "cannon-part");
+		assertClassification(805, "Rune thrownaxe", ItemCategory.GEAR, "thrown-weapon");
+		assertClassifications(
+			new int[] {20714, 25574, 30064},
+			new String[] {"Tome of fire", "Tome of water", "Tome of earth"},
+			ItemCategory.GEAR, "magic-offhand");
+	}
+
+	@Test
+	public void canonicalTeleportOverridesCoverSeedPodsAndPendantOfAtes()
+	{
+		assertCategory(9469, "Grand seed pod", ItemCategory.TELEPORT);
+		assertSubcategory(9469, "teleport");
+		assertCategory(19564, "Royal seed pod", ItemCategory.TELEPORT);
+		assertSubcategory(19564, "teleport");
+		assertCategory(29892, "Pendant of ates (inert)", ItemCategory.TELEPORT);
+		assertSubcategory(29892, "teleport");
+		assertCategory(29893, "Pendant of ates", ItemCategory.TELEPORT);
+		assertSubcategory(29893, "teleport");
+	}
+
+	@Test
+	public void canonicalTeleportContainerOverridesCoverMasterScrollBook()
+	{
+		assertCategory(21387, "Master scroll book (empty)", ItemCategory.TELEPORT);
+		assertSubcategory(21387, "teleport-container");
+		assertCategory(21389, "Master scroll book", ItemCategory.TELEPORT);
+		assertSubcategory(21389, "teleport-container");
+	}
+
+	@Test
+	public void canonicalTeleportChargeOverrideCoversFrozenTear()
+	{
+		assertCategory(29895, "Frozen tear", ItemCategory.TELEPORT);
+		assertSubcategory(29895, "teleport-charge");
+	}
+
+	@Test
+	public void canonicalSkillingResourceOverrideCoversAmethyst()
+	{
+		assertCategory(21347, "Amethyst", ItemCategory.SKILLING);
+		assertSubcategory(21347, "resource");
+	}
+
+	@Test
+	public void canonicalSkillingAmmoComponentOverridesCoverUnfinishedBoltsOnly()
+	{
+		assertCategory(9375, "Bronze bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9375, "ammo-component");
+		assertCategory(9376, "Blurite bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9376, "ammo-component");
+		assertCategory(9377, "Iron bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9377, "ammo-component");
+		assertCategory(9378, "Steel bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9378, "ammo-component");
+		assertCategory(9379, "Mithril bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9379, "ammo-component");
+		assertCategory(9380, "Adamant bolts(unf)", ItemCategory.SKILLING);
+		assertSubcategory(9380, "ammo-component");
+		assertCategory(9381, "Runite bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9381, "ammo-component");
+		assertCategory(9382, "Silver bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(9382, "ammo-component");
+		assertCategory(21930, "Dragon bolts (unf)", ItemCategory.SKILLING);
+		assertSubcategory(21930, "ammo-component");
+
+		// Finished bolts are not part of this override: only the "(unf)" fletching
+		// intermediate becomes an ammo-component. ID 9144 is the finished item that
+		// shares a name prefix with ID 9381; it must remain untouched combat gear.
+		assertCategory(9144, "Runite bolts", ItemCategory.GEAR);
+		assertSubcategory(9144, "ammo");
+	}
+
+	@Test
+	public void canonicalUnstrungBowsAreFletchingComponentsWithoutTouchingDuplicateRecords()
+	{
+		assertCategory(48, "Longbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(48, "ammo-component");
+		assertCategory(50, "Shortbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(50, "ammo-component");
+		assertCategory(54, "Oak shortbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(54, "ammo-component");
+		assertCategory(56, "Oak longbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(56, "ammo-component");
+		assertCategory(58, "Willow longbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(58, "ammo-component");
+		assertCategory(60, "Willow shortbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(60, "ammo-component");
+		assertCategory(62, "Maple longbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(62, "ammo-component");
+		assertCategory(64, "Maple shortbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(64, "ammo-component");
+		assertCategory(66, "Yew longbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(66, "ammo-component");
+		assertCategory(68, "Yew shortbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(68, "ammo-component");
+		assertCategory(70, "Magic longbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(70, "ammo-component");
+		assertCategory(72, "Magic shortbow (u)", ItemCategory.SKILLING);
+		assertSubcategory(72, "ammo-component");
+
+		assertFalse(CanonicalItemClassificationOverrides.find(49).isPresent());
+		assertFalse(CanonicalItemClassificationOverrides.find(51).isPresent());
+		assertFalse(CanonicalItemClassificationOverrides.find(18229).isPresent());
+		assertFalse(CanonicalItemClassificationOverrides.find(18230).isPresent());
+	}
+
+	@Test
+	public void canonicalSkillingPrayerResourceOverridesCoverBirdsEgg()
+	{
+		assertCategory(5076, "Bird's egg", ItemCategory.SKILLING);
+		assertSubcategory(5076, "prayer-resource");
+		assertCategory(5077, "Bird's egg", ItemCategory.SKILLING);
+		assertSubcategory(5077, "prayer-resource");
+		assertCategory(5078, "Bird's egg", ItemCategory.SKILLING);
+		assertSubcategory(5078, "prayer-resource");
+	}
+
+	@Test
+	public void canonicalHerbloreOverridesCoverWaterAndYewRoots()
+	{
+		assertCategory(227, "Vial of water", ItemCategory.HERBLORE);
+		assertSubcategory(227, "herblore-base");
+		assertCategory(6049, "Yew roots", ItemCategory.HERBLORE);
+		assertSubcategory(6049, "secondary");
+	}
+
+	@Test
+	public void canonicalSailingUtilitiesAvoidResourceAndCleanupLeaks()
+	{
+		assertCategory(31986, "Captain's log", ItemCategory.TOOL);
+		assertSubcategory(31986, "sailing-utility");
+		assertCategory(31989, "Boat bottle (empty)", ItemCategory.TOOL);
+		assertSubcategory(31989, "sailing-utility");
+		assertCategory(31733, "Barrel stand", ItemCategory.TOOL);
+		assertSubcategory(31733, "sailing-upgrade");
+		assertCategory(31745, "Captured wind mote", ItemCategory.TOOL);
+		assertSubcategory(31745, "sailing-upgrade");
+		assertCategory(31757, "Heart of ithell", ItemCategory.TOOL);
+		assertSubcategory(31757, "sailing-upgrade");
+	}
+
+	@Test
+	public void canonicalSailingItemsKeepTheirSpecificSemantics()
+	{
+		assertCategory(32399, "Sailors' amulet", ItemCategory.TELEPORT);
+		assertSubcategory(32399, "teleport");
+		assertCategory(31511, "Elkhorn frag", ItemCategory.FARMING);
+		assertSubcategory(31511, "coral-fragment");
+		assertCategory(31515, "Umbral frag", ItemCategory.FARMING);
+		assertSubcategory(31515, "coral-fragment");
+		assertCategory(31732, "Stormy key", ItemCategory.UNIQUE);
+		assertSubcategory(31732, "reward-key");
+		assertCategory(31744, "Fetid key", ItemCategory.UNIQUE);
+		assertSubcategory(31744, "reward-key");
+		assertCategory(31756, "Serrated key", ItemCategory.UNIQUE);
+		assertSubcategory(31756, "reward-key");
+	}
+
+	@Test
+	public void canonicalQuestUtilitiesAndKeyHalvesAvoidCleanup()
+	{
+		assertCategory(10890, "Prayer book", ItemCategory.TOOL);
+		assertSubcategory(10890, "quest-utility");
+		assertCategory(4024, "Ninja monkey greegree", ItemCategory.TOOL);
+		assertSubcategory(4024, "quest-utility");
+		assertCategory(4026, "Gorilla greegree", ItemCategory.TOOL);
+		assertSubcategory(4026, "quest-utility");
+		assertCategory(4030, "Zombie monkey greegree", ItemCategory.TOOL);
+		assertSubcategory(4030, "quest-utility");
+		assertCategory(4031, "Karamjan monkey greegree", ItemCategory.TOOL);
+		assertSubcategory(4031, "quest-utility");
+		assertCategory(985, "Tooth half of key", ItemCategory.UNIQUE);
+		assertSubcategory(985, "key-material");
+		assertCategory(987, "Loop half of key", ItemCategory.UNIQUE);
+		assertSubcategory(987, "key-material");
+	}
+
+	@Test
+	public void functionalQuestItemsDoNotPolluteCombatGear()
+	{
+		assertCategory(552, "Ghostspeak amulet", ItemCategory.TOOL);
+		assertSubcategory(552, "quest-utility");
+		assertCategory(4021, "M'speak amulet", ItemCategory.TOOL);
+		assertSubcategory(4021, "quest-utility");
+		assertCategory(6544, "Catspeak amulet(e)", ItemCategory.TOOL);
+		assertSubcategory(6544, "quest-utility");
+		assertCategory(6465, "Ring of charos(a)", ItemCategory.TOOL);
+		assertSubcategory(6465, "quest-utility");
+		assertCategory(4657, "Ring of visibility", ItemCategory.TOOL);
+		assertSubcategory(4657, "quest-utility");
+		assertCategory(3107, "Spiked boots", ItemCategory.TOOL);
+		assertSubcategory(3107, "quest-utility");
+		assertCategory(6786, "Robe of elidinis", ItemCategory.TOOL);
+		assertSubcategory(6786, "quest-utility");
+		assertCategory(6787, "Robe of elidinis", ItemCategory.TOOL);
+		assertSubcategory(6787, "quest-utility");
+		assertCategory(4567, "Gold helmet", ItemCategory.TOOL);
+		assertSubcategory(4567, "quest-utility");
+		assertCategory(7917, "Ram skull helm", ItemCategory.TOOL);
+		assertSubcategory(7917, "quest-utility");
+	}
+
+	@Test
+	public void exactSlayerAndWintertodtUtilitiesDoNotPolluteCombatGear()
+	{
+		int[] slayerTools = {3337, 4156, 4551, 6720, 7159, 31398};
+		for (int itemId : slayerTools)
+		{
+			assertCategoryOnly(itemId, ItemCategory.TOOL);
+			assertSubcategory(itemId, "slayer-tool");
+		}
+		assertCategory(20712, "Warm gloves", ItemCategory.TOOL);
+		assertSubcategory(20712, "skilling-utility");
+		assertClassification(23037, "Boots of stone", ItemCategory.GEAR, "feet");
+	}
+
+	@Test
+	public void exactMovementThievingAndMorytaniaUtilitiesDoNotPolluteCombatGear()
+	{
+		assertCategory(4600, "Willow blackjack", ItemCategory.TOOL);
+		assertSubcategory(4600, "skilling-utility");
+		assertCategory(6666, "Flippers", ItemCategory.TOOL);
+		assertSubcategory(6666, "skilling-utility");
+		assertCategory(10069, "Spotted cape", ItemCategory.TOOL);
+		assertSubcategory(10069, "skilling-utility");
+		assertCategory(10071, "Spottier cape", ItemCategory.TOOL);
+		assertSubcategory(10071, "skilling-utility");
+		assertCategory(22435, "Enchanted emerald sickle (b)", ItemCategory.TOOL);
+		assertSubcategory(22435, "quest-utility");
+	}
+
+	@Test
+	public void weakOrCosmeticLookingArmourWithRealDefenceStaysGear()
+	{
+		assertCategory(9733, "Mind helmet", ItemCategory.GEAR);
+		assertSubcategory(9733, "head");
+		assertCategory(23787, "Ardougne knight platebody", ItemCategory.GEAR);
+		assertSubcategory(23787, "body");
+	}
+
+	@Test
+	public void dramenStaffRoutesWithTheFairyRingTransportSystem()
+	{
+		assertCategory(772, "Dramen staff", ItemCategory.TELEPORT);
+		assertSubcategory(772, "transport-access");
+	}
+
+	@Test
+	public void questOriginDoesNotEvictRealCombatEquipmentFromGear()
+	{
+		assertCategory(1540, "Anti-dragon shield", ItemCategory.GEAR);
+		assertSubcategory(1540, "shield");
+		assertCategory(9084, "Lunar staff", ItemCategory.GEAR);
+		assertSubcategory(9084, "weapon");
+		assertCategory(9674, "Proselyte hauberk", ItemCategory.GEAR);
+		assertSubcategory(9674, "body");
+		assertCategory(10499, "Ava's accumulator", ItemCategory.GEAR);
+		assertSubcategory(10499, "gear");
+	}
+
+	@Test
+	public void canonicalRelicsConstructionMaterialAndShieldAvoidNameCollisions()
+	{
+		assertCategory(32865, "Dull knife", ItemCategory.UNIQUE);
+		assertSubcategory(32865, "salvaging-relic");
+		assertCategory(32870, "Smashed mirror", ItemCategory.UNIQUE);
+		assertSubcategory(32870, "salvaging-relic");
+		assertCategory(22710, "Curator's medallion", ItemCategory.SKILLING);
+		assertSubcategory(22710, "construction-material");
+	}
+
+	@Test
+	public void exactExportCleanupRoutesToolsSuppliesAndTeleports()
+	{
+		int[] smithsOutfit = {27023, 27025, 27027, 27029};
+		for (int itemId : smithsOutfit)
+		{
+			assertCategoryOnly(itemId, ItemCategory.TOOL);
+			assertSubcategory(itemId, "skilling-outfit");
+		}
+
+		assertClassification(1923, "Bowl", ItemCategory.TOOL, "cooking-tool");
+		assertClassification(1588, "Grip's keyring", ItemCategory.GEAR, "gear");
+		assertClassification(9433, "Bolt pouch", ItemCategory.GEAR, "gear");
+		assertClassification(25580, "Tackle box", ItemCategory.TOOL, "resource-container");
+		assertClassification(9419, "Mith grapple", ItemCategory.TOOL, "skilling-utility");
+		assertClassification(13116, "Bonecrusher", ItemCategory.TOOL, "skilling-utility");
+		assertClassification(6664, "Fishing explosive", ItemCategory.TOOL, "slayer-tool");
+		assertClassification(26822, "Abyssal lantern", ItemCategory.TOOL, "runecrafting-utility");
+		assertClassification(2309, "Bread", ItemCategory.POTION, "food");
+		assertClassification(22081, "Locator orb", ItemCategory.POTION, "pvm-utility");
+		assertClassification(4286, "Bucket of slime", ItemCategory.SKILLING, "prayer-resource");
+		int[] damagedGodBooks = {3839, 3841, 3843, 12607, 12609, 12611};
+		for (int itemId : damagedGodBooks)
+		{
+			assertClassification(itemId, "Damaged book", ItemCategory.GEAR, "shield");
+		}
+
+		assertClassification(21134, "Ring of returning(3)", ItemCategory.TELEPORT, "teleport");
+		assertClassification(21136, "Ring of returning(2)", ItemCategory.TELEPORT, "teleport");
+		assertClassification(21138, "Ring of returning(1)", ItemCategory.TELEPORT, "teleport");
+	}
+
+	@Test
+	public void exactExportCleanupRoutesBossLootAndCollectionTrophies()
+	{
+		assertClassification(19677, "Ancient shard", ItemCategory.UNIQUE, "equipment-charge");
+
+		int[] hydraUpgrades = {22969, 22971, 22973};
+		for (int itemId : hydraUpgrades)
+		{
+			assertCategoryOnly(itemId, ItemCategory.UNIQUE);
+			assertSubcategory(itemId, "equipment-upgrade");
+		}
+
+		int[] bossKeys = {11942, 19679, 19681, 19683, 19685, 20754, 21724, 26356};
+		for (int itemId : bossKeys)
+		{
+			assertCategoryOnly(itemId, ItemCategory.UNIQUE);
+			assertSubcategory(itemId, "boss-access-key");
+		}
+
+		int[] collectionTrophies = {6800, 6807, 7975, 7977, 7981, 11258, 12007, 21275, 23064, 23077};
+		for (int itemId : collectionTrophies)
+		{
+			assertCategoryOnly(itemId, ItemCategory.CLUE);
+			assertSubcategory(itemId, "collection-trophy");
+		}
+	}
+
+	@Test
+	public void templateNeighborFalsePositivesKeepTheirOwnSemantics()
+	{
+		// These items sit next to categories touched by canonical override
+		// batches (resources, teleport supplies, currency-like rewards) but are
+		// not part of any override; their long-standing classification must
+		// not shift as a side effect of adding nearby exact-ID mappings.
+		assertCategory(954, "Rope", ItemCategory.SKILLING);
+		assertSubcategory(954, "resource");
+		assertCategory(23962, "Crystal shard", ItemCategory.SKILLING);
+		assertSubcategory(23962, "resource");
+		assertCategory(22586, "Looting bag", ItemCategory.TOOL);
+		assertSubcategory(22586, "utility-container");
+		assertCategory(22947, "Rada's blessing 4", ItemCategory.CURRENCY);
+		assertSubcategory(22947, "currency");
+		assertCategory(995, "Coins", ItemCategory.CURRENCY);
+		assertSubcategory(995, "currency");
+	}
+
+	@Test
+	public void unmappedItemIdsReceiveNoCanonicalOverride()
+	{
+		// Neither ID belongs to the canonical override batch; the lookup itself
+		// (not just the resulting category) must report no override present.
+		assertFalse(CanonicalItemClassificationOverrides.find(4718).isPresent());
+		assertFalse(CanonicalItemClassificationOverrides.find(946).isPresent());
+
+		// Battle Royale duplicates of already-mapped canonical IDs.
+		assertFalse(CanonicalItemClassificationOverrides.find(29850).isPresent()); // BR Dual macuahuitl
+		assertFalse(CanonicalItemClassificationOverrides.find(23609).isPresent()); // BR Ava's accumulator
+		assertFalse(CanonicalItemClassificationOverrides.find(33172).isPresent()); // BR Avernic treads
+
+		// Certs, placeholders, and lookalikes introduced by this batch's new families.
+		assertFalse(CanonicalItemClassificationOverrides.find(23489).isPresent()); // Fake wine of zamorak
+		assertFalse(CanonicalItemClassificationOverrides.find(21348).isPresent()); // cert/placeholder Amethyst
+		assertFalse(CanonicalItemClassificationOverrides.find(21349).isPresent()); // cert/placeholder Amethyst
+		assertFalse(CanonicalItemClassificationOverrides.find(21388).isPresent()); // cert/placeholder Master scroll book
+		assertFalse(CanonicalItemClassificationOverrides.find(21390).isPresent()); // cert/placeholder Master scroll book
+		assertFalse(CanonicalItemClassificationOverrides.find(19565).isPresent()); // placeholder Royal seed pod
+		assertFalse(CanonicalItemClassificationOverrides.find(29894).isPresent()); // placeholder Pendant of ates
+		assertFalse(CanonicalItemClassificationOverrides.find(29896).isPresent()); // placeholder Frozen tear
+		assertFalse(CanonicalItemClassificationOverrides.find(28584).isPresent()); // placeholder Warped sceptre
+		assertFalse(CanonicalItemClassificationOverrides.find(28586).isPresent()); // placeholder Warped sceptre
+
+		// Duplicate/internal aliases and explicit no-op decisions from the vetted correction batch.
+		for (int itemId : new int[] {289, 627, 637, 14048, 16420, 17427, 17428,
+			19959, 19962, 20715, 20716, 25575, 25576, 27358, 30065, 30066,
+			1201, 28027, 13393, 4178})
+		{
+			assertFalse("no canonical override for negative-control ID " + itemId,
+				CanonicalItemClassificationOverrides.find(itemId).isPresent());
+		}
+	}
+
+	private static void assertClassifications(int[] itemIds, String[] expectedNames,
+		ItemCategory expectedCategory, String expectedSubcategory)
+	{
+		assertEquals("IDs and names must describe the same family", itemIds.length, expectedNames.length);
+		for (int index = 0; index < itemIds.length; index++)
+		{
+			assertClassification(itemIds[index], expectedNames[index], expectedCategory, expectedSubcategory);
+		}
+	}
+
 	private static void assertCategory(int itemId, String expectedName, ItemCategory expectedCategory)
 	{
 		Optional<CatalogItem> item = ResourceItemRegistry.INSTANCE.findById(itemId);
@@ -341,5 +1084,20 @@ public class ResourceItemRegistryTest
 	{
 		CatalogItem item = ResourceItemRegistry.INSTANCE.findById(itemId).get();
 		assertEquals("subcategory of " + item.getDisplayName(), expectedSubcategory, item.getSubcategory());
+	}
+
+	private static void assertClassification(int itemId, String expectedName,
+		ItemCategory expectedCategory, String expectedSubcategory)
+	{
+		assertCategory(itemId, expectedName, expectedCategory);
+		assertSubcategory(itemId, expectedSubcategory);
+	}
+
+	private static void assertCategoryOnly(int itemId, ItemCategory expectedCategory)
+	{
+		Optional<CatalogItem> item = ResourceItemRegistry.INSTANCE.findById(itemId);
+		assertTrue("registry should contain item " + itemId, item.isPresent());
+		assertEquals("category of " + item.get().getDisplayName(), expectedCategory,
+			item.get().getCategory());
 	}
 }

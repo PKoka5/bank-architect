@@ -15,6 +15,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Rectangle;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import org.junit.Test;
 
 public class IronmanBankArchitectPanelTest
@@ -158,6 +161,34 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	@Test
+	public void sidebarCardsAndButtonsStayInsideTheVisibleViewport()
+	{
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
+			new BankGuideController(AllRoundIronmanPreset.create()), () -> {});
+		panel.setSize(225, 400);
+		layoutTree(panel);
+
+		JScrollPane scrollPane = findScrollPane(panel);
+		int viewportWidth = scrollPane.getViewport().getWidth();
+		assertTrue("content preferred width "
+			+ scrollPane.getViewport().getView().getPreferredSize().width
+			+ " exceeds viewport " + viewportWidth,
+			scrollPane.getViewport().getView().getPreferredSize().width <= viewportWidth);
+
+		Rectangle analyzeBounds = SwingUtilities.convertRectangle(
+			panel.getAnalyzeButton().getParent(), panel.getAnalyzeButton().getBounds(),
+			scrollPane.getViewport());
+		Rectangle showBankBounds = SwingUtilities.convertRectangle(
+			panel.getShowBankButton().getParent(), panel.getShowBankButton().getBounds(),
+			scrollPane.getViewport());
+		assertTrue(analyzeBounds.x >= 0
+			&& analyzeBounds.x + analyzeBounds.width <= viewportWidth);
+		assertTrue(showBankBounds.x >= 0
+			&& showBankBounds.x + showBankBounds.width <= viewportWidth);
+		panel.shutdown();
+	}
+
+	@Test
 	public void panelSourceHasNoRuneLiteClientApiImports() throws Exception
 	{
 		String source = new String(Files.readAllBytes(Paths.get("src/main/java/com/pkoka5/ironmanbankarchitect/IronmanBankArchitectPanel.java")), StandardCharsets.UTF_8);
@@ -190,5 +221,37 @@ public class IronmanBankArchitectPanelTest
 		}
 
 		return texts;
+	}
+
+	private static void layoutTree(Component component)
+	{
+		component.doLayout();
+		if (component instanceof Container)
+		{
+			for (Component child : ((Container) component).getComponents())
+			{
+				layoutTree(child);
+			}
+		}
+	}
+
+	private static JScrollPane findScrollPane(Container container)
+	{
+		for (Component component : container.getComponents())
+		{
+			if (component instanceof JScrollPane)
+			{
+				return (JScrollPane) component;
+			}
+			if (component instanceof Container)
+			{
+				JScrollPane nested = findScrollPane((Container) component);
+				if (nested != null)
+				{
+					return nested;
+				}
+			}
+		}
+		return null;
 	}
 }

@@ -44,13 +44,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @PluginDescriptor(
-	name = "Ironman Bank Architect",
-	description = "Standalone Ironman bank blueprint planner with manual organization guidance.",
-	tags = {"ironman", "bank", "planner", "organisation", "organization"}
+	name = "Bank Architect",
+	description = "Read-only bank blueprint planner with manual organization guidance.",
+	tags = {"bank", "planner", "blueprint", "organization", "ironman"}
 )
 public final class IronmanBankArchitectPlugin extends Plugin
 {
-	static final String PLUGIN_NAME = "Ironman Bank Architect";
+	static final String PLUGIN_NAME = "Bank Architect";
 
 	private static final Logger log = LoggerFactory.getLogger(IronmanBankArchitectPlugin.class);
 

@@ -13,20 +13,30 @@ import static org.junit.Assert.assertEquals;
 public class CurrencyItemSorterTest
 {
 	@Test
-	public void exchangeCurrenciesStayAheadOfReusableAccountUtilities()
+	public void mainGrabItemsStayAheadOfDiaryRewardsAndNicheCurrencies()
 	{
 		List<BankPreviewItem> sorted = CurrencyItemSorter.sort(Arrays.asList(
-			item(1, "Ghommal's hilt 1"), item(2, "Coins"), item(3, "Hallowed mark"),
-			item(4, "Rada's blessing 2"), item(5, "Sawmill coupon (oak plank)"),
-			item(6, "Frog token"), item(7, "Western banner 2")));
+			item(995, "Coins"), item(3, "Hallowed mark"), item(4, "Rada's blessing 2"),
+			item(5, "Sawmill coupon (oak plank)"), item(6, "Frog token"),
+			item(7, "Western banner 2"),
+			item(12791, "Rune pouch", ItemCategory.RUNE, "rune-container"),
+			item(11850, "Graceful hood", ItemCategory.TOOL, "skilling-outfit"),
+			item(2722, "Clue scroll (hard)", ItemCategory.CLUE, "treasure-trail"),
+			item(4251, "Ectophial", ItemCategory.TELEPORT, "teleport")));
 
-		assertEquals(Arrays.asList("Coins", "Hallowed mark", "Sawmill coupon (oak plank)",
-			"Frog token", "Ghommal's hilt 1", "Rada's blessing 2", "Western banner 2"), names(sorted));
+		assertEquals(Arrays.asList("Coins", "Rune pouch", "Graceful hood",
+			"Clue scroll (hard)", "Hallowed mark", "Ectophial", "Rada's blessing 2",
+			"Western banner 2", "Sawmill coupon (oak plank)", "Frog token"), names(sorted));
 	}
 
 	private static BankPreviewItem item(int id, String name)
 	{
-		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.CURRENCY, "currency",
+		return item(id, name, ItemCategory.CURRENCY, "currency");
+	}
+
+	private static BankPreviewItem item(int id, String name, ItemCategory category, String subcategory)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, category, subcategory,
 			Collections.emptySet(), null), 1);
 	}
 

@@ -15,3 +15,10 @@ out/
 *.log
 hs_err_pid*
 replay_pid*
+
+# Local third-party community-template research cache. Never ship or commit
+# individual player layouts; only reviewed aggregate findings belong in git.
+tools/research/community-templates/cache/
+
+# Local OSRS Wiki Bucket snapshots. Only reviewed aggregate conclusions are tracked.
+tools/research/wiki-recommended-equipment/cache/

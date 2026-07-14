@@ -42,7 +42,7 @@ import net.runelite.client.ui.PluginPanel;
 
 final class IronmanBankArchitectPanel extends PluginPanel
 {
-	private static final String TITLE = "Ironman Bank Architect";
+	private static final String TITLE = "Bank Architect";
 	private static final String SUMMARY = "Read-only whole-bank organization planner";
 	private static final String SAFETY_NOTE = "No bank actions are automated.";
 	private static final String MAIN_ACTION_LABEL = "Main action";
@@ -52,7 +52,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		"Guided mode highlights one manual bank action at a time.";
 	private static final String PREVIEW_OVERLAY_NOTE =
 		"Guides tab creation and item order in vanilla All items + Swap mode; every move stays manual.";
-	private static final int STATUS_REFRESH_MILLIS = 500;
+	private static final int STATUS_REFRESH_MILLIS = 100;
 	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
 	private static final int CELL_HEIGHT = 32;
@@ -228,7 +228,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshStatus()
 	{
-		statusLabel.setText(guideController.getStatusText());
+		statusLabel.setText(sidebarHtml(guideController.getStatusText()));
 		guideProgressLabel.setText(sidebarHtml(guideController.getGuideProgressText()));
 		int percent = guideController.getGuideProgressPercent();
 		guideProgressBar.setVisible(percent >= 0);
@@ -263,7 +263,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		if (bankDialog == null)
 		{
 			Window owner = SwingUtilities.getWindowAncestor(this);
-			bankDialog = new JDialog(owner instanceof Frame ? (Frame) owner : null, "Ironman Bank Blueprint", false);
+			bankDialog = new JDialog(owner instanceof Frame ? (Frame) owner : null, "Bank Blueprint", false);
 			bankDialog.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 			bankDialog.setLocationRelativeTo(this);
 			bankTabs = new JTabbedPane();
@@ -435,11 +435,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		String key = category.getCategory().getKey();
 		if ("currency-utilities".equals(key))
 		{
-			return "Currency";
-		}
-		if ("teleports-runes".equals(key))
-		{
-			return "Teleports";
+			return "Main";
 		}
 		if ("combat-gear".equals(key))
 		{
@@ -449,9 +445,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		{
 			return "Supplies";
 		}
-		if ("farming-herblore".equals(key))
+		if ("herblore".equals(key))
 		{
 			return "Herblore";
+		}
+		if ("seeds-farming".equals(key))
+		{
+			return "Farming";
 		}
 		if ("skilling-tools".equals(key))
 		{
@@ -511,7 +511,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private static JLabel mutedLabel(String text)
 	{
-		JLabel label = new JLabel(toHtmlLines(text));
+		JLabel label = new JLabel(sidebarHtml(text));
 		label.setFont(FontManager.getRunescapeSmallFont());
 		label.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
 		return label;
@@ -545,20 +545,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return panel;
 	}
 
-	private static String toHtmlLines(String text)
-	{
-		if (text == null || text.isEmpty())
-		{
-			return "";
-		}
-
-		return "<html>" + text
-			.replace("&", "&amp;")
-			.replace("<", "&lt;")
-			.replace(">", "&gt;")
-			.replace("\n", "<br>") + "</html>";
-	}
-
 	/**
 	 * Sidebar labels need an explicit width so long lines wrap inside the
 	 * plugin panel instead of pushing the cards past its right edge.
@@ -570,7 +556,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			return "";
 		}
 
-		return "<html><body style='width:" + SIDEBAR_TEXT_WIDTH + "px'>" + text
+		return "<html><body width='" + SIDEBAR_TEXT_WIDTH + "'>" + text
 			.replace("&", "&amp;")
 			.replace("<", "&lt;")
 			.replace(">", "&gt;")

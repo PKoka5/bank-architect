@@ -57,6 +57,12 @@ only available continuation would be structural collapse, the session returns
 survives bank close/open and guide/highlight toggles; a new analysis plan is the
 deliberate reset boundary.
 
+During the short container/widget synchronization window the overlay keeps a
+neutral `MOVE RECEIVED` / `SYNCING BANK` HUD and the last meaningful progress percentage
+visible. It never keeps the old arrow or publishes the next arrow before the
+visible widgets agree with the verified bank state. Exact advised swaps advance
+immediately, including when confirmation arrives within the same game tick.
+
 ## RuneLite inputs and fail-closed gates
 
 The overlay reads only:

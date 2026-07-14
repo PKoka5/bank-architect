@@ -20,6 +20,6 @@ public class IronmanBankArchitectPluginTest
 	@Test
 	public void pluginNameIsDefined()
 	{
-		assertEquals("Ironman Bank Architect", IronmanBankArchitectPlugin.PLUGIN_NAME);
+		assertEquals("Bank Architect", IronmanBankArchitectPlugin.PLUGIN_NAME);
 	}
 }

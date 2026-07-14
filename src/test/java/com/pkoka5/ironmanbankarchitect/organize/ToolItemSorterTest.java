@@ -73,9 +73,9 @@ public class ToolItemSorterTest
 			item(9, "Cooking gauntlets", "skilling-utility")
 		));
 
-		assertEquals(Arrays.asList("Cake tin", "Cooking gauntlets", "Fishbowl helmet",
-			"Diving apparatus", "Vyre noble top", "Vyre noble legs", "Vyre noble shoes",
-			"Waterskin(3)", "Waterskin(0)"), names(sorted));
+		assertEquals(Arrays.asList("Cake tin", "Cooking gauntlets", "Waterskin(3)",
+			"Waterskin(0)", "Fishbowl helmet", "Diving apparatus", "Vyre noble top",
+			"Vyre noble legs", "Vyre noble shoes"), names(sorted));
 	}
 
 	private static BankPreviewItem item(int id, String name, String subcategory)

@@ -147,8 +147,8 @@ public final class BankGuideOverlay extends Overlay
 		{
 			if (!viewMatchesLogicalBank(bankSlots, actualItemIds))
 			{
-				return blocked(graphics, gridBounds,
-					"Bank view cannot be mapped safely. Clear search/tag views and remove fillers or gaps.");
+				return blocked(graphics, gridBounds, viewSyncMessage(false),
+					guideController.getGuideProgressPercent());
 			}
 		}
 		else
@@ -157,8 +157,8 @@ public final class BankGuideOverlay extends Overlay
 			if (sectionRange == null
 				|| !viewMatchesSection(bankSlots, actualItemIds, sectionRange[0], sectionRange[1]))
 			{
-				return blocked(graphics, gridBounds,
-					"This tab view cannot be mapped safely. Open the All items tab to continue.");
+				return blocked(graphics, gridBounds, viewSyncMessage(true),
+					guideController.getGuideProgressPercent());
 			}
 		}
 
@@ -187,7 +187,9 @@ public final class BankGuideOverlay extends Overlay
 		if (assessment.getStatus() != TabRouteAdvisor.Status.READY
 			&& assessment.getStatus() != TabRouteAdvisor.Status.COMPLETE)
 		{
-			return blocked(graphics, gridBounds, tabBlockedMessage(assessment.getStatus()));
+			return blocked(graphics, gridBounds, tabBlockedMessage(assessment.getStatus()),
+				blockedProgressPercent(assessment.getStatus(),
+					assessment.getProgress().getPercent()));
 		}
 
 		Move move = assessment.getMove().orElse(null);
@@ -544,7 +546,7 @@ public final class BankGuideOverlay extends Overlay
 			case UNSUPPORTED_PLAN:
 				return "This blueprint contains unsupported blank targets.";
 			case WAITING_FOR_BANK:
-				return "Bank update settling.\nDo not move another item yet.";
+				return "MOVE RECEIVED\nSyncing the next guide...";
 			case MANUAL_RECOVERY_REQUIRED:
 				return "Unexpected bank move.\nUndo that move manually,\nor run Analyze My Bank again.";
 			case MECHANICS_MISMATCH:
@@ -552,6 +554,18 @@ public final class BankGuideOverlay extends Overlay
 			default:
 				return "No safe manual move is available.\nRun Analyze My Bank again.";
 		}
+	}
+
+	static String viewSyncMessage(boolean numberedTab)
+	{
+		return numberedTab
+			? "SYNCING BANK\nPreparing this tab's next guide...\nIf this remains, open All items."
+			: "SYNCING BANK\nPreparing the next guide...\nIf this remains, check fillers or gaps.";
+	}
+
+	static int blockedProgressPercent(TabRouteAdvisor.Status status, int currentPercent)
+	{
+		return status == TabRouteAdvisor.Status.WAITING_FOR_BANK ? currentPercent : -1;
 	}
 
 	static String missingTabTargetMessage(MoveType type)

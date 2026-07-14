@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
 
 public class AlchCandidateRoutingTest
@@ -202,6 +203,95 @@ public class AlchCandidateRoutingTest
 			itemId -> 40000);
 
 		assertEquals(3, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
+	public void reviewedDuplicateSpecialAttackWeaponStaysTogetherInGear()
+	{
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			"Dragon dagger(p++)", ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+			Collections.singletonList(new BankItemSnapshot(ItemID.DRAGON_DAGGER_P__, 2, 0))),
+			catalog, BankPresets.IRONMAN, GearStatsSource.NONE, itemId -> 18000);
+
+		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
+	public void reviewedSingleCopyWithoutABetterAlternativeStaysInGear()
+	{
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			"Rune platebody", ItemCategory.GEAR, "body", Collections.emptySet(), null));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+			Collections.singletonList(new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 1, 0))),
+			catalog, BankPresets.IRONMAN, GearStatsSource.NONE, itemId -> 39000);
+
+		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
+	public void reviewedSingleOutclassedAdamantTwoHanderMovesToAlch()
+	{
+		int betterWeaponId = 99_001;
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			itemId == ItemID.ADAMANT_2H_SWORD ? "Adamant 2h sword" : "Abyssal whip",
+			ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(betterWeaponId,
+			new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0, 0));
+		stats.put(ItemID.ADAMANT_2H_SWORD,
+			new GearStats(GearSlot.WEAPON, 50, 0, 0, 0, 0, 50, 0, 0, 0));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(betterWeaponId, 1, 0),
+			new BankItemSnapshot(ItemID.ADAMANT_2H_SWORD, 1, 1))),
+			catalog, BankPresets.IRONMAN, itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> itemId == ItemID.ADAMANT_2H_SWORD ? 3840 : 0);
+
+		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals("Adamant 2h sword",
+			categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+	}
+
+	@Test
+	public void reviewedSingleSpecialAttackWeaponStaysInGear()
+	{
+		int betterWeaponId = 99_002;
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			itemId == ItemID.DRAGON_DAGGER ? "Dragon dagger" : "Abyssal whip",
+			ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(betterWeaponId,
+			new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0, 0));
+		stats.put(ItemID.DRAGON_DAGGER,
+			new GearStats(GearSlot.WEAPON, 25, 0, 0, 0, 0, 20, 0, 0, 0));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(betterWeaponId, 1, 0),
+			new BankItemSnapshot(ItemID.DRAGON_DAGGER, 1, 1))),
+			catalog, BankPresets.IRONMAN, itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> itemId == ItemID.DRAGON_DAGGER ? 18000 : 0);
+
+		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
+	public void reviewedDuplicateWithoutARealAlchValueStaysInGear()
+	{
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			"Mystic robe top", ItemCategory.GEAR, "body", Collections.emptySet(), null));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+			Collections.singletonList(new BankItemSnapshot(ItemID.MYSTIC_ROBE_TOP, 2, 0))),
+			catalog, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE);
+
+		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 	}
 

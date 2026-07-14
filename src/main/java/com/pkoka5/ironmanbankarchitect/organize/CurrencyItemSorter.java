@@ -1,5 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,8 +24,47 @@ final class CurrencyItemSorter
 
 	private static int roleRank(BankPreviewItem item)
 	{
+		if (item.getItemId() == 995)
+		{
+			return 0;
+		}
+		if (IronmanMainTabPolicy.isRunePouch(item))
+		{
+			return 10;
+		}
+		if (IronmanMainTabPolicy.isGraceful(item))
+		{
+			return 20;
+		}
+		if (IronmanMainTabPolicy.isActiveClue(item))
+		{
+			return 30 + clueTier(item);
+		}
+		if (AchievementDiarySemanticRuleSet.isDiaryReward(item))
+		{
+			return 60;
+		}
 		String name = normalized(item.getDisplayName());
-		return containsAny(name, "hilt", "blessing", "banner") ? 100 : 0;
+		if (containsAny(name, "mark of grace", "hallowed mark"))
+		{
+			return 40;
+		}
+		if (item.getItemCategory() == com.pkoka5.ironmanbankarchitect.catalog.ItemCategory.CURRENCY)
+		{
+			return 100;
+		}
+		return containsAny(name, "hilt") ? 70 : 50;
+	}
+
+	private static int clueTier(BankPreviewItem item)
+	{
+		String name = normalized(item.getDisplayName());
+		String[] tiers = {"beginner", "easy", "medium", "hard", "elite", "master"};
+		for (int index = 0; index < tiers.length; index++)
+		{
+			if (name.contains("(" + tiers[index] + ")")) return index;
+		}
+		return tiers.length;
 	}
 
 	private static int currencyRank(BankPreviewItem item)

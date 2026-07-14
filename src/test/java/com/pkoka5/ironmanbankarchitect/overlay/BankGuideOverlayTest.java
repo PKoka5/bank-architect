@@ -210,6 +210,17 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
+	public void transientBankSyncKeepsAVisibleNeutralHudAndProgress()
+	{
+		assertTrue(BankGuideOverlay.viewSyncMessage(false).contains("SYNCING BANK"));
+		assertTrue(BankGuideOverlay.viewSyncMessage(true).contains("this tab"));
+		assertEquals(42, BankGuideOverlay.blockedProgressPercent(
+			TabRouteAdvisor.Status.WAITING_FOR_BANK, 42));
+		assertEquals(-1, BankGuideOverlay.blockedProgressPercent(
+			TabRouteAdvisor.Status.UNSTABLE_BANK, 42));
+	}
+
+	@Test
 	public void disabledHighlightsNeverLeakAConcreteFromToInstructionIntoTheHud()
 	{
 		BankOrganizationPreview preview = previewWithItems(10, 20);

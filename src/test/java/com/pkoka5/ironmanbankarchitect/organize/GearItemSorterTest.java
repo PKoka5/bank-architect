@@ -253,6 +253,102 @@ public class GearItemSorterTest
 	}
 
 	@Test
+	public void sparseEarlySlotDoesNotBlockLaterCompleteRow()
+	{
+		List<BankPreviewItem> input = Arrays.asList(
+			item(1, "Sparse helm"),
+			item(11, "Body m"), item(12, "Body r"), item(13, "Body g"), item(14, "Body p"),
+			item(15, "Body spare 1"), item(16, "Body spare 2"),
+			item(17, "Body spare 3"), item(18, "Body spare 4"));
+		GearStatsSource stats = itemId -> {
+			if (itemId == 1)
+			{
+				return Optional.of(new GearStats(GearSlot.HEAD, 5, 0, 0, 0, 0, 0, 0, 0, 50));
+			}
+			int suffix = itemId % 10;
+			int melee = suffix == 1 || suffix >= 5 ? 5 : 0;
+			int ranged = suffix == 2 ? 5 : 0;
+			int magic = suffix == 3 ? 5 : 0;
+			int prayer = suffix == 4 ? 5 : 0;
+			return Optional.of(new GearStats(GearSlot.BODY,
+				melee, 0, 0, magic, ranged, 0, 0, prayer, 100 - suffix));
+		};
+
+		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
+
+		assertEquals(9, laidOut.size());
+		assertEquals(Arrays.asList("Body m", "Body r", "Body g", "Body p",
+			"Body spare 1", "Body spare 2", "Body spare 3", "Body spare 4", "Sparse helm"),
+			names(laidOut));
+		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
+			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
+		for (BankPreviewItem item : laidOut)
+		{
+			assertFalse("plan must not invent a blank/filler cell", item.isBlank());
+		}
+	}
+
+	@Test
+	public void earlyRowsCannotExhaustFillersNeededByLaterStyleRows()
+	{
+		List<BankPreviewItem> input = Arrays.asList(
+			item(1, "Melee helm"), item(2, "Ranged helm"),
+			item(3, "Magic helm"), item(4, "Prayer helm"),
+			item(5, "Ring one"), item(6, "Ring two"),
+			item(7, "Ring three"), item(8, "Ring four"),
+			item(11, "Melee cape"), item(12, "Ranged cape"), item(13, "Magic cape"),
+			item(21, "Melee amulet"), item(22, "Ranged amulet"),
+			item(23, "Spare amulet one"), item(24, "Spare amulet two"),
+			item(25, "Spare amulet three"), item(26, "Spare amulet four"),
+			item(27, "Spare amulet five"));
+		GearStatsSource stats = itemId -> {
+			GearSlot slot;
+			int style;
+			if (itemId <= 4)
+			{
+				slot = GearSlot.HEAD;
+				style = itemId;
+			}
+			else if (itemId >= 11 && itemId <= 13)
+			{
+				slot = GearSlot.CAPE;
+				style = itemId - 10;
+			}
+			else if (itemId >= 21)
+			{
+				slot = GearSlot.NECK;
+				style = itemId == 22 ? 2 : 1;
+			}
+			else
+			{
+				return Optional.empty();
+			}
+			int melee = style == 1 ? 5 : 0;
+			int ranged = style == 2 ? 5 : 0;
+			int magic = style == 3 ? 5 : 0;
+			int prayer = style == 4 ? 5 : 0;
+			int defence = itemId == 21 || itemId == 22 ? 100 : 10;
+			return Optional.of(new GearStats(slot, melee, 0, 0, magic, ranged,
+				melee, ranged, prayer, defence));
+		};
+
+		GearItemSorter.GearLayout plan = GearItemSorter.plan(input, stats);
+		List<BankPreviewItem> setup = plan.getSetupRows();
+
+		assertEquals(16, setup.size());
+		assertEquals(Arrays.asList("Melee helm", "Ranged helm", "Magic helm", "Prayer helm"),
+			names(setup.subList(0, 4)));
+		assertEquals(Arrays.asList("Ring four", "Ring one", "Ring three", "Ring two"),
+			names(setup.subList(4, 8)));
+		assertEquals(Arrays.asList("Melee cape", "Ranged cape", "Magic cape"),
+			names(setup.subList(8, 11)));
+		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
+			GearItemSorter.layout(input, stats).stream()
+				.map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
+	}
+
+	@Test
 	public void fallsBackToFlatSortWithoutRecognizedSetupGear()
 	{
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"),

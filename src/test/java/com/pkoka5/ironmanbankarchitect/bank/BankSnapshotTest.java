@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.bank;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
 
 public class BankSnapshotTest
@@ -32,6 +33,18 @@ public class BankSnapshotTest
 		assertEquals(1, snapshot.getItems().size());
 		assertEquals(221, snapshot.getItems().get(0).getItemId());
 		assertEquals(2, snapshot.getTotalQuantity(221));
+	}
+
+	@Test
+	public void bankFillerIsExcludedEvenFromManuallyBuiltSnapshots()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(ItemID.BANK_FILLER, 1, 0),
+			new BankItemSnapshot(209, 1, 1)));
+
+		assertEquals(1, snapshot.getItems().size());
+		assertEquals(209, snapshot.getItems().get(0).getItemId());
+		assertEquals(0, snapshot.getTotalQuantity(ItemID.BANK_FILLER));
 	}
 
 	@Test

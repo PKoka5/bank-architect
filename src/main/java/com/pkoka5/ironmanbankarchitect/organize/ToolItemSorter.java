@@ -32,7 +32,7 @@ final class ToolItemSorter
 		}
 		if (subcategory.contains("quest-utility"))
 		{
-			return 25;
+			return 60;
 		}
 		if (subcategory.contains("mould"))
 		{
@@ -70,7 +70,7 @@ final class ToolItemSorter
 		{
 			return String.format("%02d", skillRank(name));
 		}
-		if (role == 25)
+		if (role == 60)
 		{
 			if (containsAny(name, "fishbowl helmet", "diving apparatus")) return "underwater-kit";
 			if (name.startsWith("vyre noble ")) return "vyre-noble";
@@ -102,7 +102,7 @@ final class ToolItemSorter
 	private static int slotRank(BankPreviewItem item)
 	{
 		int role = roleRank(item);
-		if (role != 0 && role != 25)
+		if (role != 0 && role != 60)
 		{
 			return 0;
 		}

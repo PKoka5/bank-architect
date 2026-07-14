@@ -7,6 +7,9 @@ import java.util.List;
 
 public final class PresetItemSorter
 {
+	private static final int[] IRONMAN_ACTIVITY_REWARD_IDS = {
+		6183, 6529, 6306, 12012, 25527, 21555
+	};
 	private PresetItemSorter()
 	{
 	}
@@ -19,57 +22,74 @@ public final class PresetItemSorter
 	public static List<BankPreviewItem> sort(BankCategory category, List<BankPreviewItem> items,
 		GearStatsSource gearStats)
 	{
-		if ("combat-gear".equals(category.getKey()))
+		switch (category.getSortMode())
 		{
-			return GearItemSorter.layout(items, gearStats);
+			case MAIN:
+				return IronmanMainItemSorter.sort(items);
+			case GEAR:
+				return GearItemSorter.layout(items, gearStats);
+			case CURRENCY:
+				return CurrencyItemSorter.sort(items);
+			case SUPPLIES:
+				return SupplyItemSorter.sort(items);
+			case HERBLORE:
+				return HerbloreItemSorter.layout(items);
+			case FARMING:
+				return FarmingItemSorter.layout(items, 0);
+			case TELEPORTS:
+				return TeleportItemSorter.sort(items);
+			case CLUES:
+				return sortClues(items);
+			case TOOLS:
+				return ToolItemSorter.sort(items);
+			case RESOURCES:
+				return ResourceItemSorter.sort(items);
+			case BOSS_LOOT:
+				return sortBossLoot(items);
+			case REVIEW:
+				return sortReview(items);
+			case GENERIC:
+			default:
+				return sortGeneric(category, items);
 		}
-		if ("currency-utilities".equals(category.getKey()))
-		{
-			return CurrencyItemSorter.sort(items);
-		}
-		if ("potions-food".equals(category.getKey()))
-		{
-			return SupplyItemSorter.sort(items);
-		}
-		if ("farming-herblore".equals(category.getKey()))
-		{
-			return HerbloreItemSorter.layout(items);
-		}
-		if ("teleports-runes".equals(category.getKey()))
-		{
-			return TeleportItemSorter.sort(items);
-		}
-		if ("clues-cosmetics".equals(category.getKey()))
-		{
-			List<BankPreviewItem> sorted = new ArrayList<>(items);
-			sorted.sort(Comparator
-				.comparingInt(PresetItemSorter::clueRank)
-				.thenComparing(item -> normalizedName(item.getDisplayName()))
-				.thenComparingInt(BankPreviewItem::getItemId));
-			return sorted;
-		}
-		if ("skilling-tools".equals(category.getKey()))
-		{
-			return ToolItemSorter.sort(items);
-		}
-		if ("resources".equals(category.getKey()))
-		{
-			return ResourceItemSorter.sort(items);
-		}
-		if ("slayer-boss-loot".equals(category.getKey()))
-		{
-			List<BankPreviewItem> sorted = new ArrayList<>(items);
-			sorted.sort(Comparator
-				.comparingInt(PresetItemSorter::bossLootRank)
-				.thenComparing(PresetItemSorter::bossLootFamily)
-				.thenComparing(item -> normalizedName(item.getDisplayName()))
-				.thenComparingInt(BankPreviewItem::getItemId));
-			return sorted;
-		}
+	}
 
+	private static List<BankPreviewItem> sortGeneric(BankCategory category, List<BankPreviewItem> items)
+	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> subgroupRank(category.getKey(), item))
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+		return sorted;
+	}
+
+	private static List<BankPreviewItem> sortClues(List<BankPreviewItem> items)
+	{
+		List<BankPreviewItem> sorted = new ArrayList<>(items);
+		sorted.sort(Comparator
+			.comparingInt(PresetItemSorter::clueRank)
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+		return sorted;
+	}
+
+	private static List<BankPreviewItem> sortBossLoot(List<BankPreviewItem> items)
+	{
+		List<BankPreviewItem> sorted = new ArrayList<>(items);
+		sorted.sort(Comparator
+			.comparingInt(PresetItemSorter::bossLootRank)
+			.thenComparing(PresetItemSorter::bossLootFamily)
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+		return sorted;
+	}
+
+	private static List<BankPreviewItem> sortReview(List<BankPreviewItem> items)
+	{
+		List<BankPreviewItem> sorted = new ArrayList<>(items);
+		sorted.sort(Comparator
+			.comparingInt(ReviewItemSorter::rank)
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
@@ -120,13 +140,7 @@ public final class PresetItemSorter
 
 		if ("farming-herblore".equals(categoryKey))
 		{
-			return rank(name, subcategory,
-				group(0, "seed", "sapling"),
-				group(10, "grimy", "clean", "herb", "leaf"),
-				group(20, "secondary", "eye of newt", "snape grass", "limpwurt", "white berries",
-					"mort myre", "unicorn horn"),
-				group(30, "unf", "unfinished"),
-				group(40, "potion"));
+			return herbloreSpilloverRank(item);
 		}
 
 		if ("resources".equals(categoryKey))
@@ -150,9 +164,22 @@ public final class PresetItemSorter
 		return 50;
 	}
 
+	static int herbloreSpilloverRank(BankPreviewItem item)
+	{
+		String name = normalizedName(item.getDisplayName());
+		String subcategory = normalizedName(item.getSubcategory());
+		return rank(name, subcategory,
+			group(0, "seed", "sapling"),
+			group(10, "grimy", "clean", "herb", "leaf"),
+			group(20, "secondary", "eye of newt", "snape grass", "limpwurt", "white berries",
+				"mort myre", "unicorn horn"),
+			group(30, "unf", "unfinished"),
+			group(40, "potion"));
+	}
+
 	public static String subgroupLabel(BankCategory category, BankPreviewItem item)
 	{
-		if (!"storage-cleanup".equals(category.getKey()))
+		if (category.getSortMode() != BankCategorySortMode.REVIEW)
 		{
 			return "";
 		}
@@ -210,7 +237,17 @@ public final class PresetItemSorter
 				return i;
 			}
 		}
+		if (isIronmanActivityReward(item.getItemId())) return 10;
 		return 20;
+	}
+
+	private static boolean isIronmanActivityReward(int itemId)
+	{
+		for (int candidate : IRONMAN_ACTIVITY_REWARD_IDS)
+		{
+			if (candidate == itemId) return true;
+		}
+		return false;
 	}
 
 	private static int bossLootRank(BankPreviewItem item)

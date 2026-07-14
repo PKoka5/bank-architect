@@ -36,12 +36,14 @@ public class BankOrganisationRulesDocTest
 	}
 
 	@Test
-	public void docStatesSuperAttackFourIsFuturePotionConsumablesPvmSuppliesWork() throws IOException
+	public void docStatesIronmanPotionSplitIsIdBackedAndExplicit() throws IOException
 	{
 		String content = new String(Files.readAllBytes(Paths.get(DOC_PATH)), StandardCharsets.UTF_8);
 
-		assertTrue(content.contains("Super attack (4)"));
-		assertTrue(content.contains("2436"));
-		assertTrue(content.contains("Potion / Consumables / PvM Supplies"));
+		assertTrue(content.contains("canonical item ID"));
+		assertTrue(content.contains("(4) → (3) → (2) → (1)"));
+		assertTrue(content.contains("dose `(4)` belongs in ready-to-use"));
+		assertTrue(content.contains("`(3)`, `(2)`, and `(1)` doses join"));
+		assertTrue(content.contains("Barbarian mixes"));
 	}
 }

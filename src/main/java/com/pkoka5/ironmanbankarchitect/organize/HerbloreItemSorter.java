@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -9,8 +12,9 @@ import java.util.Set;
 /**
  * Lays out owned Herblore chains in stable eight-cell rows:
  * grimy, clean, seed, unfinished, secondary, dose 3, dose 2, dose 1.
- * Missing cells are filled with non-chain farming items because the real bank
- * compacts empty slots. If a full row cannot be filled, the remainder stays dense.
+ * Complete recipes retain physical rows. Incomplete recipes stay dense and are
+ * followed by other Herblore items, then Farming spillover; unrelated seeds or
+ * produce therefore never masquerade as missing recipe cells.
  */
 final class HerbloreItemSorter
 {
@@ -56,35 +60,62 @@ final class HerbloreItemSorter
 			}
 		}
 
-		List<BankPreviewItem> filler = new ArrayList<>(unused);
-		filler.sort(Comparator
-			.comparingInt((BankPreviewItem item) -> PresetItemSorter.subgroupRank("farming-herblore", item))
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
-			.thenComparingInt(BankPreviewItem::getItemId));
-
-		List<BankPreviewItem> laidOut = new ArrayList<>();
-		List<BankPreviewItem> deferred = new ArrayList<>();
-		int fillerIndex = 0;
-		for (RecipeRow row : recipeRows)
+		List<BankPreviewItem> herbloreSpillover = new ArrayList<>();
+		List<BankPreviewItem> farmingSpillover = new ArrayList<>();
+		for (BankPreviewItem item : unused)
 		{
-			int missing = GRID_COLUMNS - row.itemCount();
-			if (fillerIndex + missing > filler.size())
+			if (item.getItemCategory() == ItemCategory.FARMING)
 			{
-				// Keep the current output on an eight-cell boundary so a later
-				// complete recipe can still retain its visual row. Sparse rows move
-				// to the dense tail when there is not enough real filler for them.
-				deferred.addAll(row.items());
-				continue;
+				farmingSpillover.add(item);
 			}
-
-			for (BankPreviewItem cell : row.cells)
+			else
 			{
-				laidOut.add(cell == null ? filler.get(fillerIndex++) : cell);
+				herbloreSpillover.add(item);
 			}
 		}
+		Comparator<BankPreviewItem> spilloverOrder = Comparator
+			.comparingInt(PresetItemSorter::herbloreSpilloverRank)
+			.thenComparing(item -> potionFamily(normalizedName(item.getDisplayName())))
+			.thenComparing(Comparator.comparingInt(
+				(BankPreviewItem item) -> doseOf(normalizedName(item.getDisplayName()))).reversed())
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId);
+		herbloreSpillover.sort(spilloverOrder);
+		farmingSpillover.sort(spilloverOrder);
 
-		laidOut.addAll(deferred);
-		laidOut.addAll(filler.subList(fillerIndex, filler.size()));
+		List<BankPreviewItem> laidOut = new ArrayList<>();
+		// Exact recipes are the only rows whose semantic cells can occupy all
+		// eight physical bank columns without unrelated filler.
+		for (RecipeRow row : recipeRows)
+		{
+			if (row.isComplete())
+			{
+				laidOut.addAll(row.items());
+			}
+		}
+		for (RecipeRow row : recipeRows)
+		{
+			if (!row.isComplete())
+			{
+				List<BankPreviewItem> rowItems = row.items();
+				int usedColumns = laidOut.size() % GRID_COLUMNS;
+				if (usedColumns != 0 && usedColumns + rowItems.size() > GRID_COLUMNS)
+				{
+					while (laidOut.size() % GRID_COLUMNS != 0 && !herbloreSpillover.isEmpty())
+					{
+						laidOut.add(herbloreSpillover.remove(0));
+					}
+					while (laidOut.size() % GRID_COLUMNS != 0 && !farmingSpillover.isEmpty())
+					{
+						laidOut.add(farmingSpillover.remove(0));
+					}
+				}
+				laidOut.addAll(rowItems);
+			}
+		}
+		laidOut.addAll(herbloreSpillover);
+		laidOut.addAll(FarmingItemSorter.layout(farmingSpillover,
+			laidOut.size() % GRID_COLUMNS));
 		return laidOut;
 	}
 
@@ -94,20 +125,25 @@ final class HerbloreItemSorter
 		for (BankPreviewItem item : unused)
 		{
 			String name = normalizedName(item.getDisplayName());
-			int herbCell = herbCell(chain.herb, name);
+			int herbCell = metadataHerbCell(chain, item);
+			if (herbCell < 0)
+			{
+				herbCell = herbCell(chain.herb, name);
+			}
 			if (herbCell >= 0)
 			{
 				cells[herbCell] = first(cells[herbCell], item);
 				continue;
 			}
 
-			if (potionFamily(name).equals(chain.product))
+			int dose = metadataPotionDose(chain, item);
+			if (dose < 0 && potionFamily(name).equals(chain.product))
 			{
-				int dose = doseOf(name);
-				if (dose >= 1 && dose <= 3)
-				{
-					cells[8 - dose] = first(cells[8 - dose], item);
-				}
+				dose = doseOf(name);
+			}
+			if (dose >= 1 && dose <= 3)
+			{
+				cells[8 - dose] = first(cells[8 - dose], item);
 				continue;
 			}
 
@@ -121,6 +157,25 @@ final class HerbloreItemSorter
 			}
 		}
 		return new RecipeRow(cells);
+	}
+
+	private static int metadataPotionDose(Chain chain, BankPreviewItem item)
+	{
+		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+			.filter(metadata -> metadata.getVariantKind() == ItemSortMetadata.VariantKind.DOSE)
+			.filter(metadata -> chain.potionFamilyKey.equals(metadata.getFamilyKey()))
+			.map(ItemSortMetadata::getVariantValue)
+			.orElse(-1);
+	}
+
+	private static int metadataHerbCell(Chain chain, BankPreviewItem item)
+	{
+		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+			.filter(metadata -> metadata.getVariantKind() == ItemSortMetadata.VariantKind.WORKFLOW_STAGE)
+			.filter(metadata -> chain.familyKey.equals(metadata.getFamilyKey()))
+			.map(ItemSortMetadata::getVariantValue)
+			.filter(stage -> stage >= 0 && stage <= 3)
+			.orElse(-1);
 	}
 
 	private static int herbCell(String herb, String name)
@@ -182,18 +237,24 @@ final class HerbloreItemSorter
 
 	private static Chain chain(String herb, String product, String... secondaries)
 	{
-		return new Chain(herb, product, secondaries);
+		return new Chain(herb, "herb." + herb.replace(' ', '_'),
+			"potion." + product.replace(" potion", "").replace(' ', '_'), product, secondaries);
 	}
 
 	private static final class Chain
 	{
 		private final String herb;
+		private final String familyKey;
+		private final String potionFamilyKey;
 		private final String product;
 		private final String[] secondaries;
 
-		private Chain(String herb, String product, String[] secondaries)
+		private Chain(String herb, String familyKey, String potionFamilyKey, String product,
+			String[] secondaries)
 		{
 			this.herb = herb;
+			this.familyKey = familyKey;
+			this.potionFamilyKey = potionFamilyKey;
 			this.product = product;
 			this.secondaries = secondaries;
 		}
@@ -216,6 +277,11 @@ final class HerbloreItemSorter
 		private boolean hasHerbInput()
 		{
 			return cells[0] != null || cells[1] != null || cells[2] != null || cells[3] != null;
+		}
+
+		private boolean isComplete()
+		{
+			return itemCount() == GRID_COLUMNS;
 		}
 
 		private List<BankPreviewItem> items()

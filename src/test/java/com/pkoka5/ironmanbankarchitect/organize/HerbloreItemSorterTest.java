@@ -13,6 +13,22 @@ import org.junit.Test;
 public class HerbloreItemSorterTest
 {
 	@Test
+	public void canonicalIdsRecognizeHerbStagesWithoutDependingOnDisplayNames()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(249, "Deliberately renamed clean herb"),
+			item(199, "Deliberately renamed grimy herb"),
+			item(91, "Deliberately renamed unfinished potion")
+		));
+
+		assertEquals(Arrays.asList(
+			"Deliberately renamed grimy herb",
+			"Deliberately renamed clean herb",
+			"Deliberately renamed unfinished potion"
+		), names(laidOut));
+	}
+
+	@Test
 	public void laysOutRecipeChainAsOneRow()
 	{
 		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
@@ -33,7 +49,7 @@ public class HerbloreItemSorterTest
 	}
 
 	@Test
-	public void padsRecipeRowsToGridWidthSoNextChainStaysAligned()
+	public void completeRowsStayAlignedAndPartialRecipesRemainDense()
 	{
 		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
 			item(1, "Grimy ranarr weed"),
@@ -53,17 +69,12 @@ public class HerbloreItemSorterTest
 			item(19, "Torstol potion (unf)")
 		));
 
-		// Missing semantic cells are filled in-place, and the next recipe still
-		// starts on a bank row boundary.
-		assertEquals(8, indexOf(laidOut, "Grimy torstol"));
+		assertEquals(3, indexOf(laidOut, "Grimy torstol"));
 		assertEquals("Grimy ranarr weed", laidOut.get(0).getDisplayName());
-		assertEquals("Ranarr seed", laidOut.get(2).getDisplayName());
-		assertEquals("Snape grass", laidOut.get(4).getDisplayName());
-		assertEquals("Grimy torstol", laidOut.get(8).getDisplayName());
-		// Only four fillers remain, so this final incomplete row deliberately
-		// falls back to a dense chain instead of inventing an empty slot.
-		assertEquals("Torstol seed", laidOut.get(9).getDisplayName());
-		assertEquals("Torstol potion (unf)", laidOut.get(10).getDisplayName());
+		assertEquals("Ranarr seed", laidOut.get(1).getDisplayName());
+		assertEquals("Snape grass", laidOut.get(2).getDisplayName());
+		assertEquals("Torstol seed", laidOut.get(4).getDisplayName());
+		assertEquals("Torstol potion (unf)", laidOut.get(5).getDisplayName());
 		assertEquals(15, laidOut.size());
 	}
 
@@ -84,6 +95,33 @@ public class HerbloreItemSorterTest
 			"Grimy irit", "Clean irit", "Irit seed", "Irit potion (unf)",
 			"Eye of newt", "Super attack (3)", "Super attack (2)", "Super attack (1)"
 		), names(laidOut));
+	}
+
+	@Test
+	public void orphanPotionFamilyStillUsesDescendingDoseOrder()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(2456, "Antifire potion(2)"),
+			item(2454, "Antifire potion(3)"),
+			item(5954, "Antidote++(3)"),
+			item(900001, "Bird nest")));
+
+		assertEquals(Arrays.asList("Antifire potion(3)", "Antifire potion(2)",
+			"Antidote++(3)", "Bird nest"), names(laidOut));
+	}
+
+	@Test
+	public void canonicalDoseIdsCompleteRecipeColumnsWithoutDependingOnPotionNames()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(209, "Renamed grimy input"), item(259, "Renamed clean input"),
+			item(900001, "Irit seed"), item(101, "Renamed unfinished input"),
+			item(900002, "Eye of newt"), item(145, "Renamed dose three"),
+			item(147, "Renamed dose two"), item(149, "Renamed dose one")));
+
+		assertEquals(Arrays.asList("Renamed grimy input", "Renamed clean input", "Irit seed",
+			"Renamed unfinished input", "Eye of newt", "Renamed dose three",
+			"Renamed dose two", "Renamed dose one"), names(laidOut));
 	}
 
 	@Test
@@ -138,8 +176,8 @@ public class HerbloreItemSorterTest
 			item(32, "Gardening pouch")
 		));
 
-		assertEquals(4, indexOf(laidOut, "Eye of newt") % 8);
-		assertEquals(4, indexOf(laidOut, "Limpwurt root") % 8);
+		assertEquals(indexOf(laidOut, "Irit seed") + 1, indexOf(laidOut, "Eye of newt"));
+		assertEquals(indexOf(laidOut, "Kwuarm seed") + 1, indexOf(laidOut, "Limpwurt root"));
 		assertEquals(true, indexOf(laidOut, "Eye of newt") > indexOf(laidOut, "Grimy irit"));
 		assertEquals(true, indexOf(laidOut, "Limpwurt root") > indexOf(laidOut, "Grimy kwuarm"));
 	}
@@ -161,10 +199,11 @@ public class HerbloreItemSorterTest
 		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
 			item(1, "Grimy tarromin"), item(2, "Tarromin seed"), item(3, "Limpwurt seed"),
 			item(4, "Z filler one"), item(5, "Z filler two"), item(6, "Z filler three"),
-			item(7, "Z filler four"), item(8, "Z filler five")
+			item(7, "Z filler four"), item(8, "Z filler five"), item(9, "Limpwurt root")
 		));
 
-		assertEquals(1, indexOf(laidOut, "Limpwurt seed"));
+		assertEquals(2, indexOf(laidOut, "Limpwurt root"));
+		assertEquals(true, indexOf(laidOut, "Limpwurt seed") > indexOf(laidOut, "Limpwurt root"));
 	}
 
 	@Test
@@ -192,8 +231,8 @@ public class HerbloreItemSorterTest
 			item(5, "A filler"), item(6, "B filler"), item(7, "C filler"), item(8, "D filler")
 		));
 
-		assertEquals(5, indexOf(laidOut, "Energy potion(3)"));
-		assertEquals(true, indexOf(laidOut, "Super energy(3)") != 5);
+		assertEquals(2, indexOf(laidOut, "Energy potion(3)"));
+		assertEquals(true, indexOf(laidOut, "Super energy(3)") != 2);
 	}
 
 	@Test
@@ -205,8 +244,28 @@ public class HerbloreItemSorterTest
 			item(7, "C filler"), item(8, "D filler")
 		));
 
-		assertEquals(indexOf(laidOut, "Grimy guam leaf") / 8, indexOf(laidOut, "Eye of newt") / 8);
-		assertEquals(4, indexOf(laidOut, "Eye of newt") % 8);
+		assertEquals(indexOf(laidOut, "Grimy guam leaf") + 2, indexOf(laidOut, "Eye of newt"));
+	}
+
+	@Test
+	public void farmingItemsNeverFillMissingRecipeCells()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Grimy guam leaf"), item(2, "Guam seed"),
+			categorizedItem(3, "Magic potion(3)", ItemCategory.POTION),
+			categorizedItem(11, "Apple tree seed", ItemCategory.FARMING),
+			categorizedItem(12, "Banana tree seed", ItemCategory.FARMING),
+			categorizedItem(13, "Calquat tree seed", ItemCategory.FARMING),
+			categorizedItem(14, "Maple seed", ItemCategory.FARMING),
+			categorizedItem(15, "Palm tree seed", ItemCategory.FARMING),
+			categorizedItem(16, "Willow seed", ItemCategory.FARMING)));
+
+		assertEquals(Arrays.asList("Grimy guam leaf", "Guam seed", "Magic potion(3)"),
+			names(laidOut.subList(0, 3)));
+		for (int index = 3; index < laidOut.size(); index++)
+		{
+			assertEquals(ItemCategory.FARMING, laidOut.get(index).getItemCategory());
+		}
 	}
 
 	@Test
@@ -223,6 +282,29 @@ public class HerbloreItemSorterTest
 		assertEquals(0, indexOf(laidOut, "Grimy irit"));
 		assertEquals(7, indexOf(laidOut, "Super attack (1)"));
 		assertEquals(8, indexOf(laidOut, "Grimy guam leaf"));
+	}
+
+	@Test
+	public void partialRecipeRunsNeverWrapWhenRealSpilloverCanCompleteTheRow()
+	{
+		List<BankPreviewItem> laidOut = HerbloreItemSorter.layout(Arrays.asList(
+			item(1, "Guam leaf"), item(2, "Guam seed"),
+			item(3, "Marrentill"), item(4, "Marrentill seed"),
+			item(5, "Grimy tarromin"), item(6, "Tarromin"), item(7, "Tarromin seed"),
+			item(8, "Tarromin potion (unf)"),
+			item(9, "Grimy harralander"), item(10, "Harralander seed"),
+			item(11, "Harralander potion (unf)"),
+			item(12, "Grimy lantadyme"), item(13, "Lantadyme"),
+			item(14, "Lantadyme seed"), item(15, "Lantadyme potion (unf)"),
+			item(16, "Vial of water"), item(17, "Bird nest")));
+
+		assertEquals(0, indexOf(laidOut, "Guam leaf"));
+		assertEquals(2, indexOf(laidOut, "Marrentill"));
+		assertEquals(4, indexOf(laidOut, "Grimy tarromin"));
+		int harralander = indexOf(laidOut, "Grimy harralander");
+		int lantadyme = indexOf(laidOut, "Grimy lantadyme");
+		assertEquals(harralander / 8, indexOf(laidOut, "Harralander potion (unf)") / 8);
+		assertEquals(lantadyme / 8, indexOf(laidOut, "Lantadyme potion (unf)") / 8);
 	}
 
 	private static int indexOf(List<BankPreviewItem> items, String name)
@@ -242,6 +324,12 @@ public class HerbloreItemSorterTest
 	{
 		return new BankPreviewItem(new CatalogItem(itemId, name, ItemCategory.HERBLORE,
 			ItemCategory.HERBLORE.getDisplayLabel().toLowerCase(), Collections.emptySet(), null), 1);
+	}
+
+	private static BankPreviewItem categorizedItem(int itemId, String name, ItemCategory category)
+	{
+		return new BankPreviewItem(new CatalogItem(itemId, name, category,
+			category.getDisplayLabel().toLowerCase(), Collections.emptySet(), null), 1);
 	}
 
 	private static List<String> names(List<BankPreviewItem> items)

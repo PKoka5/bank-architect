@@ -2,9 +2,29 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import net.runelite.api.gameval.ItemID;
 
 public final class PresetCategoryMapper
 {
+	private static final Set<Integer> IRONMAN_RESOURCE_IDS = ids(7936, 24704, 32083, 32085);
+	private static final Set<Integer> IRONMAN_RUNECRAFTING_TOOL_IDS = ids(
+		5509, 5510, 5511, 5512, 5513, 5514, 5515, 26784, 26786, 5521);
+	private static final Set<Integer> IRONMAN_UTILITY_CONTAINER_IDS = ids(19634);
+	private static final Set<Integer> IRONMAN_ACTIVITY_REWARD_IDS = ids(
+		6183, 6529, 6306, 12012, 25527, 21555);
+	private static final Set<Integer> IRONMAN_REVIEWED_TOOL_IDS = ids(13392, 25781);
+	private static final Set<Integer> IRONMAN_REVIEWED_LOOT_IDS = ids(
+		1201,
+		ItemID.TOME_OF_FIRE_UNCHARGED,
+		ItemID.TOME_OF_WATER_UNCHARGED,
+		ItemID.TOME_OF_EARTH_UNCHARGED);
+	private static final Set<Integer> IRONMAN_REVIEWED_CLEANUP_IDS = ids(762, 1588);
+
 	private PresetCategoryMapper()
 	{
 	}
@@ -31,13 +51,47 @@ public final class PresetCategoryMapper
 	private static BankCategory mapIronman(BankPreset preset, CatalogItem item)
 	{
 		ItemCategory category = item.getCategory();
+		if (IRONMAN_RESOURCE_IDS.contains(item.getItemId()))
+		{
+			return preset.getCategory("resources");
+		}
+		if (IRONMAN_RUNECRAFTING_TOOL_IDS.contains(item.getItemId())
+			|| IRONMAN_UTILITY_CONTAINER_IDS.contains(item.getItemId())
+			|| IRONMAN_REVIEWED_TOOL_IDS.contains(item.getItemId()))
+		{
+			return preset.getCategory("skilling-tools");
+		}
+		if (IRONMAN_REVIEWED_LOOT_IDS.contains(item.getItemId()))
+		{
+			return preset.getCategory("slayer-boss-loot");
+		}
+		if (IRONMAN_REVIEWED_CLEANUP_IDS.contains(item.getItemId()))
+		{
+			return preset.getCategory("storage-cleanup");
+		}
+		if (IRONMAN_ACTIVITY_REWARD_IDS.contains(item.getItemId()))
+		{
+			return preset.getCategory("clues-cosmetics");
+		}
+		if (IronmanMainTabPolicy.belongsOnMain(item))
+		{
+			return preset.getCategory("currency-utilities");
+		}
+		if (isRunecraftingFocus(item))
+		{
+			return preset.getCategory("skilling-tools");
+		}
+		if (isPartialPotionDose(item))
+		{
+			return preset.getCategory("herblore");
+		}
 		if (category == ItemCategory.CURRENCY)
 		{
 			return preset.getCategory("currency-utilities");
 		}
 		if (category == ItemCategory.RUNE || category == ItemCategory.TELEPORT)
 		{
-			return preset.getCategory("teleports-runes");
+			return preset.getCategory("currency-utilities");
 		}
 		if (category == ItemCategory.GEAR)
 		{
@@ -45,15 +99,16 @@ public final class PresetCategoryMapper
 		}
 		if (category == ItemCategory.POTION)
 		{
-			if (isPartialPotionDose(item.getSubcategory()))
-			{
-				return preset.getCategory("farming-herblore");
-			}
 			return preset.getCategory("potions-food");
 		}
-		if (category == ItemCategory.FARMING || category == ItemCategory.HERBLORE)
+		if (category == ItemCategory.HERBLORE
+			|| category == ItemCategory.FARMING && "herb-seed".equals(item.getSubcategory()))
 		{
-			return preset.getCategory("farming-herblore");
+			return preset.getCategory("herblore");
+		}
+		if (category == ItemCategory.FARMING)
+		{
+			return preset.getCategory("seeds-farming");
 		}
 		if (category == ItemCategory.TOOL)
 		{
@@ -79,11 +134,35 @@ public final class PresetCategoryMapper
 		return preset.getCategory("storage-cleanup");
 	}
 
-	private static boolean isPartialPotionDose(String subcategory)
+	private static boolean isRunecraftingFocus(CatalogItem item)
 	{
-		return "potion-dose-1".equals(subcategory) || "potion-dose-2".equals(subcategory)
-			|| "potion-dose-3".equals(subcategory) || "dose-1".equals(subcategory)
-			|| "dose-2".equals(subcategory) || "dose-3".equals(subcategory);
+		return "runecrafting-focus".equals(item.getSubcategory());
+	}
+
+	private static Set<Integer> ids(Integer... itemIds)
+	{
+		return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(itemIds)));
+	}
+
+	private static boolean isPartialPotionDose(CatalogItem item)
+	{
+		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+			.filter(metadata -> metadata.getVariantKind()
+				== com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata.VariantKind.DOSE)
+			.map(metadata -> metadata.getVariantValue() >= 1 && metadata.getVariantValue() <= 3)
+			.orElseGet(() -> item.getCategory() == ItemCategory.POTION
+				&& (item.getSubcategory().matches("(?:potion-)?dose-[123]")));
+	}
+
+	private static boolean isKnownFood(CatalogItem item)
+	{
+		if ("food".equals(item.getSubcategory()))
+		{
+			return true;
+		}
+		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+			.map(metadata -> metadata.isFood())
+			.orElse(false);
 	}
 
 	private static BankCategory mapMain(BankPreset preset, CatalogItem item)
@@ -213,6 +292,10 @@ public final class PresetCategoryMapper
 		if (category == ItemCategory.FARMING)
 		{
 			return preset.getCategory("farming");
+		}
+		if (category == ItemCategory.POTION && isKnownFood(item))
+		{
+			return preset.getCategory("fishing-cooking");
 		}
 		if (category == ItemCategory.HERBLORE || category == ItemCategory.POTION)
 		{

@@ -23,7 +23,8 @@ final class GearItemSorter
 	// aligned once the real bank compacts everything.
 	static final int GRID_COLUMNS = 8;
 	private static final int SET_COLUMNS = SETUP_STYLES.length;
-	// One row per equipment slot; cell value = slot for that style column, -1 = filler.
+	private static final int MIN_STYLE_COLUMNS_PER_ROW = 2;
+	// One row per equipment slot; cell value = slot for that style column, -1 = no set cell.
 	private static final int[][] SET_ROWS = {
 		{0, 0, 0, 0},
 		{1, 1, 1, 1},
@@ -46,8 +47,9 @@ final class GearItemSorter
 	 * below it in the same column). Remaining cells of a row are filled with
 	 * more items of the same slot (spare helms complete the helm row, tier
 	 * order), then with grouped leftover items. The bank always compacts, so a
-	 * row is only emitted when all {@link #GRID_COLUMNS} cells can be filled;
-	 * as soon as that fails the layout falls back to dense per-style runs.
+	 * row is only emitted when all {@link #GRID_COLUMNS} cells can be filled.
+	 * A sparse row falls back to the dense tail without blocking a later slot
+	 * row that can still be aligned entirely with real owned items.
 	 */
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
 	{
@@ -56,8 +58,17 @@ final class GearItemSorter
 
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
+		return plan(items, gearStats).allItems();
+	}
+
+	/**
+	 * Separates the physically aligned, complete setup rows from the dense tail.
+	 * Callers may apply secondary grouping rules to the tail, but must never
+	 * repack the setup rows or the four combat-style columns would be lost.
+	 */
+	static GearLayout plan(List<BankPreviewItem> items, GearStatsSource gearStats)
+	{
 		Map<String, List<BankPreviewItem>> setCandidates = new LinkedHashMap<>();
-		List<BankPreviewItem> filler = new ArrayList<>();
 		for (BankPreviewItem item : items)
 		{
 			int style = styleRankOf(item, gearStats);
@@ -68,11 +79,7 @@ final class GearItemSorter
 				// disguise a missing wearable in the aligned setup rows.
 				continue;
 			}
-			if (style == STYLE_OTHER || slot >= 12)
-			{
-				filler.add(item);
-			}
-			else
+			if (style != STYLE_OTHER && slot < 12)
 			{
 				setCandidates.computeIfAbsent(style + ":" + slot, key -> new ArrayList<>()).add(item);
 			}
@@ -86,63 +93,83 @@ final class GearItemSorter
 		{
 			candidates.sort(byTier);
 		}
-		filler.sort(Comparator
-			.comparingInt((BankPreviewItem item) -> rankOf(item, gearStats))
-			.thenComparing(byTier));
-
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
-		Map<String, Integer> takenPerKey = new LinkedHashMap<>();
-		int fillerIndex = 0;
+		Set<Integer> reservedPrimaryIds = reservePrimaryItems(setCandidates);
+		List<BankPreviewItem> fillerOrder = remainingSorted(items, new LinkedHashSet<>(), gearStats);
 
 		for (int[] setRow : SET_ROWS)
 		{
-			if (!rowHasSetItem(setRow, setCandidates, takenPerKey))
+			BankPreviewItem[] cells = new BankPreviewItem[GRID_COLUMNS];
+			int primaryCount = 0;
+			for (int column = 0; column < SET_COLUMNS; column++)
+			{
+				if (setRow[column] < 0)
+				{
+					continue;
+				}
+				List<BankPreviewItem> candidates = setCandidates.get(column + ":" + setRow[column]);
+				if (candidates != null && !candidates.isEmpty())
+				{
+					cells[column] = candidates.get(0);
+					primaryCount++;
+				}
+			}
+
+			if (primaryCount < MIN_STYLE_COLUMNS_PER_ROW)
 			{
 				continue;
 			}
 
-			List<BankPreviewItem> cells = new ArrayList<>(GRID_COLUMNS);
-			Map<String, Integer> takenThisRow = new LinkedHashMap<>();
-			int rowFillerIndex = fillerIndex;
-			for (int column = 0; column < GRID_COLUMNS && cells.size() == column; column++)
+			// These primaries belong to this row. Releasing them before the
+			// feasibility check lets a skipped sparse row fall back normally,
+			// while all later rows remain protected from filler selection.
+			for (int column = 0; column < SET_COLUMNS; column++)
 			{
-				BankPreviewItem cell = null;
-				if (column < SET_COLUMNS && setRow[column] >= 0)
+				if (cells[column] != null)
 				{
-					cell = takeFromKey(column + ":" + setRow[column], setCandidates, takenPerKey, takenThisRow);
-				}
-				if (cell == null)
-				{
-					cell = takeSameSlotSpillover(setRow, setCandidates, takenPerKey, takenThisRow, byTier);
-				}
-				if (cell == null && rowFillerIndex < filler.size())
-				{
-					cell = filler.get(rowFillerIndex);
-					rowFillerIndex++;
-				}
-				if (cell != null)
-				{
-					cells.add(cell);
+					reservedPrimaryIds.remove(cells[column].getItemId());
+					usedItemIds.add(cells[column].getItemId());
 				}
 			}
 
-			if (cells.size() < GRID_COLUMNS)
+			if (availableFillerCount(fillerOrder, usedItemIds, reservedPrimaryIds, gearStats)
+				< GRID_COLUMNS - primaryCount)
 			{
-				break;
+				for (int column = 0; column < SET_COLUMNS; column++)
+				{
+					if (cells[column] != null)
+					{
+						usedItemIds.remove(cells[column].getItemId());
+						reservedPrimaryIds.add(cells[column].getItemId());
+					}
+				}
+				continue;
 			}
-
-			for (Map.Entry<String, Integer> taken : takenThisRow.entrySet())
+			for (int column = 0; column < GRID_COLUMNS; column++)
 			{
-				takenPerKey.merge(taken.getKey(), taken.getValue(), Integer::sum);
-			}
-			fillerIndex = rowFillerIndex;
-			for (BankPreviewItem cell : cells)
-			{
-				usedItemIds.add(cell.getItemId());
-				laidOut.add(cell);
+				if (cells[column] == null && column < SET_COLUMNS && setRow[column] >= 0)
+				{
+					cells[column] = takeBestFillerForSlot(setRow[column], fillerOrder,
+						usedItemIds, reservedPrimaryIds, gearStats);
+				}
+				if (cells[column] == null)
+				{
+					cells[column] = takeBestFillerForRow(setRow, fillerOrder,
+						usedItemIds, reservedPrimaryIds, gearStats);
+				}
+				if (cells[column] == null)
+				{
+					cells[column] = takeFirstFiller(fillerOrder, usedItemIds,
+						reservedPrimaryIds, gearStats);
+				}
+				usedItemIds.add(cells[column].getItemId());
+				laidOut.add(cells[column]);
 			}
 		}
+
+		List<BankPreviewItem> setupRows = new ArrayList<>(laidOut);
+		List<BankPreviewItem> tail = new ArrayList<>();
 
 		// Dense fallback: best remaining item per style and slot as contiguous
 		// per-style runs, then everything else grouped by slot.
@@ -152,105 +179,172 @@ final class GearItemSorter
 			{
 				String key = style + ":" + slot;
 				List<BankPreviewItem> candidates = setCandidates.get(key);
-				int taken = takenPerKey.getOrDefault(key, 0);
-				if (candidates != null && taken < candidates.size())
+				if (candidates != null)
 				{
-					BankPreviewItem item = candidates.get(taken);
-					if (usedItemIds.add(item.getItemId()))
+					for (BankPreviewItem item : candidates)
 					{
-						laidOut.add(item);
-						takenPerKey.put(key, taken + 1);
+						if (usedItemIds.add(item.getItemId()))
+						{
+							tail.add(item);
+							break;
+						}
 					}
 				}
 			}
 		}
 
-		laidOut.addAll(remainingSorted(items, usedItemIds, gearStats));
-		return laidOut;
+		tail.addAll(remainingSorted(items, usedItemIds, gearStats));
+		return new GearLayout(setupRows, tail);
 	}
 
-	private static BankPreviewItem takeFromKey(String key, Map<String, List<BankPreviewItem>> setCandidates,
-		Map<String, Integer> takenPerKey, Map<String, Integer> takenThisRow)
+	static final class GearLayout
 	{
-		List<BankPreviewItem> candidates = setCandidates.get(key);
-		if (candidates == null)
+		private final List<BankPreviewItem> setupRows;
+		private final List<BankPreviewItem> tail;
+
+		private GearLayout(List<BankPreviewItem> setupRows, List<BankPreviewItem> tail)
 		{
-			return null;
+			this.setupRows = setupRows;
+			this.tail = tail;
 		}
 
-		int taken = takenPerKey.getOrDefault(key, 0) + takenThisRow.getOrDefault(key, 0);
-		if (taken >= candidates.size())
+		List<BankPreviewItem> getSetupRows()
 		{
-			return null;
+			return setupRows;
 		}
 
-		takenThisRow.merge(key, 1, Integer::sum);
-		return candidates.get(taken);
+		List<BankPreviewItem> getTail()
+		{
+			return tail;
+		}
+
+		private List<BankPreviewItem> allItems()
+		{
+			List<BankPreviewItem> result = new ArrayList<>(setupRows.size() + tail.size());
+			result.addAll(setupRows);
+			result.addAll(tail);
+			return result;
+		}
 	}
 
-	/**
-	 * Completes a row with more items of the row's own slot: spare helms fill
-	 * the helm row (best tier first, any style) before generic filler is used.
-	 */
-	private static BankPreviewItem takeSameSlotSpillover(int[] setRow,
-		Map<String, List<BankPreviewItem>> setCandidates, Map<String, Integer> takenPerKey,
-		Map<String, Integer> takenThisRow, Comparator<BankPreviewItem> byTier)
+	private static Set<Integer> reservePrimaryItems(Map<String, List<BankPreviewItem>> setCandidates)
 	{
-		String bestKey = null;
-		BankPreviewItem best = null;
-		for (int column = 0; column < SET_COLUMNS; column++)
+		Set<Integer> reserved = new LinkedHashSet<>();
+		for (int[] row : SET_ROWS)
 		{
-			if (setRow[column] < 0)
+			for (int column = 0; column < SET_COLUMNS; column++)
 			{
-				continue;
-			}
-
-			String key = column + ":" + setRow[column];
-			List<BankPreviewItem> candidates = setCandidates.get(key);
-			if (candidates == null)
-			{
-				continue;
-			}
-			int taken = takenPerKey.getOrDefault(key, 0) + takenThisRow.getOrDefault(key, 0);
-			if (taken >= candidates.size())
-			{
-				continue;
-			}
-
-			BankPreviewItem candidate = candidates.get(taken);
-			if (best == null || byTier.compare(candidate, best) < 0)
-			{
-				best = candidate;
-				bestKey = key;
+				if (row[column] < 0)
+				{
+					continue;
+				}
+				List<BankPreviewItem> candidates = setCandidates.get(column + ":" + row[column]);
+				if (candidates != null && !candidates.isEmpty())
+				{
+					reserved.add(candidates.get(0).getItemId());
+				}
 			}
 		}
-
-		if (bestKey != null)
-		{
-			takenThisRow.merge(bestKey, 1, Integer::sum);
-		}
-
-		return best;
+		return reserved;
 	}
 
-	private static boolean rowHasSetItem(int[] setRow, Map<String, List<BankPreviewItem>> setCandidates,
-		Map<String, Integer> takenPerKey)
+	private static int availableFillerCount(List<BankPreviewItem> candidates, Set<Integer> usedItemIds,
+		Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
 	{
-		for (int column = 0; column < SET_COLUMNS; column++)
+		int available = 0;
+		for (BankPreviewItem candidate : candidates)
 		{
-			if (setRow[column] < 0)
+			if (isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+			{
+				available++;
+			}
+		}
+		return available;
+	}
+
+	private static BankPreviewItem takeBestFillerForSlot(int slot, List<BankPreviewItem> candidates,
+		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+	{
+		for (BankPreviewItem candidate : candidates)
+		{
+			if (slotRankOf(candidate, gearStats) == slot
+				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+			{
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	private static BankPreviewItem takeBestFillerForRow(int[] row, List<BankPreviewItem> candidates,
+		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+	{
+		for (BankPreviewItem candidate : candidates)
+		{
+			int slot = slotRankOf(candidate, gearStats);
+			if (rowContainsSlot(row, slot)
+				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+			{
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	private static BankPreviewItem takeFirstFiller(List<BankPreviewItem> candidates,
+		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+	{
+		// Prefer unstructured accessories (especially rings) before borrowing
+		// from another equipment row. They have no setup row of their own.
+		for (BankPreviewItem candidate : candidates)
+		{
+			int slot = slotRankOf(candidate, gearStats);
+			if ((styleRankOf(candidate, gearStats) == STYLE_OTHER || slot >= 12)
+				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+			{
+				return candidate;
+			}
+		}
+
+		// When cross-row borrowing is unavoidable, take overflow from the
+		// latest slot group (normally spare weapons) so legs, capes, necks and
+		// boots still reach their own rows. Candidate order keeps the best item
+		// within that chosen slot first.
+		int latestSlot = -1;
+		BankPreviewItem selected = null;
+		for (BankPreviewItem candidate : candidates)
+		{
+			if (!isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
 			{
 				continue;
 			}
+			int slot = slotRankOf(candidate, gearStats);
+			if (slot > latestSlot)
+			{
+				latestSlot = slot;
+				selected = candidate;
+			}
+		}
+		return selected;
+	}
 
-			String key = column + ":" + setRow[column];
-			List<BankPreviewItem> candidates = setCandidates.get(key);
-			if (candidates != null && takenPerKey.getOrDefault(key, 0) < candidates.size())
+	private static boolean isAvailableFiller(BankPreviewItem candidate, Set<Integer> usedItemIds,
+		Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+	{
+		return slotRankOf(candidate, gearStats) != 11
+			&& !usedItemIds.contains(candidate.getItemId())
+			&& !reservedPrimaryIds.contains(candidate.getItemId());
+	}
+
+	private static boolean rowContainsSlot(int[] row, int slot)
+	{
+		for (int value : row)
+		{
+			if (value == slot)
 			{
 				return true;
 			}
 		}
-
 		return false;
 	}
 

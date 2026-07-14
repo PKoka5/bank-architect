@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import net.runelite.api.gameval.ItemID;
 
 public final class BankSnapshot
 {
@@ -23,7 +24,7 @@ public final class BankSnapshot
 
 		for (BankItemSnapshot raw : rawEntries)
 		{
-			if (raw == null || raw.getItemId() <= 0
+			if (raw == null || raw.getItemId() <= 0 || raw.getItemId() == ItemID.BANK_FILLER
 				|| (!raw.isPlaceholder() && raw.getQuantity() <= 0)
 				|| (raw.isPlaceholder() && raw.getQuantity() != 0))
 			{

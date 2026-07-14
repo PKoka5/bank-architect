@@ -26,6 +26,7 @@ public class BankBlueprintTextExporterTest
 
 		String export = BankBlueprintTextExporter.export(preview);
 
+		assertTrue(export.startsWith("Bank Architect blueprint export\n"));
 		assertTrue(export.contains("TAB 1 | placement=MAIN | key=combat-gear"
 			+ " | name=Combat Gear | items=1"));
 		assertTrue(export.contains("row=1 col=1 slot=1 | id=11832 | name=Bandos chestplate | quantity=1"
