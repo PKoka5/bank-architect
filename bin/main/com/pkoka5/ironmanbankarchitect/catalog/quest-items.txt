@@ -1,0 +1,1640 @@
+# Quest item names (exact matches only; disambiguation pages removed).
+# Source: Old School RuneScape Wiki, Category:Quest items
+# (oldschool.runescape.wiki), CC BY-NC-SA 3.0. Regenerate via the wiki API.
+??? mixture
+1/3rds full jug
+1/5ths full bucket
+10th squad sigil
+2/3rds full jug
+2/5ths full bucket
+3/5ths full bucket
+4/5ths full bucket
+5-gallon jug
+8-gallon jug
+A chair
+A container
+A dark disposition
+A eyeglo null
+A handwritten book
+A magic scroll
+A pattern
+A scribbled note
+A scruffy note
+A small key
+A special tiara
+A stone bowl
+A used spell
+Abyssal incantation
+Abyssal observations
+Acatzin's axe
+Acetic acid
+Achey tree logs
+Address form
+Address label
+Aereck's caged monkey
+Agility dolmen
+Air block
+Air nerve
+Airtight pot
+Aivas bust
+Aivas' diary
+Alchemical notes
+Alco-chunks
+Ale yeast
+Amitire leaves
+Amitire stew
+Ammo mould
+Ammonium nitrate
+Amulet of accuracy
+Amulet of doomion
+Amulet of holthion
+Amulet of othanian
+An empty folder
+Ana in a barrel
+Ancestral dagger
+Ancestral key
+Ancient casket
+Ancient jewel
+Ancient lamp
+Ancient letter
+Ancient mace
+Ancient map
+Ancient roots
+Ancient talisman
+Ancient teleporter
+Anger battleaxe
+Anger mace
+Anger spear
+Anger sword
+Anima portal
+Anima portal schematic
+Animal skull
+Animate rock scroll
+Anna's print
+Anti-dragon shield
+Apricot cream pie
+Arcenia root
+Arceuus favour certificate
+Arctic pine logs
+Arder mushroom
+Arder powder
+Arder-musca poison
+Arder-resper poison
+Ardougne knight helm
+Ardougne knight platebody
+Ardougne knight platelegs
+Ardougne knight tabard
+Ardougne teleport scroll
+Ardrigal
+Ardrigal mixture
+Argian berries
+Arkan blade
+Armadyl communiqué
+Armadyl pendant
+Armour shard
+Arms
+Arrav's axe
+Artefact
+Asgoldian ale
+Asleif's necklace
+Astral nerve
+Astral rune shards
+Astronomy book
+Attack dolmen
+Auguste's sapling
+Ava's accumulator
+Ava's attractor
+Awful anthem
+Axe head
+Baboon emblem
+Baby dragon bone
+Balance dolmen
+Ball
+Ballad
+Balloon structure
+Balloon toad
+Bamboo
+Bar magnet
+Barbarian rod
+Bark sample
+Barrel
+Barrel bomb
+Barrel of coal tar
+Barrel of naphtha
+Barrelchest anchor
+Base key
+Base plans
+Base schematics
+Basic shadow torch
+Basic shadow torch schematic
+Basilisk bone
+Bat wing
+Battered book
+Battered key
+Beacon ring
+Beads of the dead
+Beam
+Bear ribs
+Bearhead
+Beaten book
+Bedabin key
+Bedsheet
+Beer soaked hand
+Bell jar
+Bert's rota
+Bervirius notes
+Betty's notes
+Big book of bangs
+Big frog leg
+Binding book
+Binding fluid
+Bird book
+Bird feed
+Bird mask
+Black bead
+Black candle
+Black cog
+Black crystal
+Black desert robe
+Black desert shirt
+Black dye
+Black knight helm
+Black mushroom
+Black prism
+Blackened crystal
+Blackstone fragment
+Blamish oil
+Blamish snail slime
+Blank air rune
+Blank earth rune
+Blank fire rune
+Blank mind rune
+Blank water rune
+Blessed axe
+Blessed gold bowl
+Blessed lamp
+Blessed pot
+Blessed water
+Blindweed
+Blindweed seed
+Blisterwood flail
+Blisterwood logs
+Blisterwood sickle
+Bloated toad
+Blood diamond
+Blood nerve
+Blood potion
+Blood tithe pouch
+Bloody head
+Bloody knife
+Bloody mourner top
+Blue circle
+Blue cog
+Blue dye bellows
+Blue goblin mail
+Blue liquid
+Blue pentagon
+Blue square
+Blue thread
+Blue toad
+Blue triangle
+Bluish key
+Blunt axe
+Blurite ore
+Blurite sword
+Bob's caged monkey
+Bob's print
+Bolt cutters
+Bomber cap
+Bomber jacket
+Bone beads
+Bone charm
+Bone in vinegar
+Bone seeds
+Bonesack
+Book o' piracy
+Book of balance
+Book of darkness
+Book of 'h.a.m'
+Book of haricanto
+Book of law
+Book of portraiture
+Book of spyology
+Book of the dead
+Book of war
+Book on baxtorian
+Book on chemicals
+Book on costumes
+Book page 1
+Book page 2
+Book page 3
+Boots of lightness
+Bosun's workbench schematic
+Bottle of fish bladder stout
+Bottle of mist
+Bottle of 'tonic'
+Bottled water
+Bow-sword
+Brain tongs
+Branch
+Bravery potion
+Breadcrumbs
+Bream scales
+Breathing salts
+Broav
+Broken cannon
+Broken device
+Broken glass
+Broken pipe
+Broken redirector
+Broken shield
+Broken vane part
+Bronze feather
+Brooch
+Brown spice
+Brulee supreme
+Brush
+Bucket of bloodwood sap
+Bucket of rubble
+Bucket of saltwater
+Bucket of sap
+Bucket of wax
+Builder's boots
+Builder's shirt
+Builder's trousers
+Building supplies
+Bullroarer
+Burnt diary
+Burnt fishcake
+Burnt giant crab meat
+Burnt jubbly
+Butler's tray
+Buttons
+Cadarn lineage
+Cadava berries
+Cadava potion
+Cake of guidance
+Camel mask
+Camorra bust
+Camulet
+Canister
+Cannon barrels
+Cannon base
+Cannon furnace
+Cannon stand
+Canopic jar
+Canvas piece
+Captain's log
+Carnillean armour
+Carol's print
+Case file
+Castle sketch 1
+Castle sketch 2
+Castle sketch 3
+Cat antipoison
+Catspeak amulet
+Cattleprod
+Cave goblin skull
+Cavern key
+Cell door key
+Cell key
+Cell key 1
+Cell key 2
+Champions token
+Chaos gauntlets
+Charged cell
+Charged onyx
+Chef's notes
+Chemical compound
+Chemical vial
+Chicken cage
+Child's blanket
+Chompy bird obj
+Chores
+Chunk of crystal
+Cinnamon
+Circlet of water
+Citizen shoes
+Citizen top
+Citizen trousers
+Clay head
+Clear liquid
+Climbing boots
+Clockwork book
+Clockwork suit
+Cloudy grey potion
+Code converter
+Code key
+Coin purse
+Cold bluish-white potion
+Cold key
+Colour wheel
+Coloured ball
+Combat damaged key
+Combat dolmen
+Combat lamp
+Combat scarred key
+Combat scratched key
+Combination
+Comfy mattress
+Commorb
+Commorb v2
+Completed note
+Conductor
+Conductor mould
+Consecration seed
+Cooked fishcake
+Cooked giant crab meat
+Cooked jubbly
+Cooked oomlie wrap
+Cooking gauntlets
+Copper's crimson collar
+Cornflour
+Cornflour mixture
+Corpse of woman
+Cosmic nerve
+Cowbell amulet
+Cowbells
+Cow's caged monkey
+Crafting manual
+Crandor map
+Crane claw
+Crane schematic
+Cranial clamp
+Crank wheel
+Crate of looty
+Crate part
+Crate with zanik
+Crescent moon key
+Crest part
+Criminal's dagger
+Criminal's thread
+Crimson fibre
+Crocodile emblem
+Crone-made amulet
+Crowbar
+Crude carving
+Cruder carving
+Crumpled scroll
+Crypt key
+Crypt map
+Crystal bow
+Crystal chime
+Crystal chime seed
+Crystal pendant
+Crystal saw
+Crystal saw seed
+Crystal seed
+Crystal shield
+Crystal trinket
+Crystal-mine key
+Cultist robe
+Cupric ore powder
+Cupric sulfate
+Cure crate
+Current duck
+Custom bow string
+Cyrisus's chest
+Daconia rock
+Dagannoth ribs
+Dagon'hai history
+Damaged dagger
+Damiana leaves
+Damiana tea
+Damiana water
+Damp key
+Damp planks
+Damp sticks
+Damp tablet
+Dark dagger
+Dark nullifier
+Dark squall hood
+Dark squall robe bottom
+Dark squall robe top
+Darklight
+David's print
+Dead blood serpent
+Dead orb
+Dead sea slug
+Death note
+Death talisman
+Decapitated head
+Declaration
+Decoder strips
+Deconstructed onyx
+Deep sea helmet
+Defence dolmen
+Delivery confirmation
+Delphinium seed
+Demonic incantations
+Demonic sigil
+Demonic sigil mould
+Demonic tome
+Demon's heart
+Desert disguise
+Desert lizard bone
+Detonator
+Diamond key
+Dinh's hammer
+Directionals
+Directions
+Dirty blast
+Dirty note
+Dirty robe
+Dirty shirt
+Display cabinet key
+Distillator
+Diving apparatus
+Doctor's hat
+Doll of iban
+Donie's caged monkey
+Doogle leaves
+Door transcription
+Dragon inn tankard
+Dragon key
+Dragon key piece
+Dragon sq shield
+Dragon token
+Dragonstone key
+Drakan emblem
+Drakan's medallion
+Dramen branch
+Dramen staff
+Draynor skull
+Dream log
+Dream potion
+Dream vial
+Dreamy lamp
+Dried thistle
+Drinking flask
+Druid pouch
+Druidic spell
+Drunk parrot
+Dry sticks
+Duke note
+Duradel's notes
+Dust nerve
+Dusty book
+Dusty lamp
+Dusty note
+Dwarf brew
+Dwarf remains
+Dwarven battleaxe
+Dwarven helmet
+Dwarven lore
+Dwarven rock cake
+Dwellberries
+Dyed orange
+Eagle cape
+Eagle feather
+Earth block
+Earth nerve
+Eastern settlement
+Ectophial
+Edern's journal
+Ekeleshuun key
+Elder cadantine
+Elemental helmet
+Elemental metal
+Elemental ore
+Elemental shield
+Elias' message
+Elite black full helm
+Elite black platebody
+Elite black platelegs
+Elizabeth's print
+Elvarg's head
+Embalming manual
+Emerald key
+Emerald lantern
+Emerald lens
+Emissary hood
+Emissary robe bottom
+Emissary robe top
+Emissary sandals
+Emissary scroll
+Empty box
+Empty bucket
+Empty jug
+Empty spice shaker
+Empty syringe
+Empty tax bag
+Empty vial
+Enchanted bar
+Enchanted bear
+Enchanted beef
+Enchanted chicken
+Enchanted earth talisman
+Enchanted egg
+Enchanted flour
+Enchanted key
+Enchanted lyre
+Enchanted milk
+Enchanted quill
+Enchanted rat
+Enchanted scroll
+Enchanted symbol
+Enchanted water talisman
+Energy disk
+Energy dolmen
+Engine
+Enriched snapdragon
+Enriched snapdragon seed
+Ent's roots
+Essiandar's notes
+Etchings
+Ethenea
+Evacuation note
+Evil chicken's egg
+Excalibur
+Exotic flower
+Experiment bone
+Explosive barrel
+Exquisite boots
+Exquisite clothes
+Extended brush
+Eye amulet
+Fake beak
+Fake beard
+Fake man
+Fancy gem
+Farming manual
+Feathered journal
+Fever spider body
+Fingernails
+Fire block
+Fire feather
+Fire giant bone
+Fire nerve
+Fiscal statement
+Fishbowl and net
+Fishbowl helmet
+Fishing dolmen
+Fishing pass
+Fishing trophy
+Fixed device
+Flaygian's notes
+Flighted ogre arrow
+Fluffs' kitten
+Flypaper
+Form 7r4-5h
+Form cr-4p
+Fossil island note book
+Foul chunky potion
+Fox's report
+Fragment 1
+Fragment 2
+Fragment 3
+Frank's print
+Fremennik ballad
+Fresh crab shell
+Fresh monkfish
+From Misthalin to Morytania
+Frozen bucket
+Frozen jug
+Frozen vase
+Full bucket
+Full crest
+Full folder
+Full jug
+Full moon key
+Full syringe
+Fur head
+Fur sample
+Gadderhammer
+Garden brush
+Garden cane
+Garlic powder
+Gas mask
+Generator crank
+Ghostly boots
+Ghostly cloak
+Ghostly gloves
+Ghostly hood
+Ghost's skull
+Ghostspeak amulet
+Ghoul bone
+Giant bat wing
+Giant carp
+Giant crab meat
+Giant nib
+Giant pen
+Giant rat bone
+Gibbous moon key
+Gilded book
+Gilded cross
+Gilded key
+Gilded totem
+Glarial's amulet
+Glarial's pebble
+Glarial's urn
+Glough's journal
+Glough's key
+Glowing dagger
+Glowing fungus
+Gnome amulet
+Gnome royal seal
+Goat dung
+Goblin kitchen key
+Goblin potion
+Goblin skull
+Goblin symbol book
+Goblin village sphere
+Gold bowl
+Gold helmet
+Golden bowl
+Golden candle
+Golden fleece
+Golden goblin
+Golden hammer
+Golden key
+Golden needle
+Golden pot
+Golden tinderbox
+Golden wool
+Goldsmith gauntlets
+Golem program
+Good anthem
+Gooey note
+Gorak claw powder
+Gorak claws
+Goutweed
+Goutweedy lump
+Grail bell
+Granite tablet
+Green circle
+Green dye bellows
+Green pentagon
+Green powder
+Green square
+Green toad
+Green triangle
+Greenman's ale
+Gregg's iou
+Grid note
+Griffin feather
+Grimy ardrigal
+Grimy note
+Grimy rogue's purse
+Grimy sito foil
+Grimy snake weed
+Grimy volencia moss
+Grip's keyring
+Ground astral rune
+Ground bat bones
+Ground charcoal
+Ground cod
+Ground giant crab meat
+Ground kelp
+Ground sulphur
+Ground thistle
+Ground tooth
+Guam vial
+Guam-marr vial
+Guide book
+Gunpowder
+Guthix rest
+Guthix staff
+Gypsum
+Haemalchemy volume 1
+Haemalchemy volume 2
+Hag's poison
+Hair clip
+Half a rock
+Half certificate
+Half moon key
+Hallowed flail
+Hand mirror
+Handkerchief
+Hangover cure
+Hard hat
+Hardy gout tuber
+Hardy gout tubers
+Hazeel scroll
+Hazeel's mark
+Hazelmere's scroll
+Heart crystal
+Heavy box
+Hefty tax bag
+Helm of neitiznot
+Helmet fragment
+Herb tea mix
+Herbal tincture
+Herbalist's notes
+Herman's book
+Hespori bark
+Histories of the hallowland
+History and hearsay
+History of iban
+Hollow reed
+Holos mushroom
+Holos powder
+Holos-arder poison
+Holy book
+Holy force
+Holy symbol
+Holy table napkin
+Holy water
+Holy wrench
+Horogothgar key
+Hosidius favour certificate
+Human emblem
+Humphrey Dumphrey
+Hunk of crystal
+Hunter dolmen
+Hunters' talisman
+Huzamogaarb key
+Iban's ashes
+Iban's dove
+Iban's shadow
+Iban's staff
+Ice arrows
+Ice diamond
+Ice giant ribs
+Ice gloves
+Icon segment
+Icy chest
+Icy key
+Id papers
+Illuminating lure
+Imbued barronite
+Important letter
+Indigo circle
+Indigo pentagon
+Indigo square
+Indigo triangle
+Inert locator orb
+Infused earth talisman
+Infused wand
+Infused water talisman
+Initiate hauberk
+Initiate sallet
+Insect repellent
+Intel report
+Invasion plans
+Inversion potion
+Invitation letter
+Iorwerth's message
+Iou
+Iron key
+Iron oxide
+Iron sheet
+Item list
+Ivandis flail
+Ivandis' writings
+Jackal bone
+Jaguar egg
+Jaguar mask
+Jar of congealed blood
+Jatoba logs
+Jewel shard
+Jewellery of jubilation
+Jewels
+Jogre bone
+Journal page
+Jovkai key
+Jug of vinegar
+Juice-coated brush
+Justiciar's hand
+K sigil
+Karambwan paste
+Karambwan vessel
+Karambwanji
+Karambwanji paste
+Karamjan monkey greegree
+Karamjan rum
+Karamthulhu
+Karidian disguise
+Kasonde's journal
+Kelda hops
+Kelda seed
+Kelda stout
+Kelp
+Keris
+Keris partisan
+Key print
+Keys
+Keystone fragment
+Kgp id card
+Khali brew
+Kharedst's memoirs
+Khazard armour
+Khazard cell keys
+Khazard helmet
+Killer's knife
+Killer's print
+Kindling
+King's message
+Klank's gauntlets
+Knife blade
+Korbal herb
+Kourend favour certificate
+Kourend map
+Kruk monkey greegree
+Kruk's paw
+Kuhu essence
+Ladder top
+Lamp of knowledge
+Large clock hand
+Large cog
+Large egg
+Large ornate key
+Lathas' amulet
+Lava eel
+Lava nerve
+Law nerve
+Left boot
+Left crest half
+Legendary cocktail
+Legs
+Lens mould
+Letter to surok
+Level 1 certificate
+Level 2 certificate
+Level 3 certificate
+Lever handle
+Lever schematic
+Library note
+Lift manual
+Light tax bag
+Lighthouse key
+Lily of the elid
+Liquid honey
+List
+List of elders
+List of monkey sightings
+List of repairs
+Lit explosive
+Lit strange object
+Lithkren vault notes
+Lizardman egg
+Locating crystal
+Locator orb
+Long pulley beam
+Longer pulley beam
+Lovakengj favour certificate
+Love letter
+Low alcohol keg
+Lumber order
+Lump of crystal
+Lunar amulet
+Lunar bar
+Lunar boots
+Lunar cape
+Lunar glass
+Lunar gloves
+Lunar helm
+Lunar legs
+Lunar ore
+Lunar ring
+Lunar staff
+Lunar staff - pt1
+Lunar staff - pt2
+Lunar staff - pt3
+Lunar torso
+Lunch by the lancalliums
+Lyre
+M sigil
+Magic beans
+Magic dolmen
+Magic essence
+Magic glue
+Magic gold feather
+Magic lantern
+Magic ogre potion
+Magic secateurs
+Magic whistle
+Magical orb
+Mahjarrat notes
+Maisa's message
+Makeover voucher
+Makeshift bandages
+Makeshift blackjack
+Makeshift poultice
+Malumac's journal
+M'amulet mould
+Manor key
+Manual
+Map piece
+Map scrap
+Marble amulet
+Marinated j' bones
+Marlo's crate
+Marr vial
+Mastaba key
+Mayor of catherby
+Mayoral fishbowl
+Maze key
+Medical gown
+Medium cog
+Medium ninja monkey bones
+Meeting notes
+Metal bar
+Metal feather
+Metal key
+Metal sheet
+Metal spade
+Miazrqa's pendant
+Milk sample
+Milky mixture
+Mind helmet
+Mind nerve
+Mining prop
+Mirror
+Miscellaneous key
+Mixed chemicals
+Model ship
+Modern day morytania
+Mogre bone
+Monkey cage
+Monkey corpse
+Monkey dentures
+Monkey Madness helper
+Monkey nuts
+Monkey paw
+Monkey skin
+Monkey talisman
+Moonlight grub
+Moonlight grub paste
+Moss giant bone
+Moss lizard tail
+Mosschin's bone
+Mourner boots
+Mourner cloak
+Mourner gloves
+Mourner letter
+Mourner top
+Mourner trousers
+Mouse toy
+M'speak amulet
+Mucky note
+Mud
+Muddy rock
+Mudskipper hide
+Murky water
+Musca mushroom
+Musca powder
+Musca-holos poison
+Musca-resper poison
+Music scroll
+Music sheet
+Myrmel key
+Mysterious book
+Mysterious crushed meat
+Mysterious herb
+Mysterious jerky
+Mysterious meat
+Mysterious medallion
+Mysterious note
+Mystical robes
+Naphtha apple mix
+Naphtha mix
+Narnode's orders
+Narogoshuun key
+Nature nerve
+Necromancy book
+Neilan's journal
+Nettle tea
+Nettles
+Nettle-water
+New key
+New moon key
+Newly made crystal
+Nitroglycerin
+Nitrous oxide
+Normal tax bag
+Notes on pressure
+Nuff's certificate
+Nulodion's notes
+Numbers note
+Nurse hat
+Observatory lens
+Obsidian amulet
+Odd bird seed
+Odd key
+Odd spectacles
+Odd stuffed snake
+Offering bouquet
+Ogre arrow
+Ogre artefact
+Ogre bellows
+Ogre bow
+Ogre gate key
+Ogre relic
+Ogre ribs
+Ogre tooth
+Oil can
+Oily cloth
+Oily fishing rod
+Old cog
+Old cup
+Old diary
+Old journal
+Old man's coffin
+Old red disk
+Old robe
+Old tablet
+Olive oil
+Onyx key
+Orange circle
+Orange dye
+Orange goblin mail
+Orange pentagon
+Orange spice
+Orange square
+Orange triangle
+Orb of light
+Orb of protection
+Orbs of protection
+Order form
+Orders note
+Origami balloon
+Ornament
+Ornate hourglass
+Ornate knife
+Ornate skull
+Page 1
+Page 2
+Page 3
+Pages
+Panning tray
+Paste
+Pastel flowers
+Pasty jogre bones
+Peace treaty
+Pendant of lucien
+Penguin bongos
+'perfect' gold bar
+'perfect' gold ore
+'perfect' necklace
+'perfect' ring
+Perfected shadow torch
+Perfected shadow torch schematic
+Perseriya's medallion
+Pet rock
+Pete's candlestick
+Petition form
+Pharmakos berries
+Phoenix crossbow
+Phoenix feather
+Phoenix hq key
+Phoenix quill pen
+Pickled brain
+Picture
+Piece of railing
+Pigeon cage
+Pile of salt
+Pink dye
+Pink rose seed
+Pious proceedings
+Pipe ring
+Pirate medallion
+Pirate message
+Piscarilius favour certificate
+Plague jacket
+Plague sample
+Plague trousers
+Plain of mud sphere
+Plaster fragment
+Plunder
+Plushy
+Poem
+Poem scroll
+Poisoned cheese
+Poisoned fish food
+Pole
+Polished buttons
+Polishing rock
+Porcelain cup
+Portrait
+Pot lid
+Pot of cornflour
+Pot of quicklime
+Pot of vinegar
+Pot of weeds
+Potato sack
+Potion note
+Potion of sealegs
+Prayer dolmen
+Prayer note
+Preform
+Premium banana
+Present
+Pressure gauge
+Prifddinas' history
+Primed bar
+Primed mind bar
+Prisoner's letter
+Promissory note
+Proselyte cuisse
+Proselyte hauberk
+Proselyte sallet
+Proselyte tasset
+Protest banner
+Protest note
+Prototype dart
+Prototype dart tip
+Pulley beam
+Pungent pot
+Putrid sticky potion
+Queen's secateurs
+Quest items
+Quicklime
+Rabbit bone
+Radiant fibre
+Radimus notes
+Railing
+Ram mask
+Ram skull
+Ram skull helm
+Ramrod
+Rancid slimy potion
+Ranged dolmen
+Ranis' head
+Rank frothy potion
+Rashiliyia corpse
+Rat bone
+Rat poison
+Rat pole
+Rat's paper
+Rat's tail
+Raw bream
+Raw fishcake
+Raw giant carp
+Raw guide cake
+Raw jubbly
+Raw karambwanji
+Raw lava eel
+Raw moss lizard
+Raw stuffed snake
+Recipe
+Red banana
+Red bead
+Red circle
+Red cog
+Red disk
+Red dye bellows
+Red herring
+Red hot sauce
+Red mahogany log
+Red pentagon
+Red powder
+Red rose seed
+Red spice
+Red square
+Red toad
+Red triangle
+Red vine worm
+Redberry juice
+Redeyes' bone
+Reduced cadava potion
+Refugees note
+Reinforced goggles
+Relic part 1
+Relic part 2
+Relic part 3
+Repair plank
+Request note
+Requisition note
+Research package
+Resper mushroom
+Resper powder
+Resper-holos poison
+Restoration dolmen
+Revitalising idol
+Revitalising idol schematic
+Right boot
+Right crest half
+Ring of charos
+Ring of shadows
+Ring of visibility
+Ripped mourner trousers
+Rivets
+Robert bust
+Rock cake
+Rock sample
+Rod mould
+Rod of ivandis
+Rogue's purse
+Root kindling
+Rose's diary
+Rose's note
+Rose-tinted lens
+Rotten apple
+Rotten apples
+Rotten barrel
+Rotten diary
+Royal accord of twill
+Royal decree
+Royal seed pod
+Rubber tube
+Ruined backpack
+Rune dust
+Rune shards
+Rupert's helmet
+Rusty casket
+Rusty key
+Safety guarantee
+Sailing book
+Salax salt
+Salve amulet
+Salve shard
+Sand
+Sandbag
+Sandstone base
+Sandstone body
+Sandy hand
+Sandy's rota
+Sapphire key
+Sapphire lantern
+Saradomin staff
+Saragorgak key
+Sarl's journal
+Sawmill agreement
+Sawmill proposal
+Scarab emblem
+Scarab mould
+Scarred scraps
+Scorpion cage
+Scrap of paper
+Scrap paper
+Scrawled note
+Scrawled notes
+Scruffy notebook
+Scrumpled note
+Sea fishing map
+Sea slug glue
+Seagull wing
+Seal of passage
+Sealed letter
+Sealed message
+Sealed vase
+Seasoned chompy
+Seasoned sardine
+Seaweed sandwich
+Secret way map
+Seer's key
+Selected iron
+Serpent rope
+Serum 207
+Serum 208
+Settlements note
+Shadow blocker
+Shadow blocker schematic
+Shadow diamond
+Shadow key
+Shadow sword
+Shadum key
+Shale tablet
+Shaman robe
+Shaman's tome
+Sharp knife
+Sharpened axe
+Shayzien favour certificate
+Shayzien journal
+Shed key
+Sheep feed
+Sheep's caged monkey
+Shield fragment
+Shield with symbol
+Shielding potion
+Shiny key
+Shipping contract
+Shipping order
+Shoes
+Shortcut key
+Shrinking recipe
+Shrink-me-quick
+Shrunk ogleroot
+Signed oak bow
+Signed portrait
+Silly jester boots
+Silly jester hat
+Silly jester tights
+Silly jester top
+Silver book
+Silver bottle
+Silver cup
+Silver feather
+Silver necklace
+Silver needle
+Silverlight
+Silverware
+Silvthrill ballista
+Silvthrill javelin
+Silvthrill rod
+Sink plug
+Sin'keth's diary
+Sithik portrait
+Sito foil
+Skavid map
+Sketch
+Skull staple
+Slashed book
+Slate tablet
+Slave boots
+Slave robe
+Slave shirt
+Sled
+Slender blade
+Sliced red banana
+Sliding button
+Slimy key
+Slimy tablet
+Slop of compromise
+Sluglings
+Small clock hand
+Small cog
+Small ninja monkey bones
+Small pick
+Smelly kebab
+Smoke diamond
+Smoke nerve
+Smooth leaf
+Smouldering pot
+Snailfeet's bone
+Snake basket
+Snake basket full
+Snake charm
+Snake corpse
+Snake mask
+Snake over-cooked
+Snake spine
+Snake weed
+Snothead's bone
+Snowdrop seed
+Soaked kindling
+Sodium chloride
+Soggy bread
+Sole
+Solid key
+Solus's hat
+Soul nerve
+Sourhog foot
+Spare controls
+Special cup
+Specimen brush
+Specimen jar
+Spell scroll
+Sphinx's token
+Spicy maggots
+Spicy stew
+Spiked boots
+Spine
+Split log
+Square stone
+Squire's journal
+Staff of armadyl
+Stake
+Star amulet
+Star flower
+Steak sandwich
+Steam nerve
+Steel gauntlets
+Steel key ring
+Sticky leaf
+Sticky note
+Sticky red goop
+Stink bomb
+Stodgy mattress
+Stolen amulet
+Stone ball
+Stone bowl
+Stone head
+Stone left arm
+Stone left leg
+Stone right arm
+Stone right leg
+Stone-plaque
+Storeroom key
+Strange cipher
+Strange icon
+Strange implement
+Strange list
+Strange object
+Strange potion
+Strange slider
+Strange spider eggs
+Strange teleorb
+Strangler serum
+Strength dolmen
+Strong cup of tea
+Strongbones' bone
+Strongroom key
+Stuffed monkey
+Stuffed snake
+Sturdy boots
+Sucellus' medallion
+Sulphur
+Sulphur potion
+Sulphuric acid
+Sulphuric broline
+Sunspear
+Super truth serum
+Superior shadow torch
+Superior shadow torch schematic
+Suqah hide
+Suqah leather
+Suqah tooth
+Surok's letter
+Suspect sketch
+Sven's last map
+Sword fragment
+Sword pommel
+Symptoms list
+Syringe barrel
+Syringe needle
+Syringe plunger
+Tacks
+Tarnished key
+Tarn's diary
+Tattered eye patch
+Tattered journal
+Tattered sails
+Tattered scroll
+Tatty note
+Tatty page
+Tchiki monkey nuts
+Tchiki nut paste
+Technical plans
+Teddy
+Tegid's soap
+Teleorb
+Telescope dummy
+Temple library key
+Tenti pineapple
+Terrorbird wing
+Test kebab
+Thank you note
+The fisher's flute
+The groats principles
+The Life of Friar
+The sleeping seven
+Thick dye
+Thick red potion
+Thieves' armband
+Threatening note
+Tin ore powder
+Toban's gold
+Toban's key
+To-do list
+Tome of the moon
+Tome of the sun
+Tome of the temple
+Tongs
+Toolkit
+Torn page
+Torso
+Tortugan scute
+Tortugan shield
+Totem
+Touch paper
+Tower key
+Toxic naphtha
+Toxic powder
+Toy ship
+Tracking map
+Traiborn note
+Translated note
+Translated notes
+Translation
+Translation book
+Translation manual
+Trapdoor key
+Treasure map
+Treasure scroll
+Treaty
+Trimmed fur
+Tristan bust
+Troll bone
+Troll potion
+Troll thistle
+Trolley
+Trollweiss
+Trowel
+Truth serum
+Tullia's letter
+Twigs
+Ugthanki dung
+Unconscious broav
+Undead cow ribs
+Undead twigs
+Unfinished blood potion
+Unfinished serum
+Unfired pot lid
+Ungael lab notes
+Unholy book
+Unicorn bone
+Unicorn's caged monkey
+Unknown fluid
+Unknown print
+Unsanitary swill
+Unsealed letter
+Unstamped letter
+Unstrung lyre
+Unusual armour
+Unusual fish
+Used folder
+V sigil
+Valve wheel
+Vampyre book
+Vanilla pod
+Vardorvis' medallion
+Varlamore crest
+Varlamore envoy
+Varmen's notes
+Varrock census records
+Vase
+Vase lid
+Vase of water
+Venator stomach
+Venom gland
+Very long rope
+Vial of liquid
+Vine flower
+Vine seed
+Violet circle
+Violet pentagon
+Violet square
+Violet triangle
+Vitur key
+Volencia moss
+V's shield
+Vulture wing
+Vyre noble legs
+Vyre noble shoes
+Vyre noble top
+Waking sleep vial
+Wampum belt
+Warm key
+Warning letter
+Warning note
+Warrant
+Warriors' contract
+Washing bowl
+Waste-paper basket
+Water block
+Water container
+Water nerve
+Wax
+Waxwood log
+Waxwood plank
+Weapon store key
+Weather forecast
+Weather report
+Weathervane pillar
+Weightless black potion
+Weird gloop
+Weiss fire notes
+Werewolf bone
+Wet fabric scrap
+Whisperer's medallion
+White bead
+White cog
+White goblin mail
+White pearl
+White pearl seed
+White rose seed
+White scimitar
+White tree fruit
+White tree sapling
+White tree shoot
+Whitefish
+Wig
+Windswept logs
+Wine labels
+Witch's cat
+Withered note
+Wizard's head
+Wolf bone
+Wolf whistle
+Wolfbane
+Wolfbone arrowtips
+Wood carving
+Wooden cat
+Wooden disk
+Word translations
+Worn key
+Wrapped oomlie
+Wrath nerve
+Wrench
+Wrought iron key
+Yellow bead
+Yellow circle
+Yellow dye bellows
+Yellow pentagon
+Yellow spice
+Yellow square
+Yellow toad
+Yellow triangle
+Yewnock's notes
+Yommi totem
+Yommi tree seeds
+Yurkolgokh key
+Z sigil
+Zadimus corpse
+Zaff's instructions
+Zamorak staff
+Zealot's key
+Zogre bone
+Zombie bone

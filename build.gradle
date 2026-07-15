@@ -37,6 +37,19 @@ tasks.register('run', JavaExec) {
 	args '--developer-mode'
 }
 
+tasks.register('exportEffectiveItemClassifications', JavaExec) {
+	group = 'verification'
+	description = 'Exports the effective Ironman item classification for offline research.'
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.pkoka5.ironmanbankarchitect.research.EffectiveItemClassificationExporter'
+	args(
+		project.findProperty('auditRegistry') ?: 'src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv',
+		project.findProperty('auditOutput') ?: 'tools/research/item-classification-audit/cache/effective-item-classifications.tsv',
+		project.findProperty('auditExcludedOutput') ?: 'tools/research/item-classification-audit/cache/excluded-cache-records.tsv'
+	)
+}
+
 wrapper {
 	gradleVersion = '8.7'
 	distributionType = Wrapper.DistributionType.BIN

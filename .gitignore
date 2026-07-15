@@ -22,3 +22,7 @@ tools/research/community-templates/cache/
 
 # Local OSRS Wiki Bucket snapshots. Only reviewed aggregate conclusions are tracked.
 tools/research/wiki-recommended-equipment/cache/
+
+# Local effective-classification and Wiki audit snapshots. Aggregate reviewed
+# conclusions are tracked separately under docs/research/.
+tools/research/item-classification-audit/cache/
