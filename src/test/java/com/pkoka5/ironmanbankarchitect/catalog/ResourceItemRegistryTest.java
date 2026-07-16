@@ -901,6 +901,33 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void auditedLastManStandingGearFamiliesRouteToCleanupReview()
+	{
+		/*
+		 * Each exact ID below has its own revision-pinned Wiki source beside the
+		 * matching switch case in CanonicalItemClassificationOverrides. The pages
+		 * identify these as Last Man Standing-only copies, not bankable versions
+		 * of the normal functional equipment.
+		 */
+		assertAuditFamily(new int[] {
+			27201, 27200, 20577, 20576, 20405, 20599, 20598, 23653, 20525, 23640,
+			27173,
+			27194, 27193, 27184, 20431, 33202, 23611, 20593, 29852, 23646, 23593,
+			27169, 23595, 20423, 20424, 23642, 29846, 29848, 29847, 29843, 29845,
+			29849, 29844, 27187, 20578, 33166, 33170, 33168, 20408, 25516, 23639,
+			25515, 23633, 23649, 33460, 20407, 23597, 23648, 27157, 20406, 33186,
+			29851, 29840, 29842, 29841, 27176, 27175, 21205, 23644, 27166, 27167,
+			27168, 20557, 23638, 27180, 23591, 23603, 23607, 23605, 23622, 27170,
+			27195, 27196, 27198, 27197, 23632, 23626, 27870, 33180, 33190, 33192,
+			20581, 23619, 20426, 27159, 27161, 20425, 27158, 27160, 27172, 33178,
+			33462, 23654, 27192, 33184, 23601, 27185, 20607, 20422, 27182, 23624,
+			20397,
+			23599, 23613, 23620, 23637, 23634, 27171, 33194, 33182, 27190, 27189,
+			23636, 23635, 23615, 33198, 33196, 25517, 27162, 27181, 27186, 23617
+		}, ItemCategory.CLEANUP, "junk");
+	}
+
+	@Test
 	public void canonicalHerbloreOverridesCoverWaterAndYewRoots()
 	{
 		assertCategory(227, "Vial of water", ItemCategory.HERBLORE);

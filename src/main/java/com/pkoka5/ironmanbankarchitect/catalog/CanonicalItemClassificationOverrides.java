@@ -487,6 +487,252 @@ final class CanonicalItemClassificationOverrides
 			case 23589: // Stamina potion (LMS)
 				return cleanupJunk();
 
+			// Wiki: https://oldschool.runescape.wiki/w/3rd_age_range_coif_(Last_Man_Standing)?oldid=15208853
+			case 27201: // 3rd age range coif [BR_3A_RANGER_COIF]
+			// Wiki: https://oldschool.runescape.wiki/w/3rd_age_range_legs_(Last_Man_Standing)?oldid=15208852
+			case 27200: // 3rd age range legs [BR_3A_RANGER_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/3rd_age_robe_(Last_Man_Standing)?oldid=15208848
+			case 20577: // 3rd age robe [BR_3A_MAGE_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/3rd_age_robe_top_(Last_Man_Standing)?oldid=15208847
+			case 20576: // 3rd age robe top [BR_3A_MAGE_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Abyssal_whip_(Last_Man_Standing)?oldid=15208958
+			case 20405: // Abyssal whip [BR_ABYSSAL_WHIP]
+			// Wiki: https://oldschool.runescape.wiki/w/Ahrim's_robeskirt_(Last_Man_Standing)?oldid=15208957
+			case 20599: // Ahrim's robeskirt [BR_AHRIM_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Ahrim's_robetop_(Last_Man_Standing)?oldid=15208959
+			case 20598: // Ahrim's robetop [BR_AHRIM_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Ahrim's_staff_(Last_Man_Standing)?oldid=15208960
+			case 23653: // Ahrim's staff [BR_BARROWS_AHRIM_WEAPON]
+			// Wiki: https://oldschool.runescape.wiki/w/Adamant_arrow_pack?oldid=15209160
+			case 20525: // Adamant arrow pack [BR_ADAMANT_ARROWPACK]
+			// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_fury_(Last_Man_Standing)?oldid=15208927
+			case 23640: // Amulet of fury [BR_ENCHANTED_ONYX_AMULET]
+			// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_torture_(Last_Man_Standing)?oldid=15208928
+			case 27173: // Amulet of torture [BR_TORTURE_AMULET]
+			// Wiki: https://oldschool.runescape.wiki/w/Ancestral_robe_bottom_(Last_Man_Standing)?oldid=15262630
+			case 27194: // Ancestral robe bottom [BR_ANCESTRAL_BOTTOM]
+			// Wiki: https://oldschool.runescape.wiki/w/Ancestral_robe_top_(Last_Man_Standing)?oldid=15208861
+			case 27193: // Ancestral robe top [BR_ANCESTRAL_TOP]
+			// Wiki: https://oldschool.runescape.wiki/w/Ancient_godsword_(Last_Man_Standing)?oldid=15208940
+			case 27184: // Ancient godsword [BR_ANCIENT_GODSWORD]
+			// Wiki: https://oldschool.runescape.wiki/w/Ancient_staff_(Last_Man_Standing)?oldid=15208963
+			case 20431: // Ancient staff [BR_ANCIENT_STAFF]
+			// Wiki: https://oldschool.runescape.wiki/w/Aranea_boots_(Last_Man_Standing)?oldid=15208879
+			case 33202: // Aranea boots [BR_ARANEA_BOOTS]
+			// Wiki: https://oldschool.runescape.wiki/w/Armadyl_crossbow_(Last_Man_Standing)?oldid=15208914
+			case 23611: // Armadyl crossbow [BR_ACB]
+			// Wiki: https://oldschool.runescape.wiki/w/Armadyl_godsword_(Last_Man_Standing)?oldid=15208941
+			case 20593: // Armadyl godsword [BR_AGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Atlatl_dart_(Last_Man_Standing)?oldid=15239574
+			case 29852: // Atlatl dart [BR_ATLATL_DART]
+			// Wiki: https://oldschool.runescape.wiki/w/Bandos_tassets_(Last_Man_Standing)?oldid=15208837
+			case 23646: // Bandos tassets [BR_BANDOS_SKIRT]
+			// Wiki: https://oldschool.runescape.wiki/w/Barrows_gloves_(Last_Man_Standing)?oldid=15208965
+			case 23593: // Barrows gloves [BR_HUNDRED_GAUNTLETS_LEVEL_10]
+			// Wiki: https://oldschool.runescape.wiki/w/Berserker_helm_(Last_Man_Standing)?oldid=15208966
+			case 27169: // Berserker helm [BR_BERSERKER_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Berserker_ring_(i)_(Last_Man_Standing)?oldid=15237292
+			case 23595: // Berserker ring (i) [BR_BERZERKER_RING]
+			// Wiki: https://oldschool.runescape.wiki/w/Black_d'hide_body_(Last_Man_Standing)?oldid=15208968
+			case 20423: // Black d'hide body [BR_BLACKDHIDE_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Black_d'hide_chaps_(Last_Man_Standing)?oldid=15208969
+			case 20424: // Black d'hide chaps [BR_BLACKDHIDE_CHAPS]
+			// Wiki: https://oldschool.runescape.wiki/w/Blessed_spirit_shield_(Last_Man_Standing)?oldid=15208929
+			case 23642: // Blessed spirit shield [BR_BLESSED_SPIRIT_SHIELD]
+			// Wiki: https://oldschool.runescape.wiki/w/Blood_moon_chestplate_(Last_Man_Standing)?oldid=15208930
+			case 29846: // Blood moon chestplate [BR_BLOOD_MOON_CHESTPLATE]
+			// Wiki: https://oldschool.runescape.wiki/w/Blood_moon_helm_(Last_Man_Standing)?oldid=15208932
+			case 29848: // Blood moon helm [BR_BLOOD_MOON_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Blood_moon_tassets_(Last_Man_Standing)?oldid=15208933
+			case 29847: // Blood moon tassets [BR_BLOOD_MOON_TASSETS]
+			// Wiki: https://oldschool.runescape.wiki/w/Blue_moon_chestplate_(Last_Man_Standing)?oldid=15208880
+			case 29843: // Blue moon chestplate [BR_FROST_MOON_CHESTPLATE]
+			// Wiki: https://oldschool.runescape.wiki/w/Blue_moon_helm_(Last_Man_Standing)?oldid=15208881
+			case 29845: // Blue moon helm [BR_FROST_MOON_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Blue_moon_spear_(Last_Man_Standing)?oldid=15208893
+			case 29849: // Blue moon spear [BR_FROSTMOON_SPEAR]
+			// Wiki: https://oldschool.runescape.wiki/w/Blue_moon_tassets_(Last_Man_Standing)?oldid=15208882
+			case 29844: // Blue moon tassets [BR_FROST_MOON_TASSETS]
+			// Wiki: https://oldschool.runescape.wiki/w/Bow_of_faerdhinen_(c)_(Last_Man_Standing)?oldid=15208916
+			case 27187: // Bow of faerdhinen (c) [BR_BOW_OF_FAERDHINEN]
+			// Wiki: https://oldschool.runescape.wiki/w/Climbing_boots_(Last_Man_Standing)?oldid=15208979
+			case 20578: // Climbing boots [BR_CLIMBING_BOOTS]
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_body_(Last_Man_Standing)?oldid=15208899
+			case 33166: // Crystal body [BR_CRYSTAL_CHESTPLATE]
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_helm_(Last_Man_Standing)?oldid=15208901
+			case 33170: // Crystal helm [BR_CRYSTAL_HELMET]
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_legs_(Last_Man_Standing)?oldid=15208900
+			case 33168: // Crystal legs [BR_CRYSTAL_PLATELEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Dark_bow_(Last_Man_Standing)?oldid=15208917
+			case 20408: // Dark bow [BR_DARKBOW]
+			// Wiki: https://oldschool.runescape.wiki/w/Dharok's_greataxe_(Last_Man_Standing)?oldid=15208944
+			case 25516: // Dharok's greataxe [BR_BARROWS_DHAROK_WEAPON]
+			// Wiki: https://oldschool.runescape.wiki/w/Dharok's_helm_(Last_Man_Standing)?oldid=15208934
+			case 23639: // Dharok's helm [BR_BARROWS_DHAROK_HEAD]
+			// Wiki: https://oldschool.runescape.wiki/w/Dharok's_platebody_(Last_Man_Standing)?oldid=15208935
+			case 25515: // Dharok's platebody [BR_BARROWS_DHAROK_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Dharok's_platelegs_(Last_Man_Standing)?oldid=15208936
+			case 23633: // Dharok's platelegs [BR_BARROWS_DHAROK_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Diamond_bolts_(e)_(Last_Man_Standing)?oldid=15208978
+			case 23649: // Diamond bolts (e) [BR_DSTONE_BOLTS_E]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_crossbow_(Last_Man_Standing)?oldid=15239569
+			case 33460: // Dragon crossbow [BR_XBOWS_CROSSBOW_DRAGON]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_dagger_(Last_Man_Standing)?oldid=15208977
+			case 20407: // Dragon dagger [BR_DRAGON_DAGGER]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_defender_(Last_Man_Standing)?oldid=15208976
+			case 23597: // Dragon defender [BR_DRAGON_PARRYINGDAGGER]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_javelin_(Last_Man_Standing)?oldid=15208919
+			case 23648: // Dragon javelin [BR_DRAGON_JAVELIN]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_knife_(Last_Man_Standing)?oldid=15208920
+			case 27157: // Dragon knife [BR_DRAGON_KNIFE]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_scimitar_(Last_Man_Standing)?oldid=15208975
+			case 20406: // Dragon scimitar [BR_DRAGON_SCIMITAR]
+			// Wiki: https://oldschool.runescape.wiki/w/Dragonfire_shield_(Last_Man_Standing)?oldid=15208937
+			case 33186: // Dragonfire shield [BR_DRAGONFIRE_SHIELD]
+			// Wiki: https://oldschool.runescape.wiki/w/Eclipse_atlatl_(Last_Man_Standing)?oldid=15208921
+			case 29851: // Eclipse atlatl [BR_ECLIPSE_ATLATL]
+			// Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_chestplate_(Last_Man_Standing)?oldid=15208902
+			case 29840: // Eclipse moon chestplate [BR_ECLIPSE_MOON_CHESTPLATE]
+			// Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_helm_(Last_Man_Standing)?oldid=15208903
+			case 29842: // Eclipse moon helm [BR_ECLIPSE_MOON_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_tassets_(Last_Man_Standing)?oldid=15208905
+			case 29841: // Eclipse moon tassets [BR_ECLIPSE_MOON_TASSETS]
+			// Wiki: https://oldschool.runescape.wiki/w/Elder_chaos_hood_(Last_Man_Standing)?oldid=15208883
+			case 27176: // Elder chaos hood [BR_ELDERCHAOS_HOOD]
+			// Wiki: https://oldschool.runescape.wiki/w/Elder_chaos_robe_(Last_Man_Standing)?oldid=15208884
+			case 27175: // Elder chaos robe [BR_ELDERCHAOS_BOTTOM]
+			// Wiki: https://oldschool.runescape.wiki/w/Elder_maul_(Last_Man_Standing)?oldid=15208947
+			case 21205: // Elder maul [BR_ELDER_MAUL]
+			// Wiki: https://oldschool.runescape.wiki/w/Eternal_boots_(Last_Man_Standing)?oldid=15208862
+			case 23644: // Eternal boots [BR_ETERNAL_BOOTS]
+			// Wiki: https://oldschool.runescape.wiki/w/Ghostly_hood_(Last_Man_Standing)?oldid=15208974
+			case 27166: // Ghostly hood [BR_SECRET_GHOST_HAT]
+			// Wiki: https://oldschool.runescape.wiki/w/Ghostly_robe_(top)_(Last_Man_Standing)?oldid=15208972
+			case 27167: // Ghostly robe [BR_SECRET_GHOST_TOP]
+			// Wiki: https://oldschool.runescape.wiki/w/Ghostly_robe_(bottom)_(Last_Man_Standing)?oldid=15208973
+			case 27168: // Ghostly robe [BR_SECRET_GHOST_BOTTOM]
+			// Wiki: https://oldschool.runescape.wiki/w/Granite_maul_(Last_Man_Standing)?oldid=15208948
+			case 20557: // Granite maul [BR_GRANITE_MAUL]
+			// Wiki: https://oldschool.runescape.wiki/w/Guthan's_helm_(Last_Man_Standing)?oldid=15208839
+			case 23638: // Guthan's helm [BR_BARROWS_GUTHAN_HEAD]
+			// Wiki: https://oldschool.runescape.wiki/w/Guthix_chaps_(Last_Man_Standing)?oldid=15208906
+			case 27180: // Guthix chaps [BR_GUTHIX_CHAPS]
+			// Wiki: https://oldschool.runescape.wiki/w/Helm_of_neitiznot_(Last_Man_Standing)?oldid=15208971
+			case 23591: // Helm of neitiznot [BR_FRIS_KINGLY_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Imbued_guthix_cape_(Last_Man_Standing)?oldid=15208970
+			case 23603: // Imbued guthix cape [BR_MA2_GUTHIX_CAPE]
+			// Wiki: https://oldschool.runescape.wiki/w/Imbued_saradomin_cape_(Last_Man_Standing)?oldid=15190461
+			case 23607: // Imbued saradomin cape [BR_MA2_SARADOMIN_CAPE]
+			// Wiki: https://oldschool.runescape.wiki/w/Imbued_zamorak_cape_(Last_Man_Standing)?oldid=15190462
+			case 23605: // Imbued zamorak cape [BR_MA2_ZAMORAK_CAPE]
+			// Wiki: https://oldschool.runescape.wiki/w/Infernal_cape_(Last_Man_Standing)?oldid=15208938
+			case 23622: // Infernal cape [BR_INFERNAL_CAPE]
+			// Wiki: https://oldschool.runescape.wiki/w/Infinity_boots_(Last_Man_Standing)?oldid=15208863
+			case 27170: // Infinity boots [BR_INFINITY_BOOTS]
+			// Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_great_helm_(Last_Man_Standing)?oldid=15208842
+			case 27195: // Inquisitor's great helm [BR_INQUISITORS_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_hauberk_(Last_Man_Standing)?oldid=15208843
+			case 27196: // Inquisitor's hauberk [BR_INQUISITORS_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_mace_(Last_Man_Standing)?oldid=15208834
+			case 27198: // Inquisitor's mace [BR_INQUISITORS_MACE]
+			// Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_plateskirt_(Last_Man_Standing)?oldid=15208844
+			case 27197: // Inquisitor's plateskirt [BR_INQUISITORS_SKIRT]
+			// Wiki: https://oldschool.runescape.wiki/w/Karil's_leathertop_(Last_Man_Standing)?oldid=15208980
+			case 23632: // Karil's leathertop [BR_BARROWS_KARIL_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Kodai_wand_(Last_Man_Standing)?oldid=15208894
+			case 23626: // Kodai wand [BR_KODAI_WAND]
+			// Wiki: https://oldschool.runescape.wiki/w/Lightbearer_(Last_Man_Standing)?oldid=15208870
+			case 27870: // Lightbearer [BR_LIGHTBEARER]
+			// Wiki: https://oldschool.runescape.wiki/w/Magus_ring_(Last_Man_Standing)?oldid=15208888
+			case 33180: // Magus ring [BR_MAGUS_RING]
+			// Wiki: https://oldschool.runescape.wiki/w/Masori_body_(f)_(Last_Man_Standing)?oldid=15208907
+			case 33190: // Masori body (f) [BR_MASORI_BODY_FORTIFIED]
+			// Wiki: https://oldschool.runescape.wiki/w/Masori_chaps_(f)_(Last_Man_Standing)?oldid=15208908
+			case 33192: // Masori chaps (f) [BR_MASORI_CHAPS_FORTIFIED]
+			// Wiki: https://oldschool.runescape.wiki/w/Mithril_gloves_(Last_Man_Standing)?oldid=15208981
+			case 20581: // Mithril gloves [BR_MITHRIL_GLOVES]
+			// Wiki: https://oldschool.runescape.wiki/w/Morrigan's_javelin_(Last_Man_Standing)?oldid=15208924
+			case 23619: // Morrigan's javelin [BR_MORRIGANS_JAVELIN]
+			// Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_bottom_(Last_Man_Standing)?oldid=15208983
+			case 20426: // Mystic robe bottom [BR_MYSTIC_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_bottom_(dark)_(Last_Man_Standing)?oldid=15239544
+			case 27159: // Mystic robe bottom (dark) [BR_MYSTIC_LEGS_DARK]
+			// Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_bottom_(light)_(Last_Man_Standing)?oldid=15239543
+			case 27161: // Mystic robe bottom (light) [BR_MYSTIC_LEGS_LIGHT]
+			// Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_top_(Last_Man_Standing)?oldid=15208986
+			case 20425: // Mystic robe top [BR_MYSTIC_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_top_(dark)_(Last_Man_Standing)?oldid=15239546
+			case 27158: // Mystic robe top (dark) [BR_MYSTIC_BODY_DARK]
+			// Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_top_(light)_(Last_Man_Standing)?oldid=15239545
+			case 27160: // Mystic robe top (light) [BR_MYSTIC_BODY_LIGHT]
+			// Wiki: https://oldschool.runescape.wiki/w/Necklace_of_anguish_(Last_Man_Standing)?oldid=15208909
+			case 27172: // Necklace of anguish [BR_ANGUISH_NECKLACE]
+			// Wiki: https://oldschool.runescape.wiki/w/Noxious_halberd_(Last_Man_Standing)?oldid=15218677
+			case 33178: // Noxious halberd [BR_NOXIOUS_HALBERD]
+			// Wiki: https://oldschool.runescape.wiki/w/Oathplate_helm_(Last_Man_Standing)?oldid=15239571
+			case 33462: // Oathplate helm [BR_OATHPLATE_HELM]
+			// Wiki: https://oldschool.runescape.wiki/w/Occult_necklace_(Last_Man_Standing)?oldid=15208889
+			case 23654: // Occult necklace [BR_OCCULT_NECKLACE]
+			// Wiki: https://oldschool.runescape.wiki/w/Opal_dragon_bolts_(e)_(Last_Man_Standing)?oldid=15208925
+			case 27192: // Opal dragon bolts (e) [BR_DRAGON_BOLTS_ENCHANTED_OPAL]
+			// Wiki: https://oldschool.runescape.wiki/w/Purging_staff_(Last_Man_Standing)?oldid=15208895
+			case 33184: // Purging staff [BR_PURGING_STAFF]
+			// Wiki: https://oldschool.runescape.wiki/w/Rune_crossbow_(Last_Man_Standing)?oldid=15208989
+			case 23601: // Rune crossbow [BR_XBOWS_CROSSBOW_RUNITE]
+			// Wiki: https://oldschool.runescape.wiki/w/Rune_defender_(Last_Man_Standing)?oldid=15208990
+			case 27185: // Rune defender [BR_RUNE_PARRYINGDAGGER]
+			// Wiki: https://oldschool.runescape.wiki/w/Rune_arrow_pack?oldid=15209260
+			case 20607: // Rune arrow pack [BR_RUNE_ARROWPACK]
+			// Wiki: https://oldschool.runescape.wiki/w/Rune_platelegs_(Last_Man_Standing)?oldid=15208991
+			case 20422: // Rune platelegs [BR_RUNE_PLATELEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Saradomin_chaps_(Last_Man_Standing)?oldid=15208910
+			case 27182: // Saradomin chaps [BR_SARADOMIN_CHAPS]
+			// Wiki: https://oldschool.runescape.wiki/w/Seers_ring_(i)_(Last_Man_Standing)?oldid=15208864
+			case 23624: // Seers ring (i) [BR_NZONE_SEER_RING]
+			// Wiki: https://oldschool.runescape.wiki/w/Spear_(Last_Man_Standing)?oldid=15187811
+			case 20397: // Spear [BR_HALBERD]
+			// Wiki: https://oldschool.runescape.wiki/w/Spirit_shield_(Last_Man_Standing)?oldid=15239457
+			case 23599: // Spirit shield [BR_SPIRIT_SHIELD]
+			// Wiki: https://oldschool.runescape.wiki/w/Staff_of_the_dead_(Last_Man_Standing)?oldid=15237641
+			case 23613: // Staff of the dead [BR_SOTD]
+			// Wiki: https://oldschool.runescape.wiki/w/Statius's_warhammer_(Last_Man_Standing)?oldid=15208951
+			case 23620: // Statius's warhammer [BR_STATIUS_WARHAMMER]
+			// Wiki: https://oldschool.runescape.wiki/w/Torag's_helm_(Last_Man_Standing)?oldid=15239442
+			case 23637: // Torag's helm [BR_BARROWS_TORAG_HEAD]
+			// Wiki: https://oldschool.runescape.wiki/w/Torag's_platelegs_(Last_Man_Standing)?oldid=15208994
+			case 23634: // Torag's platelegs [BR_BARROWS_TORAG_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Tormented_bracelet_(Last_Man_Standing)?oldid=15208890
+			case 27171: // Tormented bracelet [BR_TORMENTED_BRACELET]
+			// Wiki: https://oldschool.runescape.wiki/w/Torva_platelegs_(Last_Man_Standing)?oldid=15208939
+			case 33194: // Torva platelegs [BR_TORVA_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Ultor_ring_(Last_Man_Standing)?oldid=15208952
+			case 33182: // Ultor ring [BR_ULTOR_RING]
+			// Wiki: https://oldschool.runescape.wiki/w/Verac's_brassard_(Last_Man_Standing)?oldid=15208857
+			case 27190: // Verac's brassard [BR_BARROWS_VERAC_BODY]
+			// Wiki: https://oldschool.runescape.wiki/w/Verac's_flail_(Last_Man_Standing)?oldid=15208836
+			case 27189: // Verac's flail [BR_BARROWS_VERAC_WEAPON]
+			// Wiki: https://oldschool.runescape.wiki/w/Verac's_helm_(Last_Man_Standing)?oldid=15239369
+			case 23636: // Verac's helm [BR_BARROWS_VERAC_HEAD]
+			// Wiki: https://oldschool.runescape.wiki/w/Verac's_plateskirt_(Last_Man_Standing)?oldid=15208855
+			case 23635: // Verac's plateskirt [BR_BARROWS_VERAC_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Vesta's_longsword_(Last_Man_Standing)?oldid=15208953
+			case 23615: // Vesta's longsword [BR_VESTAS_LONGSWORD]
+			// Wiki: https://oldschool.runescape.wiki/w/Virtus_robe_bottom_(Last_Man_Standing)?oldid=15208891
+			case 33198: // Virtus robe bottom [BR_VIRTUS_LEGS]
+			// Wiki: https://oldschool.runescape.wiki/w/Virtus_robe_top_(Last_Man_Standing)?oldid=15208892
+			case 33196: // Virtus robe top [BR_VIRTUS_TOP]
+			// Wiki: https://oldschool.runescape.wiki/w/Volatile_nightmare_staff_(Last_Man_Standing)?oldid=15208897
+			case 25517: // Volatile nightmare staff [BR_NIGHTMARE_STAFF_VOLATILE]
+			// Wiki: https://oldschool.runescape.wiki/w/Wizard_boots_(Last_Man_Standing)?oldid=15208865
+			case 27162: // Wizard boots [BR_WIZARD_BOOTS]
+			// Wiki: https://oldschool.runescape.wiki/w/Zamorak_chaps_(Last_Man_Standing)?oldid=15208913
+			case 27181: // Zamorak chaps [BR_ZAMORAK_CHAPS]
+			// Wiki: https://oldschool.runescape.wiki/w/Zaryte_crossbow_(Last_Man_Standing)?oldid=15208926
+			case 27186: // Zaryte crossbow [BR_ZARYTE_XBOW]
+			// Wiki: https://oldschool.runescape.wiki/w/Zuriel's_staff_(Last_Man_Standing)?oldid=15234702
+			case 23617: // Zuriel's staff [BR_ZURIELS_STAFF]
+				return cleanupJunk();
+
 			default:
 				return Optional.empty();
 		}
