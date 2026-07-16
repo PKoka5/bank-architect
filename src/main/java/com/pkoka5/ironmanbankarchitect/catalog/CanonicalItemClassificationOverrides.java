@@ -348,6 +348,12 @@ final class CanonicalItemClassificationOverrides
 			case 11887: // Unfinished broad bolt pack
 				return skillingAmmoComponent();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Unstrung_light_ballista?oldid=15187508
+			case 19604: // Unstrung light ballista
+			// Wiki: https://oldschool.runescape.wiki/w/Unstrung_heavy_ballista?oldid=15187507
+			case 19607: // Unstrung heavy ballista
+				return skillingAmmoComponent();
+
 			// Wiki: https://oldschool.runescape.wiki/w/Cadava_berries?oldid=15183459
 			case 753: // Cadava berries: repeatable Farming payment, compost, and antipoison exchange
 				return farmingProduce();
@@ -733,6 +739,14 @@ final class CanonicalItemClassificationOverrides
 			case 23617: // Zuriel's staff [BR_ZURIELS_STAFF]
 				return cleanupJunk();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_tassets?oldid=15211425
+			case 29052: // Eclipse moon tassets (broken): repairable combat equipment
+			// Wiki: https://oldschool.runescape.wiki/w/Blue_moon_tassets?oldid=15211422
+			case 29061: // Blue moon tassets (broken): repairable combat equipment
+			// Wiki: https://oldschool.runescape.wiki/w/Blood_moon_tassets?oldid=15211419
+			case 29070: // Blood moon tassets (broken): repairable combat equipment
+				return legs();
+
 			default:
 				return Optional.empty();
 		}
@@ -756,6 +770,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> feet()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "feet"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> legs()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "legs"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> cannonPart()

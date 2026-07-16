@@ -928,6 +928,22 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void auditedCleanupItemsWithRepeatableWorkflowsReturnToFunctionalTabs()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Unstrung_light_ballista?oldid=15187508
+		assertAuditFamily(new int[] {19604}, ItemCategory.SKILLING, "ammo-component");
+		// Wiki: https://oldschool.runescape.wiki/w/Unstrung_heavy_ballista?oldid=15187507
+		assertAuditFamily(new int[] {19607}, ItemCategory.SKILLING, "ammo-component");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_tassets?oldid=15211425
+		assertAuditFamily(new int[] {29052}, ItemCategory.GEAR, "legs");
+		// Wiki: https://oldschool.runescape.wiki/w/Blue_moon_tassets?oldid=15211422
+		assertAuditFamily(new int[] {29061}, ItemCategory.GEAR, "legs");
+		// Wiki: https://oldschool.runescape.wiki/w/Blood_moon_tassets?oldid=15211419
+		assertAuditFamily(new int[] {29070}, ItemCategory.GEAR, "legs");
+	}
+
+	@Test
 	public void canonicalHerbloreOverridesCoverWaterAndYewRoots()
 	{
 		assertCategory(227, "Vial of water", ItemCategory.HERBLORE);
