@@ -1533,6 +1533,106 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void combatGearQuestAuditPartOneRoutesOnlyFullyVerifiedFamilies()
+	{
+		// Every linked revision page and relevant creation/use chain was read in
+		// full. The exact source URLs are documented beside the production cases.
+		assertAuditFamily(new int[] {6, 8, 10}, ItemCategory.GEAR, "cannon-part");
+		assertAuditFamily(new int[] {2886, 9715}, ItemCategory.TOOL, "quest-utility");
+		assertAuditFamily(new int[] {721, 722, 723, 724, 725, 726},
+			ItemCategory.TOOL, "quest-utility");
+		assertAuditFamily(new int[] {720}, ItemCategory.TOOL, "quest-utility");
+		assertAuditFamily(new int[] {2387}, ItemCategory.TOOL, "skilling-utility");
+		assertAuditFamily(new int[] {33103, 33104}, ItemCategory.TOOL, "skilling-utility");
+		assertAuditFamily(new int[] {30981}, ItemCategory.POTION, "food");
+		assertAuditFamily(new int[] {4239}, ItemCategory.POTION, "food");
+		assertAuditFamily(new int[] {30979}, ItemCategory.SKILLING, "cooking-material");
+		assertAuditFamily(new int[] {4237}, ItemCategory.SKILLING, "cooking-material");
+		assertAuditFamily(new int[] {2865}, ItemCategory.SKILLING, "ammo-component");
+		assertAuditFamily(new int[] {24735}, ItemCategory.UNIQUE, "equipment-upgrade");
+
+		assertAuditFamily(new int[] {6752}, ItemCategory.CLUE, "cosmetic");
+		assertAuditFamily(new int[] {10865}, ItemCategory.CLUE, "cosmetic");
+		assertAuditFamily(new int[] {10171}, ItemCategory.CLUE, "cosmetic");
+		assertAuditFamily(new int[] {29868, 29870, 29872}, ItemCategory.CLUE, "cosmetic");
+		assertAuditFamily(new int[] {773}, ItemCategory.CLUE, "cosmetic");
+
+		assertAuditFamily(new int[] {2888, 2889}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {1497, 1498, 1499}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33762}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {24688}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33738}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11048}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {9717}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11678}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {25799}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33787}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {757}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {6818}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {763, 765}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {4579}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {1813, 1814}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {2380, 2381, 2382, 2383},
+			ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {25800}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {3267}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33754, 33755}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {5064}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {26903}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {6718}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {4674}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11052}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11013}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {30965}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {4196}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11058, 33760}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {4247}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {2385}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33740}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {10872}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {1849}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {22083}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11199}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {6985, 6986, 6987, 6988},
+			ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {2397}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33749}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11054}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {28807}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33739}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {6772}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33758}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {84}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {28976}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {3109, 3110, 3111, 3112, 3113},
+			ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {3700}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33757}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11056}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {623}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {6788, 6789}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {33751, 33752, 33753},
+			ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {2386}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {11012}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {2964}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {10500}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {20781, 21059}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {86}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {29911}, ItemCategory.CLEANUP, "quest-item");
+
+		assertAuditFamily(new int[] {19559}, ItemCategory.CLEANUP, "junk");
+		assertAuditFamily(new int[] {31400}, ItemCategory.CLEANUP, "junk");
+		assertAuditFamily(new int[] {29572}, ItemCategory.CLEANUP, "junk");
+		assertAuditFamily(new int[] {31298, 31401}, ItemCategory.CLEANUP, "junk");
+		assertAuditFamily(new int[] {4704}, ItemCategory.CLEANUP, "junk");
+
+		// Armadyl pendant has a documented repeatable God Wars protection role.
+		assertCategoryOnly(87, ItemCategory.GEAR);
+		assertFalse(CanonicalItemClassificationOverrides.find(87).isPresent());
+	}
+
+	@Test
 	public void exactExportCleanupRoutesToolsSuppliesAndTeleports()
 	{
 		int[] smithsOutfit = {27023, 27025, 27027, 27029};

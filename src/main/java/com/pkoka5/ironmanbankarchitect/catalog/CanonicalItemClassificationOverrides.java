@@ -1922,6 +1922,252 @@ final class CanonicalItemClassificationOverrides
 			case 29070: // Blood moon tassets (broken): repairable combat equipment
 				return legs();
 
+			/*
+			 * Phase 2, batch 13 (Combat Gear quest-items, part 1).
+			 * The cited revision pages and linked creation/use chains were read
+			 * in full. Quest origin alone never decides the route.
+			 */
+			// Permanent, normally banked Dwarf multicannon components.
+			// Wiki: https://oldschool.runescape.wiki/w/Cannon_base?oldid=15184076
+			// Wiki: https://oldschool.runescape.wiki/w/Cannon_stand?oldid=15184078
+			case 6:
+			case 8:
+				return cannonPart();
+
+			// Repeatable post-quest instructions and holy-water production tools.
+			// Wiki: https://oldschool.runescape.wiki/w/Battered_book?oldid=15261995
+			// Wiki: https://oldschool.runescape.wiki/w/Slashed_book?oldid=15261994
+			case 2886:
+			case 9715:
+			// Wiki: https://oldschool.runescape.wiki/w/Gold_bowl?oldid=15184879
+			// Wiki: https://oldschool.runescape.wiki/w/Blessed_gold_bowl?oldid=15184880
+			// Wiki: https://oldschool.runescape.wiki/w/Golden_bowl?oldid=15184878
+			case 721:
+			case 722:
+			case 723:
+			case 724:
+			case 725:
+			case 726:
+			// The sketch remains useful after the quest because omitting it adds a failure chance.
+			// Wiki: https://oldschool.runescape.wiki/w/Sketch?oldid=15186564
+			case 720:
+				return questUtility();
+
+			// Repeatable utility, food, and skilling workflows that win over quest origin.
+			// Wiki: https://oldschool.runescape.wiki/w/Damaged_dagger?oldid=15184405
+			case 2387: // Can still slash webs after Watchtower
+			// Wiki: https://oldschool.runescape.wiki/w/Cowbell_amulet?oldid=15242265
+			case 33103:
+			case 33104: // Repeatable faster milking, Brutus respawn, and charged teleport utility
+				return skillingUtility();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Damiana_tea?oldid=15218655
+			// Wiki: https://oldschool.runescape.wiki/w/Nettle_tea?oldid=15218650
+			case 30981:
+			case 4239:
+				return food();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Damiana_water?oldid=15194001
+			// Wiki: https://oldschool.runescape.wiki/w/Nettle-water?oldid=15184386
+			case 30979:
+			case 4237:
+				return cookingMaterial();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Flighted_ogre_arrow?oldid=15185590
+			case 2865:
+				return skillingAmmoComponent();
+
+			// Discontinued state still has an explicit Activate conversion into the current ring.
+			// Wiki: https://oldschool.runescape.wiki/w/Ring_of_endurance_(discontinued)?oldid=15190517
+			case 24735:
+				return equipmentUpgrade();
+
+			// Wearable/re-obtainable costumes with no combat role.
+			// Wiki: https://oldschool.runescape.wiki/w/Black_desert_robe?oldid=15185624
+			case 6752:
+			// Wiki: https://oldschool.runescape.wiki/w/Builder's_boots?oldid=15226469
+			case 10865:
+			// Wiki: https://oldschool.runescape.wiki/w/Eagle_cape?oldid=15185043
+			case 10171:
+			// Wiki: https://oldschool.runescape.wiki/w/Emissary_hood?oldid=15192738
+			// Wiki: https://oldschool.runescape.wiki/w/Emissary_robe_top?oldid=15192740
+			// Wiki: https://oldschool.runescape.wiki/w/Emissary_robe_bottom?oldid=15192739
+			case 29868:
+			case 29870:
+			case 29872:
+			// Craftable and wearable, but explicitly has no use or stat bonuses.
+			// Wiki: https://oldschool.runescape.wiki/w/'perfect'_ring?oldid=15186796
+			case 773:
+				return clueCosmetic();
+
+			// Exact quest-stage objects whose full pages record no normal repeatable function.
+			// Wiki: https://oldschool.runescape.wiki/w/A_stone_bowl?oldid=15182661
+			case 2888:
+			case 2889:
+			// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_doomion?oldid=15182758
+			// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_holthion?oldid=15182762
+			// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_othanian?oldid=15182766
+			case 1498:
+			case 1499:
+			case 1497:
+			// Wiki: https://oldschool.runescape.wiki/w/Ancestral_dagger?oldid=15252880
+			// Wiki: https://oldschool.runescape.wiki/w/Ancient_armour_(item)?oldid=15189739
+			// Wiki: https://oldschool.runescape.wiki/w/Ancient_shield_(The_Blood_Moon_Rises)?oldid=15252942
+			case 33762:
+			case 24688:
+			case 33738:
+			// Wiki: https://oldschool.runescape.wiki/w/Armour_shard?oldid=15182694
+			// Wiki: https://oldschool.runescape.wiki/w/Beaten_book?oldid=15261975
+			// Wiki: https://oldschool.runescape.wiki/w/Black_knight_helm?oldid=15187005
+			case 11048:
+			case 9717:
+			case 11678:
+			// Wiki: https://oldschool.runescape.wiki/w/Bloody_knife?oldid=15190246
+			// Wiki: https://oldschool.runescape.wiki/w/Bolt_cutters?oldid=15254416
+			// Wiki: https://oldschool.runescape.wiki/w/Book_(Shield_of_Arrav)?oldid=15186895
+			case 25799:
+			case 33787:
+			case 757:
+			// Wiki: https://oldschool.runescape.wiki/w/Bow-sword?oldid=15184944
+			// Wiki: https://oldschool.runescape.wiki/w/Broken_shield?oldid=15221167
+			// Wiki: https://oldschool.runescape.wiki/w/Cannon_ball_(Between_a_Rock...)?oldid=15184937
+			case 6818:
+			case 763:
+			case 765:
+			case 4579:
+			// Wiki: https://oldschool.runescape.wiki/w/Criminal's_dagger?oldid=15186576
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_(Watchtower)?oldid=15184426
+			case 1813:
+			case 1814:
+			case 2380:
+			case 2381:
+			case 2382:
+			case 2383:
+			// Wiki: https://oldschool.runescape.wiki/w/Cultist_robe?oldid=15190245
+			// Wiki: https://oldschool.runescape.wiki/w/Dirty_robe?oldid=15184216
+			case 25800:
+			case 3267:
+			// Wiki: https://oldschool.runescape.wiki/w/Empty_syringe?oldid=15254396
+			// Wiki: https://oldschool.runescape.wiki/w/Full_syringe?oldid=15245958
+			case 33754:
+			case 33755:
+			// Wiki: https://oldschool.runescape.wiki/w/Exquisite_boots?oldid=15185571
+			// Wiki: https://oldschool.runescape.wiki/w/Eye_amulet?oldid=15190854
+			// Wiki: https://oldschool.runescape.wiki/w/Fever_spider_body?oldid=15183893
+			case 5064:
+			case 26903:
+			case 6718:
+			// Wiki: https://oldschool.runescape.wiki/w/Gilded_cross?oldid=15184410
+			// Wiki: https://oldschool.runescape.wiki/w/Helmet_fragment?oldid=15184981
+			// Wiki: https://oldschool.runescape.wiki/w/Infused_wand?oldid=15184925
+			case 4674:
+			case 11052:
+			case 11013:
+			// Wiki: https://oldschool.runescape.wiki/w/Knife_blade?oldid=14960790
+			// Wiki: https://oldschool.runescape.wiki/w/Legs?oldid=15183874
+			case 30965:
+			case 4196:
+			// Wiki: https://oldschool.runescape.wiki/w/Mace_(H.A.M.)?oldid=15189007
+			// Wiki: https://oldschool.runescape.wiki/w/Mace_(The_Blood_Moon_Rises)?oldid=15255253
+			case 11058:
+			case 33760:
+			// Wiki: https://oldschool.runescape.wiki/w/Mystical_robes?oldid=15185505
+			case 4247:
+			// Wiki: https://oldschool.runescape.wiki/w/Old_robe?oldid=15184414
+			// Wiki: https://oldschool.runescape.wiki/w/Ornate_knife?oldid=15247354
+			// Wiki: https://oldschool.runescape.wiki/w/Pipe_ring?oldid=15185710
+			case 2385:
+			case 33740:
+			case 10872:
+			// Wiki: https://oldschool.runescape.wiki/w/Prototype_dart?oldid=15185563
+			// Wiki: https://oldschool.runescape.wiki/w/Robert_bust?oldid=15188656
+			// Wiki: https://oldschool.runescape.wiki/w/Rupert's_helmet?oldid=15183196
+			case 1849:
+			case 22083:
+			case 11199:
+			// Wiki: https://oldschool.runescape.wiki/w/Sandstone_(20kg)?oldid=15184460
+			// Wiki: https://oldschool.runescape.wiki/w/Sandstone_(32kg)?oldid=15184461
+			// Wiki: https://oldschool.runescape.wiki/w/Sandstone_body?oldid=15184463
+			// Wiki: https://oldschool.runescape.wiki/w/Sandstone_base?oldid=15184462
+			case 6985:
+			case 6986:
+			case 6987:
+			case 6988:
+			// Wiki: https://oldschool.runescape.wiki/w/Shaman_robe?oldid=15186911
+			// Wiki: https://oldschool.runescape.wiki/w/Sharp_knife?oldid=15254393
+			case 2397:
+			case 33749:
+			// Wiki: https://oldschool.runescape.wiki/w/Shield_fragment?oldid=15184980
+			// Wiki: https://oldschool.runescape.wiki/w/Shield_of_arrav_(item)?oldid=15192251
+			// Wiki: https://oldschool.runescape.wiki/w/Shield_with_symbol?oldid=15252940
+			case 11054:
+			case 28807:
+			case 33739:
+			// Wiki: https://oldschool.runescape.wiki/w/Smouldering_pot?oldid=15185822
+			// Wiki: https://oldschool.runescape.wiki/w/Spear_(The_Blood_Moon_Rises)?oldid=15255254
+			// Wiki: https://oldschool.runescape.wiki/w/Staff_of_armadyl?oldid=15185386
+			case 6772:
+			case 33758:
+			case 84:
+			// Wiki: https://oldschool.runescape.wiki/w/Stolen_amulet?oldid=15192438
+			// Wiki: https://oldschool.runescape.wiki/w/Stone_ball?oldid=15183566
+			case 28976:
+			case 3109:
+			case 3110:
+			case 3111:
+			case 3112:
+			case 3113:
+			// Wiki: https://oldschool.runescape.wiki/w/Sturdy_boots?oldid=15186835
+			// Wiki: https://oldschool.runescape.wiki/w/Sword_(The_Blood_Moon_Rises)?oldid=15255252
+			// Wiki: https://oldschool.runescape.wiki/w/Sword_fragment?oldid=15184982
+			case 3700:
+			case 33757:
+			case 11056:
+			// Wiki: https://oldschool.runescape.wiki/w/Sword_pommel?oldid=15185265
+			// Wiki: https://oldschool.runescape.wiki/w/Torn_robe_(top)?oldid=15185490
+			// Wiki: https://oldschool.runescape.wiki/w/Torn_robe_(bottom)?oldid=15185491
+			case 623:
+			case 6788:
+			case 6789:
+			// Wiki: https://oldschool.runescape.wiki/w/Syringe_needle?oldid=15247407
+			// Wiki: https://oldschool.runescape.wiki/w/Syringe_barrel?oldid=15247404
+			// Wiki: https://oldschool.runescape.wiki/w/Syringe_plunger?oldid=15247405
+			case 33751:
+			case 33752:
+			case 33753:
+			// Wiki: https://oldschool.runescape.wiki/w/Unusual_armour?oldid=15184424
+			// Wiki: https://oldschool.runescape.wiki/w/Wand_(What_Lies_Below)?oldid=15184926
+			// Wiki: https://oldschool.runescape.wiki/w/Washing_bowl?oldid=15204117
+			case 2386:
+			case 11012:
+			case 2964:
+			// Wiki: https://oldschool.runescape.wiki/w/Crone-made_amulet?oldid=15183398
+			// Wiki: https://oldschool.runescape.wiki/w/Killer's_knife?oldid=15188034
+			// Wiki: https://oldschool.runescape.wiki/w/Pendant_of_lucien?oldid=15183161
+			// Wiki: https://oldschool.runescape.wiki/w/Prop_sword_(Death_on_the_Isle)?oldid=15251600
+			case 10500:
+			case 20781:
+			case 21059:
+			case 86:
+			case 29911:
+				return cleanupQuestItem();
+
+			// Non-bankable, scrapped, failsafe, or discontinued quest/cache objects.
+			// Wiki: https://oldschool.runescape.wiki/w/Elysian_spirit_shield_(Monkey_Madness_II)?oldid=15187512
+			// Wiki: https://oldschool.runescape.wiki/w/Offering_bouquet?oldid=15194077
+			// Wiki: https://oldschool.runescape.wiki/w/Silif_(item)?oldid=15192561
+			case 19559:
+			case 31400:
+			case 29572:
+			// Wiki: https://oldschool.runescape.wiki/w/Deep_sea_helmet?oldid=15213596
+			// Wiki: https://oldschool.runescape.wiki/w/Deep_sea_helmet_(The_Red_Reef)?oldid=15218399
+			case 31298:
+			case 31401:
+			// Given by Juna only inside Tears of Guthix and deleted on leaving the area.
+			// Wiki: https://oldschool.runescape.wiki/w/Stone_bowl?oldid=15184533
+			case 4704:
+				return cleanupJunk();
+
 			default:
 				return Optional.empty();
 		}
