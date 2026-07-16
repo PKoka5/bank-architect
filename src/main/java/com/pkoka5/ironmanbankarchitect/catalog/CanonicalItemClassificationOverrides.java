@@ -342,6 +342,151 @@ final class CanonicalItemClassificationOverrides
 			case 5078: // Bird's egg
 				return skillingPrayerResource();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolts?oldid=15185058
+			case 11876: // Unfinished broad bolts
+			// Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolt_pack?oldid=15215059
+			case 11887: // Unfinished broad bolt pack
+				return skillingAmmoComponent();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Cadava_berries?oldid=15183459
+			case 753: // Cadava berries: repeatable Farming payment, compost, and antipoison exchange
+				return farmingProduce();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Grimy_snake_weed?oldid=15186652
+			case 1525: // Grimy snake weed
+			// Wiki: https://oldschool.runescape.wiki/w/Snake_weed?oldid=15184203
+			case 1526: // Snake weed
+			// Wiki: https://oldschool.runescape.wiki/w/Grimy_rogue's_purse?oldid=15186655
+			case 1533: // Grimy rogue's purse
+			// Wiki: https://oldschool.runescape.wiki/w/Goutweed?oldid=15183815
+			case 3261: // Goutweed
+				return herbloreSecondary();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Unfired_pot_lid?oldid=15187385
+			case 4438: // Unfired pot lid: repeatable Crafting intermediate
+				return craftingMaterial();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Herb_tea_mix?oldid=15185742
+			case 4464:
+			case 4466:
+			case 4468:
+			case 4470:
+			case 4472:
+			case 4474:
+			case 4476:
+			case 4478:
+			case 4480:
+			case 4482: // Herb tea mix variants used to make Guthix rest
+			// Wiki: https://oldschool.runescape.wiki/w/Magic_essence_(unf)?oldid=15186269
+			case 9019: // Magic essence (unf)
+				return herbloreWorkflow();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Goblin_potion?oldid=15195296
+			case 26581: // Goblin potion(4)
+				return potionDose(4);
+			case 26583: // Goblin potion(3)
+				return potionDose(3);
+			case 26585: // Goblin potion(2)
+				return potionDose(2);
+			case 26587: // Goblin potion(1)
+				return potionDose(1);
+
+			// Wiki: https://oldschool.runescape.wiki/w/Ardrigal_mixture?oldid=15185810
+			case 738: // Ardrigal mixture
+			// Wiki: https://oldschool.runescape.wiki/w/Unicorn_horn_(Underground_Pass)?oldid=15185533
+			case 1487: // Unicorn horn
+			// Wiki: https://oldschool.runescape.wiki/w/Grimy_ardrigal?oldid=15186651
+			case 1527: // Grimy ardrigal
+			// Wiki: https://oldschool.runescape.wiki/w/Grimy_sito_foil?oldid=15186653
+			case 1529: // Grimy sito foil
+			// Wiki: https://oldschool.runescape.wiki/w/Grimy_volencia_moss?oldid=15186654
+			case 1531: // Grimy volencia moss
+			// Wiki: https://oldschool.runescape.wiki/w/Mysterious_herb?oldid=15188842
+			case 22402: // Mysterious herb
+			// Wiki: https://oldschool.runescape.wiki/w/Unfinished_blood_potion?oldid=15188844
+			case 22406: // Unfinished blood potion
+			// Wiki: https://oldschool.runescape.wiki/w/Unfinished_potion_(A_Taste_of_Hope)?oldid=15188845
+			case 22408: // Unfinished potion
+			// Wiki: https://oldschool.runescape.wiki/w/Elder_cadantine?oldid=15189342
+			case 23798: // Elder cadantine
+			// Wiki: https://oldschool.runescape.wiki/w/Elder_cadantine_potion_(unf)?oldid=15189343
+			case 23800: // Elder cadantine potion (unf)
+			// Wiki: https://oldschool.runescape.wiki/w/Korbal_herb?oldid=15191527
+			case 28384: // Korbal herb
+			// Wiki: https://oldschool.runescape.wiki/w/Smooth_leaf?oldid=15192435
+			case 28978: // Smooth leaf
+			// Wiki: https://oldschool.runescape.wiki/w/Sticky_leaf?oldid=15192437
+			case 28979: // Sticky leaf
+			// Wiki: https://oldschool.runescape.wiki/w/Enriched_snapdragon?oldid=15192547
+			case 29530: // Enriched snapdragon
+			// Wiki: https://oldschool.runescape.wiki/w/Enriched_snapdragon_seed?oldid=15192546
+			case 29538: // Enriched snapdragon seed
+			// Wiki: https://oldschool.runescape.wiki/w/Grimy_note?oldid=15192550
+			case 29558: // Grimy note
+			// Wiki: https://oldschool.runescape.wiki/w/Putrid_sticky_potion?oldid=15254431
+			case 33803:
+			case 33804:
+			case 33805:
+			case 33806: // Putrid sticky potion variants
+			// Wiki: https://oldschool.runescape.wiki/w/Foul_chunky_potion?oldid=15254430
+			case 33807:
+			case 33808:
+			case 33809:
+			case 33810: // Foul chunky potion variants
+			// Wiki: https://oldschool.runescape.wiki/w/Rancid_slimy_potion?oldid=15263434
+			case 33811:
+			case 33812:
+			case 33813:
+			case 33814: // Rancid slimy potion variants
+			// Wiki: https://oldschool.runescape.wiki/w/Rank_frothy_potion?oldid=15254428
+			case 33815:
+			case 33816:
+			case 33817:
+			case 33818: // Rank frothy potion variants
+				return cleanupQuestItem();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Prayer_potion_(Last_Man_Standing)?oldid=15209257
+			case 20393:
+			case 20394:
+			case 20395:
+			case 20396: // Prayer potion (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Super_energy_(Last_Man_Standing)?oldid=15239453
+			case 20548:
+			case 20549:
+			case 20550:
+			case 20551: // Super energy (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Super_combat_potion_(Last_Man_Standing)?oldid=15239452
+			case 23543:
+			case 23545:
+			case 23547:
+			case 23549: // Super combat potion (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Ranging_potion_(Last_Man_Standing)?oldid=15214947
+			case 23551:
+			case 23553:
+			case 23555:
+			case 23557: // Ranging potion (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Sanfew_serum_(Last_Man_Standing)?oldid=15214946
+			case 23559:
+			case 23561:
+			case 23563:
+			case 23565: // Sanfew serum (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Super_restore_(Last_Man_Standing)?oldid=15239451
+			case 23567:
+			case 23569:
+			case 23571:
+			case 23573: // Super restore (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Saradomin_brew_(Last_Man_Standing)?oldid=15214944
+			case 23575:
+			case 23577:
+			case 23579:
+			case 23581: // Saradomin brew (LMS)
+			// Wiki: https://oldschool.runescape.wiki/w/Stamina_potion_(Last_Man_Standing)?oldid=15239456
+			case 23583:
+			case 23585:
+			case 23587:
+			case 23589: // Stamina potion (LMS)
+				return cleanupJunk();
+
 			default:
 				return Optional.empty();
 		}
@@ -405,6 +550,27 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> herbloreBase()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.HERBLORE, "herblore-base"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> herbloreWorkflow()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.HERBLORE, "herblore"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> farmingProduce()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.FARMING, "produce"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> craftingMaterial()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.SKILLING, "crafting-material"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> potionDose(int doses)
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.POTION,
+			"potion-dose-" + doses));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> teleport()

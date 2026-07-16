@@ -796,6 +796,111 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void auditedUnfinishedBroadBoltFamiliesRouteToFletchingResources()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolts?oldid=15185058
+		assertAuditFamily(new int[] {11876}, ItemCategory.SKILLING, "ammo-component");
+		// Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolt_pack?oldid=15215059
+		assertAuditFamily(new int[] {11887}, ItemCategory.SKILLING, "ammo-component");
+	}
+
+	@Test
+	public void auditedHerbloreItemsWithRepeatableFunctionsStayInFunctionalWorkflows()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Cadava_berries?oldid=15183459
+		assertAuditFamily(new int[] {753}, ItemCategory.FARMING, "produce");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Grimy_snake_weed?oldid=15186652
+		assertAuditFamily(new int[] {1525}, ItemCategory.HERBLORE, "secondary");
+		// Wiki: https://oldschool.runescape.wiki/w/Snake_weed?oldid=15184203
+		assertAuditFamily(new int[] {1526}, ItemCategory.HERBLORE, "secondary");
+		// Wiki: https://oldschool.runescape.wiki/w/Grimy_rogue's_purse?oldid=15186655
+		assertAuditFamily(new int[] {1533}, ItemCategory.HERBLORE, "secondary");
+		// Wiki: https://oldschool.runescape.wiki/w/Goutweed?oldid=15183815
+		assertAuditFamily(new int[] {3261}, ItemCategory.HERBLORE, "secondary");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Unfired_pot_lid?oldid=15187385
+		assertAuditFamily(new int[] {4438}, ItemCategory.SKILLING, "crafting-material");
+		// Wiki: https://oldschool.runescape.wiki/w/Herb_tea_mix?oldid=15185742
+		assertAuditFamily(new int[] {4464, 4466, 4468, 4470, 4472, 4474, 4476, 4478, 4480, 4482},
+			ItemCategory.HERBLORE, "herblore");
+		// Wiki: https://oldschool.runescape.wiki/w/Magic_essence_(unf)?oldid=15186269
+		assertAuditFamily(new int[] {9019}, ItemCategory.HERBLORE, "herblore");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Goblin_potion?oldid=15195296
+		assertClassification(26581, "Goblin potion(4)", ItemCategory.POTION, "potion-dose-4");
+		assertClassification(26583, "Goblin potion(3)", ItemCategory.POTION, "potion-dose-3");
+		assertClassification(26585, "Goblin potion(2)", ItemCategory.POTION, "potion-dose-2");
+		assertClassification(26587, "Goblin potion(1)", ItemCategory.POTION, "potion-dose-1");
+	}
+
+	@Test
+	public void auditedQuestHerbloreFamiliesRouteToCleanupReview()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Ardrigal_mixture?oldid=15185810
+		assertAuditFamily(new int[] {738}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Unicorn_horn_(Underground_Pass)?oldid=15185533
+		assertAuditFamily(new int[] {1487}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Grimy_ardrigal?oldid=15186651
+		assertAuditFamily(new int[] {1527}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Grimy_sito_foil?oldid=15186653
+		assertAuditFamily(new int[] {1529}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Grimy_volencia_moss?oldid=15186654
+		assertAuditFamily(new int[] {1531}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Mysterious_herb?oldid=15188842
+		assertAuditFamily(new int[] {22402}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Unfinished_blood_potion?oldid=15188844
+		assertAuditFamily(new int[] {22406}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Unfinished_potion_(A_Taste_of_Hope)?oldid=15188845
+		assertAuditFamily(new int[] {22408}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Elder_cadantine?oldid=15189342
+		assertAuditFamily(new int[] {23798}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Elder_cadantine_potion_(unf)?oldid=15189343
+		assertAuditFamily(new int[] {23800}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Korbal_herb?oldid=15191527
+		assertAuditFamily(new int[] {28384}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Smooth_leaf?oldid=15192435
+		assertAuditFamily(new int[] {28978}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Sticky_leaf?oldid=15192437
+		assertAuditFamily(new int[] {28979}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Enriched_snapdragon?oldid=15192547
+		assertAuditFamily(new int[] {29530}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Enriched_snapdragon_seed?oldid=15192546
+		assertAuditFamily(new int[] {29538}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Grimy_note?oldid=15192550
+		assertAuditFamily(new int[] {29558}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Putrid_sticky_potion?oldid=15254431
+		assertAuditFamily(new int[] {33803, 33804, 33805, 33806}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Foul_chunky_potion?oldid=15254430
+		assertAuditFamily(new int[] {33807, 33808, 33809, 33810}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Rancid_slimy_potion?oldid=15263434
+		assertAuditFamily(new int[] {33811, 33812, 33813, 33814}, ItemCategory.CLEANUP, "quest-item");
+		// Wiki: https://oldschool.runescape.wiki/w/Rank_frothy_potion?oldid=15254428
+		assertAuditFamily(new int[] {33815, 33816, 33817, 33818}, ItemCategory.CLEANUP, "quest-item");
+	}
+
+	@Test
+	public void auditedLastManStandingPotionFamiliesRouteToCleanupReview()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Prayer_potion_(Last_Man_Standing)?oldid=15209257
+		assertAuditFamily(new int[] {20393, 20394, 20395, 20396}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Super_energy_(Last_Man_Standing)?oldid=15239453
+		assertAuditFamily(new int[] {20548, 20549, 20550, 20551}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Super_combat_potion_(Last_Man_Standing)?oldid=15239452
+		assertAuditFamily(new int[] {23543, 23545, 23547, 23549}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Ranging_potion_(Last_Man_Standing)?oldid=15214947
+		assertAuditFamily(new int[] {23551, 23553, 23555, 23557}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Sanfew_serum_(Last_Man_Standing)?oldid=15214946
+		assertAuditFamily(new int[] {23559, 23561, 23563, 23565}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Super_restore_(Last_Man_Standing)?oldid=15239451
+		assertAuditFamily(new int[] {23567, 23569, 23571, 23573}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Saradomin_brew_(Last_Man_Standing)?oldid=15214944
+		assertAuditFamily(new int[] {23575, 23577, 23579, 23581}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Stamina_potion_(Last_Man_Standing)?oldid=15239456
+		assertAuditFamily(new int[] {23583, 23585, 23587, 23589}, ItemCategory.CLEANUP, "junk");
+	}
+
+	@Test
 	public void canonicalHerbloreOverridesCoverWaterAndYewRoots()
 	{
 		assertCategory(227, "Vial of water", ItemCategory.HERBLORE);
@@ -1084,6 +1189,16 @@ public class ResourceItemRegistryTest
 	{
 		CatalogItem item = ResourceItemRegistry.INSTANCE.findById(itemId).get();
 		assertEquals("subcategory of " + item.getDisplayName(), expectedSubcategory, item.getSubcategory());
+	}
+
+	private static void assertAuditFamily(int[] itemIds, ItemCategory expectedCategory,
+		String expectedSubcategory)
+	{
+		for (int itemId : itemIds)
+		{
+			assertCategoryOnly(itemId, expectedCategory);
+			assertSubcategory(itemId, expectedSubcategory);
+		}
 	}
 
 	private static void assertClassification(int itemId, String expectedName,
