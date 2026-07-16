@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemRegistry;
 import java.util.Collections;
 import org.junit.Test;
 
@@ -38,6 +39,16 @@ public class ResourceSkillZoneClassifierTest
 		assertEquals(ResourceSkillZone.FLETCHING, classify(3, "Feather", "ammo-component"));
 		assertEquals(ResourceSkillZone.FLETCHING, classify(4, "Bow string", "textile"));
 		assertEquals(ResourceSkillZone.FLETCHING, classify(5, "Crossbow string", "textile"));
+	}
+
+	@Test
+	public void auditedBrokenAntlerUsesItsFletchingProductWorkflow()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Broken_antler?oldid=15194017
+		CatalogItem item = ResourceItemRegistry.INSTANCE.findById(31086).get();
+		assertEquals("ammo-component", item.getSubcategory());
+		assertEquals(ResourceSkillZone.FLETCHING,
+			ResourceSkillZoneClassifier.classify(new BankPreviewItem(item, 1)));
 	}
 
 	@Test

@@ -974,6 +974,60 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void auditedRestrictedResourceFamiliesFollowTheirVerifiedOngoingFunction()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Broken_axe_(bronze)?oldid=15184560
+		// Family cross-checks: oldid=15184562 (adamant) and oldid=15182617 (black).
+		assertAuditFamily(new int[] {494, 496, 498, 500, 502, 504, 6741},
+			ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Logs_(Tutorial_Island)?oldid=15190473
+		assertAuditFamily(new int[] {2511, 24650}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Raw_shrimps_(Tutorial_Island)?oldid=15190474
+		assertAuditFamily(new int[] {2514, 24652}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Bones_(Tutorial_Island)?oldid=15190476
+		// Wiki: https://oldschool.runescape.wiki/w/Bones_(Soul_Wars)?oldid=15209204
+		assertAuditFamily(new int[] {2530, 24655, 25199}, ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Climbing_rope?oldid=15187162
+		assertAuditFamily(new int[] {4047}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Barricade?oldid=15187164
+		// Wiki: https://oldschool.runescape.wiki/w/Barricade_(Soul_Wars)?oldid=15209192
+		assertAuditFamily(new int[] {4053, 25209, 25210}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Queen_help_book?oldid=15186957
+		assertAuditFamily(new int[] {10562}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Rope_(Last_Man_Standing)?oldid=15209259
+		assertAuditFamily(new int[] {20587}, ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_dust?oldid=15189349
+		assertAuditFamily(new int[] {23830}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_orb?oldid=15189352
+		assertAuditFamily(new int[] {23833}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_ore?oldid=15189391
+		assertAuditFamily(new int[] {23837}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_paddlefish?oldid=15190372
+		assertAuditFamily(new int[] {25958}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Burning_claws_(Last_Man_Standing)?oldid=15208943
+		assertAuditFamily(new int[] {33200}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Barbarian_arm?oldid=15194403
+		assertAuditFamily(new int[] {33221}, ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Broken_bark_snelm?oldid=15182921
+		assertAuditFamily(new int[] {3335}, ItemCategory.GEAR, "head");
+		// Wiki: https://oldschool.runescape.wiki/w/Fighter_hat?oldid=15260298
+		// Wiki: https://oldschool.runescape.wiki/w/Ranger_hat?oldid=15260300
+		// Wiki: https://oldschool.runescape.wiki/w/Healer_hat?oldid=15260302
+		// Wiki: https://oldschool.runescape.wiki/w/Runner_hat?oldid=15260301
+		assertAuditFamily(new int[] {20507, 20509, 20511, 24531}, ItemCategory.GEAR, "head");
+		// Wiki: https://oldschool.runescape.wiki/w/Cannon_barrels_(or)?oldid=15190733
+		assertAuditFamily(new int[] {26524}, ItemCategory.GEAR, "cannon-part");
+		// Wiki: https://oldschool.runescape.wiki/w/Dragon_battleaxe_(cr)?oldid=15191318
+		assertAuditFamily(new int[] {28037}, ItemCategory.GEAR, "weapon");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Broken_antler?oldid=15194017
+		assertAuditFamily(new int[] {31086}, ItemCategory.SKILLING, "ammo-component");
+	}
+
+	@Test
 	public void canonicalHerbloreOverridesCoverWaterAndYewRoots()
 	{
 		assertCategory(227, "Vial of water", ItemCategory.HERBLORE);

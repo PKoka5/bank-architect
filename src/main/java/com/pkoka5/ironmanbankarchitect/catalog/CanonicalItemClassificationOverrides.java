@@ -25,6 +25,8 @@ final class CanonicalItemClassificationOverrides
 			switch (itemId)
 		{
 			case 10: // Cannon barrels
+			// Wiki: https://oldschool.runescape.wiki/w/Cannon_barrels_(or)?oldid=15190733
+			case 26524: // Reversible ornamented cannon barrels
 				return cannonPart();
 
 			case 805: // Rune thrownaxe
@@ -49,6 +51,10 @@ final class CanonicalItemClassificationOverrides
 			case 9084: // Lunar staff
 				return weapon();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Dragon_battleaxe_(cr)?oldid=15191318
+			case 28037: // Normal-game cosmetic dragon battleaxe
+				return weapon();
+
 			case 10498: // Ava's attractor
 			case 10499: // Ava's accumulator
 			case 22109: // Ava's assembler
@@ -56,6 +62,18 @@ final class CanonicalItemClassificationOverrides
 			case 27374: // Masori assembler
 			case 27376: // Masori assembler (l)
 				return gear();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Broken_bark_snelm?oldid=15182921
+			case 3335: // Functional snail-protection helmet
+			// Wiki: https://oldschool.runescape.wiki/w/Fighter_hat?oldid=15260298
+			case 20507:
+			// Wiki: https://oldschool.runescape.wiki/w/Ranger_hat?oldid=15260300
+			case 20509:
+			// Wiki: https://oldschool.runescape.wiki/w/Healer_hat?oldid=15260302
+			case 20511:
+			// Wiki: https://oldschool.runescape.wiki/w/Runner_hat?oldid=15260301
+			case 24531: // Broken Penance hats are repairable by Perdu
+				return head();
 
 			case 4740: // Bolt rack
 			case 20220: // Holy blessing
@@ -97,6 +115,53 @@ final class CanonicalItemClassificationOverrides
 				return cleanupQuestItem();
 
 			case 686: // Rusty sword
+				return cleanupJunk();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Broken_axe_(bronze)?oldid=15184560
+			// Family cross-checks:
+			// https://oldschool.runescape.wiki/w/Broken_axe_(adamant)?oldid=15184562
+			// https://oldschool.runescape.wiki/w/Broken_axe_(black)?oldid=15182617
+			case 494:
+			case 496:
+			case 498:
+			case 500:
+			case 502:
+			case 504:
+			case 6741: // Historical broken axes; automatically repaired in 2014
+			// Wiki: https://oldschool.runescape.wiki/w/Logs_(Tutorial_Island)?oldid=15190473
+			case 2511:
+			case 24650: // Tutorial Island-only logs
+			// Wiki: https://oldschool.runescape.wiki/w/Raw_shrimps_(Tutorial_Island)?oldid=15190474
+			case 2514:
+			case 24652: // Tutorial Island-only raw shrimps
+			// Wiki: https://oldschool.runescape.wiki/w/Bones_(Tutorial_Island)?oldid=15190476
+			// Wiki: https://oldschool.runescape.wiki/w/Bones_(Soul_Wars)?oldid=15209204
+			case 2530:
+			case 24655:
+			case 25199: // Tutorial Island/Soul Wars gameplay copies
+			// Wiki: https://oldschool.runescape.wiki/w/Climbing_rope?oldid=15187162
+			case 4047: // Castle Wars gameplay item
+			// Wiki: https://oldschool.runescape.wiki/w/Barricade?oldid=15187164
+			// Wiki: https://oldschool.runescape.wiki/w/Barricade_(Soul_Wars)?oldid=15209192
+			case 4053:
+			case 25209:
+			case 25210: // Castle Wars/Soul Wars gameplay items
+			// Wiki: https://oldschool.runescape.wiki/w/Queen_help_book?oldid=15186957
+			case 10562: // Reclaimable Barbarian Assault reference book
+			// Wiki: https://oldschool.runescape.wiki/w/Rope_(Last_Man_Standing)?oldid=15209259
+			case 20587: // LMS-only rope
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_dust?oldid=15189349
+			case 23830:
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_orb?oldid=15189352
+			case 23833:
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_ore?oldid=15189391
+			case 23837:
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_paddlefish?oldid=15190372
+			case 25958: // Corrupted Gauntlet-only resources
+			// Wiki: https://oldschool.runescape.wiki/w/Burning_claws_(Last_Man_Standing)?oldid=15208943
+			case 33200: // LMS-only weapon copy
+			// Wiki: https://oldschool.runescape.wiki/w/Barbarian_arm?oldid=15194403
+			case 33221: // Hidden Demonic Pacts League cache item
 				return cleanupJunk();
 
 			// Wiki: https://oldschool.runescape.wiki/w/Broken_pickaxe_(bronze)?oldid=15184083
@@ -381,6 +446,10 @@ final class CanonicalItemClassificationOverrides
 			case 11876: // Unfinished broad bolts
 			// Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolt_pack?oldid=15215059
 			case 11887: // Unfinished broad bolt pack
+				return skillingAmmoComponent();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Broken_antler?oldid=15194017
+			case 31086: // Fletched into atlatl dart tips
 				return skillingAmmoComponent();
 
 			// Wiki: https://oldschool.runescape.wiki/w/Unstrung_light_ballista?oldid=15187508
@@ -805,6 +874,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> feet()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "feet"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> head()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "head"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> legs()
