@@ -197,6 +197,35 @@ public class ResourceSkillZoneClassifierTest
 			ResourceSkillZoneClassifier.classify(new BankPreviewItem(rawFishcake, 1)));
 	}
 
+	@Test
+	public void completedQuestAuditKeepsRepeatableResourcesInTheirPrimaryZones()
+	{
+		assertRegistryZone(ResourceSkillZone.WOODCUTTING,
+			2862, 10810, 24691, 32902);
+		assertRegistryZone(ResourceSkillZone.MINING_SMITHING,
+			668, 9076, 9077, 2365, 446);
+		assertRegistryZone(ResourceSkillZone.PRAYER,
+			3130, 3133, 3128, 3129, 3131, 3132, 3179, 3180);
+		assertRegistryZone(ResourceSkillZone.FISHING_COOKING,
+			29216, 7566, 3150, 2148, 4241);
+		assertRegistryZone(ResourceSkillZone.CRAFTING, 10167, 3694);
+		assertRegistryZone(ResourceSkillZone.FLETCHING, 2861);
+
+		// "Split log" is a repeatable Woodcutting output, but the current,
+		// deliberately untouched classifier recognises plural "... logs" only.
+		assertRegistryZone(ResourceSkillZone.OTHER_RESOURCE, 10812);
+	}
+
+	private static void assertRegistryZone(ResourceSkillZone expected, int... itemIds)
+	{
+		for (int itemId : itemIds)
+		{
+			CatalogItem item = ResourceItemRegistry.INSTANCE.findById(itemId).get();
+			assertEquals("zone for " + item.getDisplayName(), expected,
+				ResourceSkillZoneClassifier.classify(new BankPreviewItem(item, 1)));
+		}
+	}
+
 	private static ResourceSkillZone classify(int itemId, String name, String subcategory)
 	{
 		return ResourceSkillZoneClassifier.classify(new BankPreviewItem(

@@ -1475,11 +1475,61 @@ public class ResourceItemRegistryTest
 		// Wiki: https://oldschool.runescape.wiki/w/Kharedst's_memoirs?oldid=15240499
 		assertAuditFamily(new int[] {21764}, ItemCategory.TELEPORT, "teleport-charge");
 
-		// Ambiguous families remain review-only and receive no canonical override.
-		for (int itemId : new int[] {10175, 6635, 274, 29427})
+	}
+
+	@Test
+	public void resourcesQuestAuditPartTwoClosesTheRemainingReviewedFamilies()
+	{
+		// All linked revision pages were read in full; the URLs and decisive
+		// post-quest/function facts are documented beside the exact-ID cases.
+		assertAuditFamily(new int[] {
+			30963, 783, 1841, 3216, 25794, 28970, 10177, 10175, 10176, 6545,
+			7630, 28462, 28463, 23804, 4245, 4246, 33777, 33776, 11031, 22761,
+			28458, 4568, 4007, 2384, 1583, 11196, 2391, 29427, 25968, 28806,
+			22079, 30962, 31330, 10876, 24260, 6821, 588, 4621, 7577, 4445,
+			7121, 7148, 11045, 6467, 9943, 30943, 3269, 29906, 9080, 9081,
+			22095, 28394, 28395, 28396, 28397, 28398, 28399, 28400, 29536,
+			29537, 28982, 28973, 9086, 33774, 26579, 11035, 27525
+		}, ItemCategory.CLEANUP, "quest-item");
+
+		assertAuditFamily(new int[] {9067, 28132, 28977, 7532, 29076, 4498},
+			ItemCategory.CLEANUP, "junk");
+		assertAuditFamily(new int[] {1581}, ItemCategory.HERBLORE, "secondary");
+		assertAuditFamily(new int[] {31833, 25631}, ItemCategory.POTION, "food");
+		assertAuditFamily(new int[] {31985, 31807}, ItemCategory.TOOL, "sailing-utility");
+		assertAuditFamily(new int[] {6635, 9681, 28133, 28363, 21756},
+			ItemCategory.TOOL, "quest-utility");
+		assertAuditFamily(new int[] {10167, 3694},
+			ItemCategory.SKILLING, "crafting-material");
+		assertAuditFamily(new int[] {4241}, ItemCategory.SKILLING, "cooking-material");
+		assertAuditFamily(new int[] {30970, 29874}, ItemCategory.CLUE, "cosmetic");
+		assertAuditFamily(new int[] {21798}, ItemCategory.UNIQUE, "equipment-upgrade");
+		assertAuditFamily(new int[] {274}, ItemCategory.CLUE, "treasure-trail");
+		assertAuditFamily(new int[] {29535}, ItemCategory.TELEPORT, "teleport");
+		assertAuditFamily(new int[] {676}, ItemCategory.TOOL, "skilling-utility");
+		assertAuditFamily(new int[] {2861}, ItemCategory.SKILLING, "ammo-component");
+
+		// Normal repeatable resources and supplies were false-positive quest hits:
+		// they remain in their existing functional categories.
+		for (int itemId : new int[] {
+			2862, 10810, 24691, 668, 32902, 9077, 9076, 3130, 3133, 3180,
+			3128, 3129, 3131, 3132, 2365, 446, 29216, 7566, 3150, 2148,
+			3179, 10812
+		})
 		{
-			assertFalse(CanonicalItemClassificationOverrides.find(itemId).isPresent());
+			assertCategoryOnly(itemId, ItemCategory.SKILLING);
 		}
+		assertAuditFamily(new int[] {7484, 7485, 7486, 7487},
+			ItemCategory.SKILLING, "cooking-material");
+
+		// Elemental metal and split logs are confirmed repeatable materials, but
+		// exact category overrides cannot change their existing OTHER_RESOURCE zone.
+		// A classifier/metadata change is forbidden in this batch, so it remains
+		// an explicit Group-B follow-up.
+		assertCategoryOnly(2893, ItemCategory.SKILLING);
+		assertFalse(CanonicalItemClassificationOverrides.find(2893).isPresent());
+		assertCategoryOnly(10812, ItemCategory.SKILLING);
+		assertFalse(CanonicalItemClassificationOverrides.find(10812).isPresent());
 	}
 
 	@Test

@@ -1255,6 +1255,227 @@ final class CanonicalItemClassificationOverrides
 				return teleportCharge();
 
 			/*
+			 * Phase 2, batch 12 (Resources quest-items, part 2).
+			 * Every linked revision page was read in full, including post-quest,
+			 * re-obtainability, destruction, and later-use sections.
+			 */
+			// One-time quest/puzzle materials with no repeatable normal-bank function.
+			// Sources: https://oldschool.runescape.wiki/w/Ancient_roots?oldid=14960565
+			// https://oldschool.runescape.wiki/w/Bark_sample?oldid=15185187
+			// https://oldschool.runescape.wiki/w/Barrel_(The_Tourist_Trap)?oldid=15238260
+			// https://oldschool.runescape.wiki/w/Bone_(A_Kingdom_Divided)?oldid=15190251
+			case 30963:
+			case 783:
+			case 1841:
+			case 3216:
+			case 25794:
+			// Perilous Moons request, Eagles' Peak door feathers, and completed chore list.
+			// https://oldschool.runescape.wiki/w/Bream_scales?oldid=15192354
+			// https://oldschool.runescape.wiki/w/Golden_feather_(Eagles'_Peak)?oldid=15185630
+			// https://oldschool.runescape.wiki/w/Chores?oldid=15185466
+			case 28970:
+			case 10177:
+			case 10175:
+			case 10176:
+			case 6545:
+			// Quest containers, repair fibres, dust, tea states, and Castle Drakan materials.
+			// https://oldschool.runescape.wiki/w/Crate_(In_Aid_of_the_Myreque)?oldid=15185575
+			// https://oldschool.runescape.wiki/w/Crimson_fibre?oldid=15191463
+			// https://oldschool.runescape.wiki/w/Crystal_dust_(Song_of_the_Elves)?oldid=15189420
+			// https://oldschool.runescape.wiki/w/Cup_of_tea_(Ghosts_Ahoy)?oldid=15185786
+			// https://oldschool.runescape.wiki/w/Daeyalt_ore_(The_Blood_Moon_Rises)?oldid=15248692
+			case 7630:
+			case 28462:
+			case 28463:
+			case 23804:
+			case 4245:
+			case 4246:
+			case 33777:
+			case 33776:
+			// Explicitly exhausted quest-stage planks, tools, nerves, books, and intermediates.
+			// https://oldschool.runescape.wiki/w/Damp_planks?oldid=15184220
+			// https://oldschool.runescape.wiki/w/Dinh's_hammer?oldid=15189075
+			// https://oldschool.runescape.wiki/w/Dust_nerve?oldid=15191466
+			// https://oldschool.runescape.wiki/w/Dwarven_lore?oldid=15184938
+			// https://oldschool.runescape.wiki/w/Enchanted_bar?oldid=15185537
+			case 11031:
+			case 22761:
+			case 28458:
+			case 4568:
+			case 4007:
+			// Watchtower evidence, quest feathers, notes, bark, barronite, and orb intermediate.
+			// https://oldschool.runescape.wiki/w/Fingernails?oldid=15184409
+			// https://oldschool.runescape.wiki/w/Fire_feather?oldid=15183799
+			// https://oldschool.runescape.wiki/w/Griffin_feather?oldid=15184997
+			// https://oldschool.runescape.wiki/w/Ground_bat_bones?oldid=15183771
+			// https://oldschool.runescape.wiki/w/Herbalist's_notes?oldid=15192389
+			// https://oldschool.runescape.wiki/w/Imbued_barronite?oldid=15192250
+			// https://oldschool.runescape.wiki/w/Inert_locator_orb?oldid=15188651
+			case 2384:
+			case 1583:
+			case 11196:
+			case 2391:
+			case 29427:
+			case 25968:
+			case 28806:
+			case 22079:
+			// The Final Dawn, Current Affairs, Tower of Life, Fremennik, and Devious Minds objects.
+			// https://oldschool.runescape.wiki/w/Kuhu_essence?oldid=15208315
+			// https://oldschool.runescape.wiki/w/Mayoral_fishbowl?oldid=15119517
+			// https://oldschool.runescape.wiki/w/Metal_bar?oldid=15185712
+			// https://oldschool.runescape.wiki/w/Molten_glass_(i)?oldid=15189545
+			// https://oldschool.runescape.wiki/w/Orb_(Devious_Minds)?oldid=15184946
+			case 30962:
+			case 31330:
+			case 10876:
+			case 24260:
+			case 6821:
+			// Additional copies are deleted, or the item only creates a quest-specific result.
+			// https://oldschool.runescape.wiki/w/Orbs_of_protection?oldid=15183616
+			// https://oldschool.runescape.wiki/w/Phoenix_feather?oldid=15183702
+			// https://oldschool.runescape.wiki/w/Raw_stuffed_snake?oldid=15184439
+			// https://oldschool.runescape.wiki/w/Red_mahogany_log?oldid=15184568
+			case 588:
+			case 4621:
+			case 7577:
+			case 4445:
+			// Cabin Fever/Olaf repair parts and re-creatable but quest-only dust/sand.
+			// https://oldschool.runescape.wiki/w/Repair_plank?oldid=15184804
+			// https://oldschool.runescape.wiki/w/Rotten_barrel?oldid=15185728
+			// https://oldschool.runescape.wiki/w/Rune_dust?oldid=15185622
+			// https://oldschool.runescape.wiki/w/Sandbag?oldid=15183842
+			case 7121:
+			case 7148:
+			case 11045:
+			case 6467:
+			case 9943:
+			// Final Dawn purse, post-quest-useless keys/leather, and quest-instance supplies.
+			// https://oldschool.runescape.wiki/w/Coin_purse?oldid=14963097
+			// https://oldschool.runescape.wiki/w/Storeroom_key?oldid=15185703
+			// https://oldschool.runescape.wiki/w/Suqah_leather?oldid=15185039
+			// https://oldschool.runescape.wiki/w/Swamp_paste_(Dragon_Slayer_II)?oldid=15190523
+			case 30943:
+			case 3269:
+			case 29906:
+			case 9080:
+			case 9081:
+			case 22095:
+			// Lore pages, NPC-planted teleorbs, quest fur/crest/vials, and final quest materials.
+			// https://oldschool.runescape.wiki/w/Tatty_page?oldid=15191519
+			// https://oldschool.runescape.wiki/w/Teleorb?oldid=15192569
+			// https://oldschool.runescape.wiki/w/Vial_of_water_(Lunar_Diplomacy)?oldid=15188389
+			// https://oldschool.runescape.wiki/w/Whitefish?oldid=15190755
+			// https://oldschool.runescape.wiki/w/Wood_carving?oldid=15191135
+			case 28394:
+			case 28395:
+			case 28396:
+			case 28397:
+			case 28398:
+			case 28399:
+			case 28400:
+			case 29536:
+			case 29537:
+			case 28982:
+			case 28973:
+			case 9086:
+			case 33774:
+			case 26579:
+			case 11035:
+			case 27525:
+				return cleanupQuestItem();
+
+			// Non-bankable, instance-only, or cache/failsafe objects.
+			// https://oldschool.runescape.wiki/w/Dream_log?oldid=15185033
+			// https://oldschool.runescape.wiki/w/Dusty_lamp?oldid=15191414
+			// https://oldschool.runescape.wiki/w/Knight_of_varlamore_(item)?oldid=15192781
+			// https://oldschool.runescape.wiki/w/Mudskipper_hide?oldid=15184200
+			// https://oldschool.runescape.wiki/w/Raw_moss_lizard?oldid=15192428
+			// https://oldschool.runescape.wiki/w/Rope_(animation_item)?oldid=15190426
+			case 9067:
+			case 28132:
+			case 28977:
+			case 7532:
+			case 29076:
+			case 4498:
+				return cleanupJunk();
+
+			// Repeatably produced secondary for blamish oil and the reusable oily rod.
+			// https://oldschool.runescape.wiki/w/Blamish_snail_slime?oldid=15185853
+			case 1581:
+				return herbloreSecondary();
+
+			// Drinkable Sailing XP reward and repeatably cookable food.
+			// https://oldschool.runescape.wiki/w/Bottle_of_fish_bladder_stout?oldid=15193076
+			// https://oldschool.runescape.wiki/w/Steak_sandwich?oldid=15190178
+			case 31833:
+			case 25631:
+				return food();
+
+			// Persistent Sailing task/chart tracker and repeatable sea-charting crowbar.
+			// https://oldschool.runescape.wiki/w/Captain's_log?oldid=15239575
+			// https://oldschool.runescape.wiki/w/Crowbar?oldid=15193098
+			case 31985:
+			case 31807:
+				return sailingUtility();
+
+			// Retained quest utilities with an explicit ongoing contact, unlock, or access use.
+			// https://oldschool.runescape.wiki/w/Commorb?oldid=15184055
+			// https://oldschool.runescape.wiki/w/Commorb_v2?oldid=15186980
+			// https://oldschool.runescape.wiki/w/Crypt_map?oldid=15191413
+			// https://oldschool.runescape.wiki/w/Very_long_rope?oldid=15191543
+			// https://oldschool.runescape.wiki/w/Varlamore_envoy?oldid=15188536
+			case 6635:
+			case 9681:
+			case 28133:
+			case 28363:
+			case 21756:
+				return questUtility();
+
+			// Repeatable Crafting materials for additional eagle capes and lyres.
+			// https://oldschool.runescape.wiki/w/Eagle_feather?oldid=15185631
+			// https://oldschool.runescape.wiki/w/Golden_wool?oldid=15184097
+			case 10167:
+			case 3694:
+				return craftingMaterial();
+
+			// Repeatably gathered Cooking ingredient for nettle tea.
+			// https://oldschool.runescape.wiki/w/Nettles?oldid=15184037
+			case 4241:
+				return cookingMaterial();
+
+			// Post-quest pet/costume pieces with explicit cosmetic storage/use.
+			// https://oldschool.runescape.wiki/w/Humphrey_Dumphrey?oldid=15197495
+			// https://oldschool.runescape.wiki/w/Emissary_sandals?oldid=15192741
+			case 30970:
+			case 29874:
+				return clueCosmetic();
+
+			// Repeatable Mage Arena II component for later Guthix cape imbues.
+			// https://oldschool.runescape.wiki/w/Ent's_roots?oldid=15188752
+			case 21798:
+				return equipmentUpgrade();
+
+			// Required by both Ernest the Chicken and the Robes of Ruin clue hunt.
+			// https://oldschool.runescape.wiki/w/Poisoned_fish_food?oldid=15183936
+			case 274:
+				return treasureTrail();
+
+			// Remains obtainable and usable after the quest to revisit Lucien's camp.
+			// https://oldschool.runescape.wiki/w/Strange_teleorb?oldid=15192565
+			case 29535:
+				return teleport();
+
+			// Repeatable Digsite and Varrock Museum excavation/cleaning tool.
+			// https://oldschool.runescape.wiki/w/Trowel?oldid=15183902
+			case 676:
+				return skillingUtility();
+
+			// Repeatably fletched component for functional ogre arrows.
+			// https://oldschool.runescape.wiki/w/Wolfbone_arrowtips?oldid=15186067
+			case 2861:
+				return skillingAmmoComponent();
+
+			/*
 			 * Phase 2 quest/tools pilot. These exact quest-stage objects have no
 			 * normal repeatable tool or utility function after their quest step.
 			 */
@@ -1766,6 +1987,11 @@ final class CanonicalItemClassificationOverrides
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.CLUE, "cosmetic"));
 	}
 
+	private static Optional<ItemClassificationRefiner.Classification> treasureTrail()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.CLUE, "treasure-trail"));
+	}
+
 	private static Optional<ItemClassificationRefiner.Classification> herbloreSecondary()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.HERBLORE, "secondary"));
@@ -1789,6 +2015,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> craftingMaterial()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.SKILLING, "crafting-material"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> cookingMaterial()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.SKILLING, "cooking-material"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> potionDose(int doses)
