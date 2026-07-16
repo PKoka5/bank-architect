@@ -170,6 +170,33 @@ public class ResourceSkillZoneClassifierTest
 			classify(32085, "Sawmill coupon (oak plank)", "currency"));
 	}
 
+	@Test
+	public void questAuditResourcesRetainTheirReviewedProcessingZones()
+	{
+		// Full Wiki-page review confirms these remain repeatable Elemental Workshop
+		// smithing materials rather than one-time quest leftovers.
+		for (int itemId : new int[] {2892, 9727, 9728})
+		{
+			CatalogItem item = ResourceItemRegistry.INSTANCE.findById(itemId).get();
+			assertEquals(ItemCategory.SKILLING, item.getCategory());
+			assertEquals(ResourceSkillZone.MINING_SMITHING,
+				ResourceSkillZoneClassifier.classify(new BankPreviewItem(item, 1)));
+		}
+
+		// Elemental metal (2893) is also a repeatable Smithing material, but the
+		// existing classifier currently places it in OTHER_RESOURCE. The batch
+		// forbids changing that classifier, so this is retained as a Group-B
+		// skillzone follow-up instead of forcing a misleading classification.
+		CatalogItem elementalMetal = ResourceItemRegistry.INSTANCE.findById(2893).get();
+		assertEquals(ItemCategory.SKILLING, elementalMetal.getCategory());
+		assertEquals(ResourceSkillZone.OTHER_RESOURCE,
+			ResourceSkillZoneClassifier.classify(new BankPreviewItem(elementalMetal, 1)));
+
+		CatalogItem rawFishcake = ResourceItemRegistry.INSTANCE.findById(7529).get();
+		assertEquals(ResourceSkillZone.FISHING_COOKING,
+			ResourceSkillZoneClassifier.classify(new BankPreviewItem(rawFishcake, 1)));
+	}
+
 	private static ResourceSkillZone classify(int itemId, String name, String subcategory)
 	{
 		return ResourceSkillZoneClassifier.classify(new BankPreviewItem(

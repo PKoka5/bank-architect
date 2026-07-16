@@ -909,6 +909,352 @@ final class CanonicalItemClassificationOverrides
 				return weapon();
 
 			/*
+			 * Phase 2, batch 11 (Resources quest-items, part 1).
+			 * Full revision-pinned Wiki pages were reviewed for every family below.
+			 * These exact quest-stage materials have no repeatable normal-bank
+			 * resource workflow after their documented quest or puzzle use.
+			 */
+			// Wiki: https://oldschool.runescape.wiki/w/Magnet_(Recruitment_Drive)?oldid=15188932
+			// The Recruitment Drive copies are deleted after their one-time puzzle use.
+			case 2410:
+			case 3718:
+			case 5604:
+			// Wiki: https://oldschool.runescape.wiki/w/Cupric_ore_powder?oldid=15186923
+			// Wiki: https://oldschool.runescape.wiki/w/Tin_ore_powder?oldid=15186924
+			// Used only to solve the Recruitment Drive chemistry puzzle.
+			case 5584:
+			case 5583:
+			// Wiki: https://oldschool.runescape.wiki/w/Fishing_pass?oldid=15239594
+			// Wiki: https://oldschool.runescape.wiki/w/Fishing_trophy?oldid=15185693
+			// Wiki: https://oldschool.runescape.wiki/w/Raw_giant_carp?oldid=15185613
+			// Fishing Contest-only access, proof, and catch; the carp cannot be caught afterward.
+			case 27:
+			case 26:
+			case 338:
+			// Wiki: https://oldschool.runescape.wiki/w/Rose-tinted_lens?oldid=15250402
+			// The Hand in the Sand evidence chain has no repeatable post-quest workflow.
+			case 6956:
+			case 6947:
+			case 6958:
+			case 6954:
+			case 6948:
+			case 6950:
+			case 6951:
+			case 6946:
+			case 6953:
+			case 6945:
+			case 6952:
+			case 6957:
+			// Wiki: https://oldschool.runescape.wiki/w/Orb_of_light?oldid=15185532
+			// Wiki: https://oldschool.runescape.wiki/w/Orb_of_light_(Song_of_the_Elves)?oldid=15189428
+			// Quest-puzzle objects that are destroyed or consumed while opening their route.
+			case 1481:
+			case 1482:
+			case 1483:
+			case 1484:
+			case 23812:
+			// Wiki: https://oldschool.runescape.wiki/w/Magic_gold_feather?oldid=15183365
+			// The Holy Grail trail marker explicitly has no use after the quest.
+			case 18:
+			// Wiki: https://oldschool.runescape.wiki/w/Silver_necklace?oldid=15183215
+			// Murder Mystery evidence pieces are used only to identify the culprit.
+			case 1797:
+			case 1799:
+			case 1801:
+			case 1803:
+			// Wiki: https://oldschool.runescape.wiki/w/Burnt_fishcake?oldid=15188252
+			// The burnt result explicitly has no use.
+			case 7531:
+			// Wiki: https://oldschool.runescape.wiki/w/Keg_(The_Great_Brain_Robbery)?oldid=15186953
+			// The quest keg cannot be picked up after completion; the second ID is a dummy copy.
+			case 10885:
+			case 10898:
+			// Wiki: https://oldschool.runescape.wiki/w/Metal_feather?oldid=15183683
+			// Rendered useless by the Eagles' Peak mechanism and not re-obtainable afterward.
+			case 10174:
+			// Wiki: https://oldschool.runescape.wiki/w/Mysterious_orb_(Client_of_Kourend)?oldid=15188336
+			// Client of Kourend-only locator; extra copies are removed after the quest.
+			case 21261:
+			// Wiki: https://oldschool.runescape.wiki/w/Vial_(jangerberries_and_guam_leaf)?oldid=15186989
+			// Watchtower potion intermediates have no further use after the quest.
+			case 2389:
+			case 2390:
+			// Wiki: https://oldschool.runescape.wiki/w/Display_cabinet_key?oldid=15185909
+			// The museum puzzle key is explicitly useless after the quest.
+			case 4617:
+			// Wiki: https://oldschool.runescape.wiki/w/Waxwood_log?oldid=15189856
+			// Wiki: https://oldschool.runescape.wiki/w/Waxwood_plank?oldid=15189857
+			// Daddy's Home-only processing materials; duplicate logs cannot be obtained.
+			case 24938:
+			case 24939:
+			// Wiki: https://oldschool.runescape.wiki/w/Golden_feather_(Priest_in_Peril)?oldid=15186885
+			// ID 2950 is the Priest in Peril trail item and has no post-quest use.
+			case 2950:
+			// Wiki: https://oldschool.runescape.wiki/w/Barrel_bomb?oldid=15238286
+			// Regicide explosives and their intermediates are only used by the quest chain.
+			case 3218:
+			case 3219:
+			case 3220:
+			case 3221:
+			case 3215:
+			case 6095:
+			case 3222:
+			case 3223:
+			case 6093:
+			// Wiki: https://oldschool.runescape.wiki/w/Ana_in_a_barrel?oldid=15238258
+			// The barrel is the one-time Tourist Trap rescue transport.
+			case 1842:
+			// Wiki: https://oldschool.runescape.wiki/w/Ardougne_knight_tabard?oldid=15189341
+			// Song of the Elves disguise material, consumed by the quest workflow.
+			case 23791:
+			// Wiki: https://oldschool.runescape.wiki/w/Axe_head?oldid=15185054
+			// The Dorgesh-Kaan quest specimen has no normal axe/resource use.
+			case 11050:
+			// Wiki: https://oldschool.runescape.wiki/w/Selected_iron?oldid=15183695
+			// Wiki: https://oldschool.runescape.wiki/w/Bar_magnet?oldid=15183696
+			// Animal Magnetism-only magnetisation intermediates.
+			case 10488:
+			case 10489:
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_key_(Ghosts_Ahoy)?oldid=15185195
+			// The Ghosts Ahoy key is explicitly useless after the quest.
+			case 4272:
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_beads?oldid=15185259
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_shard_(Shilo_Village)?oldid=15185260
+			// Shilo Village quest-stage remains and necklace components.
+			case 618:
+			case 604:
+			case 609:
+			case 610:
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_charm?oldid=15188444
+			// The Great Brain Robbery navigation charm is a one-time quest object.
+			case 21530:
+			// Wiki: https://oldschool.runescape.wiki/w/Cannon_barrel_(Cabin_Fever)?oldid=15184798
+			// Cabin Fever repair material, not a functional dwarf multicannon part.
+			case 7145:
+			// Wiki: https://oldschool.runescape.wiki/w/Clay_head?oldid=15189933
+			// Destroyed during Getting Ahead and unavailable after mounting the replacement.
+			case 25145:
+			// Wiki: https://oldschool.runescape.wiki/w/Dwarven_battleaxe?oldid=15183724
+			// Quest/animation states, not usable battleaxes.
+			case 5056:
+			case 5057:
+			case 5058:
+			case 5059:
+			case 5060:
+			case 5061:
+			// Wiki: https://oldschool.runescape.wiki/w/Fishbowl_and_net?oldid=15185826
+			// Sea Slug quest capture object; it only untangles back into ordinary components.
+			case 6673:
+			// Wiki: https://oldschool.runescape.wiki/w/Ground_charcoal?oldid=15184009
+			// A quest-only ingredient for the Watchtower and Zogre Flesh Eaters chains.
+			case 704:
+			// Wiki: https://oldschool.runescape.wiki/w/Iban's_ashes?oldid=15185539
+			// Underground Pass-only remains used to enchant the doll.
+			case 1502:
+			// Wiki: https://oldschool.runescape.wiki/w/Orb_of_protection?oldid=15183408
+			// Fight Arena-only protection object with no post-quest workflow.
+			case 587:
+			// Wiki: https://oldschool.runescape.wiki/w/Prototype_dart_tip?oldid=15185562
+			// Tourist Trap quest prototype rather than a normal Fletching component.
+			case 1853:
+			// Wiki: https://oldschool.runescape.wiki/w/Raw_guide_cake?oldid=15185651
+			// Recipe for Disaster quest intermediate, not repeatable food production.
+			case 7543:
+			// Wiki: https://oldschool.runescape.wiki/w/Custom_bow_string?oldid=15186838
+			// Fremennik Trials merchant-chain barter objects.
+			case 3702:
+			case 3703:
+			case 3704:
+			case 3705:
+			// Wiki: https://oldschool.runescape.wiki/w/Weapon_store_key?oldid=15185730
+			// The Grand Tree quest access key has no documented repeatable function.
+			case 759:
+			// Wiki: https://oldschool.runescape.wiki/w/Battleaxe_(The_Blood_Moon_Rises)?oldid=15255255
+			// Blood Moon realm/quest-only construction, combat, and puzzle objects.
+			case 28390:
+			case 33759:
+			case 33791:
+			case 33743:
+			case 33765:
+			case 33766:
+			case 33790:
+			case 33792:
+			case 33793:
+			case 33794:
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_in_vinegar?oldid=15186165
+			// Rag and Bone Man II museum specimens and prepared states have only the wishlist use.
+			case 7812:
+			case 7813:
+			case 7814:
+			case 7815:
+			case 7816:
+			case 7817:
+			case 7818:
+			case 7819:
+			case 7820:
+			case 7821:
+			case 7822:
+			case 7823:
+			case 7824:
+			case 7825:
+			case 7826:
+			case 7827:
+			case 7828:
+			case 7829:
+			case 7830:
+			case 7831:
+			case 7832:
+			case 7833:
+			case 7834:
+			case 7835:
+			case 7836:
+			case 7837:
+			case 7838:
+			case 7839:
+			case 7840:
+			case 7841:
+			case 7842:
+			case 7843:
+			case 7844:
+			case 7845:
+			case 7846:
+			case 7847:
+			case 7848:
+			case 7849:
+			case 7850:
+			case 7851:
+			case 7852:
+			case 7853:
+			case 7854:
+			case 7855:
+			case 7856:
+			case 7857:
+			case 7858:
+			case 7859:
+			case 7860:
+			case 7861:
+			case 7862:
+			case 7863:
+			case 7864:
+			case 7865:
+			case 7866:
+			case 7867:
+			case 7868:
+			case 7869:
+			case 7870:
+			case 7871:
+			case 7872:
+			case 7873:
+			case 7874:
+			case 7875:
+			case 7876:
+			case 7877:
+			case 7878:
+			case 7879:
+			case 7880:
+			case 7881:
+			case 7882:
+			case 7883:
+			case 7884:
+			case 7885:
+			case 7886:
+			case 7887:
+			case 7888:
+			case 7889:
+			case 7890:
+			case 7891:
+			case 7892:
+			case 7893:
+			case 7894:
+			case 7895:
+			case 7896:
+			case 7897:
+			case 7898:
+			case 7899:
+			case 7900:
+			case 7901:
+			case 7902:
+			case 7903:
+			case 7904:
+			case 7905:
+			case 7906:
+			case 7907:
+			case 7908:
+			case 7909:
+			case 7910:
+			case 7911:
+			case 7912:
+			case 7913:
+			case 7914:
+			case 7915:
+			case 7916:
+			// Wiki: https://oldschool.runescape.wiki/w/Cave_goblin_skull?oldid=15186330
+			// Hopespear's Will leader remains are buried once in the goblin crypt.
+			case 26589:
+			case 26590:
+			case 26591:
+			case 26592:
+			case 26593:
+			// Wiki: https://oldschool.runescape.wiki/w/Pulley_beam?oldid=15184592
+			// Elemental Workshop II machine-repair components.
+			case 7967:
+			case 7969:
+			case 7970:
+			case 7971:
+			// Wiki: https://oldschool.runescape.wiki/w/Fishing_dolmen?oldid=15192549
+			// One-time Twilight's Promise trial object.
+			case 29549:
+			// Wiki: https://oldschool.runescape.wiki/w/Strange_icon?oldid=15236739
+			// Disintegrates after the miniquest offering.
+			case 28130:
+			// Wiki: https://oldschool.runescape.wiki/w/Gooey_note?oldid=15191459
+			// Desert Treasure II puzzle notes explicitly report no further need on destruction.
+			case 28468:
+			case 28469:
+			case 28470:
+			// Wiki: https://oldschool.runescape.wiki/w/Feathered_journal?oldid=15185357
+			// Wiki: https://oldschool.runescape.wiki/w/Astronomy_book?oldid=15182703
+			// Wiki: https://oldschool.runescape.wiki/w/Book_of_spyology?oldid=15187475
+			// Quest books whose permanent readable copies can be stored in a POH bookcase.
+			case 10179:
+			case 600:
+			case 19515:
+			// Wiki: https://oldschool.runescape.wiki/w/Old_note_(Sins_of_the_Father)?oldid=15189785
+			// Wiki: https://oldschool.runescape.wiki/w/Mucky_note?oldid=15191569
+			// Completed quest-puzzle notes with no repeatable material function.
+			case 24682:
+			case 28401:
+				return cleanupQuestItem();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Raw_fishcake?oldid=15184847
+			// Repeatably produced Cooking intermediate; remains a Fishing/Cooking resource.
+			case 7529:
+				return skillingResource();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Cooked_fishcake?oldid=15183721
+			// Repeatably cooked food that heals 11 hitpoints.
+			case 7530:
+				return food();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Panning_tray?oldid=15238922
+			// Both normal tray states support repeatable panning for Mining/Fishing rewards.
+			case 678:
+			case 679:
+				return skillingUtility();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_key_(Shilo_Village)?oldid=15236887
+			// Repeatable access to Rashiliyia's tomb; can also be stored on the key ring.
+			case 605:
+				return questUtility();
+
+			// Wiki: https://oldschool.runescape.wiki/w/The_fisher's_flute?oldid=15188540
+			// Wiki: https://oldschool.runescape.wiki/w/Kharedst's_memoirs?oldid=15240499
+			// This torn page is consumed into the memoirs: it unlocks Port Piscarilius,
+			// adds 20 teleport charges, and raises the book's maximum by 20.
+			case 21764:
+				return teleportCharge();
+
+			/*
 			 * Phase 2 quest/tools pilot. These exact quest-stage objects have no
 			 * normal repeatable tool or utility function after their quest step.
 			 */

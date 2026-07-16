@@ -1392,6 +1392,97 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void resourcesQuestAuditPartOneRoutesReviewedFamiliesByOngoingFunction()
+	{
+		// Full revision-pinned pages were read for every family; source URLs match
+		// the comments beside the exact-ID overrides.
+		assertAuditFamily(new int[] {2410, 3718, 5604, 5584, 5583},
+			ItemCategory.CLEANUP, "quest-item"); // Recruitment Drive materials
+		assertAuditFamily(new int[] {27, 26, 338},
+			ItemCategory.CLEANUP, "quest-item"); // Fishing Contest
+		assertAuditFamily(new int[] {
+			6956, 6947, 6958, 6954, 6948, 6950, 6951, 6946, 6953, 6945, 6952, 6957
+		}, ItemCategory.CLEANUP, "quest-item"); // Hand in the Sand evidence
+		assertAuditFamily(new int[] {1481, 1482, 1483, 1484, 23812},
+			ItemCategory.CLEANUP, "quest-item"); // orbs of light
+		assertAuditFamily(new int[] {18}, ItemCategory.CLEANUP, "quest-item"); // magic gold feather
+		assertAuditFamily(new int[] {1797, 1799, 1801, 1803},
+			ItemCategory.CLEANUP, "quest-item"); // Murder Mystery silver
+		assertAuditFamily(new int[] {7531}, ItemCategory.CLEANUP, "quest-item"); // burnt fishcake
+		assertAuditFamily(new int[] {10885, 10898},
+			ItemCategory.CLEANUP, "quest-item"); // quest/dummy keg
+		assertAuditFamily(new int[] {10174}, ItemCategory.CLEANUP, "quest-item"); // metal feather
+		assertAuditFamily(new int[] {21261}, ItemCategory.CLEANUP, "quest-item"); // mysterious orb
+		assertAuditFamily(new int[] {2389, 2390},
+			ItemCategory.CLEANUP, "quest-item"); // Watchtower vials
+		assertAuditFamily(new int[] {4617}, ItemCategory.CLEANUP, "quest-item"); // display cabinet key
+		assertAuditFamily(new int[] {24938, 24939},
+			ItemCategory.CLEANUP, "quest-item"); // waxwood
+		assertAuditFamily(new int[] {2950}, ItemCategory.CLEANUP, "quest-item"); // Priest in Peril feather
+		assertAuditFamily(new int[] {3218, 3219, 3220, 3221, 3215, 6095, 3222, 3223, 6093},
+			ItemCategory.CLEANUP, "quest-item"); // Regicide explosives
+		assertAuditFamily(new int[] {1842}, ItemCategory.CLEANUP, "quest-item"); // Ana in a barrel
+		assertAuditFamily(new int[] {23791}, ItemCategory.CLEANUP, "quest-item"); // knight tabard
+		assertAuditFamily(new int[] {11050}, ItemCategory.CLEANUP, "quest-item"); // Dorgesh artefact
+		assertAuditFamily(new int[] {10488, 10489},
+			ItemCategory.CLEANUP, "quest-item"); // Animal Magnetism materials
+		assertAuditFamily(new int[] {4272}, ItemCategory.CLEANUP, "quest-item"); // Ghosts Ahoy bone key
+		assertAuditFamily(new int[] {618, 604, 609, 610},
+			ItemCategory.CLEANUP, "quest-item"); // Shilo quest remains
+		assertAuditFamily(new int[] {21530}, ItemCategory.CLEANUP, "quest-item"); // bone charm
+		assertAuditFamily(new int[] {7145}, ItemCategory.CLEANUP, "quest-item"); // Cabin Fever cannon barrel
+		assertAuditFamily(new int[] {25145}, ItemCategory.CLEANUP, "quest-item"); // clay head
+		assertAuditFamily(new int[] {5056, 5057, 5058, 5059, 5060, 5061},
+			ItemCategory.CLEANUP, "quest-item"); // dwarven battleaxe states
+		assertAuditFamily(new int[] {6673}, ItemCategory.CLEANUP, "quest-item"); // fishbowl and net
+		assertAuditFamily(new int[] {704}, ItemCategory.CLEANUP, "quest-item"); // ground charcoal
+		assertAuditFamily(new int[] {1502}, ItemCategory.CLEANUP, "quest-item"); // Iban's ashes
+		assertAuditFamily(new int[] {587}, ItemCategory.CLEANUP, "quest-item"); // orb of protection
+		assertAuditFamily(new int[] {1853}, ItemCategory.CLEANUP, "quest-item"); // prototype dart tip
+		assertAuditFamily(new int[] {7543}, ItemCategory.CLEANUP, "quest-item"); // raw guide cake
+		assertAuditFamily(new int[] {3702, 3703, 3704, 3705},
+			ItemCategory.CLEANUP, "quest-item"); // Fremennik merchant chain
+		assertAuditFamily(new int[] {759}, ItemCategory.CLEANUP, "quest-item"); // weapon store key
+		assertAuditFamily(new int[] {
+			28390, 33759, 33791, 33743, 33765, 33766, 33790, 33792, 33793, 33794
+		}, ItemCategory.CLEANUP, "quest-item"); // Blood Moon quest materials
+
+		int[] museumSpecimens = new int[105];
+		for (int index = 0; index < museumSpecimens.length; index++)
+		{
+			museumSpecimens[index] = 7812 + index;
+		}
+		assertAuditFamily(museumSpecimens, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {26589, 26590, 26591, 26592, 26593},
+			ItemCategory.CLEANUP, "quest-item"); // cave goblin leaders
+		assertAuditFamily(new int[] {7967, 7969, 7970, 7971},
+			ItemCategory.CLEANUP, "quest-item"); // pulley machine parts
+		assertAuditFamily(new int[] {29549}, ItemCategory.CLEANUP, "quest-item"); // fishing dolmen
+		assertAuditFamily(new int[] {28130}, ItemCategory.CLEANUP, "quest-item"); // strange icon
+		assertAuditFamily(new int[] {28468, 28469, 28470},
+			ItemCategory.CLEANUP, "quest-item"); // gooey notes
+		assertAuditFamily(new int[] {10179, 600, 19515},
+			ItemCategory.CLEANUP, "quest-item"); // POH-bookcase quest books
+		assertAuditFamily(new int[] {24682, 28401},
+			ItemCategory.CLEANUP, "quest-item"); // completed puzzle notes
+
+		// Repeatable or durable functions win over quest origin.
+		assertAuditFamily(new int[] {7529}, ItemCategory.SKILLING, "resource");
+		assertAuditFamily(new int[] {7530}, ItemCategory.POTION, "food");
+		assertAuditFamily(new int[] {678, 679}, ItemCategory.TOOL, "skilling-utility");
+		assertAuditFamily(new int[] {605}, ItemCategory.TOOL, "quest-utility");
+		// Consumed into Kharedst's memoirs, where it adds 20 charges and one destination.
+		// Wiki: https://oldschool.runescape.wiki/w/Kharedst's_memoirs?oldid=15240499
+		assertAuditFamily(new int[] {21764}, ItemCategory.TELEPORT, "teleport-charge");
+
+		// Ambiguous families remain review-only and receive no canonical override.
+		for (int itemId : new int[] {10175, 6635, 274, 29427})
+		{
+			assertFalse(CanonicalItemClassificationOverrides.find(itemId).isPresent());
+		}
+	}
+
+	@Test
 	public void exactExportCleanupRoutesToolsSuppliesAndTeleports()
 	{
 		int[] smithsOutfit = {27023, 27025, 27027, 27029};
