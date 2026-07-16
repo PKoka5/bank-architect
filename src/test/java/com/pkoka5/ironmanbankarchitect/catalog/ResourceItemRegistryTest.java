@@ -1299,6 +1299,99 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void questPotionsFoodAuditRoutesEveryConfirmedNonConsumableFamily()
+	{
+		// Every family has a full-page Wiki revision and function/counterevidence
+		// comment beside its exact-ID override.
+		assertAuditFamily(new int[] {5591}, ItemCategory.CLEANUP, "quest-item"); // ??? mixture
+		assertAuditFamily(new int[] {29539}, ItemCategory.CLEANUP, "quest-item"); // agility dolmen
+		assertAuditFamily(new int[] {33797}, ItemCategory.CLEANUP, "quest-item"); // amitire stew
+		assertAuditFamily(new int[] {10841}, ItemCategory.CLEANUP, "quest-item"); // apricot cream pie
+		assertAuditFamily(new int[] {28351}, ItemCategory.CLEANUP, "quest-item"); // arder-musca poison
+		assertAuditFamily(new int[] {28355}, ItemCategory.CLEANUP, "quest-item"); // arder-resper poison
+		assertAuditFamily(new int[] {29542}, ItemCategory.CLEANUP, "quest-item"); // attack dolmen
+		assertAuditFamily(new int[] {29551}, ItemCategory.CLEANUP, "quest-item"); // balance dolmen
+		assertAuditFamily(new int[] {22407}, ItemCategory.CLEANUP, "quest-item"); // blood potion
+		assertAuditFamily(new int[] {739}, ItemCategory.CLEANUP, "quest-item"); // bravery potion
+		assertAuditFamily(new int[] {756}, ItemCategory.CLEANUP, "quest-item"); // cadava potion
+		assertAuditFamily(new int[] {7542}, ItemCategory.CLEANUP, "quest-item"); // cake of guidance
+		assertAuditFamily(new int[] {30950}, ItemCategory.CLEANUP, "quest-item"); // canvas piece
+		assertAuditFamily(new int[] {6766}, ItemCategory.CLEANUP, "quest-item"); // cat antipoison
+		assertAuditFamily(new int[] {33769}, ItemCategory.CLEANUP, "quest-item"); // cloudy grey potion
+		assertAuditFamily(new int[] {28425}, ItemCategory.CLEANUP, "quest-item"); // code converter
+		assertAuditFamily(new int[] {33772}, ItemCategory.CLEANUP, "quest-item"); // cold bluish-white potion
+		assertAuditFamily(new int[] {29545}, ItemCategory.CLEANUP, "quest-item"); // combat dolmen
+		assertAuditFamily(new int[] {26959}, ItemCategory.CLEANUP, "quest-item"); // crocodile emblem
+		assertAuditFamily(new int[] {30317}, ItemCategory.CLEANUP, "quest-item"); // decoder strips
+		assertAuditFamily(new int[] {29544}, ItemCategory.CLEANUP, "quest-item"); // defence dolmen
+		assertAuditFamily(new int[] {11154}, ItemCategory.CLEANUP, "quest-item"); // dream potion
+		assertAuditFamily(new int[] {29925}, ItemCategory.CLEANUP, "quest-item"); // drinking flask
+		assertAuditFamily(new int[] {1501}, ItemCategory.CLEANUP, "quest-item"); // dwarf brew
+		assertAuditFamily(new int[] {524}, ItemCategory.CLEANUP, "quest-item"); // enchanted bear
+		assertAuditFamily(new int[] {522}, ItemCategory.CLEANUP, "quest-item"); // enchanted beef
+		assertAuditFamily(new int[] {525}, ItemCategory.CLEANUP, "quest-item"); // enchanted chicken
+		assertAuditFamily(new int[] {523}, ItemCategory.CLEANUP, "quest-item"); // enchanted rat
+		assertAuditFamily(new int[] {29540}, ItemCategory.CLEANUP, "quest-item"); // energy dolmen
+		assertAuditFamily(new int[] {23818}, ItemCategory.CLEANUP, "quest-item"); // explosive potion
+		assertAuditFamily(new int[] {7942, 7943}, ItemCategory.CLEANUP, "quest-item"); // fresh monkfish
+		assertAuditFamily(new int[] {337}, ItemCategory.CLEANUP, "quest-item"); // giant carp
+		assertAuditFamily(new int[] {28353}, ItemCategory.CLEANUP, "quest-item"); // holos-arder poison
+		assertAuditFamily(new int[] {29548}, ItemCategory.CLEANUP, "quest-item"); // hunter dolmen
+		assertAuditFamily(new int[] {23806}, ItemCategory.CLEANUP, "quest-item"); // inversion potion
+		assertAuditFamily(new int[] {3152, 3154}, ItemCategory.CLEANUP, "quest-item"); // useless karambwan paste
+		assertAuditFamily(new int[] {21394}, ItemCategory.CLEANUP, "quest-item"); // karambwanji
+		assertAuditFamily(new int[] {3155, 3156}, ItemCategory.CLEANUP, "quest-item"); // karambwanji paste
+		assertAuditFamily(new int[] {77}, ItemCategory.CLEANUP, "quest-item"); // khali brew
+		assertAuditFamily(new int[] {29550}, ItemCategory.CLEANUP, "quest-item"); // magic dolmen
+		assertAuditFamily(new int[] {2395}, ItemCategory.CLEANUP, "quest-item"); // magic ogre potion
+		assertAuditFamily(new int[] {
+			22009, 22010, 22011, 22012, 22013, 22014, 22015, 22016, 22017,
+			22018, 22019, 22020, 22021, 22022, 22023, 22024, 22025, 22026,
+			22027, 22028, 22029, 22030, 22031, 22032
+		}, ItemCategory.CLEANUP, "quest-item"); // Dragon Slayer II map pieces
+		assertAuditFamily(new int[] {28350}, ItemCategory.CLEANUP, "quest-item"); // musca-holos poison
+		assertAuditFamily(new int[] {28352}, ItemCategory.CLEANUP, "quest-item"); // musca-resper poison
+		assertAuditFamily(new int[] {1486}, ItemCategory.CLEANUP, "quest-item"); // piece of railing
+		assertAuditFamily(new int[] {2394, 22409}, ItemCategory.CLEANUP, "quest-item"); // generic potion family
+		assertAuditFamily(new int[] {28382}, ItemCategory.CLEANUP, "quest-item"); // potion note
+		assertAuditFamily(new int[] {21531}, ItemCategory.CLEANUP, "quest-item"); // potion of sealegs
+		assertAuditFamily(new int[] {29547}, ItemCategory.CLEANUP, "quest-item"); // prayer dolmen
+		assertAuditFamily(new int[] {29546}, ItemCategory.CLEANUP, "quest-item"); // ranged dolmen
+		assertAuditFamily(new int[] {3742}, ItemCategory.CLEANUP, "quest-item"); // red herring
+		assertAuditFamily(new int[] {22589}, ItemCategory.CLEANUP, "quest-item"); // reduced cadava potion
+		assertAuditFamily(new int[] {28354}, ItemCategory.CLEANUP, "quest-item"); // resper-holos poison
+		assertAuditFamily(new int[] {29541}, ItemCategory.CLEANUP, "quest-item"); // restoration dolmen
+		assertAuditFamily(new int[] {22096}, ItemCategory.CLEANUP, "quest-item"); // revitalisation potion
+		assertAuditFamily(new int[] {28443}, ItemCategory.CLEANUP, "quest-item"); // scarred scraps
+		assertAuditFamily(new int[] {2882}, ItemCategory.CLEANUP, "quest-item"); // seasoned chompy
+		assertAuditFamily(new int[] {1552}, ItemCategory.CLEANUP, "quest-item"); // seasoned sardine
+		assertAuditFamily(new int[] {280, 281, 282, 283}, ItemCategory.CLEANUP, "quest-item"); // sheep bones
+		assertAuditFamily(new int[] {25813}, ItemCategory.CLEANUP, "quest-item"); // shielding potion
+		assertAuditFamily(new int[] {33820}, ItemCategory.CLEANUP, "quest-item"); // smelly kebab
+		assertAuditFamily(new int[] {4836, 28383}, ItemCategory.CLEANUP, "quest-item"); // strange potions
+		assertAuditFamily(new int[] {28388}, ItemCategory.CLEANUP, "quest-item"); // strangler serum
+		assertAuditFamily(new int[] {29543}, ItemCategory.CLEANUP, "quest-item"); // strength dolmen
+		assertAuditFamily(new int[] {26904}, ItemCategory.CLEANUP, "quest-item"); // strong cup of tea
+		assertAuditFamily(new int[] {7579}, ItemCategory.CLEANUP, "quest-item"); // stuffed snake
+		assertAuditFamily(new int[] {25812}, ItemCategory.CLEANUP, "quest-item"); // sulphur potion
+		assertAuditFamily(new int[] {29898, 29899}, ItemCategory.CLEANUP, "quest-item"); // test kebabs
+		assertAuditFamily(new int[] {33771}, ItemCategory.CLEANUP, "quest-item"); // thick red potion
+		assertAuditFamily(new int[] {9656, 9657, 9658}, ItemCategory.CLEANUP, "quest-item"); // experience tome
+		assertAuditFamily(new int[] {3265}, ItemCategory.CLEANUP, "quest-item"); // troll potion
+		assertAuditFamily(new int[] {28386, 28387}, ItemCategory.CLEANUP, "quest-item"); // unfinished serum
+		assertAuditFamily(new int[] {33770}, ItemCategory.CLEANUP, "quest-item"); // black puzzle potion
+		assertAuditFamily(new int[] {29928}, ItemCategory.CLEANUP, "quest-item"); // wine labels
+
+		assertAuditFamily(new int[] {3691, 6125, 6126, 6127}, ItemCategory.TELEPORT, "teleport");
+		assertAuditFamily(new int[] {7528, 3422, 3424, 3426, 3428}, ItemCategory.SKILLING, "resource");
+		assertAuditFamily(new int[] {732}, ItemCategory.GEAR, "thrown-weapon");
+		assertAuditFamily(new int[] {7645, 7646, 7647, 7648}, ItemCategory.GEAR, "weapon");
+
+		// The poison-paste variant remains a functional repeatable combat supply.
+		assertClassification(3153, "Karambwan paste", ItemCategory.POTION, "food");
+	}
+
+	@Test
 	public void exactExportCleanupRoutesToolsSuppliesAndTeleports()
 	{
 		int[] smithsOutfit = {27023, 27025, 27027, 27029};

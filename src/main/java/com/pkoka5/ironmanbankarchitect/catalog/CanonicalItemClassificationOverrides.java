@@ -629,6 +629,286 @@ final class CanonicalItemClassificationOverrides
 				return tool();
 
 			/*
+			 * Phase 2 quest/potions-food audit. Every cited revision was read in
+			 * full, including post-quest and re-obtainability sections.
+			 */
+			// Wiki: https://oldschool.runescape.wiki/w/%3F%3F%3F_mixture?oldid=15188933
+			// "used only in Recruitment Drive"; none of the failed mixtures help complete the trial.
+			case 5591:
+			// Wiki: https://oldschool.runescape.wiki/w/Agility_dolmen?oldid=15192526
+			case 29539:
+			// Wiki: https://oldschool.runescape.wiki/w/Attack_dolmen?oldid=15192529
+			case 29542:
+			// Wiki: https://oldschool.runescape.wiki/w/Balance_dolmen?oldid=15192530
+			case 29551:
+			// Wiki: https://oldschool.runescape.wiki/w/Combat_dolmen?oldid=15192534
+			case 29545:
+			// Wiki: https://oldschool.runescape.wiki/w/Defence_dolmen?oldid=15192538
+			case 29544:
+			// Wiki: https://oldschool.runescape.wiki/w/Energy_dolmen?oldid=15192545
+			case 29540:
+			// Wiki: https://oldschool.runescape.wiki/w/Hunter_dolmen?oldid=15192551
+			case 29548:
+			// Wiki: https://oldschool.runescape.wiki/w/Inversion_potion?oldid=15189413
+			// Made only to enter the crystallised Grand Library; attempting to drink it is refused.
+			case 23806:
+			// Wiki: https://oldschool.runescape.wiki/w/Magic_dolmen?oldid=15192553
+			case 29550:
+			// Wiki: https://oldschool.runescape.wiki/w/Prayer_dolmen?oldid=15192557
+			case 29547:
+			// Wiki: https://oldschool.runescape.wiki/w/Ranged_dolmen?oldid=15192558
+			case 29546:
+			// Wiki: https://oldschool.runescape.wiki/w/Restoration_dolmen?oldid=15192559
+			case 29541:
+			// Wiki: https://oldschool.runescape.wiki/w/Strength_dolmen?oldid=15192566
+			// Each dolmen is used once on the central table to open the While Guthix Sleeps door.
+			case 29543:
+			// Wiki: https://oldschool.runescape.wiki/w/Amitire_stew?oldid=15252771
+			// Made during The Blood Moon Rises and given to Safalaan so he can recover.
+			case 33797:
+			// Wiki: https://oldschool.runescape.wiki/w/Apricot_cream_pie?oldid=15209189
+			// "unobtainable item" shown only in a Fremennik Isles cutscene.
+			case 10841:
+			// Wiki: https://oldschool.runescape.wiki/w/Arder-musca_poison?oldid=15191551
+			// Two are fed to Duke Sucellus for the one quest encounter; no normal-bank use is recorded.
+			case 28351:
+			// Wiki: https://oldschool.runescape.wiki/w/Arder-resper_poison?oldid=15191547
+			case 28355:
+			// Wiki: https://oldschool.runescape.wiki/w/Holos-arder_poison?oldid=15191549
+			case 28353:
+			// Wiki: https://oldschool.runescape.wiki/w/Musca-holos_poison?oldid=15191552
+			case 28350:
+			// Wiki: https://oldschool.runescape.wiki/w/Musca-resper_poison?oldid=15191550
+			case 28352:
+			// Wiki: https://oldschool.runescape.wiki/w/Resper-holos_poison?oldid=15191548
+			// These five poison combinations are explicitly described as scrapped Duke-fight items.
+			case 28354:
+			// Wiki: https://oldschool.runescape.wiki/w/Blood_potion?oldid=15188847
+			// Used on Serafina's door during A Taste of Hope, not drunk as a repeatable potion.
+			case 22407:
+			// Wiki: https://oldschool.runescape.wiki/w/Bravery_potion?oldid=15185855
+			// It can still be made later, but "has no uses aside from the quest".
+			case 739:
+			// Wiki: https://oldschool.runescape.wiki/w/Cadava_potion?oldid=15185450
+			// Quest-only sleeping potion; it cannot be made through normal Herblore.
+			case 756:
+			// Wiki: https://oldschool.runescape.wiki/w/Cake_of_guidance?oldid=15185652
+			// Used on the Lumbridge Guide and "cannot be eaten".
+			case 7542:
+			// Wiki: https://oldschool.runescape.wiki/w/Canvas_piece?oldid=14960776
+			// Used once on The Final Dawn's sun-and-moon mural.
+			case 30950:
+			// Wiki: https://oldschool.runescape.wiki/w/Cat_antipoison?oldid=15185820
+			// Cures Pox and "can only be obtained during the quest".
+			case 6766:
+			// Wiki: https://oldschool.runescape.wiki/w/Cloudy_grey_potion?oldid=15254404
+			case 33769:
+			// Wiki: https://oldschool.runescape.wiki/w/Cold_bluish-white_potion?oldid=15254407
+			case 33772:
+			// Wiki: https://oldschool.runescape.wiki/w/Thick_red_potion?oldid=15254406
+			case 33771:
+			// Wiki: https://oldschool.runescape.wiki/w/Weightless_black_potion?oldid=15254405
+			// These four shelf potions exist only as pieces of the Blood Moon refiner puzzle.
+			case 33770:
+			// Wiki: https://oldschool.runescape.wiki/w/Code_converter?oldid=15191498
+			// Used with the magic lantern to decode one Desert Treasure II vault password.
+			case 28425:
+			// Wiki: https://oldschool.runescape.wiki/w/Crocodile_emblem?oldid=15190910
+			// Quest emblem obtained for the Beneath Cursed Sands progression puzzle.
+			case 26959:
+			// Wiki: https://oldschool.runescape.wiki/w/Decoder_strips?oldid=14906664
+			// Used with the code key to open The Curse of Arrav's vault.
+			case 30317:
+			// Wiki: https://oldschool.runescape.wiki/w/Dream_potion?oldid=15184994
+			// Consumed by the two recorded quest dream sequences; no post-quest use is listed.
+			case 11154:
+			// Wiki: https://oldschool.runescape.wiki/w/Drinking_flask?oldid=14764548
+			// Death on the Isle evidence item whose liquid cannot be identified or consumed.
+			case 29925:
+			// Wiki: https://oldschool.runescape.wiki/w/Dwarf_brew?oldid=15185538
+			// Used to burn Iban's tomb; Kamen's offered drink only drains Agility.
+			case 1501:
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_bear?oldid=15185653
+			case 524:
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_beef?oldid=15185656
+			case 522:
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_chicken?oldid=15185654
+			case 525:
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_rat?oldid=15185655
+			// Each meat is "used only in Druidic Ritual" and cannot be made again after the quest.
+			case 523:
+			// Wiki: https://oldschool.runescape.wiki/w/Explosive_potion_(Song_of_the_Elves)?oldid=15189412
+			// Prepared by Elena solely to reinforce holes during Song of the Elves.
+			case 23818:
+			// Wiki: https://oldschool.runescape.wiki/w/Fresh_monkfish?oldid=15184848
+			// Quest-specific stock fish: only 1 Fishing XP and 1 Hitpoint when eaten.
+			case 7942:
+			case 7943:
+			// Wiki: https://oldschool.runescape.wiki/w/Giant_carp?oldid=15185614
+			// Raw giant carp "can only be caught" before receiving the Fishing Contest trophy.
+			case 337:
+			// Wiki: https://oldschool.runescape.wiki/w/Karambwan_paste?oldid=15184059
+			// Raw and cooked paste "cannot be used to poison weaponry"; only ID 3153 remains functional.
+			case 3152:
+			case 3154:
+			// Wiki: https://oldschool.runescape.wiki/w/Karambwanji?oldid=15183757
+			// After its quest step, cooking it reports "You don't feel that would be useful now."
+			case 21394:
+			// Wiki: https://oldschool.runescape.wiki/w/Karambwanji_paste?oldid=15185107
+			// Raw paste is a quest ingredient; cooked paste is explicitly "useless".
+			case 3155:
+			case 3156:
+			// Wiki: https://oldschool.runescape.wiki/w/Khali_brew?oldid=15184623
+			// Cannot be drunk; it only intoxicates the Fight Arena head guard.
+			case 77:
+			// Wiki: https://oldschool.runescape.wiki/w/Magic_ogre_potion?oldid=15184411
+			// "cannot be made after the quest" and the wizard confiscates retained copies.
+			case 2395:
+			// Wiki: https://oldschool.runescape.wiki/w/Map_piece?oldid=15188595
+			// The 24 pieces combine into Dragon Slayer II's one Lithkren map.
+			case 22009:
+			case 22010:
+			case 22011:
+			case 22012:
+			case 22013:
+			case 22014:
+			case 22015:
+			case 22016:
+			case 22017:
+			case 22018:
+			case 22019:
+			case 22020:
+			case 22021:
+			case 22022:
+			case 22023:
+			case 22024:
+			case 22025:
+			case 22026:
+			case 22027:
+			case 22028:
+			case 22029:
+			case 22030:
+			case 22031:
+			case 22032:
+			// Wiki: https://oldschool.runescape.wiki/w/Piece_of_railing?oldid=15185534
+			// Used once to break the Underground Pass unicorn cage.
+			case 1486:
+			// Wiki: https://oldschool.runescape.wiki/w/Potion_(Watchtower)?oldid=15185888
+			// ID 2394 can be remade later but "has no further use".
+			case 2394:
+			// Wiki: https://oldschool.runescape.wiki/w/Potion_(A_Taste_of_Hope)?oldid=15188846
+			// ID 22409 is used only on Serafina's door.
+			case 22409:
+			// Wiki: https://oldschool.runescape.wiki/w/Potion_note?oldid=15191529
+			// A Desert Treasure II desk clue, not a consumable potion.
+			case 28382:
+			// Wiki: https://oldschool.runescape.wiki/w/Potion_of_sealegs?oldid=15188445
+			// Made for and handed to Bone Voyage's Lead Navigator.
+			case 21531:
+			// Wiki: https://oldschool.runescape.wiki/w/Red_herring?oldid=15185671
+			// Quest puzzle item; its later one-off conversion to ordinary herring is not a repeatable recipe.
+			case 3742:
+			// Wiki: https://oldschool.runescape.wiki/w/Reduced_cadava_potion?oldid=15188965
+			// Calibrated once for the Wise Old Man during Making Friends with My Arm.
+			case 22589:
+			// Wiki: https://oldschool.runescape.wiki/w/Revitalisation_potion_(Dragon_Slayer_II)?oldid=15188654
+			// Only heals injured Fremennik warriors during the Ungael voyage.
+			case 22096:
+			// Wiki: https://oldschool.runescape.wiki/w/Scarred_scraps?oldid=15191481
+			// "CANNOT be taken out of the Scar" and is removed when a quest level completes.
+			case 28443:
+			// Wiki: https://oldschool.runescape.wiki/w/Seasoned_chompy?oldid=15185551
+			// Cooked for and handed to Rantz to complete Big Chompy Bird Hunting.
+			case 2882:
+			// Wiki: https://oldschool.runescape.wiki/w/Seasoned_sardine?oldid=15186279
+			// "serves no further use after the quest".
+			case 1552:
+			// Wiki: https://oldschool.runescape.wiki/w/Sheep_bones_(1)?oldid=15187374
+			// Wiki: https://oldschool.runescape.wiki/w/Sheep_bones_(2)?oldid=15187375
+			// Wiki: https://oldschool.runescape.wiki/w/Sheep_bones_(3)?oldid=15187376
+			// Each colour is "used only in Sheep Herder" and cannot be buried.
+			case 280:
+			case 281:
+			case 282:
+			case 283:
+			// Wiki: https://oldschool.runescape.wiki/w/Shielding_potion?oldid=15190236
+			// Used once to reinforce the Doors of Dinh.
+			case 25813:
+			// Wiki: https://oldschool.runescape.wiki/w/Smelly_kebab?oldid=15254427
+			// Realm-limited quest supply that cannot be consumed in the normal world.
+			case 33820:
+			// Wiki: https://oldschool.runescape.wiki/w/Strange_potion?oldid=15185281
+			// ID 4836 can only transform Sithik during Zogre Flesh Eaters.
+			case 4836:
+			// Wiki: https://oldschool.runescape.wiki/w/Strange_potion_(Desert_Treasure_II)?oldid=15191528
+			// ID 28383 is drunk once to enter the Stranglewood during Desert Treasure II.
+			case 28383:
+			// Wiki: https://oldschool.runescape.wiki/w/Strangler_serum?oldid=15191524
+			// Prevents quest infection while traversing the Stranglewood.
+			case 28388:
+			// Wiki: https://oldschool.runescape.wiki/w/Strong_cup_of_tea?oldid=15190855
+			// A regular tea relabelled and delivered to Herbert during Temple of the Eye.
+			case 26904:
+			// Wiki: https://oldschool.runescape.wiki/w/Stuffed_snake?oldid=15232804
+			// Ingredients cannot be procured after the subquest; only existing leftovers can be cooked.
+			case 7579:
+			// Wiki: https://oldschool.runescape.wiki/w/Sulphur_potion?oldid=15190237
+			// Quest intermediate enchanted into the one-use shielding potion.
+			case 25812:
+			// Wiki: https://oldschool.runescape.wiki/w/Test_kebab?oldid=14764698
+			// Two identical quest-stage samples delivered during Meat and Greet.
+			case 29898:
+			case 29899:
+			// Wiki: https://oldschool.runescape.wiki/w/Tome_of_experience_(Darkness_of_Hallowvale)?oldid=15185702
+			// Three one-use chapters; the tome "cannot be banked" and crumbles after reading.
+			case 9656:
+			case 9657:
+			case 9658:
+			// Wiki: https://oldschool.runescape.wiki/w/Troll_potion?oldid=15185541
+			// After the quest it "can no longer be created": "You don't need to make any more."
+			case 3265:
+			// Wiki: https://oldschool.runescape.wiki/w/Unfinished_serum?oldid=15191525
+			// Kasonde's quest intermediate for the Strangler serum.
+			case 28386:
+			case 28387:
+			// Wiki: https://oldschool.runescape.wiki/w/Wine_labels?oldid=14764724
+			// Death on the Isle evidence used to identify the cellar's wine jugs.
+			case 29928:
+				return cleanupQuestItem();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_lyre?oldid=15263869
+			// "After the quest" it remains a rechargeable teleport to several Fremennik destinations.
+			case 3691:
+			case 6125:
+			case 6126:
+			case 6127:
+				return teleport();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Ground_cod?oldid=15183709
+			// Repeatably made Cooking ingredient used to produce fishcakes.
+			case 7528:
+			// Wiki: https://oldschool.runescape.wiki/w/Olive_oil?oldid=15185750
+			// Repeatably bought minigame material converted into sacred oil for pyre logs.
+			case 3422:
+			case 3424:
+			case 3426:
+			case 3428:
+				return skillingResource();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Holy_water?oldid=15242493
+			// Repeatably craftable demonbane Ranged weapon with a 60% damage multiplier.
+			case 732:
+				return thrownWeapon();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Rod_of_ivandis?oldid=15252513
+			// Charged silver staff, autocasting weapon, and tier-2 vampyre weapon after the quest.
+			case 7645:
+			case 7646:
+			case 7647:
+			case 7648:
+				return weapon();
+
+			/*
 			 * Phase 2 quest/tools pilot. These exact quest-stage objects have no
 			 * normal repeatable tool or utility function after their quest step.
 			 */
