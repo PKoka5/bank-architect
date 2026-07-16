@@ -271,7 +271,6 @@ final class CanonicalItemClassificationOverrides
 
 			case 10890: // Prayer book
 			case 552: // Ghostspeak amulet
-			case 3107: // Spiked boots
 			case 4021: // M'speak amulet
 			case 4024: // Ninja monkey greegree
 			case 4026: // Gorilla greegree
@@ -279,11 +278,8 @@ final class CanonicalItemClassificationOverrides
 			case 4031: // Karamjan monkey greegree
 			case 6465: // Ring of charos(a)
 			case 6544: // Catspeak amulet(e)
-			case 6786: // Robe of elidinis (top)
-			case 6787: // Robe of elidinis (bottom)
 			case 4657: // Ring of visibility
 			case 4567: // Gold helmet
-			case 7917: // Ram skull helm
 				return questUtility();
 
 			case 4156: // Mirror shield
@@ -303,6 +299,16 @@ final class CanonicalItemClassificationOverrides
 
 			case 22435: // Enchanted emerald sickle (b)
 				return questUtility();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Blessed_axe?oldid=15254568
+			case 10491: // Still chops undead trees and can damage vampyres after the quest
+				return tool();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Emerald_lantern?oldid=15185115
+			case 9064: // Unlit, fuelled
+			case 9065: // Lit
+			case 20722: // Empty, can be fuelled with lamp oil
+				return lightSource();
 
 			case 27023: // Smiths tunic
 			case 27025: // Smiths trousers
@@ -557,6 +563,84 @@ final class CanonicalItemClassificationOverrides
 			case 33818: // Rank frothy potion variants
 				return cleanupQuestItem();
 
+			/*
+			 * Phase 2 quest/tools pilot. These exact quest-stage objects have no
+			 * normal repeatable tool or utility function after their quest step.
+			 */
+			// Wiki: https://oldschool.runescape.wiki/w/Lens_mould?oldid=15185521
+			case 602:
+			// Wiki: https://oldschool.runescape.wiki/w/Ancient_talisman?oldid=15182682
+			case 681:
+			// Wiki: https://oldschool.runescape.wiki/w/Silver_needle?oldid=15186811
+			case 1804:
+			case 1805:
+			// Wiki: https://oldschool.runescape.wiki/w/Criminal's_thread?oldid=15184054
+			case 1808:
+			case 1809:
+			case 1810:
+			// Wiki: https://oldschool.runescape.wiki/w/Golden_tinderbox?oldid=15187397
+			case 2946:
+			// Wiki: https://oldschool.runescape.wiki/w/Golden_hammer?oldid=15187399
+			case 2949:
+			// Wiki: https://oldschool.runescape.wiki/w/Golden_needle?oldid=15187400
+			case 2951:
+			// Wiki: https://oldschool.runescape.wiki/w/Spiked_boots?oldid=15239316
+			case 3107:
+			// Wiki: https://oldschool.runescape.wiki/w/Hunters'_talisman?oldid=15184168
+			// The Draugen objective is one-time; additional talismans have no repeatable function.
+			case 3696:
+			case 3697:
+			// Wiki: https://oldschool.runescape.wiki/w/Blue_thread?oldid=15185670
+			case 3719:
+			// Wiki: https://oldschool.runescape.wiki/w/Conductor_mould?oldid=15184048
+			case 4200:
+			// Wiki: https://oldschool.runescape.wiki/w/Blunt_axe?oldid=15183865
+			case 4415:
+			// Wiki: https://oldschool.runescape.wiki/w/Sharpened_axe?oldid=15185589
+			case 4444:
+			// Wiki: https://oldschool.runescape.wiki/w/Metal_spade?oldid=15188927
+			case 5586:
+			case 5587:
+			// Wiki: https://oldschool.runescape.wiki/w/Chisel_(Recruitment_Drive)?oldid=15188928
+			case 5601:
+			// Wiki: https://oldschool.runescape.wiki/w/Knife_(Recruitment_Drive)?oldid=15188930
+			case 5605:
+			// Wiki: https://oldschool.runescape.wiki/w/Bucket_of_water_(Rum_Deal)?oldid=15184577
+			case 6712:
+			// Wiki: https://oldschool.runescape.wiki/w/Demonic_sigil_mould?oldid=15185192
+			case 6747:
+			// Wiki: https://oldschool.runescape.wiki/w/Camel_mould_(p)?oldid=15184452
+			case 7001:
+			// Wiki: https://oldschool.runescape.wiki/w/Queen's_secateurs?oldid=15184661
+			case 7410:
+			case 9020:
+			// Wiki: https://oldschool.runescape.wiki/w/Anger_battleaxe?oldid=15182770
+			case 7807:
+			// Wiki: https://oldschool.runescape.wiki/w/A_special_tiara?oldid=15185032
+			case 9103:
+			// Wiki: https://oldschool.runescape.wiki/w/Scarab_mould?oldid=15190914
+			case 26952:
+			// Wiki: https://oldschool.runescape.wiki/w/Knife_(Desert_Treasure_II)?oldid=15191510
+			case 28413:
+			// Wiki: https://oldschool.runescape.wiki/w/Chisel_(Desert_Treasure_II)?oldid=15191509
+			case 28414:
+			// Wiki: https://oldschool.runescape.wiki/w/Lockpick_(Desert_Treasure_II)?oldid=15191508
+			case 28415:
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_water_talisman?oldid=15232314
+			case 28964:
+			// Wiki: https://oldschool.runescape.wiki/w/Enchanted_earth_talisman?oldid=15232315
+			case 28965:
+			// Wiki: https://oldschool.runescape.wiki/w/Infused_water_talisman?oldid=15192401
+			case 28966:
+			// Wiki: https://oldschool.runescape.wiki/w/Infused_earth_talisman?oldid=15192400
+			case 28967:
+			// Wiki: https://oldschool.runescape.wiki/w/Arrav's_axe?oldid=14798554
+			case 30320:
+			// Wiki: https://oldschool.runescape.wiki/w/Acatzin's_axe?oldid=15131634
+			case 30989:
+			case 30990:
+				return cleanupQuestItem();
+
 			// Wiki: https://oldschool.runescape.wiki/w/Prayer_potion_(Last_Man_Standing)?oldid=15209257
 			case 20393:
 			case 20394:
@@ -599,8 +683,24 @@ final class CanonicalItemClassificationOverrides
 			case 23589: // Stamina potion (LMS)
 				return cleanupJunk();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Robe_of_elidinis_(top)?oldid=15184480
+			case 6786:
+			// Wiki: https://oldschool.runescape.wiki/w/Robe_of_elidinis_(bottom)?oldid=15184479
+			case 6787:
+			// Wiki: https://oldschool.runescape.wiki/w/Ram_skull_helm?oldid=15183173
+			case 7917:
 			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1)?oldid=15189530
-			case 24207: // Permanent Last Man Standing achievement cosmetic
+			case 24207:
+			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(10)?oldid=15189531
+			case 24209:
+			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(50)?oldid=15189532
+			case 24211:
+			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(100)?oldid=15189533
+			case 24213:
+			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(500)?oldid=15189534
+			case 24215:
+			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1000)?oldid=15189665
+			case 24520:
 				return clueCosmetic();
 
 			// Wiki: https://oldschool.runescape.wiki/w/Explosive_potion?oldid=15187163
@@ -1039,6 +1139,16 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> questUtility()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.TOOL, "quest-utility"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> tool()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.TOOL, "tool"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> lightSource()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.TOOL, "light-source"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> slayerTool()

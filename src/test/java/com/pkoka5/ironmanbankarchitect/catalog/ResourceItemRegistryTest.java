@@ -949,10 +949,41 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
-	public void auditedVictorsCapeRoutesToCollectionCosmetics()
+	public void auditedVictorsCapeFamilyRoutesToCollectionCosmetics()
 	{
-		// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1)?oldid=15189530
-		assertAuditFamily(new int[] {24207}, ItemCategory.CLUE, "cosmetic");
+		/*
+		 * Wiki revisions 15189530 through 15189534 and 15189665 confirm that
+		 * every tier is an equipable LMS achievement cape with zero combat stats.
+		 */
+		assertAuditFamily(new int[] {24207, 24209, 24211, 24213, 24215, 24520},
+			ItemCategory.CLUE, "cosmetic");
+	}
+
+	@Test
+	public void auditedQuestToolPilotRoutesSingleUseQuestObjectsToReview()
+	{
+		/*
+		 * Exact revision-pinned Wiki sources are recorded beside each matching
+		 * switch family in CanonicalItemClassificationOverrides.
+		 */
+		assertAuditFamily(new int[] {
+			602, 681, 1804, 1805, 1808, 1809, 1810, 2946, 2949, 2951, 3107,
+			3696, 3697, 3719, 4200, 4415, 4444, 5586, 5587, 5601, 5605, 6712,
+			6747, 7001, 7410, 7807, 9020, 9103, 26952, 28413, 28414, 28415,
+			28964, 28965, 28966, 28967, 30320, 30989, 30990
+		}, ItemCategory.CLEANUP, "quest-item");
+
+		// Wearable zero-stat quest rewards belong with collection cosmetics.
+		assertAuditFamily(new int[] {6786, 6787, 7917}, ItemCategory.CLUE, "cosmetic");
+	}
+
+	@Test
+	public void auditedQuestToolCorrectionRestoresRepeatableFunctions()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Emerald_lantern?oldid=15185115
+		assertAuditFamily(new int[] {9064, 9065, 20722}, ItemCategory.TOOL, "light-source");
+		// Wiki: https://oldschool.runescape.wiki/w/Blessed_axe?oldid=15254568
+		assertAuditFamily(new int[] {10491}, ItemCategory.TOOL, "tool");
 	}
 
 	@Test
@@ -1167,16 +1198,16 @@ public class ResourceItemRegistryTest
 		assertSubcategory(6465, "quest-utility");
 		assertCategory(4657, "Ring of visibility", ItemCategory.TOOL);
 		assertSubcategory(4657, "quest-utility");
-		assertCategory(3107, "Spiked boots", ItemCategory.TOOL);
-		assertSubcategory(3107, "quest-utility");
-		assertCategory(6786, "Robe of elidinis", ItemCategory.TOOL);
-		assertSubcategory(6786, "quest-utility");
-		assertCategory(6787, "Robe of elidinis", ItemCategory.TOOL);
-		assertSubcategory(6787, "quest-utility");
+		assertCategory(3107, "Spiked boots", ItemCategory.CLEANUP);
+		assertSubcategory(3107, "quest-item");
+		assertCategory(6786, "Robe of elidinis", ItemCategory.CLUE);
+		assertSubcategory(6786, "cosmetic");
+		assertCategory(6787, "Robe of elidinis", ItemCategory.CLUE);
+		assertSubcategory(6787, "cosmetic");
 		assertCategory(4567, "Gold helmet", ItemCategory.TOOL);
 		assertSubcategory(4567, "quest-utility");
-		assertCategory(7917, "Ram skull helm", ItemCategory.TOOL);
-		assertSubcategory(7917, "quest-utility");
+		assertCategory(7917, "Ram skull helm", ItemCategory.CLUE);
+		assertSubcategory(7917, "cosmetic");
 	}
 
 	@Test

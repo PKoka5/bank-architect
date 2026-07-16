@@ -260,11 +260,28 @@ public class PresetCategoryMapperTest
 			23858, 24534, 25087, 25102, 25104, 26500, 26549, 27178, 28705, 30361,
 			30363, 30453, 30461, 31174, 33239, 33241);
 		assertRegistryItemsRoute("slayer-boss-loot", 12783, 20716);
-		assertRegistryItemsRoute("clues-cosmetics", 24207);
+		assertRegistryItemsRoute("clues-cosmetics", 24207, 24209, 24211, 24213, 24215, 24520);
 
 		assertRegistryItemsRoute("currency-utilities",
 			10934, 10935, 10936, 10942, 10943, 10944, 12791);
 		assertRegistryItemsRoute("potions-food", 30616, 30619);
+	}
+
+	@Test
+	public void questToolPilotSeparatesRepeatableUtilitiesFromQuestReview()
+	{
+		assertRegistryItemsRoute("storage-cleanup",
+			602, 681, 1804, 1805, 1808, 1809, 1810, 2946, 2949, 2951, 3107,
+			3696, 3697, 3719, 4200, 4415, 4444, 5586, 5587, 5601, 5605, 6712,
+			6747, 7001, 7410, 7807, 9020, 9103, 26952, 28413, 28414, 28415,
+			28964, 28965, 28966, 28967, 30320, 30989, 30990);
+		assertRegistryItemsRoute("clues-cosmetics", 6786, 6787, 7917);
+		assertRegistryItemsRoute("skilling-tools",
+			4, 88, 552, 775, 776, 1456, 1506, 1580, 1585, 2871, 2872, 2873,
+			2874, 2957, 2958, 3157, 3159, 4020, 4021, 4023, 4031, 4446, 4567,
+			4657, 6465, 6544, 7409, 7534, 7535, 7649, 9064, 9065, 9625, 10491,
+			11323, 20722, 22435, 24673, 24674, 24675, 24676, 24678, 24680,
+			24942, 28575, 28577, 31398, 31986);
 	}
 
 	@Test
