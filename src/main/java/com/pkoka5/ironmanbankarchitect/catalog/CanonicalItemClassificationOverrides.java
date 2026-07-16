@@ -271,7 +271,6 @@ final class CanonicalItemClassificationOverrides
 
 			case 10890: // Prayer book
 			case 552: // Ghostspeak amulet
-			case 4021: // M'speak amulet
 			case 4024: // Ninja monkey greegree
 			case 4026: // Gorilla greegree
 			case 4030: // Zombie monkey greegree
@@ -2166,6 +2165,105 @@ final class CanonicalItemClassificationOverrides
 			// Given by Juna only inside Tears of Guthix and deleted on leaving the area.
 			// Wiki: https://oldschool.runescape.wiki/w/Stone_bowl?oldid=15184533
 			case 4704:
+				return cleanupJunk();
+
+			/*
+			 * Phase 2, batch 14 (Combat Gear quest-items, part 2).
+			 * Every cited page and linked function/variant chain was read in
+			 * full. These are the non-Gear exceptions in the final 128-ID tail.
+			 */
+			// The inventory/worn IDs are two representations of the same durable
+			// weight-reduction utility; ID 88 was already classified identically.
+			// Wiki: https://oldschool.runescape.wiki/w/Boots_of_lightness?oldid=15182914
+			case 89:
+				return skillingUtility();
+
+			// Persistent communication, access, and travel utilities rather than combat gear.
+			// Wiki: https://oldschool.runescape.wiki/w/Catspeak_amulet?oldid=15182936
+			case 4677:
+			// Wiki: https://oldschool.runescape.wiki/w/Ghostspeak_amulet?oldid=15183035
+			case 4250:
+			// Wiki: https://oldschool.runescape.wiki/w/Ring_of_charos?oldid=15217181
+			case 4202:
+				return questUtility();
+
+			// The completed amulet has no documented use after Monkey Madness II:
+			// "the amulet is no longer used after Chapter III of the quest."
+			// Wiki: https://oldschool.runescape.wiki/w/M'speak_amulet?oldid=15183584
+			case 4021:
+			case 4022:
+				return cleanupQuestItem();
+
+			// Ongoing desert-heat protection, but no combat bonuses.
+			// Wiki: https://oldschool.runescape.wiki/w/Slave_robe?oldid=15183223
+			// Wiki: https://oldschool.runescape.wiki/w/Slave_boots?oldid=15183222
+			case 1845:
+			case 1846:
+				return skillingUtility();
+
+			// Zero-stat costume family; the ripped state is directly repairable
+			// into the costume-room-storable repaired trousers.
+			// Wiki: https://oldschool.runescape.wiki/w/Ripped_mourner_trousers?oldid=15238152
+			// Wiki: https://oldschool.runescape.wiki/w/Mourner_trousers?oldid=15238157
+			case 6066:
+			case 6067:
+				return clueCosmetic();
+
+			// The Star amulet unlocks the cave during the quest. Afterwards the
+			// cave is permanently entered by pushing the easternmost memorial;
+			// using another Star amulet only makes this chain unobtainable.
+			// Wiki: https://oldschool.runescape.wiki/w/Marble_amulet?oldid=15183880
+			// "if a star amulet is used ... again ... the marble amulet will no longer be obtainable."
+			// Wiki: https://oldschool.runescape.wiki/w/Obsidian_amulet?oldid=15183881
+			// "if a star amulet is used ... again ... the obsidian amulet will no longer be obtainable."
+			// Wiki: https://oldschool.runescape.wiki/w/Star_amulet?oldid=15183534
+			// Wiki: https://oldschool.runescape.wiki/w/Experiment_cave?oldid=15234162
+			// "By pushing the easternmost memorial, players may enter the experiment caves below."
+			case 4187:
+			case 4188:
+			case 4183:
+				return cleanupQuestItem();
+
+			// Quest-instance weapons that cannot enter a normal bank.
+			// Wiki: https://oldschool.runescape.wiki/w/Anger_sword?oldid=15182773
+			// Wiki: https://oldschool.runescape.wiki/w/Anger_mace?oldid=15182771
+			// Wiki: https://oldschool.runescape.wiki/w/Anger_spear?oldid=15182772
+			case 7806:
+			case 7808:
+			case 7809:
+			// Removed from the inventory when its Blood Moon quest segment ends.
+			// Wiki: https://oldschool.runescape.wiki/w/Silvthrill_javelin?oldid=15254523
+			case 33801:
+				return cleanupJunk();
+
+			// Historical gradual-degradation crystal bows. Song of the Elves
+			// reverted every existing copy into a weapon seed; only cache records remain.
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_bow_(historical)?oldid=15221194
+			case 4212:
+			case 4214:
+			case 4215:
+			case 4216:
+			case 4217:
+			case 4218:
+			case 4219:
+			case 4220:
+			case 4221:
+			case 4222:
+			case 4223:
+			// The old Nightmare Zone imbued family is likewise unobtainable
+			// after the 2019 conversion/removal of crystal imbuing.
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_bow_(i)?oldid=15187529
+			case 11748:
+			case 11749:
+			case 11750:
+			case 11751:
+			case 11752:
+			case 11753:
+			case 11754:
+			case 11755:
+			case 11756:
+			case 11757:
+			case 11758:
 				return cleanupJunk();
 
 			default:

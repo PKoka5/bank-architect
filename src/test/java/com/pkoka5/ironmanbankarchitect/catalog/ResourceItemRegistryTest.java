@@ -1190,8 +1190,8 @@ public class ResourceItemRegistryTest
 	{
 		assertCategory(552, "Ghostspeak amulet", ItemCategory.TOOL);
 		assertSubcategory(552, "quest-utility");
-		assertCategory(4021, "M'speak amulet", ItemCategory.TOOL);
-		assertSubcategory(4021, "quest-utility");
+		assertCategory(4021, "M'speak amulet", ItemCategory.CLEANUP);
+		assertSubcategory(4021, "quest-item");
 		assertCategory(6544, "Catspeak amulet(e)", ItemCategory.TOOL);
 		assertSubcategory(6544, "quest-utility");
 		assertCategory(6465, "Ring of charos(a)", ItemCategory.TOOL);
@@ -1630,6 +1630,50 @@ public class ResourceItemRegistryTest
 		// Armadyl pendant has a documented repeatable God Wars protection role.
 		assertCategoryOnly(87, ItemCategory.GEAR);
 		assertFalse(CanonicalItemClassificationOverrides.find(87).isPresent());
+	}
+
+	@Test
+	public void combatGearQuestAuditPartTwoClosesTheRemainingFamilies()
+	{
+		// Full revision pages and linked variant/function chains were read. Source
+		// URLs are repeated beside the exact production cases.
+		assertAuditFamily(new int[] {89}, ItemCategory.TOOL, "skilling-utility");
+		assertAuditFamily(new int[] {4677, 4250, 4202},
+			ItemCategory.TOOL, "quest-utility");
+		// Wiki: https://oldschool.runescape.wiki/w/M'speak_amulet?oldid=15183584
+		// The completed amulet is no longer used after Chapter III of Monkey Madness II.
+		assertAuditFamily(new int[] {4021, 4022}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {1845, 1846}, ItemCategory.TOOL, "skilling-utility");
+		assertAuditFamily(new int[] {6066, 6067}, ItemCategory.CLUE, "cosmetic");
+		assertAuditFamily(new int[] {4187, 4188, 4183},
+			ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {7806, 7808, 7809, 33801},
+			ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Crystal_bow_(historical)?oldid=15221194
+		// Wiki: https://oldschool.runescape.wiki/w/Crystal_bow_(i)?oldid=15187529
+		assertAuditFamily(new int[] {
+			4212, 4214, 4215, 4216, 4217, 4218, 4219, 4220, 4221, 4222, 4223,
+			11748, 11749, 11750, 11751, 11752, 11753, 11754, 11755, 11756, 11757, 11758
+		}, ItemCategory.CLEANUP, "junk");
+
+		// The remaining 90 exact IDs all have a sourced, ongoing combat or
+		// equipment function. This includes repairable/inactive states, which
+		// remain Gear rather than being treated as cleanup merely by suffix.
+		for (int itemId : new int[] {
+			35, 78, 87, 428, 589, 667, 746, 747, 767, 777, 778, 1187, 1409,
+			1410, 1478, 1495, 2405, 2415, 2416, 2417, 2866, 2883, 2890, 2952,
+			3105, 4081, 4236, 4502, 5574, 5575, 6068, 6069, 6106, 6107, 6108,
+			6109, 6110, 6611, 7668, 9091, 9092, 9093, 9096, 9098, 9099, 9100,
+			9101, 9102, 9104, 9642, 9672, 9674, 9676, 9678, 9729, 9733, 10828,
+			10838, 10839, 10858, 10887, 10888, 11014, 11061, 11200, 12017,
+			23785, 23787, 23789, 23983, 23985, 23991, 23993, 24123, 24127,
+			24265, 24266, 24699, 25250, 26763, 28327, 28329, 29560, 29562,
+			29564, 29566, 29568, 29570, 30955, 33722
+		})
+		{
+			assertCategoryOnly(itemId, ItemCategory.GEAR);
+		}
 	}
 
 	@Test
