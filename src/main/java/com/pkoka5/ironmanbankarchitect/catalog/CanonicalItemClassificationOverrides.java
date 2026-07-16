@@ -384,6 +384,8 @@ final class CanonicalItemClassificationOverrides
 			case 19677: // Ancient shard
 				return equipmentCharge();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Ring_of_wealth_scroll?oldid=15186408
+			case 12783: // Repeatable Last Man Standing reward used to upgrade a ring of wealth
 			case 22969: // Hydra's heart
 			case 22971: // Hydra's fang
 			case 22973: // Hydra's eye
@@ -595,6 +597,63 @@ final class CanonicalItemClassificationOverrides
 			case 23585:
 			case 23587:
 			case 23589: // Stamina potion (LMS)
+				return cleanupJunk();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1)?oldid=15189530
+			case 24207: // Permanent Last Man Standing achievement cosmetic
+				return clueCosmetic();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Explosive_potion?oldid=15187163
+			case 4045: // Castle Wars-only gameplay item
+			// Wiki: https://oldschool.runescape.wiki/w/Deadman_teleport_tablet?oldid=15188858
+			case 13666: // Deadman Mode-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Shark_(Last_Man_Standing)?oldid=15208878
+			case 20390: // Last Man Standing-only food
+			// Wiki: https://oldschool.runescape.wiki/w/Ancient_magicks_tablet?oldid=15211531
+			case 20430: // Last Man Standing-only spellbook tablet
+			// Wiki: https://oldschool.runescape.wiki/w/Survival_token?oldid=15187813
+			case 20527: // Last Man Standing-only currency
+			// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_glory_(Last_Man_Standing)?oldid=15208961
+			case 20586: // Last Man Standing-only jewellery
+			// Wiki: https://oldschool.runescape.wiki/w/Cooked_karambwan_(Last_Man_Standing)?oldid=15208877
+			case 23533: // Last Man Standing-only food
+			// Wiki: https://oldschool.runescape.wiki/w/Ghrazi_rapier_(Last_Man_Standing)?oldid=15208833
+			case 23628: // Last Man Standing-only weapon
+			// Wiki: https://oldschool.runescape.wiki/w/Rune_pouch_(Last_Man_Standing)?oldid=15208869
+			case 23650: // Last Man Standing-only rune pouch
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_spike?oldid=15189350
+			case 23831: // Corrupted Gauntlet-only weapon component
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_teleport_crystal?oldid=15189491
+			case 23858: // Corrupted Gauntlet-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Mithril_seeds_(Last_Man_Standing)?oldid=15208871
+			case 24534: // Last Man Standing-only seed copy
+			// Wiki: https://oldschool.runescape.wiki/w/Trailblazer_teleport_scroll?oldid=15239427
+			case 25087: // Trailblazer League-only unlock
+			// Wiki: https://oldschool.runescape.wiki/w/Fairy_mushroom?oldid=15205871
+			case 25102: // Trailblazer League-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_of_echoes?oldid=15192898
+			case 25104: // Trailblazer League-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Shattered_teleport_scroll?oldid=15239819
+			case 26500: // Shattered Relics League-only unlock
+			// Wiki: https://oldschool.runescape.wiki/w/Portable_waystone?oldid=15190745
+			case 26549: // Shattered Relics League-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Spiked_manacles_(Last_Man_Standing)?oldid=15208846
+			case 27178: // Last Man Standing-only equipment
+			// Wiki: https://oldschool.runescape.wiki/w/Trailblazer_reloaded_home_teleport_scroll?oldid=15191661
+			case 28705: // Trailblazer Reloaded League-only unlock
+			// Wiki: https://oldschool.runescape.wiki/w/Banker's_briefcase?oldid=15192895
+			case 30361: // Raging Echoes League-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Clue_compass_(item)?oldid=15192896
+			case 30363: // Raging Echoes League-only teleport
+			// Wiki: https://oldschool.runescape.wiki/w/Echo_home_teleport_scroll?oldid=15214892
+			case 30453: // Raging Echoes League-only unlock
+			// Wiki: https://oldschool.runescape.wiki/w/Raging_echoes_portal_scroll?oldid=15214888
+			case 30461: // Raging Echoes League-only unlock
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_shark?oldid=15237663
+			case 31174: // Gridmaster League-only food
+			// Wiki: https://oldschool.runescape.wiki/w/Flask_of_fervour_(item)?oldid=15231324
+			case 33239:
+			case 33241: // Demonic Pacts League-only flask states
 				return cleanupJunk();
 
 			// Wiki: https://oldschool.runescape.wiki/w/3rd_age_range_coif_(Last_Man_Standing)?oldid=15208853

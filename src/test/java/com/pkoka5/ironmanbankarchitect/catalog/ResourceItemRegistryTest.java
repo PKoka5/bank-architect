@@ -901,6 +901,73 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void auditedRestrictedMainTabFamiliesRouteToCleanupReview()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Deadman_teleport_tablet?oldid=15188858
+		assertAuditFamily(new int[] {13666}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Ancient_magicks_tablet?oldid=15211531
+		assertAuditFamily(new int[] {20430}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Survival_token?oldid=15187813
+		assertAuditFamily(new int[] {20527}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Amulet_of_glory_(Last_Man_Standing)?oldid=15208961
+		assertAuditFamily(new int[] {20586}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Rune_pouch_(Last_Man_Standing)?oldid=15208869
+		assertAuditFamily(new int[] {23650}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_teleport_crystal?oldid=15189491
+		assertAuditFamily(new int[] {23858}, ItemCategory.CLEANUP, "junk");
+	}
+
+	@Test
+	public void auditedRingOfWealthScrollKeepsItsRepeatableUpgradeFunction()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Ring_of_wealth_scroll?oldid=15186408
+		assertAuditFamily(new int[] {12783}, ItemCategory.UNIQUE, "equipment-upgrade");
+	}
+
+	@Test
+	public void auditedLeagueMainTabFamiliesRouteToCleanupReview()
+	{
+		// Sources are revision-pinned beside each exact switch case.
+		assertAuditFamily(new int[] {
+			25087, 25102, 25104, 26500, 26549, 28705, 30361, 30363, 30453, 30461
+		}, ItemCategory.CLEANUP, "junk");
+	}
+
+	@Test
+	public void auditedRestrictedSupplyAndFarmingFamiliesRouteToCleanupReview()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Explosive_potion?oldid=15187163
+		assertAuditFamily(new int[] {4045}, ItemCategory.CLEANUP, "junk");
+		// Last Man Standing sources are revision-pinned beside each exact switch case.
+		assertAuditFamily(new int[] {20390, 23533, 23628, 27178},
+			ItemCategory.CLEANUP, "junk");
+		// Corrupted Gauntlet and temporary League sources are likewise pinned beside the cases.
+		assertAuditFamily(new int[] {23831, 31174, 33239, 33241},
+			ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Mithril_seeds_(Last_Man_Standing)?oldid=15208871
+		assertAuditFamily(new int[] {24534}, ItemCategory.CLEANUP, "junk");
+	}
+
+	@Test
+	public void auditedVictorsCapeRoutesToCollectionCosmetics()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1)?oldid=15189530
+		assertAuditFamily(new int[] {24207}, ItemCategory.CLUE, "cosmetic");
+	}
+
+	@Test
+	public void auditedFunctionalVariantControlsKeepTheirExistingSemantics()
+	{
+		// Normal-game Rune pouch remains an explicitly curated Main-tab grab item.
+		assertClassification(12791, "Rune pouch", ItemCategory.RUNE, "rune-container");
+		// Bounty supply crates are bankable, repeatable Bounty Hunter supplies.
+		assertClassification(30616, "Bounty supply crate (manta ray)", ItemCategory.POTION, "food");
+		assertClassification(30619, "Bounty supply crate (anglerfish)", ItemCategory.POTION, "food");
+		// The empty tome is intentionally routed as reviewed loot rather than functional charged gear.
+		assertClassification(20716, "Tome of fire (empty)", ItemCategory.CLEANUP, "cleanup");
+	}
+
+	@Test
 	public void auditedLastManStandingGearFamiliesRouteToCleanupReview()
 	{
 		/*

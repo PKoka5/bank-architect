@@ -253,6 +253,21 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
+	public void auditBatchSevenRoutesRestrictedVariantsWithoutMovingFunctionalControls()
+	{
+		assertRegistryItemsRoute("storage-cleanup",
+			4045, 13666, 20390, 20430, 20527, 20586, 23533, 23628, 23650, 23831,
+			23858, 24534, 25087, 25102, 25104, 26500, 26549, 27178, 28705, 30361,
+			30363, 30453, 30461, 31174, 33239, 33241);
+		assertRegistryItemsRoute("slayer-boss-loot", 12783, 20716);
+		assertRegistryItemsRoute("clues-cosmetics", 24207);
+
+		assertRegistryItemsRoute("currency-utilities",
+			10934, 10935, 10936, 10942, 10943, 10944, 12791);
+		assertRegistryItemsRoute("potions-food", 30616, 30619);
+	}
+
+	@Test
 	public void reviewedSpreadsheetChoicesControlledByTheMapperRemainStableAgainstTheRealRegistry()
 	{
 		Map<Integer, String> expected = new LinkedHashMap<>();
