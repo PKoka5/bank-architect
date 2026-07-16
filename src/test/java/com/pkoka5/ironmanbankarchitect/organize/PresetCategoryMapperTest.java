@@ -285,6 +285,16 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
+	public void questFarmingAuditRoutesOnlyVerifiedRepeatableRewardsOutsideCleanup()
+	{
+		assertRegistryItemsRoute("storage-cleanup",
+			735, 736, 4205, 4206, 4486, 6112, 6453, 6454, 6455, 6456, 6457,
+			6458, 6459, 6460, 6464, 6468, 6710, 9932, 23802, 23808, 23810);
+		assertRegistryItemsRoute("clues-cosmetics", 7950);
+		assertRegistryItemsRoute("skilling-tools", 9626);
+	}
+
+	@Test
 	public void reviewedSpreadsheetChoicesControlledByTheMapperRemainStableAgainstTheRealRegistry()
 	{
 		Map<Integer, String> expected = new LinkedHashMap<>();

@@ -1280,6 +1280,25 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void questFarmingAuditSeparatesQuestRemnantsFromRepeatableRewards()
+	{
+		// Full revision pages are cited beside the exact overrides. These IDs have
+		// no recorded repeatable Farming function after their quest step.
+		assertAuditFamily(new int[] {
+			735, 736, 4205, 4206, 4486, 6112, 6453, 6454, 6455, 6456, 6457,
+			6458, 6459, 6460, 6464, 6468, 6710, 9932, 23802, 23808, 23810
+		}, ItemCategory.CLEANUP, "quest-item");
+
+		// https://oldschool.runescape.wiki/w/Bone_seeds?oldid=15184790
+		// Obtainable after Swan Song and repeatedly summons a cosmetic skeleton.
+		assertClassification(7950, "Bone seeds", ItemCategory.CLUE, "cosmetic");
+
+		// https://oldschool.runescape.wiki/w/Crystal_saw_seed?oldid=15203824
+		// Repeatably replaceable precursor to the functional crystal saw.
+		assertClassification(9626, "Crystal saw seed", ItemCategory.TOOL, "tool");
+	}
+
+	@Test
 	public void exactExportCleanupRoutesToolsSuppliesAndTeleports()
 	{
 		int[] smithsOutfit = {27023, 27025, 27027, 27029};

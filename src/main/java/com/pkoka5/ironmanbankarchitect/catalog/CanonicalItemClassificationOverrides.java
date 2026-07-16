@@ -564,6 +564,71 @@ final class CanonicalItemClassificationOverrides
 				return cleanupQuestItem();
 
 			/*
+			 * Phase 2 quest/farming audit. Full revision pages were checked for
+			 * post-quest use; these exact objects only serve their quest step.
+			 */
+			// Wiki: https://oldschool.runescape.wiki/w/Yommi_tree_seeds?oldid=15184984
+			// "not possible to reobtain ... after completion"; used for the Legends' Quest totem.
+			case 735:
+			case 736:
+			// Wiki: https://oldschool.runescape.wiki/w/Consecration_seed?oldid=15184516
+			// Used for the Roving Elves consecration; replacements are described only during the quest.
+			case 4205:
+			case 4206:
+			// Wiki: https://oldschool.runescape.wiki/w/White_pearl_seed?oldid=15184378
+			// "can not be planted in any farming patches".
+			case 4486:
+			// Wiki: https://oldschool.runescape.wiki/w/Kelda_seed?oldid=15184586
+			// Grown to brew the Kelda stout required during Forgettable Tale.
+			case 6112:
+			// Wiki: https://oldschool.runescape.wiki/w/White_rose_seed?oldid=15184617
+			case 6453:
+			// Wiki: https://oldschool.runescape.wiki/w/Red_rose_seed?oldid=15184615
+			case 6454:
+			// Wiki: https://oldschool.runescape.wiki/w/Pink_rose_seed?oldid=15184614
+			case 6455:
+			// Wiki: https://oldschool.runescape.wiki/w/Vine_seed?oldid=15184616
+			case 6456:
+			// Wiki: https://oldschool.runescape.wiki/w/Delphinium_seed?oldid=15184613
+			case 6457:
+			// Wiki: https://oldschool.runescape.wiki/w/Orchid_seed_(pink)?oldid=15186005
+			case 6458:
+			// Wiki: https://oldschool.runescape.wiki/w/Orchid_seed_(yellow)?oldid=15186006
+			case 6459:
+			// Wiki: https://oldschool.runescape.wiki/w/Snowdrop_seed?oldid=15183912
+			case 6460:
+			// Wiki: https://oldschool.runescape.wiki/w/White_tree_sapling?oldid=15184618
+			case 6464:
+			// The garden family is planted in Queen Ellamaria's quest garden; no continuing use is recorded.
+			// Wiki: https://oldschool.runescape.wiki/w/Plant_cure_(Garden_of_Tranquillity)?oldid=15184621
+			// It can still be created later, but its recorded use is curing the quest's Burthorpe vines.
+			case 6468:
+			// Wiki: https://oldschool.runescape.wiki/w/Blindweed_seed?oldid=15185824
+			// The player "must grow" it during Rum Deal for the quest's unsanitary swill.
+			case 6710:
+			// Wiki: https://oldschool.runescape.wiki/w/Auguste's_sapling?oldid=15185627
+			// "cannot be re-obtained after completing the quest".
+			case 9932:
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_(Song_of_the_Elves)?oldid=15189419
+			// Quest item ground into the crystal dust needed for the inversion potion.
+			case 23802:
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_seed_(Song_of_the_Elves)?oldid=15189418
+			// Quest item used to locate Lord Amlodd before Eluned enchants it.
+			case 23808:
+			case 23810:
+				return cleanupQuestItem();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_seeds?oldid=15184790
+			// "obtained during and after" Swan Song; repeatedly summons an emote-performing skeleton.
+			case 7950:
+				return clueCosmetic();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Crystal_saw_seed?oldid=15203824
+			// Quest reward that "can be enchanted into a crystal saw" and can be replaced if lost.
+			case 9626:
+				return tool();
+
+			/*
 			 * Phase 2 quest/tools pilot. These exact quest-stage objects have no
 			 * normal repeatable tool or utility function after their quest step.
 			 */
