@@ -944,6 +944,36 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void auditedRestrictedToolFamiliesFollowTheirVerifiedOngoingFunction()
+	{
+		// Wiki: https://oldschool.runescape.wiki/w/Broken_pickaxe_(bronze)?oldid=15184083
+		// Family cross-checks: oldid=15184086 (adamant) and oldid=15189068 (black).
+		assertAuditFamily(new int[] {468, 470, 472, 474, 476, 478, 11923, 12594},
+			ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Broken_fishing_rod?oldid=15184527
+		assertAuditFamily(new int[] {6662}, ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_axe?oldid=15189345
+		assertAuditFamily(new int[] {23821}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_pickaxe?oldid=15189346
+		assertAuditFamily(new int[] {23822}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Corrupted_harpoon?oldid=15189347
+		assertAuditFamily(new int[] {23823}, ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Echo_axe?oldid=15239873
+		assertAuditFamily(new int[] {25110}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Echo_pickaxe?oldid=15262483
+		assertAuditFamily(new int[] {25112}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Echo_harpoon?oldid=15239875
+		assertAuditFamily(new int[] {25114}, ItemCategory.CLEANUP, "junk");
+		// Wiki: https://oldschool.runescape.wiki/w/Sage's_axe?oldid=15224281
+		assertAuditFamily(new int[] {28773}, ItemCategory.CLEANUP, "junk");
+
+		// Wiki: https://oldschool.runescape.wiki/w/Morrigan's_throwing_axe_(bh)?oldid=15191344
+		assertAuditFamily(new int[] {27912, 27914}, ItemCategory.GEAR, "thrown-weapon");
+	}
+
+	@Test
 	public void canonicalHerbloreOverridesCoverWaterAndYewRoots()
 	{
 		assertCategory(227, "Vial of water", ItemCategory.HERBLORE);

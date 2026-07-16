@@ -30,6 +30,11 @@ final class CanonicalItemClassificationOverrides
 			case 805: // Rune thrownaxe
 				return thrownWeapon();
 
+			// Wiki: https://oldschool.runescape.wiki/w/Morrigan's_throwing_axe_(bh)?oldid=15191344
+			case 27912:
+			case 27914: // Active and inactive Bounty Hunter states remain functional ranged weapons
+				return thrownWeapon();
+
 			case 20714: // Tome of fire
 			case 25574: // Tome of water
 			case 30064: // Tome of earth
@@ -92,6 +97,36 @@ final class CanonicalItemClassificationOverrides
 				return cleanupQuestItem();
 
 			case 686: // Rusty sword
+				return cleanupJunk();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Broken_pickaxe_(bronze)?oldid=15184083
+			// Family cross-checks:
+			// https://oldschool.runescape.wiki/w/Broken_pickaxe_(adamant)?oldid=15184086
+			// https://oldschool.runescape.wiki/w/Broken_pickaxe_(black)?oldid=15189068
+			case 468:
+			case 470:
+			case 472:
+			case 474:
+			case 476:
+			case 478:
+			case 11923:
+			case 12594: // Historical broken pickaxes; automatically repaired in 2014
+			// Wiki: https://oldschool.runescape.wiki/w/Broken_fishing_rod?oldid=15184527
+			case 6662: // No use and cannot be repaired
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_axe?oldid=15189345
+			case 23821: // Corrupted Gauntlet-only axe
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_pickaxe?oldid=15189346
+			case 23822: // Corrupted Gauntlet-only pickaxe
+			// Wiki: https://oldschool.runescape.wiki/w/Corrupted_harpoon?oldid=15189347
+			case 23823: // Corrupted Gauntlet-only harpoon
+			// Wiki: https://oldschool.runescape.wiki/w/Echo_axe?oldid=15239873
+			case 25110: // Removed Raging Echoes League relic tool
+			// Wiki: https://oldschool.runescape.wiki/w/Echo_pickaxe?oldid=15262483
+			case 25112: // Removed Raging Echoes League relic tool
+			// Wiki: https://oldschool.runescape.wiki/w/Echo_harpoon?oldid=15239875
+			case 25114: // Removed Raging Echoes League relic tool
+			// Wiki: https://oldschool.runescape.wiki/w/Sage's_axe?oldid=15224281
+			case 28773: // Removed Trailblazer Reloaded League relic weapon
 				return cleanupJunk();
 
 			case 626: // Pink boots
