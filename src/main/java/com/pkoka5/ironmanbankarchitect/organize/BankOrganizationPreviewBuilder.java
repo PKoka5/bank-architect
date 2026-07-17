@@ -248,8 +248,7 @@ public final class BankOrganizationPreviewBuilder
 					return new BankCategoryPreview(category, semanticLayout(
 						IronmanMainItemSorter.sort(items), MainQuickAccessSemanticRuleSet.forEntries(entries)));
 				case RESOURCES:
-					return new BankCategoryPreview(category, semanticLayout(
-						ResourceItemSorter.sort(items), ResourceSemanticRuleSet.forEntries(entries)));
+					return new BankCategoryPreview(category, resourceLayout(items));
 				case TELEPORTS:
 					return new BankCategoryPreview(category, semanticLayout(
 						TeleportItemSorter.sort(items), RuneSemanticRuleSet.forEntries(entries)));
@@ -283,6 +282,36 @@ public final class BankOrganizationPreviewBuilder
 			LayoutRequest tailRequest = GearSetSemanticRuleSet.forEntries(tailEntries)
 				.withGridStartColumn(planned.size() % GearItemSorter.GRID_COLUMNS);
 			planned.addAll(semanticLayout(gear.getTail(), tailRequest));
+			return planned;
+		}
+
+		/**
+		 * Plans each {@link ResourceSkillZone} independently at its real physical start column so a
+		 * zone stays hard-contiguous without blank separators or borrowed items from another zone.
+		 * {@link ResourceItemSorter#sort} already orders items by zone first, so same-zone items are
+		 * already contiguous runs in its output.
+		 */
+		private List<BankPreviewItem> resourceLayout(List<BankPreviewItem> items)
+		{
+			List<BankPreviewItem> sorted = ResourceItemSorter.sort(items);
+			List<BankPreviewItem> planned = new ArrayList<>(sorted.size());
+			int start = 0;
+			while (start < sorted.size())
+			{
+				ResourceSkillZone zone = ResourceSkillZoneClassifier.classify(sorted.get(start));
+				int end = start + 1;
+				while (end < sorted.size() && ResourceSkillZoneClassifier.classify(sorted.get(end)) == zone)
+				{
+					end++;
+				}
+
+				List<BankPreviewItem> zoneItems = new ArrayList<>(sorted.subList(start, end));
+				List<LayoutEntry> zoneEntries = entriesForItems(entries, zoneItems);
+				LayoutRequest zoneRequest = ResourceSemanticRuleSet.forZoneEntries(zoneEntries)
+					.withGridStartColumn(planned.size() % GearItemSorter.GRID_COLUMNS);
+				planned.addAll(semanticLayout(zoneItems, zoneRequest));
+				start = end;
+			}
 			return planned;
 		}
 

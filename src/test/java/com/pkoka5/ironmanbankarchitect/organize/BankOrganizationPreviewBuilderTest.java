@@ -299,10 +299,12 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "resources").getItems());
 
-		assertEquals(normalLogs, target.subList(0, 6));
-		assertEquals(constructionLogs, target.subList(8, 12));
-		assertEquals(otherLogs, target.subList(16, 18));
-		assertEquals(planks, target.subList(24, 29));
+		// Each wood/plank row is independently placeable now (no shared coupled origin), so rows
+		// pack densely back-to-back instead of each claiming its own physical-row boundary.
+		assertPhysicalRun(target, normalLogs);
+		assertPhysicalRun(target, constructionLogs);
+		assertPhysicalRun(target, otherLogs);
+		assertPhysicalRun(target, planks);
 		assertEquals(sourceOrder.size() + 13, target.size());
 	}
 
@@ -426,7 +428,7 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	@Test
-	public void woodRowsCanUseGlobalSpilloverAfterTwentyTwoMiningItems()
+	public void metalColumnsStayAlignedWhenMiningZoneIsPlannedIndependently()
 	{
 		List<CatalogItem> catalogItems = new ArrayList<>();
 		int[] miningIds = {436, 440, 453, 442, 444, 447, 449, 451,
@@ -479,8 +481,8 @@ public class BankOrganizationPreviewBuilderTest
 			Arrays.asList(440, 442, 444, 447, 449),
 			Arrays.asList(2351, 2355, 2357, 2359, 2361));
 		assertPhysicalRun(target, Arrays.asList(22603, 21543, 13573, 21545, 13421, 21622));
-		assertFalse("Nickel ore must not fill the processed-metal row",
-			target.indexOf(31719) / 8 == target.indexOf(2351) / 8);
+		// Zones are planned independently now: Mining/Smithing's own sailing-metal spillover
+		// may share a slack cell in the bar row, since nothing may be borrowed from Woodcutting.
 		assertPhysicalRun(target, normalLogs);
 		assertPhysicalRun(target, planks);
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));

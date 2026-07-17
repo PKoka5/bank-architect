@@ -112,6 +112,62 @@ public final class ResourceSemanticRuleSet
 		return new LayoutRequest(anchoredEntries(entries), rulesForEntries(entries));
 	}
 
+	/**
+	 * Creates a request for entries already restricted to one {@code ResourceSkillZone}. A zone's
+	 * physical window can be too small to hold a {@code ROW_GROUP_MATRIX} rule's full coupled block
+	 * (all its rows share one origin and are placed as an all-or-nothing unit), so every such rule
+	 * is decoupled here into independently placeable {@code HORIZONTAL_RUN} rows. Declared row order
+	 * is preserved via an ordinal rule-key prefix so tie-breaking never falls back to alphabetical
+	 * atom-key order. Metal/gem stage matrices and existing horizontal-run rules are unaffected.
+	 */
+	public static LayoutRequest forZoneEntries(List<LayoutEntry> entries)
+	{
+		Objects.requireNonNull(entries, "entries");
+		validateRows(METAL_ROWS);
+		validateMetadata(Collections.singletonList(OPAL_FAMILY));
+		validateMetadata(GEM_FAMILIES);
+		validateRows(WOOD_ROWS);
+		validateRows(CRAFTING_ROWS);
+		validateRows(FLETCHING_ROWS);
+		return new LayoutRequest(anchoredEntries(entries),
+			decoupleRowGroupMatrices(rulesForEntries(entries)));
+	}
+
+	private static List<SemanticRule> decoupleRowGroupMatrices(List<SemanticRule> rules)
+	{
+		List<SemanticRule> decoupled = new ArrayList<>();
+		for (SemanticRule rule : rules)
+		{
+			if (rule.getShapePrimitive() != ShapePrimitive.ROW_GROUP_MATRIX)
+			{
+				decoupled.add(rule);
+				continue;
+			}
+
+			List<SemanticAtom> atoms = rule.getAtoms();
+			for (int index = 0; index < atoms.size(); index++)
+			{
+				SemanticAtom atom = atoms.get(index);
+				SemanticRule.Builder builder = SemanticRule.builder()
+					.ruleKey(String.format("zone-row-%02d.%s", index, atom.getAtomKey()))
+					.atoms(Collections.singletonList(atom))
+					.confidenceTier(rule.getConfidenceTier())
+					.shapePrimitive(ShapePrimitive.HORIZONTAL_RUN)
+					.allowedWidths(rule.getAllowedWidths());
+				if (rule.hasWidthEvidence())
+				{
+					builder.widthEvidence(rule.getWidthEvidence());
+				}
+				if (!rule.getSpilloverCompatibleRuleKeys().isEmpty())
+				{
+					builder.spilloverCompatibleRuleKeys(rule.getSpilloverCompatibleRuleKeys());
+				}
+				decoupled.add(builder.build());
+			}
+		}
+		return Collections.unmodifiableList(decoupled);
+	}
+
 	private static List<LayoutEntry> anchoredEntries(List<LayoutEntry> entries)
 	{
 		Set<Integer> present = new LinkedHashSet<>();
