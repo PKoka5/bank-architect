@@ -208,10 +208,13 @@ public class BankOrganizationPreviewBuilderTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		BankCategoryPreview resources = category(preview, "resources");
-		List<Integer> expected = Arrays.asList(442, 444, 447, 449, 451, 900001, 440, 900002,
+		List<Integer> expected = Arrays.asList(440, 442, 444, 447, 449, 451, 900001, 900002,
 			2351, 2355, 2357, 2359, 2361, 2363);
 
 		assertEquals(expected, itemIds(resources.getItems()));
+		assertAlignedMetalColumns(expected,
+			Arrays.asList(440, 442, 444, 447, 449, 451),
+			Arrays.asList(2351, 2355, 2357, 2359, 2361, 2363));
 		for (BankPreviewItem item : resources.getItems())
 		{
 			assertFalse(item.isBlank());
@@ -472,12 +475,10 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"resources").getItems());
 
-		List<Integer> ores = Arrays.asList(436, 440, 453, 442, 444, 447, 449, 451);
-		List<Integer> processed = Arrays.asList(2351, 2353, 2355, 2357, 2359, 2361, 32892);
-		List<Integer> supplemental = Arrays.asList(31719, 22603, 21543, 13573, 21545, 13421, 21622);
-		assertPhysicalRun(target, ores);
-		assertPhysicalRun(target, processed);
-		assertPhysicalRun(target, supplemental);
+		assertAlignedMetalColumns(target,
+			Arrays.asList(440, 442, 444, 447, 449),
+			Arrays.asList(2351, 2355, 2357, 2359, 2361));
+		assertPhysicalRun(target, Arrays.asList(22603, 21543, 13573, 21545, 13421, 21622));
 		assertFalse("Nickel ore must not fill the processed-metal row",
 			target.indexOf(31719) / 8 == target.indexOf(2351) / 8);
 		assertPhysicalRun(target, normalLogs);
@@ -1398,6 +1399,22 @@ public class BankOrganizationPreviewBuilderTest
 		assertTrue("run crosses a physical row: first=" + first + ", family=" + family
 			+ ", target=" + target, first % 8 + family.size() <= 8);
 		assertEquals(family, target.subList(first, first + family.size()));
+	}
+
+	private static void assertAlignedMetalColumns(List<Integer> target, List<Integer> ores,
+		List<Integer> bars)
+	{
+		assertEquals(ores.size(), bars.size());
+		for (int index = 0; index < ores.size(); index++)
+		{
+			int oreTarget = target.indexOf(ores.get(index));
+			int barTarget = target.indexOf(bars.get(index));
+			assertTrue("missing metal family member", oreTarget >= 0 && barTarget >= 0);
+			assertEquals("ore and bar must share their physical column",
+				oreTarget % 8, barTarget % 8);
+			assertEquals("bar must occupy the following physical row",
+				oreTarget / 8 + 1, barTarget / 8);
+		}
 	}
 
 	private static int[] itemIdArray(List<BankPreviewItem> items)

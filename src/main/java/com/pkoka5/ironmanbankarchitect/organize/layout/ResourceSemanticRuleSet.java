@@ -18,6 +18,7 @@ import java.util.Set;
 public final class ResourceSemanticRuleSet
 {
 	private static final String METAL_RULE_KEY = "resource.metal.material-rows";
+	private static final String PRESENT_MATERIAL_ROWS_RULE_KEY = "resource.material.present-rows";
 	private static final String GEM_RULE_KEY = "resource.gem.raw-processed";
 	private static final String WOOD_RULE_KEY = "resource.wood.material-rows";
 	private static final String CRAFTING_RULE_KEY = "resource.crafting.workflow-rows";
@@ -30,6 +31,17 @@ public final class ResourceSemanticRuleSet
 		row("metal.ores-base", 436, 438, 440, 453),
 		row("metal.ores-tier", 442, 444, 447, 449, 451),
 		row("metal.bars", 2349, 2351, 2353, 2355, 2357, 2359, 2361, 2363)));
+	private static final List<FamilyFact> METAL_FAMILIES = Collections.unmodifiableList(Arrays.asList(
+		family("metal.iron", 440, 2351),
+		family("metal.silver", 442, 2355),
+		family("metal.gold", 444, 2357),
+		family("metal.mithril", 447, 2359),
+		family("metal.adamantite", 449, 2361),
+		family("metal.runite", 451, 2363)));
+	private static final List<Integer> METAL_SPILLOVER_ORES =
+		Collections.unmodifiableList(Arrays.asList(436, 438, 453));
+	private static final List<Integer> METAL_SPILLOVER_BARS =
+		Collections.unmodifiableList(Arrays.asList(2349, 2353));
 	private static final List<Integer> SAILING_ORES =
 		Collections.singletonList(31719);
 	private static final List<Integer> SAILING_PROCESSED_METALS =
@@ -74,7 +86,7 @@ public final class ResourceSemanticRuleSet
 		Collections.unmodifiableList(Arrays.asList(9416, 29311));
 
 	private static final List<SemanticRule> RULES = Collections.unmodifiableList(Arrays.asList(
-		rowGroupMatrix(METAL_RULE_KEY, METAL_ROWS),
+		stageMatrix(METAL_RULE_KEY, METAL_FAMILIES, null),
 		stageMatrix(GEM_RULE_KEY, GEM_FAMILIES, SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED),
 		rowGroupMatrix(WOOD_RULE_KEY, WOOD_ROWS),
 		rowGroupMatrix(CRAFTING_RULE_KEY, CRAFTING_ROWS),
@@ -117,9 +129,16 @@ public final class ResourceSemanticRuleSet
 		}
 
 		List<Integer> anchorOrder = new ArrayList<>();
-		anchorOrder.addAll(METAL_ROWS.get(0).itemIds);
-		anchorOrder.addAll(METAL_ROWS.get(1).itemIds);
-		anchorOrder.addAll(METAL_ROWS.get(2).itemIds);
+		for (FamilyFact family : METAL_FAMILIES)
+		{
+			anchorOrder.add(family.rawItemId);
+		}
+		for (FamilyFact family : METAL_FAMILIES)
+		{
+			anchorOrder.add(family.processedItemId);
+		}
+		anchorOrder.addAll(METAL_SPILLOVER_ORES);
+		anchorOrder.addAll(METAL_SPILLOVER_BARS);
 		anchorOrder.addAll(SAILING_ORES);
 		anchorOrder.addAll(SAILING_PROCESSED_METALS);
 		anchorOrder.addAll(SUPPLEMENTAL_MINING_MATERIALS);
@@ -152,29 +171,20 @@ public final class ResourceSemanticRuleSet
 			return RULES;
 		}
 
-		List<SemanticRule> rules = new ArrayList<>(RULES);
-		rules.set(0, presentMaterialRule(present));
-		rules.removeIf(rule -> GEM_RULE_KEY.equals(rule.getRuleKey())
-			|| WOOD_RULE_KEY.equals(rule.getRuleKey())
-			|| CRAFTING_RULE_KEY.equals(rule.getRuleKey())
-			|| FLETCHING_RULE_KEY.equals(rule.getRuleKey()));
+		List<SemanticRule> rules = new ArrayList<>();
+		rules.add(stageMatrix(METAL_RULE_KEY, METAL_FAMILIES, null));
+		rules.add(presentMaterialRule(present));
 		return Collections.unmodifiableList(rules);
 	}
 
 	private static SemanticRule presentMaterialRule(Set<Integer> present)
 	{
 		List<SemanticAtom> atoms = new ArrayList<>();
-		List<Integer> ores = new ArrayList<>();
-		ores.addAll(METAL_ROWS.get(0).itemIds);
-		ores.addAll(METAL_ROWS.get(1).itemIds);
-		addPresentChunks(atoms, "metal.ores", ores, present);
-
-		List<Integer> processed = new ArrayList<>(METAL_ROWS.get(2).itemIds);
-		processed.addAll(SAILING_PROCESSED_METALS);
-		addPresentChunks(atoms, "metal.processed", processed, present);
-		List<Integer> supplementalMining = new ArrayList<>(SAILING_ORES);
-		supplementalMining.addAll(SUPPLEMENTAL_MINING_MATERIALS);
-		addPresentChunks(atoms, "mining.supplemental", supplementalMining, present);
+		addPresentChunks(atoms, "metal.ores-spillover", METAL_SPILLOVER_ORES, present);
+		addPresentChunks(atoms, "metal.bars-spillover", METAL_SPILLOVER_BARS, present);
+		addPresentChunks(atoms, "sailing.ores", SAILING_ORES, present);
+		addPresentChunks(atoms, "sailing.processed-metals", SAILING_PROCESSED_METALS, present);
+		addPresentChunks(atoms, "mining.supplemental", SUPPLEMENTAL_MINING_MATERIALS, present);
 		for (RowFact row : WOOD_ROWS)
 		{
 			addPresentChunks(atoms, row.familyKey, row.itemIds, present);
@@ -187,7 +197,7 @@ public final class ResourceSemanticRuleSet
 		addCompactPresentFletchingRows(atoms, present);
 
 		return SemanticRule.builder()
-			.ruleKey(METAL_RULE_KEY)
+			.ruleKey(PRESENT_MATERIAL_ROWS_RULE_KEY)
 			.atoms(atoms)
 			.confidenceTier(ConfidenceTier.HIGH)
 			.shapePrimitive(ShapePrimitive.ROW_GROUP_MATRIX)

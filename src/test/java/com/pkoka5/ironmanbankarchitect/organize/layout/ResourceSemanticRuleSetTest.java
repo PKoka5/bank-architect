@@ -20,10 +20,10 @@ import static org.junit.Assert.assertTrue;
 
 public class ResourceSemanticRuleSetTest
 {
-	private static final List<Integer> METAL_BASE_ORES = Arrays.asList(436, 438, 440, 453);
-	private static final List<Integer> METAL_TIER_ORES = Arrays.asList(442, 444, 447, 449, 451);
-	private static final List<Integer> METAL_BARS =
-		Arrays.asList(2349, 2351, 2353, 2355, 2357, 2359, 2361, 2363);
+	private static final List<Integer> METAL_MATRIX_ORES =
+		Arrays.asList(440, 442, 444, 447, 449, 451);
+	private static final List<Integer> METAL_MATRIX_BARS =
+		Arrays.asList(2351, 2355, 2357, 2359, 2361, 2363);
 	private static final List<Integer> GEM_RAW = Arrays.asList(1623, 1621, 1619, 1617, 1631);
 	private static final List<Integer> GEM_PROCESSED = Arrays.asList(1607, 1605, 1603, 1601, 1615);
 	private static final List<Integer> NORMAL_LOGS =
@@ -200,6 +200,18 @@ public class ResourceSemanticRuleSetTest
 	}
 
 	@Test
+	public void standardConstructionNailsStayContiguousAmongOtherConstructionMaterials()
+	{
+		List<Integer> input = Arrays.asList(
+			434, 4824, 1761, 4822, 3420, 1539, 4823, 3424, 4820, 5016, 4819);
+
+		List<Integer> target = targetOrder(planDetailed(input, input));
+
+		assertHorizontalFamily(target, NAILS);
+		assertDensePermutation(input, target);
+	}
+
+	@Test
 	public void extendedFletchingFamiliesFormIndependentTierRuns()
 	{
 		List<Integer> input = new ArrayList<>();
@@ -233,46 +245,35 @@ public class ResourceSemanticRuleSetTest
 	}
 
 	@Test
-	public void completeMetalMaterialsFormSeparateOreAndBarRows()
+	public void completeMetalFamiliesAlignRawAndProcessedStagesByPhysicalColumn()
 	{
-		List<Integer> fallback = new ArrayList<>();
-		fallback.addAll(METAL_BARS);
-		fallback.addAll(METAL_TIER_ORES);
-		fallback.addAll(METAL_BASE_ORES);
-		fallback.addAll(fillers(900001, 7));
+		List<Integer> fallback = Arrays.asList(
+			436, 440, 453, 442, 444, 447, 449, 451,
+			2351, 2353, 2355, 2357, 2359, 2361, 2363);
 
 		BoundedLayoutPacker.Outcome outcome = planDetailed(fallback, fallback);
 		List<Integer> target = targetOrder(outcome);
-		assertEquals(8, onlyBlock(outcome).getWidth());
-		assertEquals(METAL_BASE_ORES, target.subList(0, 4));
-		assertEquals(METAL_TIER_ORES, target.subList(8, 13));
-		assertEquals(METAL_BARS, target.subList(16, 24));
+		assertEquals(6, onlyBlock(outcome).getWidth());
+		assertEquals(ShapePrimitive.STAGE_MATRIX, onlyBlock(outcome).getShapePrimitive());
+		assertMetalColumns(target);
 		assertDensePermutation(fallback, target);
 	}
 
 	@Test
-	public void supplementalMiningMaterialsDoNotSplitClassicOreAndProcessedRows()
+	public void supplementalMaterialPathKeepsTheSameMetalStageColumns()
 	{
-		List<Integer> ores = Arrays.asList(436, 440, 453, 442, 444, 447, 449, 451);
-		List<Integer> sailingOres = Collections.singletonList(31719);
-		List<Integer> processed = Arrays.asList(2351, 2353, 2355, 2357, 2359, 2361, 32892);
-		List<Integer> supplemental = Arrays.asList(22603, 21543, 13573, 21545, 13421, 21622);
-		List<Integer> input = new ArrayList<>();
-		input.addAll(supplemental);
-		input.addAll(processed);
-		input.addAll(sailingOres);
-		input.addAll(ores);
-		input.addAll(fillers(925000, 8));
+		List<Integer> input = Arrays.asList(
+			436, 440, 453, 442, 444, 447, 449, 451,
+			2351, 2353, 2355, 2357, 2359, 2361, 2363,
+			22603); // Basalt forces the presentMaterialRule path.
 
 		BoundedLayoutPacker.Outcome outcome = planDetailed(input, input);
 		List<Integer> target = targetOrder(outcome);
 
-		assertEquals(8, onlyBlock(outcome).getWidth());
-		assertEquals(ores, target.subList(0, 8));
-		assertEquals(processed, target.subList(8, 15));
-		List<Integer> supplementalRow = new ArrayList<>(sailingOres);
-		supplementalRow.addAll(supplemental);
-		assertEquals(supplementalRow, target.subList(16, 23));
+		assertTrue(outcome.getTieKey().getBlocks().stream()
+			.anyMatch(block -> block.getShapePrimitive() == ShapePrimitive.STAGE_MATRIX
+				&& block.getWidth() == 6));
+		assertMetalColumns(target);
 		assertDensePermutation(input, target);
 	}
 
@@ -295,7 +296,7 @@ public class ResourceSemanticRuleSetTest
 		LayoutRequest request = ResourceSemanticRuleSet.forEntries(entries);
 		List<LayoutCandidateGroup> groups = LayoutCandidateGenerator.generate(request);
 		LayoutEntry anchor = request.getEntries().stream()
-			.filter(value -> value.getItem().getItemId() == 436)
+			.filter(value -> value.getItem().getItemId() == 440)
 			.findFirst().orElseThrow(AssertionError::new);
 		assertTrue(anchor.hasLockedTarget());
 		assertEquals(0, anchor.getLockedTarget());
@@ -303,13 +304,12 @@ public class ResourceSemanticRuleSetTest
 			request, fallback, BoundedLayoutPacker.Limits.production());
 		List<Integer> target = targetOrder(outcome);
 
-		assertEquals("groups=" + groups + ", score=" + outcome.getScore(),
-			1, outcome.getTieKey().getBlocks().size());
-		assertTrue(outcome.getTieKey().getBlocks().get(0).getAtomKeys().stream()
-			.anyMatch(key -> key.startsWith("wood.logs.normal")));
-		assertEquals(Arrays.asList(1511, 1521, 1517, 1515, 1513, 19669),
-			target.subList(24, 30));
-		assertEquals(Arrays.asList(960, 8778, 8780, 8782, 31435), target.subList(40, 45));
+		assertTrue("groups=" + groups + ", score=" + outcome.getScore(),
+			outcome.getTieKey().getBlocks().stream()
+				.anyMatch(block -> block.getAtomKeys().stream()
+					.anyMatch(key -> key.startsWith("wood.logs.normal"))));
+		assertHorizontalFamily(target, Arrays.asList(1511, 1521, 1517, 1515, 1513, 19669));
+		assertHorizontalFamily(target, Arrays.asList(960, 8778, 8780, 8782, 31435));
 	}
 
 	@Test
@@ -344,22 +344,18 @@ public class ResourceSemanticRuleSetTest
 		BoundedLayoutPacker.Outcome outcome = planDetailed(input, input);
 		List<Integer> target = targetOrder(outcome);
 
-		assertEquals(1, outcome.getTieKey().getBlocks().size());
-		assertEquals(Arrays.asList(2351, 2353, 2355, 2357, 2359, 2361, 32892),
-			target.subList(8, 15));
-		assertEquals(Arrays.asList(31719, 22603, 21543, 13573, 21545, 13421, 21622),
-			target.subList(16, 23));
-		assertEquals(Arrays.asList(24691, 22935, 28134), target.subList(40, 43));
-		assertEquals(Arrays.asList(960, 8778, 8780, 8782, 31435), target.subList(48, 53));
-		assertEquals(currentRawGems, target.subList(56, 62));
-		assertEquals(currentProcessedGems, target.subList(64, 70));
-		assertEquals(Arrays.asList(1635, 1637, 1639), target.subList(72, 75));
-		assertEquals(GLASS_WORKFLOW, target.subList(80, 88));
-		assertEquals(TEXTILE_INPUTS, target.subList(88, 92));
-		assertEquals(TEXTILE_FABRICS, target.subList(96, 102));
-		assertEquals(Arrays.asList(52, 314, 53, 1777, 39, 43, 822, 823),
-			target.subList(104, 112));
-		assertEquals(Arrays.asList(9422, 9416, 29311), target.subList(112, 115));
+		assertTrue(outcome.getTieKey().getBlocks().size() >= 2);
+		assertMetalColumns(target);
+		assertHorizontalFamily(target, Arrays.asList(24691, 22935, 28134));
+		assertHorizontalFamily(target, Arrays.asList(960, 8778, 8780, 8782, 31435));
+		assertHorizontalFamily(target, currentRawGems);
+		assertHorizontalFamily(target, currentProcessedGems);
+		assertHorizontalFamily(target, Arrays.asList(1635, 1637, 1639));
+		assertHorizontalFamily(target, GLASS_WORKFLOW);
+		assertHorizontalFamily(target, TEXTILE_INPUTS);
+		assertHorizontalFamily(target, TEXTILE_FABRICS);
+		assertHorizontalFamily(target, Arrays.asList(52, 314, 53, 1777, 39, 43, 822, 823));
+		assertHorizontalFamily(target, Arrays.asList(9422, 9416, 29311));
 		assertDensePermutation(input, target);
 	}
 
@@ -404,7 +400,7 @@ public class ResourceSemanticRuleSetTest
 	}
 
 	@Test
-	public void partialMetalRowsKeepOresSeparateFromBars()
+	public void oneCompleteMetalFamilyAlignsWhileIncompleteStagesFallBack()
 	{
 		List<Integer> input = new ArrayList<>(Arrays.asList(2351, 2355, 436, 438, 442, 444));
 		input.addAll(fillers(930000, 12));
@@ -412,10 +408,13 @@ public class ResourceSemanticRuleSetTest
 		BoundedLayoutPacker.Outcome outcome = planDetailed(input, input);
 		List<Integer> target = targetOrder(outcome);
 
-		assertEquals(2, onlyBlock(outcome).getWidth());
-		assertEquals(Arrays.asList(436, 438), target.subList(0, 2));
-		assertEquals(Arrays.asList(442, 444), target.subList(8, 10));
-		assertEquals(Arrays.asList(2351, 2355), target.subList(16, 18));
+		assertEquals(1, onlyBlock(outcome).getWidth());
+		assertEquals(ShapePrimitive.STAGE_MATRIX, onlyBlock(outcome).getShapePrimitive());
+		assertEquals(Integer.valueOf(442), target.get(0));
+		assertEquals(Integer.valueOf(2355), target.get(8));
+		assertEquals(target.indexOf(442) % 8, target.indexOf(2355) % 8);
+		assertTrue(target.contains(2351));
+		assertTrue(target.contains(444));
 		assertDensePermutation(input, target);
 	}
 
@@ -462,18 +461,34 @@ public class ResourceSemanticRuleSetTest
 	{
 		assertEquals("resource.metal.material-rows", rule.getRuleKey());
 		assertEquals(ConfidenceTier.HIGH, rule.getConfidenceTier());
-		assertEquals(ShapePrimitive.ROW_GROUP_MATRIX, rule.getShapePrimitive());
-		assertEquals(Arrays.asList("metal.ores-base", "metal.ores-tier", "metal.bars"),
+		assertEquals(ShapePrimitive.STAGE_MATRIX, rule.getShapePrimitive());
+		assertEquals(Arrays.asList("metal.iron", "metal.silver", "metal.gold", "metal.mithril",
+			"metal.adamantite", "metal.runite"),
 			atomKeys(rule));
-		assertEquals(METAL_BASE_ORES, rule.getAtoms().get(0).getItemIds());
-		assertEquals(METAL_TIER_ORES, rule.getAtoms().get(1).getItemIds());
-		assertEquals(METAL_BARS, rule.getAtoms().get(2).getItemIds());
-		for (SemanticAtom atom : rule.getAtoms())
+		for (int index = 0; index < rule.getAtoms().size(); index++)
 		{
-			for (int index = 0; index < atom.getMembers().size(); index++)
+			SemanticAtom atom = rule.getAtoms().get(index);
+			assertEquals(Arrays.asList(METAL_MATRIX_ORES.get(index), METAL_MATRIX_BARS.get(index)),
+				atom.getItemIds());
+			assertEquals("raw", atom.getMembers().get(0).getMemberKey());
+			assertEquals("processed", atom.getMembers().get(1).getMemberKey());
+		}
+	}
+
+	private static void assertMetalColumns(List<Integer> target)
+	{
+		for (int index = 0; index < METAL_MATRIX_ORES.size(); index++)
+		{
+			int rawTarget = target.indexOf(METAL_MATRIX_ORES.get(index));
+			int processedTarget = target.indexOf(METAL_MATRIX_BARS.get(index));
+			if (rawTarget < 0 || processedTarget < 0)
 			{
-				assertMetadata(atom.getAtomKey(), atom.getItemIds().get(index), index);
+				continue;
 			}
+			assertEquals("processed stage must occupy the following physical row",
+				rawTarget / 8 + 1, processedTarget / 8);
+			assertEquals("raw and processed stages must share a physical column",
+				rawTarget % 8, processedTarget % 8);
 		}
 	}
 
