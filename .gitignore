@@ -27,3 +27,7 @@ tools/research/wiki-recommended-equipment/cache/
 # Local effective-classification and Wiki audit snapshots. Aggregate reviewed
 # conclusions are tracked separately under docs/research/.
 tools/research/item-classification-audit/cache/
+
+# Local research scratch (raw dumps, reference screenshots). Reviewed results
+# are tracked under tools/research/ and docs/research/.
+tmp/
