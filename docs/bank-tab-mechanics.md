@@ -113,9 +113,12 @@ Internal order does not matter during bucket construction.
 - When section memberships/counts are complete, sort main/blueprint tab 1
   first.
 - Then sort physical buckets in visual order (blueprint tabs 2..10).
-- For each section, resolve direct two-cycles first, putting two items in their
-  final slots with one swap. Remaining cycles use one expected-item placement
-  at a time; this still reaches the exact lower bound `n - permutation cycles`.
+- For each section, anchor at the first mismatched slot and walk its cycle:
+  each advised swap drags the anchor's occupant to that item's final slot, so
+  the displaced item lands back on the anchor. The player keeps picking up
+  from one unchanged slot until the cycle closes, then the anchor advances to
+  the next mismatched slot. This reaches the exact lower bound
+  `n - permutation cycles` without hopping between interleaved cycles.
 
 ### Completion and termination
 

@@ -283,52 +283,40 @@ public final class TabRouteAdvisor
 				.equals(itemIds(plan.getMainItems()));
 	}
 
+	/**
+	 * Anchored cycle walk: the first mismatched slot is the fixed pickup anchor.
+	 * Each advised swap drags the anchor's occupant to that item's final slot, so
+	 * the displaced item lands back on the anchor and the player keeps grabbing
+	 * from one unchanged slot until the cycle closes and the anchor becomes
+	 * correct. Every swap still fixes at least one slot, so the total stays at
+	 * the exact lower bound {@code n - permutation cycles}, but consecutive
+	 * pickups no longer jump between interleaved cycles.
+	 */
 	private static Move nextSectionSwap(int[] actualItemIds, int sectionStart,
 		List<BankPreviewItem> targetItems, int targetTab, int blueprintTabNumber,
 		String categoryName)
 	{
-		Map<Integer, Integer> actualSlotByItemId = new HashMap<>();
+		Map<Integer, Integer> targetOffsetByItemId = new HashMap<>();
 		for (int offset = 0; offset < targetItems.size(); offset++)
 		{
-			actualSlotByItemId.put(actualItemIds[sectionStart + offset], sectionStart + offset);
-		}
-
-		// Prefer a direct two-cycle: one manual swap puts both involved items in their final slots.
-		for (int offset = 0; offset < targetItems.size(); offset++)
-		{
-			int targetSlot = sectionStart + offset;
-			BankPreviewItem expected = targetItems.get(offset);
-			if (actualItemIds[targetSlot] == expected.getItemId())
-			{
-				continue;
-			}
-			Integer sourceSlot = actualSlotByItemId.get(expected.getItemId());
-			if (sourceSlot != null && targetItems.get(sourceSlot - sectionStart).getItemId()
-				== actualItemIds[targetSlot])
-			{
-				return Move.swapSection(expected, sourceSlot, targetSlot,
-					targetTab, blueprintTabNumber, categoryName);
-			}
+			targetOffsetByItemId.put(targetItems.get(offset).getItemId(), offset);
 		}
 
 		for (int offset = 0; offset < targetItems.size(); offset++)
 		{
-			int targetSlot = sectionStart + offset;
-			BankPreviewItem expected = targetItems.get(offset);
-			if (actualItemIds[targetSlot] == expected.getItemId())
+			int anchorSlot = sectionStart + offset;
+			if (actualItemIds[anchorSlot] == targetItems.get(offset).getItemId())
 			{
 				continue;
 			}
-			for (int sourceSlot = targetSlot + 1;
-				sourceSlot < sectionStart + targetItems.size(); sourceSlot++)
+			Integer homeOffset = targetOffsetByItemId.get(actualItemIds[anchorSlot]);
+			if (homeOffset == null)
 			{
-				if (actualItemIds[sourceSlot] == expected.getItemId())
-				{
-					return Move.swapSection(expected, sourceSlot, targetSlot,
-						targetTab, blueprintTabNumber, categoryName);
-				}
+				return null;
 			}
-			return null;
+			BankPreviewItem occupant = targetItems.get(homeOffset);
+			return Move.swapSection(occupant, anchorSlot, sectionStart + homeOffset,
+				targetTab, blueprintTabNumber, categoryName);
 		}
 		return null;
 	}

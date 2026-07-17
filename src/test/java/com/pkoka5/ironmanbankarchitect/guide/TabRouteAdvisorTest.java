@@ -55,13 +55,15 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
-	public void sortingPrioritizesTwoCyclesAndReportsTheExactSwapLowerBound()
+	public void sortingAnchorsTheFirstMismatchedSlotAndReportsTheExactSwapLowerBound()
 	{
+		// Slot 0 holds item 2, so the advised drag starts at the anchor slot 0
+		// and delivers item 2 to its final slot 1.
 		Assessment result = TabRouteAdvisor.assess(new int[]{2, 3, 1, 5, 4},
 			plan(items(1, 2, 3, 4, 5), Collections.emptyList(), Collections.emptyList()),
 			counts());
 
-		assertMove(result, MoveType.SWAP_SECTION, 4, 4, 3, 0, 1);
+		assertMove(result, MoveType.SWAP_SECTION, 2, 0, 1, 0, 1);
 		assertEquals(3, result.getProgress().getMinimumRemainingSwaps());
 		assertEquals(3, TabRouteAdvisor.minimumRemainingSwaps(
 			new int[]{2, 3, 1, 5, 4}, items(1, 2, 3, 4, 5)));
@@ -138,11 +140,11 @@ public class TabRouteAdvisorTest
 		Assessment mainSwap = TabRouteAdvisor.assess(
 			new int[]{2, 1, 3, 8, 9}, plan, counts(2, 1));
 
-		assertMove(mainSwap, MoveType.SWAP_SECTION, 9, 4, 3, 0, 1);
+		assertMove(mainSwap, MoveType.SWAP_SECTION, 8, 3, 4, 0, 1);
 
 		Assessment tabSwap = TabRouteAdvisor.assess(
 			new int[]{2, 1, 3, 9, 8}, plan, counts(2, 1));
-		assertMove(tabSwap, MoveType.SWAP_SECTION, 1, 1, 0, 1, 2);
+		assertMove(tabSwap, MoveType.SWAP_SECTION, 2, 0, 1, 1, 2);
 		assertEquals(Phase.SORTING, tabSwap.getProgress().getPhase());
 	}
 
@@ -154,16 +156,16 @@ public class TabRouteAdvisorTest
 
 		// Viewing tab 1: its interior swap is served before the main swap.
 		Assessment focused = TabRouteAdvisor.assess(bank, plan, counts(2, 1), 1);
-		assertMove(focused, MoveType.SWAP_SECTION, 1, 1, 0, 1, 2);
+		assertMove(focused, MoveType.SWAP_SECTION, 2, 0, 1, 1, 2);
 
 		// Default order still starts with main.
 		Assessment unfocused = TabRouteAdvisor.assess(bank, plan, counts(2, 1), 0);
-		assertMove(unfocused, MoveType.SWAP_SECTION, 9, 4, 3, 0, 1);
+		assertMove(unfocused, MoveType.SWAP_SECTION, 8, 3, 4, 0, 1);
 
 		// A focused tab that is already sorted falls back to the default order.
 		Assessment cleanFocus = TabRouteAdvisor.assess(new int[]{1, 2, 3, 8, 9},
 			plan, counts(2, 1), 2);
-		assertMove(cleanFocus, MoveType.SWAP_SECTION, 9, 4, 3, 0, 1);
+		assertMove(cleanFocus, MoveType.SWAP_SECTION, 8, 3, 4, 0, 1);
 	}
 
 	@Test
@@ -184,7 +186,7 @@ public class TabRouteAdvisorTest
 		Assessment result = TabRouteAdvisor.assess(new int[]{2, 1},
 			plan(items(1, 2), Collections.emptyList(), Collections.emptyList()), counts());
 
-		assertMove(result, MoveType.SWAP_SECTION, 1, 1, 0, 0, 1);
+		assertMove(result, MoveType.SWAP_SECTION, 2, 0, 1, 0, 1);
 	}
 
 	@Test
@@ -278,6 +280,47 @@ public class TabRouteAdvisorTest
 			}
 			assertEquals("non-minimal route for " + permutation, minimum, swaps);
 		}
+	}
+
+	@Test
+	public void sortingKeepsThePickupSlotAnchoredUntilItsCycleCloses()
+	{
+		// Two interleaved 3-cycles: slots {0,2,4} and {1,3,5}. The pickup slot
+		// must stay on one cycle's anchor until that cycle closes instead of
+		// alternating between cycles.
+		BankTabPlan plan = plan(items(1, 2, 3, 4, 5, 6),
+			Collections.emptyList(), Collections.emptyList());
+		int[] actual = new int[]{3, 4, 5, 6, 1, 2};
+
+		List<Integer> fromSlots = new ArrayList<>();
+		while (true)
+		{
+			Assessment assessment = TabRouteAdvisor.assess(actual, plan, counts());
+			if (assessment.getStatus() == Status.COMPLETE)
+			{
+				break;
+			}
+			Move move = assessment.getMove().get();
+			assertEquals(MoveType.SWAP_SECTION, move.getType());
+			assertEquals(firstMismatchedSlot(actual), move.getFromSlot());
+			fromSlots.add(move.getFromSlot());
+			int temporary = actual[move.getFromSlot()];
+			actual[move.getFromSlot()] = actual[move.getToSlot()];
+			actual[move.getToSlot()] = temporary;
+		}
+		assertEquals(Arrays.asList(0, 0, 1, 1), fromSlots);
+	}
+
+	private static int firstMismatchedSlot(int[] actualItemIds)
+	{
+		for (int slot = 0; slot < actualItemIds.length; slot++)
+		{
+			if (actualItemIds[slot] != slot + 1)
+			{
+				return slot;
+			}
+		}
+		throw new AssertionError("bank already sorted");
 	}
 
 	@Test
