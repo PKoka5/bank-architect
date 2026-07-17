@@ -66,6 +66,58 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
+	public void ironmanUsesExactMasterSetDomainsBeforeMisleadingRegistryCategories()
+	{
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(8959, ItemCategory.POTION, "Blue tricorn hat")).getKey());
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(8952, ItemCategory.POTION, "Blue naval shirt")).getKey());
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(30404, ItemCategory.UNKNOWN, "Raging echoes hat (t1)")).getKey());
+		assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(13579, ItemCategory.UNKNOWN, "Graceful hood")).getKey());
+		assertEquals("combat-gear", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(22326, ItemCategory.UNKNOWN, "Justiciar faceguard")).getKey());
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(4298, ItemCategory.GEAR, "Ham shirt")).getKey());
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(10838, ItemCategory.GEAR, "Silly jester tights")).getKey());
+		assertEquals("combat-gear", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(9097, ItemCategory.UNKNOWN, "Lunar torso")).getKey());
+		for (int itemId : new int[] {
+			19687, 19689, 19691, 19693, 19695, 19697,
+			12810, 12811, 12812,
+			1506, 6065, 6066, 6067, 6068, 6069, 6070,
+			9944, 9945, 9946, 6750, 6752, 284, 285
+		})
+		{
+			assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+				item(itemId, ItemCategory.GEAR, "Reviewed cosmetic set member")).getKey());
+		}
+		for (int itemId : new int[] {6106, 6107, 6108, 6109, 6110, 6111})
+		{
+			assertEquals("combat-gear", PresetCategoryMapper.map(BankPresets.IRONMAN,
+				item(itemId, ItemCategory.UNKNOWN, "Ghostly robes member")).getKey());
+		}
+
+		// The earlier quick-access policy remains the more specific Ironman decision.
+		assertEquals("currency-utilities", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(11850, ItemCategory.TOOL, "Graceful hood")).getKey());
+	}
+
+	@Test
+	public void reviewedBlueprintOutliersRouteToTheirFunctionalIronmanTabs()
+	{
+		assertRegistryItemsRoute("combat-gear", 5016);
+		assertRegistryItemsRoute("clues-cosmetics", 22711);
+		assertRegistryItemsRoute("resources", 10107);
+		assertRegistryItemsRoute("skilling-tools", 11260, 29466, 1735, 20720, 4550);
+		assertRegistryItemsRoute("herblore", 10109, 5291);
+		assertRegistryItemsRoute("potions-food", 10476, 7484, 7485, 7486, 7487);
+		assertRegistryItemsRoute("seeds-farming", 1955, 1982, 5986);
+	}
+
+	@Test
 	public void ironmanRoutesReviewedGracefulAndRunePouchesToMainByExactId()
 	{
 		CatalogItem graceful = new CatalogItem(11850, "Graceful hood", ItemCategory.TOOL,
@@ -275,9 +327,9 @@ public class PresetCategoryMapperTest
 			3696, 3697, 3719, 4200, 4415, 4444, 5586, 5587, 5601, 5605, 6712,
 			6747, 7001, 7410, 7807, 9020, 9103, 26952, 28413, 28414, 28415,
 			28964, 28965, 28966, 28967, 30320, 30989, 30990, 4021);
-		assertRegistryItemsRoute("clues-cosmetics", 6786, 6787, 7917);
+		assertRegistryItemsRoute("clues-cosmetics", 1506, 6786, 6787, 7917);
 		assertRegistryItemsRoute("skilling-tools",
-			4, 88, 552, 775, 776, 1456, 1506, 1580, 1585, 2871, 2872, 2873,
+			4, 88, 552, 775, 776, 1456, 1580, 1585, 2871, 2872, 2873,
 			2874, 2957, 2958, 3157, 3159, 4020, 4023, 4031, 4446, 4567,
 			4657, 6465, 6544, 7409, 7534, 7535, 7649, 9064, 9065, 9625, 10491,
 			11323, 20722, 22435, 24673, 24674, 24675, 24676, 24678, 24680,

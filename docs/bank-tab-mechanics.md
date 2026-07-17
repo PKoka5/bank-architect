@@ -85,22 +85,26 @@ Internal order does not matter during bucket construction.
 - Reassess after every collapse. Highest-first prevents lower numbering from
   changing and eventually leaves a clean leading skeleton or zero tabs.
 
-### Phase 2 - create missing buckets
+### Phase 2 - create missing buckets in target order
 
 - Create missing non-empty blueprint tabs in blueprint order.
-- For the next required target, choose its first matching item encountered in
-  current main order and guide it to `+`.
+- For the next required target, choose its first planned item from Main and
+  guide it to `+`, so the singleton anchor already occupies its final slot.
 - The anchor comes only from main, so no existing tab can disappear.
 
-### Phase 3 - distribute Main top-to-bottom
+### Phase 3 - distribute for append-ready order
 
-- Once every target bucket exists, scan current main from its first visual item
-  downward.
-- Guide the first item that belongs to a physical target onto that target's
-  icon.
-- After removal, later main items shift upward; repeating this rule creates a
-  monotonic top-to-bottom sweep instead of searching the full bank for a
-  planned-order item.
+- Once every target bucket exists, prefer the item planned for the target's
+  current count/index. The verified live mechanic appends it to that exact
+  next slot, avoiding a later local swap.
+- If that item is already misplaced inside the partial target bucket, follow
+  the prefix permutation backwards and append the still-unplaced item that
+  closes that open path into a cycle. This maximizes final permutation cycles
+  and therefore minimizes later swaps (`n - cycles`) without search.
+- If the selected item is unexpectedly unavailable, fall back to the first
+  eligible Main item. Correctness never depends on append order: the live
+  transition check accepts membership and the local cycle planner repairs any
+  remaining permutation.
 - Validate section membership and counts after every drag. Do not assume the
   server placed the item at the start or end.
 
@@ -109,8 +113,9 @@ Internal order does not matter during bucket construction.
 - When section memberships/counts are complete, sort main/blueprint tab 1
   first.
 - Then sort physical buckets in visual order (blueprint tabs 2..10).
-- For each section, fix its first mismatched target slot by swapping in the
-  expected item from the same section only.
+- For each section, resolve direct two-cycles first, putting two items in their
+  final slots with one swap. Remaining cycles use one expected-item placement
+  at a time; this still reaches the exact lower bound `n - permutation cycles`.
 
 ### Completion and termination
 

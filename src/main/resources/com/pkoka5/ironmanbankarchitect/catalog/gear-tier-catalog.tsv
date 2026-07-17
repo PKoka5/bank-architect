@@ -1,0 +1,309 @@
+# schema=1
+# item_id	stage	display_name
+307	2	Fishing rod
+309	2	Fly fishing rod
+311	2	Harpoon
+542	2	Monk's robe
+544	2	Monk's robe top
+577	1	Blue wizard robe
+579	1	Blue wizard hat
+841	1	Shortbow
+843	2	Oak shortbow
+849	2	Willow shortbow
+853	2	Maple shortbow
+884	1	Iron arrow
+975	2	Machete
+1033	1	Zamorak monk bottom
+1061	2	Leather boots
+1063	2	Leather vambraces
+1065	2	Green d'hide vambraces
+1067	2	Iron platelegs
+1069	2	Steel platelegs
+1071	2	Mithril platelegs
+1073	2	Adamant platelegs
+1079	2	Rune platelegs
+1095	2	Leather chaps
+1097	2	Studded chaps
+1099	2	Green d'hide chaps
+1115	2	Iron platebody
+1119	2	Steel platebody
+1121	2	Mithril platebody
+1123	2	Adamant platebody
+1127	2	Rune platebody
+1129	2	Leather body
+1131	2	Hardleather body
+1133	2	Studded body
+1135	2	Green d'hide body
+1153	2	Iron full helm
+1157	2	Steel full helm
+1159	2	Mithril full helm
+1161	2	Adamant full helm
+1163	2	Rune full helm
+1167	2	Leather cowl
+1169	2	Coif
+1191	2	Iron kiteshield
+1193	2	Steel kiteshield
+1197	2	Mithril kiteshield
+1199	2	Adamant kiteshield
+1201	2	Rune kiteshield
+1265	2	Bronze pickaxe
+1267	2	Iron pickaxe
+1269	2	Steel pickaxe
+1271	3	Adamant pickaxe
+1273	3	Mithril pickaxe
+1275	3	Rune pickaxe
+1323	2	Iron scimitar
+1325	2	Steel scimitar
+1329	2	Mithril scimitar
+1331	2	Adamant scimitar
+1333	2	Rune scimitar
+1349	2	Iron axe
+1351	2	Bronze axe
+1353	2	Steel axe
+1355	3	Mithril axe
+1357	3	Adamant axe
+1359	3	Rune axe
+1361	2	Black axe
+1381	2	Staff of air
+1383	2	Staff of water
+1385	2	Staff of earth
+1387	2	Staff of fire
+1409	3	Iban's staff
+1585	3	Oily fishing rod
+1704	2	Amulet of glory
+1718	3	Holy symbol
+1725	1	Amulet of strength
+1727	2	Amulet of magic
+1731	1	Amulet of power
+2412	3	Saradomin cape
+2413	3	Guthix cape
+2414	3	Zamorak cape
+2487	2	Blue d'hide vambraces
+2489	3	Red d'hide vambraces
+2491	3	Black d'hide vambraces
+2493	2	Blue d'hide chaps
+2495	3	Red d'hide chaps
+2497	3	Black d'hide chaps
+2499	2	Blue d'hide body
+2501	3	Red d'hide body
+2503	3	Black d'hide body
+2550	2	Ring of recoil
+2579	2	Wizard boots
+3105	2	Climbing boots
+3749	3	Archer helm
+3842	3	Unholy book
+3844	4	Book of balance
+4089	2	Mystic hat
+4091	2	Mystic robe top
+4093	2	Mystic robe bottom
+4095	2	Mystic gloves
+4097	3	Mystic boots
+4151	4	Abyssal whip
+4587	3	Dragon scimitar
+4708	4	Ahrim's hood
+4712	4	Ahrim's robetop
+4714	4	Ahrim's robeskirt
+4732	4	Karil's coif
+4736	4	Karil's leathertop
+4738	4	Karil's leatherskirt
+5574	3	Initiate sallet
+5575	3	Initiate hauberk
+5576	3	Initiate cuisse
+6235	2	Broodoo shield
+6257	2	Broodoo shield
+6279	2	Broodoo shield
+6313	3	Opal machete
+6315	4	Jade machete
+6317	5	Red topaz machete
+6328	3	Snakeskin boots
+6568	2	Obsidian cape
+6570	4	Fire cape
+6585	3	Amulet of fury
+6733	2	Archers ring
+6739	4	Dragon axe
+6889	3	Mage's book
+6916	3	Infinity top
+6918	3	Infinity hat
+6920	3	Infinity boots
+6922	3	Infinity gloves
+6924	3	Infinity bottoms
+7460	2	Rune gloves
+7462	4	Barrows gloves
+8880	2	Dorgeshuun crossbow
+9006	1	Fighting boots
+9185	3	Rune crossbow
+9672	4	Proselyte sallet
+9674	4	Proselyte hauberk
+9676	4	Proselyte cuisse
+9678	4	Proselyte tasset
+10129	3	Barb-tail harpoon
+10368	4	Zamorak bracers
+10370	4	Zamorak d'hide body
+10372	4	Zamorak chaps
+10374	4	Zamorak coif
+10376	4	Guthix bracers
+10378	4	Guthix d'hide body
+10380	4	Guthix chaps
+10382	4	Guthix coif
+10384	4	Saradomin bracers
+10386	4	Saradomin d'hide body
+10388	4	Saradomin chaps
+10390	4	Saradomin coif
+10498	2	Ava's attractor
+10499	3	Ava's accumulator
+10551	3	Fighter torso
+10828	3	Helm of neitiznot
+11014	2	Beacon ring
+11323	3	Barbarian rod
+11770	4	Seers ring (i)
+11771	4	Archers ring (i)
+11773	4	Berserker ring (i)
+11832	4	Bandos chestplate
+11834	4	Bandos tassets
+11840	3	Dragon boots
+11865	3	Slayer helmet (i)
+11905	4	Trident of the seas (full)
+11907	4	Trident of the seas
+11908	4	Uncharged trident
+11920	4	Dragon pickaxe
+11926	4	Odium ward
+12002	5	Occult necklace
+12297	2	Black pickaxe
+12490	4	Ancient bracers
+12492	4	Ancient d'hide body
+12494	4	Ancient chaps
+12496	4	Ancient coif
+12498	4	Bandos bracers
+12500	4	Bandos d'hide body
+12502	4	Bandos chaps
+12504	4	Bandos coif
+12506	4	Armadyl bracers
+12508	4	Armadyl d'hide body
+12510	4	Armadyl chaps
+12512	4	Armadyl coif
+12658	3	Iban's staff (u)
+12788	3	Magic shortbow (i)
+12817	5	Elysian spirit shield
+12899	4	Trident of the swamp
+12900	4	Uncharged toxic trident
+12924	4	Toxic blowpipe (empty)
+12926	4	Toxic blowpipe
+12929	4	Serpentine helm (uncharged)
+12931	4	Serpentine helm
+12954	4	Dragon defender
+13121	2	Ardougne cloak 1
+13235	5	Eternal boots
+13237	5	Pegasian boots
+13239	5	Primordial boots
+13241	4	Infernal axe
+13242	4	Infernal axe (uncharged)
+13243	4	Infernal pickaxe
+13244	4	Infernal pickaxe (uncharged)
+13385	2	Xerician hat
+13387	2	Xerician top
+13389	2	Xerician robe
+13660	1	Chronicle
+19544	5	Tormented bracelet
+19547	5	Necklace of anguish
+19553	5	Amulet of torture
+19921	4	Ancient d'hide boots
+19924	4	Bandos d'hide boots
+19927	4	Guthix d'hide boots
+19930	4	Armadyl d'hide boots
+19933	4	Saradomin d'hide boots
+19936	4	Zamorak d'hide boots
+20011	5	3rd age axe
+20014	5	3rd age pickaxe
+20997	5	Twisted bow
+21000	5	Twisted buckler
+21006	5	Kodai wand
+21018	5	Ancestral hat
+21021	5	Ancestral robe top
+21024	5	Ancestral robe bottom
+21028	4	Dragon harpoon
+21031	4	Infernal harpoon
+21033	4	Infernal harpoon (uncharged)
+21295	5	Infernal cape
+21304	3	Obsidian platelegs
+21791	5	Imbued saradomin cape
+21793	4	Imbued guthix cape
+21795	4	Imbued zamorak cape
+22109	4	Ava's assembler
+22275	2	Green d'hide shield
+22284	3	Black d'hide shield
+22322	5	Avernic defender
+22325	5	Scythe of vitur
+22486	5	Scythe of vitur (uncharged)
+22842	3	Pearl barbarian rod
+22844	2	Pearl fly fishing rod
+22846	2	Pearl fishing rod
+22947	5	Rada's blessing 4
+22975	3	Brimstone ring
+22981	5	Ferocious gloves
+23122	3	Oily pearl fishing rod
+23528	3	Sarachnis cudgel
+23673	5	Crystal axe
+23675	5	Crystal axe (inactive)
+23680	5	Crystal pickaxe
+23682	5	Crystal pickaxe (inactive)
+23762	5	Crystal harpoon
+23764	5	Crystal harpoon (inactive)
+23971	4	Crystal helm
+23973	4	Crystal helm (inactive)
+23975	4	Crystal body
+23977	4	Crystal body (inactive)
+23979	4	Crystal legs
+23981	4	Crystal legs (inactive)
+24419	5	Inquisitor's great helm
+24420	5	Inquisitor's hauberk
+24421	5	Inquisitor's plateskirt
+25258	3	Seers ring (i)
+25260	3	Archers ring (i)
+25264	3	Berserker ring (i)
+25404	3	Bloodbark body
+25407	3	Bloodbark gauntlets
+25410	3	Bloodbark boots
+25413	3	Bloodbark helm
+25416	3	Bloodbark legs
+25862	4	Bow of faerdhinen (inactive)
+25865	4	Bow of faerdhinen
+25867	4	Bow of faerdhinen (c)
+25975	4	Lightbearer
+25985	4	Elidinis' ward
+26219	4	Osmumten's fang
+26235	5	Zaryte vambraces
+26241	4	Virtus mask
+26243	4	Virtus robe top
+26245	4	Virtus robe bottom
+26374	5	Zaryte crossbow
+26382	5	Torva full helm
+26384	5	Torva platebody
+26386	5	Torva platelegs
+26767	3	Seers ring (i)
+26768	3	Archers ring (i)
+26770	3	Berserker ring (i)
+27235	5	Masori mask (f)
+27238	5	Masori body (f)
+27241	5	Masori chaps (f)
+27251	5	Elidinis' ward (f)
+27275	5	Tumeken's shadow
+27277	5	Tumeken's shadow (uncharged)
+28307	5	Ultor ring
+28310	5	Venator ring
+28313	5	Magus ring
+28583	3	Warped sceptre (uncharged)
+28585	3	Warped sceptre
+28810	3	Zombie axe
+28869	3	Hunters' sunlight crossbow
+28933	5	Sunfire fanatic helm
+28936	5	Sunfire fanatic cuirass
+28939	5	Sunfire fanatic chausses
+28947	5	Dizana's quiver (uncharged)
+28951	5	Dizana's quiver
+29022	4	Blood moon chestplate
+29025	4	Blood moon tassets
+29028	4	Blood moon helm
+29280	3	Mixed hide top
+29283	3	Mixed hide legs
+29286	3	Mixed hide boots
+29289	3	Mixed hide cape

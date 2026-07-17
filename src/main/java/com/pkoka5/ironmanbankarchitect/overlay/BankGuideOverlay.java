@@ -355,9 +355,21 @@ public final class BankGuideOverlay extends Overlay
 
 	private boolean isFilteredBankView()
 	{
+		Widget bankTitle = client.getWidget(InterfaceID.Bankmain.TITLE);
 		return client.getVarcIntValue(VarClientID.BANKTAGS_ACTIVE_TAG) != -1
+			|| isBankTagTabTitle(bankTitle == null ? null : bankTitle.getText())
 			|| isBankSearching(client.getVarcIntValue(VarClientID.MESLAYERMODE),
 				client.getVarcStrValue(VarClientID.MESLAYERINPUT));
+	}
+
+	static boolean isBankTagTabTitle(String title)
+	{
+		if (title == null)
+		{
+			return false;
+		}
+		String trimmed = title.trim();
+		return trimmed.regionMatches(true, 0, "Tag tab ", 0, "Tag tab ".length());
 	}
 
 	static boolean isBankSearching(int inputType, String inputText)
@@ -666,8 +678,11 @@ public final class BankGuideOverlay extends Overlay
 				phase = "Blueprint complete";
 				break;
 		}
-		return phase + ": " + progress.getPercent() + "% ("
+		String text = phase + ": " + progress.getPercent() + "% ("
 			+ progress.getCompleted() + "/" + progress.getTotal() + ").";
+		return progress.getPhase() == Phase.SORTING
+			? text + " Minimum swaps remaining: " + progress.getMinimumRemainingSwaps() + "."
+			: text;
 	}
 
 	static String tabHudText(TabRouteAdvisor.Assessment assessment, boolean suggestNextMove)
@@ -688,6 +703,10 @@ public final class BankGuideOverlay extends Overlay
 		}
 		String progress = assessment.getProgress().getPhase().name() + "  "
 			+ assessment.getProgress().getPercent() + "%";
+		if (assessment.getProgress().getPhase() == Phase.SORTING)
+		{
+			progress += "  MIN SWAPS " + assessment.getProgress().getMinimumRemainingSwaps();
+		}
 			switch (move.getType())
 		{
 			case COLLAPSE_TAB:

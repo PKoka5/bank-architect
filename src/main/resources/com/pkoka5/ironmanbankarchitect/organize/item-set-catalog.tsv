@@ -1,0 +1,375 @@
+# schema=1
+# Generated from the reviewed workbook plus exact-ID supplements by tools/research/gear-sets/resolve-master-gear-sets.ps1
+# domain	setKey	setName	slotRank	itemId
+cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	0	25129
+cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	5	25131
+cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	7	25133
+cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	8	25135
+cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	9	25137
+cosmetics	cosmetics.black-desert	Black Desert Outfit	5	6750
+cosmetics	cosmetics.black-desert	Black Desert Outfit	7	6752
+cosmetics	cosmetics.black-naval-set	Black Naval Set	0	8963
+cosmetics	cosmetics.black-naval-set	Black Naval Set	5	8956
+cosmetics	cosmetics.black-naval-set	Black Naval Set	7	8995
+cosmetics	cosmetics.blue-naval-set	Blue Naval Set	0	8959
+cosmetics	cosmetics.blue-naval-set	Blue Naval Set	5	8952
+cosmetics	cosmetics.blue-naval-set	Blue Naval Set	7	8991
+cosmetics	cosmetics.bomber-jacket	Bomber Jacket Costume	0	9945
+cosmetics	cosmetics.bomber-jacket	Bomber Jacket Costume	0	9946
+cosmetics	cosmetics.bomber-jacket	Bomber Jacket Costume	5	9944
+cosmetics	cosmetics.brown-naval-set	Brown Naval Set	0	8962
+cosmetics	cosmetics.brown-naval-set	Brown Naval Set	5	8955
+cosmetics	cosmetics.brown-naval-set	Brown Naval Set	7	8994
+cosmetics	cosmetics.chicken-outfit	Chicken Outfit	0	11021
+cosmetics	cosmetics.chicken-outfit	Chicken Outfit	5	11020
+cosmetics	cosmetics.chicken-outfit	Chicken Outfit	7	11022
+cosmetics	cosmetics.chicken-outfit	Chicken Outfit	9	11019
+cosmetics	cosmetics.clue-hunter	Clue Hunter Outfit	0	19687
+cosmetics	cosmetics.clue-hunter	Clue Hunter Outfit	1	19697
+cosmetics	cosmetics.clue-hunter	Clue Hunter Outfit	5	19689
+cosmetics	cosmetics.clue-hunter	Clue Hunter Outfit	7	19693
+cosmetics	cosmetics.clue-hunter	Clue Hunter Outfit	8	19691
+cosmetics	cosmetics.clue-hunter	Clue Hunter Outfit	9	19695
+cosmetics	cosmetics.cow-outfit	Cow Outfit	0	11919
+cosmetics	cosmetics.cow-outfit	Cow Outfit	5	12956
+cosmetics	cosmetics.cow-outfit	Cow Outfit	7	12957
+cosmetics	cosmetics.cow-outfit	Cow Outfit	8	12958
+cosmetics	cosmetics.cow-outfit	Cow Outfit	9	12959
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t1	Demonic Pacts Relic Hunter (T1)	0	33260
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t1	Demonic Pacts Relic Hunter (T1)	5	33263
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t1	Demonic Pacts Relic Hunter (T1)	7	33266
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t1	Demonic Pacts Relic Hunter (T1)	9	33269
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t2	Demonic Pacts Relic Hunter (T2)	0	33272
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t2	Demonic Pacts Relic Hunter (T2)	5	33275
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t2	Demonic Pacts Relic Hunter (T2)	7	33278
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t2	Demonic Pacts Relic Hunter (T2)	9	33281
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t3	Demonic Pacts Relic Hunter (T3)	0	33284
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t3	Demonic Pacts Relic Hunter (T3)	5	33287
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t3	Demonic Pacts Relic Hunter (T3)	7	33290
+cosmetics	cosmetics.demonic-pacts-relic-hunter-t3	Demonic Pacts Relic Hunter (T3)	9	33293
+cosmetics	cosmetics.evil-chicken-outfit	Evil Chicken Outfit	0	20439
+cosmetics	cosmetics.evil-chicken-outfit	Evil Chicken Outfit	5	20436
+cosmetics	cosmetics.evil-chicken-outfit	Evil Chicken Outfit	7	20442
+cosmetics	cosmetics.evil-chicken-outfit	Evil Chicken Outfit	9	20433
+cosmetics	cosmetics.gravedigger-outfit	Gravedigger Outfit	0	13283
+cosmetics	cosmetics.gravedigger-outfit	Gravedigger Outfit	5	13284
+cosmetics	cosmetics.gravedigger-outfit	Gravedigger Outfit	7	13285
+cosmetics	cosmetics.gravedigger-outfit	Gravedigger Outfit	8	13287
+cosmetics	cosmetics.gravedigger-outfit	Gravedigger Outfit	9	13286
+cosmetics	cosmetics.green-naval-set	Green Naval Set	0	8960
+cosmetics	cosmetics.green-naval-set	Green Naval Set	5	8953
+cosmetics	cosmetics.green-naval-set	Green Naval Set	7	8992
+cosmetics	cosmetics.grey-naval-set	Grey Naval Set	0	8965
+cosmetics	cosmetics.grey-naval-set	Grey Naval Set	5	8958
+cosmetics	cosmetics.grey-naval-set	Grey Naval Set	7	8997
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	0	4302
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	1	4304
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	2	4306
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	5	4298
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	7	4300
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	8	4308
+cosmetics	cosmetics.ham-robes	H.A.M. Robes	9	4310
+cosmetics	cosmetics.ironman-armour	Ironman Armour	0	12810
+cosmetics	cosmetics.ironman-armour	Ironman Armour	5	12811
+cosmetics	cosmetics.ironman-armour	Ironman Armour	7	12812
+cosmetics	cosmetics.mime-outfit	Mime Outfit	0	3057
+cosmetics	cosmetics.mime-outfit	Mime Outfit	5	3058
+cosmetics	cosmetics.mime-outfit	Mime Outfit	7	3059
+cosmetics	cosmetics.mime-outfit	Mime Outfit	8	3060
+cosmetics	cosmetics.mime-outfit	Mime Outfit	9	3061
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	0	1506
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	1	6070
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	5	6065
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	7	6066
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	7	6067
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	8	6068
+cosmetics	cosmetics.mourner-outfit	Mourner Outfit	9	6069
+cosmetics	cosmetics.plague-outfit	Plague Outfit	5	284
+cosmetics	cosmetics.plague-outfit	Plague Outfit	7	285
+cosmetics	cosmetics.purple-naval-set	Purple Naval Set	0	8964
+cosmetics	cosmetics.purple-naval-set	Purple Naval Set	5	8957
+cosmetics	cosmetics.purple-naval-set	Purple Naval Set	7	8996
+cosmetics	cosmetics.raging-echoes-relic-hunter-t1	Raging Echoes Relic Hunter (T1)	0	30404
+cosmetics	cosmetics.raging-echoes-relic-hunter-t1	Raging Echoes Relic Hunter (T1)	5	30406
+cosmetics	cosmetics.raging-echoes-relic-hunter-t1	Raging Echoes Relic Hunter (T1)	7	30408
+cosmetics	cosmetics.raging-echoes-relic-hunter-t1	Raging Echoes Relic Hunter (T1)	9	30410
+cosmetics	cosmetics.raging-echoes-relic-hunter-t2	Raging Echoes Relic Hunter (T2)	0	30412
+cosmetics	cosmetics.raging-echoes-relic-hunter-t2	Raging Echoes Relic Hunter (T2)	5	30414
+cosmetics	cosmetics.raging-echoes-relic-hunter-t2	Raging Echoes Relic Hunter (T2)	7	30416
+cosmetics	cosmetics.raging-echoes-relic-hunter-t2	Raging Echoes Relic Hunter (T2)	9	30418
+cosmetics	cosmetics.raging-echoes-relic-hunter-t3	Raging Echoes Relic Hunter (T3)	0	30420
+cosmetics	cosmetics.raging-echoes-relic-hunter-t3	Raging Echoes Relic Hunter (T3)	5	30422
+cosmetics	cosmetics.raging-echoes-relic-hunter-t3	Raging Echoes Relic Hunter (T3)	7	30424
+cosmetics	cosmetics.raging-echoes-relic-hunter-t3	Raging Echoes Relic Hunter (T3)	9	30426
+cosmetics	cosmetics.red-naval-set	Red Naval Set	0	8961
+cosmetics	cosmetics.red-naval-set	Red Naval Set	5	8954
+cosmetics	cosmetics.red-naval-set	Red Naval Set	7	8993
+cosmetics	cosmetics.shattered-relic-hunter-t1	Shattered Relic Hunter (T1)	0	26427
+cosmetics	cosmetics.shattered-relic-hunter-t1	Shattered Relic Hunter (T1)	5	26430
+cosmetics	cosmetics.shattered-relic-hunter-t1	Shattered Relic Hunter (T1)	7	26433
+cosmetics	cosmetics.shattered-relic-hunter-t1	Shattered Relic Hunter (T1)	9	26436
+cosmetics	cosmetics.shattered-relic-hunter-t2	Shattered Relic Hunter (T2)	0	26439
+cosmetics	cosmetics.shattered-relic-hunter-t2	Shattered Relic Hunter (T2)	5	26442
+cosmetics	cosmetics.shattered-relic-hunter-t2	Shattered Relic Hunter (T2)	7	26445
+cosmetics	cosmetics.shattered-relic-hunter-t2	Shattered Relic Hunter (T2)	9	26448
+cosmetics	cosmetics.shattered-relic-hunter-t3	Shattered Relic Hunter (T3)	0	26451
+cosmetics	cosmetics.shattered-relic-hunter-t3	Shattered Relic Hunter (T3)	5	26454
+cosmetics	cosmetics.shattered-relic-hunter-t3	Shattered Relic Hunter (T3)	7	26457
+cosmetics	cosmetics.shattered-relic-hunter-t3	Shattered Relic Hunter (T3)	9	26460
+cosmetics	cosmetics.silly-jester	Silly Jester Costume	0	10836
+cosmetics	cosmetics.silly-jester	Silly Jester Costume	5	10837
+cosmetics	cosmetics.silly-jester	Silly Jester Costume	7	10838
+cosmetics	cosmetics.silly-jester	Silly Jester Costume	9	10839
+cosmetics	cosmetics.skeleton-outfit	Skeleton Outfit	0	9925
+cosmetics	cosmetics.skeleton-outfit	Skeleton Outfit	5	9924
+cosmetics	cosmetics.skeleton-outfit	Skeleton Outfit	7	9923
+cosmetics	cosmetics.skeleton-outfit	Skeleton Outfit	8	9922
+cosmetics	cosmetics.skeleton-outfit	Skeleton Outfit	9	9921
+cosmetics	cosmetics.trailblazer-relic-hunter-t1	Trailblazer Relic Hunter (T1)	0	25028
+cosmetics	cosmetics.trailblazer-relic-hunter-t1	Trailblazer Relic Hunter (T1)	5	25031
+cosmetics	cosmetics.trailblazer-relic-hunter-t1	Trailblazer Relic Hunter (T1)	7	25034
+cosmetics	cosmetics.trailblazer-relic-hunter-t1	Trailblazer Relic Hunter (T1)	9	25037
+cosmetics	cosmetics.trailblazer-relic-hunter-t2	Trailblazer Relic Hunter (T2)	0	25016
+cosmetics	cosmetics.trailblazer-relic-hunter-t2	Trailblazer Relic Hunter (T2)	5	25019
+cosmetics	cosmetics.trailblazer-relic-hunter-t2	Trailblazer Relic Hunter (T2)	7	25022
+cosmetics	cosmetics.trailblazer-relic-hunter-t2	Trailblazer Relic Hunter (T2)	9	25025
+cosmetics	cosmetics.trailblazer-relic-hunter-t3	Trailblazer Relic Hunter (T3)	0	25001
+cosmetics	cosmetics.trailblazer-relic-hunter-t3	Trailblazer Relic Hunter (T3)	5	25004
+cosmetics	cosmetics.trailblazer-relic-hunter-t3	Trailblazer Relic Hunter (T3)	7	25007
+cosmetics	cosmetics.trailblazer-relic-hunter-t3	Trailblazer Relic Hunter (T3)	9	25010
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t1	Trailblazer Reloaded Relic Hunter (T1)	0	28712
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t1	Trailblazer Reloaded Relic Hunter (T1)	5	28715
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t1	Trailblazer Reloaded Relic Hunter (T1)	7	28718
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t1	Trailblazer Reloaded Relic Hunter (T1)	9	28721
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t2	Trailblazer Reloaded Relic Hunter (T2)	0	28724
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t2	Trailblazer Reloaded Relic Hunter (T2)	5	28727
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t2	Trailblazer Reloaded Relic Hunter (T2)	7	28730
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t2	Trailblazer Reloaded Relic Hunter (T2)	9	28733
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t3	Trailblazer Reloaded Relic Hunter (T3)	0	28736
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t3	Trailblazer Reloaded Relic Hunter (T3)	5	28739
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t3	Trailblazer Reloaded Relic Hunter (T3)	7	28742
+cosmetics	cosmetics.trailblazer-reloaded-relic-hunter-t3	Trailblazer Reloaded Relic Hunter (T3)	9	28745
+cosmetics	cosmetics.twisted-relic-hunter-t1	Twisted Relic Hunter (T1)	0	24405
+cosmetics	cosmetics.twisted-relic-hunter-t1	Twisted Relic Hunter (T1)	5	24407
+cosmetics	cosmetics.twisted-relic-hunter-t1	Twisted Relic Hunter (T1)	7	24409
+cosmetics	cosmetics.twisted-relic-hunter-t1	Twisted Relic Hunter (T1)	9	24411
+cosmetics	cosmetics.twisted-relic-hunter-t2	Twisted Relic Hunter (T2)	0	24397
+cosmetics	cosmetics.twisted-relic-hunter-t2	Twisted Relic Hunter (T2)	5	24399
+cosmetics	cosmetics.twisted-relic-hunter-t2	Twisted Relic Hunter (T2)	7	24401
+cosmetics	cosmetics.twisted-relic-hunter-t2	Twisted Relic Hunter (T2)	9	24403
+cosmetics	cosmetics.twisted-relic-hunter-t3	Twisted Relic Hunter (T3)	0	24387
+cosmetics	cosmetics.twisted-relic-hunter-t3	Twisted Relic Hunter (T3)	5	24389
+cosmetics	cosmetics.twisted-relic-hunter-t3	Twisted Relic Hunter (T3)	7	24391
+cosmetics	cosmetics.twisted-relic-hunter-t3	Twisted Relic Hunter (T3)	9	24393
+cosmetics	cosmetics.zombie-outfit	Zombie Outfit	0	19912
+cosmetics	cosmetics.zombie-outfit	Zombie Outfit	5	7592
+cosmetics	cosmetics.zombie-outfit	Zombie Outfit	7	7593
+cosmetics	cosmetics.zombie-outfit	Zombie Outfit	8	7595
+cosmetics	cosmetics.zombie-outfit	Zombie Outfit	9	7596
+gear	gear.adamant-armour	Adamant Armour	0	1161
+gear	gear.adamant-armour	Adamant Armour	5	1123
+gear	gear.adamant-armour	Adamant Armour	6	1199
+gear	gear.adamant-armour	Adamant Armour	7	1073
+gear	gear.adamant-armour	Adamant Armour	7	1091
+gear	gear.ahrim-s	Ahrim's	0	4708
+gear	gear.ahrim-s	Ahrim's	4	4710
+gear	gear.ahrim-s	Ahrim's	5	4712
+gear	gear.ahrim-s	Ahrim's	7	4714
+gear	gear.ancestral	Ancestral	0	21018
+gear	gear.ancestral	Ancestral	5	21021
+gear	gear.ancestral	Ancestral	7	21024
+gear	gear.bandos	Bandos	5	11832
+gear	gear.bandos	Bandos	7	11834
+gear	gear.bandos	Bandos	9	11836
+gear	gear.black-armour	Black Armour	0	1165
+gear	gear.black-armour	Black Armour	5	1125
+gear	gear.black-armour	Black Armour	6	1195
+gear	gear.black-armour	Black Armour	7	1077
+gear	gear.black-armour	Black Armour	7	1089
+gear	gear.black-wizard	Black Wizard	0	1017
+gear	gear.black-wizard	Black Wizard	5	581
+gear	gear.black-wizard	Black Wizard	7	1015
+gear	gear.blood-moon-set	Blood Moon Set	0	29028
+gear	gear.blood-moon-set	Blood Moon Set	4	28997
+gear	gear.blood-moon-set	Blood Moon Set	5	29022
+gear	gear.blood-moon-set	Blood Moon Set	7	29025
+gear	gear.blue-moon-set	Blue Moon Set	0	29019
+gear	gear.blue-moon-set	Blue Moon Set	4	28988
+gear	gear.blue-moon-set	Blue Moon Set	5	29013
+gear	gear.blue-moon-set	Blue Moon Set	7	29016
+gear	gear.blue-wizard	Blue Wizard	0	579
+gear	gear.blue-wizard	Blue Wizard	5	577
+gear	gear.blue-wizard	Blue Wizard	7	1011
+gear	gear.bronze-armour	Bronze Armour	0	1155
+gear	gear.bronze-armour	Bronze Armour	5	1117
+gear	gear.bronze-armour	Bronze Armour	6	1189
+gear	gear.bronze-armour	Bronze Armour	7	1075
+gear	gear.bronze-armour	Bronze Armour	7	1087
+gear	gear.crystal	Crystal	0	23971
+gear	gear.crystal	Crystal	5	23975
+gear	gear.crystal	Crystal	7	23979
+gear	gear.dagon-hai	Dagon'hai	0	24288
+gear	gear.dagon-hai	Dagon'hai	5	24291
+gear	gear.dagon-hai	Dagon'hai	7	24294
+gear	gear.dragon-armour	Dragon Armour	0	11335
+gear	gear.dragon-armour	Dragon Armour	5	21892
+gear	gear.dragon-armour	Dragon Armour	6	21895
+gear	gear.dragon-armour	Dragon Armour	7	4087
+gear	gear.dragon-armour	Dragon Armour	7	4585
+gear	gear.eclipse-moon-set	Eclipse Moon Set	0	29010
+gear	gear.eclipse-moon-set	Eclipse Moon Set	4	29000
+gear	gear.eclipse-moon-set	Eclipse Moon Set	5	29004
+gear	gear.eclipse-moon-set	Eclipse Moon Set	7	29007
+gear	gear.elder-chaos	Elder Chaos	0	20595
+gear	gear.elder-chaos	Elder Chaos	5	20517
+gear	gear.elder-chaos	Elder Chaos	7	20520
+gear	gear.ghostly-robes	Ghostly Robes	0	6109
+gear	gear.ghostly-robes	Ghostly Robes	1	6111
+gear	gear.ghostly-robes	Ghostly Robes	5	6107
+gear	gear.ghostly-robes	Ghostly Robes	7	6108
+gear	gear.ghostly-robes	Ghostly Robes	8	6110
+gear	gear.ghostly-robes	Ghostly Robes	9	6106
+gear	gear.initiate	Initiate	0	5574
+gear	gear.initiate	Initiate	5	5575
+gear	gear.initiate	Initiate	7	5576
+gear	gear.inquisitor-s	Inquisitor's	0	24419
+gear	gear.inquisitor-s	Inquisitor's	5	24420
+gear	gear.inquisitor-s	Inquisitor's	7	24421
+gear	gear.iron-armour	Iron Armour	0	1153
+gear	gear.iron-armour	Iron Armour	5	1115
+gear	gear.iron-armour	Iron Armour	6	1191
+gear	gear.iron-armour	Iron Armour	7	1067
+gear	gear.iron-armour	Iron Armour	7	1081
+gear	gear.justiciar	Justiciar	0	22326
+gear	gear.justiciar	Justiciar	5	22327
+gear	gear.justiciar	Justiciar	7	22328
+gear	gear.lunar-equipment	Lunar Equipment	0	9096
+gear	gear.lunar-equipment	Lunar Equipment	1	9101
+gear	gear.lunar-equipment	Lunar Equipment	2	9102
+gear	gear.lunar-equipment	Lunar Equipment	4	9084
+gear	gear.lunar-equipment	Lunar Equipment	5	9097
+gear	gear.lunar-equipment	Lunar Equipment	7	9098
+gear	gear.lunar-equipment	Lunar Equipment	8	9099
+gear	gear.lunar-equipment	Lunar Equipment	9	9100
+gear	gear.lunar-equipment	Lunar Equipment	10	9104
+gear	gear.masori	Masori	0	27226
+gear	gear.masori	Masori	5	27229
+gear	gear.masori	Masori	7	27232
+gear	gear.masori-f	Masori (f)	0	27235
+gear	gear.masori-f	Masori (f)	5	27238
+gear	gear.masori-f	Masori (f)	7	27241
+gear	gear.mithril-armour	Mithril Armour	0	1159
+gear	gear.mithril-armour	Mithril Armour	5	1121
+gear	gear.mithril-armour	Mithril Armour	6	1197
+gear	gear.mithril-armour	Mithril Armour	7	1071
+gear	gear.mithril-armour	Mithril Armour	7	1085
+gear	gear.monk-saradomin	Monk (Saradomin)	5	544
+gear	gear.monk-saradomin	Monk (Saradomin)	7	542
+gear	gear.obsidian	Obsidian	0	21298
+gear	gear.obsidian	Obsidian	5	21301
+gear	gear.obsidian	Obsidian	7	21304
+gear	gear.proselyte	Proselyte	0	9672
+gear	gear.proselyte	Proselyte	5	9674
+gear	gear.proselyte	Proselyte	7	9676
+gear	gear.proselyte	Proselyte	7	9678
+gear	gear.rune-armour	Rune Armour	0	1163
+gear	gear.rune-armour	Rune Armour	5	1127
+gear	gear.rune-armour	Rune Armour	6	1201
+gear	gear.rune-armour	Rune Armour	7	1079
+gear	gear.rune-armour	Rune Armour	7	1093
+gear	gear.steel-armour	Steel Armour	0	1157
+gear	gear.steel-armour	Steel Armour	5	1119
+gear	gear.steel-armour	Steel Armour	6	1193
+gear	gear.steel-armour	Steel Armour	7	1069
+gear	gear.steel-armour	Steel Armour	7	1083
+gear	gear.torva	Torva	0	26382
+gear	gear.torva	Torva	5	26384
+gear	gear.torva	Torva	7	26386
+gear	gear.virtus	Virtus	0	26241
+gear	gear.virtus	Virtus	5	26243
+gear	gear.virtus	Virtus	7	26245
+gear	gear.zamorak-monk	Zamorak Monk	5	1035
+gear	gear.zamorak-monk	Zamorak Monk	7	1033
+tools	tools.graceful-arceuus	Graceful (Arceuus)	0	13579
+tools	tools.graceful-arceuus	Graceful (Arceuus)	1	13581
+tools	tools.graceful-arceuus	Graceful (Arceuus)	5	13583
+tools	tools.graceful-arceuus	Graceful (Arceuus)	7	13585
+tools	tools.graceful-arceuus	Graceful (Arceuus)	8	13587
+tools	tools.graceful-arceuus	Graceful (Arceuus)	9	13589
+tools	tools.graceful-base	Graceful (Base)	0	11850
+tools	tools.graceful-base	Graceful (Base)	1	11852
+tools	tools.graceful-base	Graceful (Base)	5	11854
+tools	tools.graceful-base	Graceful (Base)	7	11856
+tools	tools.graceful-base	Graceful (Base)	8	11858
+tools	tools.graceful-base	Graceful (Base)	9	11860
+tools	tools.graceful-brimhaven	Graceful (Brimhaven)	0	30045
+tools	tools.graceful-brimhaven	Graceful (Brimhaven)	1	30048
+tools	tools.graceful-brimhaven	Graceful (Brimhaven)	5	30051
+tools	tools.graceful-brimhaven	Graceful (Brimhaven)	7	30054
+tools	tools.graceful-brimhaven	Graceful (Brimhaven)	8	30057
+tools	tools.graceful-brimhaven	Graceful (Brimhaven)	9	30060
+tools	tools.graceful-dark	Graceful (Dark)	0	24743
+tools	tools.graceful-dark	Graceful (Dark)	1	24746
+tools	tools.graceful-dark	Graceful (Dark)	5	24749
+tools	tools.graceful-dark	Graceful (Dark)	7	24752
+tools	tools.graceful-dark	Graceful (Dark)	8	24755
+tools	tools.graceful-dark	Graceful (Dark)	9	24758
+tools	tools.graceful-hosidius	Graceful (Hosidius)	0	13627
+tools	tools.graceful-hosidius	Graceful (Hosidius)	1	13629
+tools	tools.graceful-hosidius	Graceful (Hosidius)	5	13631
+tools	tools.graceful-hosidius	Graceful (Hosidius)	7	13633
+tools	tools.graceful-hosidius	Graceful (Hosidius)	8	13635
+tools	tools.graceful-hosidius	Graceful (Hosidius)	9	13637
+tools	tools.graceful-kourend	Graceful (Kourend)	0	13667
+tools	tools.graceful-kourend	Graceful (Kourend)	1	13669
+tools	tools.graceful-kourend	Graceful (Kourend)	5	13671
+tools	tools.graceful-kourend	Graceful (Kourend)	7	13673
+tools	tools.graceful-kourend	Graceful (Kourend)	8	13675
+tools	tools.graceful-kourend	Graceful (Kourend)	9	13677
+tools	tools.graceful-lovakengj	Graceful (Lovakengj)	0	13603
+tools	tools.graceful-lovakengj	Graceful (Lovakengj)	1	13605
+tools	tools.graceful-lovakengj	Graceful (Lovakengj)	5	13607
+tools	tools.graceful-lovakengj	Graceful (Lovakengj)	7	13609
+tools	tools.graceful-lovakengj	Graceful (Lovakengj)	8	13611
+tools	tools.graceful-lovakengj	Graceful (Lovakengj)	9	13613
+tools	tools.graceful-piscarilius	Graceful (Piscarilius)	0	13591
+tools	tools.graceful-piscarilius	Graceful (Piscarilius)	1	13593
+tools	tools.graceful-piscarilius	Graceful (Piscarilius)	5	13595
+tools	tools.graceful-piscarilius	Graceful (Piscarilius)	7	13597
+tools	tools.graceful-piscarilius	Graceful (Piscarilius)	8	13599
+tools	tools.graceful-piscarilius	Graceful (Piscarilius)	9	13601
+tools	tools.graceful-shayzien	Graceful (Shayzien)	0	13615
+tools	tools.graceful-shayzien	Graceful (Shayzien)	1	13617
+tools	tools.graceful-shayzien	Graceful (Shayzien)	5	13619
+tools	tools.graceful-shayzien	Graceful (Shayzien)	7	13621
+tools	tools.graceful-shayzien	Graceful (Shayzien)	8	13623
+tools	tools.graceful-shayzien	Graceful (Shayzien)	9	13625
+tools	tools.graceful-speedrunning	Graceful (Speedrunning)	0	27444
+tools	tools.graceful-speedrunning	Graceful (Speedrunning)	1	27447
+tools	tools.graceful-speedrunning	Graceful (Speedrunning)	5	27450
+tools	tools.graceful-speedrunning	Graceful (Speedrunning)	7	27453
+tools	tools.graceful-speedrunning	Graceful (Speedrunning)	8	27456
+tools	tools.graceful-speedrunning	Graceful (Speedrunning)	9	27459
+tools	tools.graceful-trailblazer	Graceful (Trailblazer)	0	25069
+tools	tools.graceful-trailblazer	Graceful (Trailblazer)	1	25072
+tools	tools.graceful-trailblazer	Graceful (Trailblazer)	5	25075
+tools	tools.graceful-trailblazer	Graceful (Trailblazer)	7	25078
+tools	tools.graceful-trailblazer	Graceful (Trailblazer)	8	25081
+tools	tools.graceful-trailblazer	Graceful (Trailblazer)	9	25084
+tools	tools.lumberjack	Lumberjack	0	10941
+tools	tools.lumberjack	Lumberjack	5	10939
+tools	tools.lumberjack	Lumberjack	7	10940
+tools	tools.lumberjack	Lumberjack	9	10933
+tools	tools.prospector	Prospector	0	12013
+tools	tools.prospector	Prospector	5	12014
+tools	tools.prospector	Prospector	7	12015
+tools	tools.prospector	Prospector	9	12016
+tools	tools.pyromancer	Pyromancer	0	20708
+tools	tools.pyromancer	Pyromancer	5	20704
+tools	tools.pyromancer	Pyromancer	7	20706
+tools	tools.pyromancer	Pyromancer	9	20710
+tools	tools.rogue	Rogue	0	5554
+tools	tools.rogue	Rogue	5	5553
+tools	tools.rogue	Rogue	7	5555
+tools	tools.rogue	Rogue	8	5556
+tools	tools.rogue	Rogue	9	5557

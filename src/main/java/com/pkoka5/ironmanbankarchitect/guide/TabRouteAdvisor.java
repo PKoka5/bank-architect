@@ -89,8 +89,13 @@ public final class TabRouteAdvisor
 		if (currentTabs < targets.size())
 		{
 			TargetTab target = targets.get(currentTabs);
-			int sourceSlot = firstMainSourceForTab(actualItemIds, mainStart,
-				targetTabByItemId, target.getBankTabNumber());
+			int sourceSlot = firstMainSourceForItem(actualItemIds, mainStart,
+				target.getItems().get(0).getItemId());
+			if (sourceSlot < 0)
+			{
+				sourceSlot = firstMainSourceForTab(actualItemIds, mainStart,
+					targetTabByItemId, target.getBankTabNumber());
+			}
 			if (sourceSlot < 0)
 			{
 				return Assessment.blocked(Status.UNSTABLE_BANK,
@@ -101,6 +106,13 @@ public final class TabRouteAdvisor
 		}
 
 		int numberedItemTotal = numberedItemCount(targets);
+		Move appendFriendly = nextAppendFriendlyDistribution(actualItemIds, mainStart,
+			targets, tabCounts, itemById);
+		if (appendFriendly != null)
+		{
+			return Assessment.ready(appendFriendly,
+				Progress.distributing(mainStart, numberedItemTotal));
+		}
 		for (int slot = mainStart; slot < actualItemIds.length; slot++)
 		{
 			Integer targetTab = targetTabByItemId.get(actualItemIds[slot]);
@@ -119,7 +131,8 @@ public final class TabRouteAdvisor
 		}
 
 		int correctPositions = correctPositionCount(actualItemIds, plan.getFlattenedItems());
-		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length);
+		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length,
+			minimumRemainingSwaps(actualItemIds, plan.getFlattenedItems()));
 		if (focusTabNumber >= 1 && focusTabNumber <= targets.size())
 		{
 			int focusStart = 0;
@@ -274,6 +287,30 @@ public final class TabRouteAdvisor
 		List<BankPreviewItem> targetItems, int targetTab, int blueprintTabNumber,
 		String categoryName)
 	{
+		Map<Integer, Integer> actualSlotByItemId = new HashMap<>();
+		for (int offset = 0; offset < targetItems.size(); offset++)
+		{
+			actualSlotByItemId.put(actualItemIds[sectionStart + offset], sectionStart + offset);
+		}
+
+		// Prefer a direct two-cycle: one manual swap puts both involved items in their final slots.
+		for (int offset = 0; offset < targetItems.size(); offset++)
+		{
+			int targetSlot = sectionStart + offset;
+			BankPreviewItem expected = targetItems.get(offset);
+			if (actualItemIds[targetSlot] == expected.getItemId())
+			{
+				continue;
+			}
+			Integer sourceSlot = actualSlotByItemId.get(expected.getItemId());
+			if (sourceSlot != null && targetItems.get(sourceSlot - sectionStart).getItemId()
+				== actualItemIds[targetSlot])
+			{
+				return Move.swapSection(expected, sourceSlot, targetSlot,
+					targetTab, blueprintTabNumber, categoryName);
+			}
+		}
+
 		for (int offset = 0; offset < targetItems.size(); offset++)
 		{
 			int targetSlot = sectionStart + offset;
@@ -294,6 +331,77 @@ public final class TabRouteAdvisor
 			return null;
 		}
 		return null;
+	}
+
+	private static Move nextAppendFriendlyDistribution(int[] actualItemIds, int mainStart,
+		List<TargetTab> targets, int[] tabCounts, Map<Integer, BankPreviewItem> itemById)
+	{
+		int sectionStart = 0;
+		for (TargetTab target : targets)
+		{
+			int count = tabCounts[target.getBankTabNumber() - 1];
+			if (count >= target.getItems().size())
+			{
+				sectionStart += count;
+				continue;
+			}
+			int appendItemId = cycleClosingAppendItemId(actualItemIds, sectionStart,
+				count, target.getItems());
+			int sourceSlot = firstMainSourceForItem(actualItemIds, mainStart,
+				appendItemId);
+			if (sourceSlot >= 0)
+			{
+				return Move.distributeToTab(itemById.get(actualItemIds[sourceSlot]),
+					sourceSlot, target);
+			}
+			sectionStart += count;
+		}
+		return null;
+	}
+
+	/**
+	 * Selects the remaining item that maximizes the permutation-cycle count after append.
+	 *
+	 * <p>If the item expected at the append slot is still in Main, appending it creates a fixed
+	 * point. If it is already misplaced in the fixed tab prefix, that prefix contains one open
+	 * path ending at the append slot. Following predecessor items back to the path start identifies
+	 * the still-unplaced item that closes the whole path into one cycle. Closing every path
+	 * independently maximizes cycles and therefore minimizes the later swap count {@code n-cycles}.
+	 * No search tree is required.</p>
+	 */
+	static int cycleClosingAppendItemId(int[] actualItemIds, int sectionStart, int currentCount,
+		List<BankPreviewItem> targetItems)
+	{
+		if (sectionStart < 0 || currentCount < 0
+			|| sectionStart + currentCount > actualItemIds.length
+			|| currentCount >= targetItems.size())
+		{
+			throw new IllegalArgumentException("invalid partial section bounds");
+		}
+
+		Map<Integer, Integer> prefixPositionByItemId = new HashMap<>();
+		for (int position = 0; position < currentCount; position++)
+		{
+			prefixPositionByItemId.put(actualItemIds[sectionStart + position], position);
+		}
+
+		int pathStart = currentCount;
+		boolean[] visitedPrefixPositions = new boolean[currentCount];
+		while (true)
+		{
+			int itemId = targetItems.get(pathStart).getItemId();
+			Integer predecessor = prefixPositionByItemId.get(itemId);
+			if (predecessor == null)
+			{
+				return itemId;
+			}
+			if (visitedPrefixPositions[predecessor])
+			{
+				throw new IllegalArgumentException("partial section does not form an open append path");
+			}
+			visitedPrefixPositions[predecessor] = true;
+			pathStart = predecessor;
+		}
 	}
 
 	private static Validation validateItems(int[] actualItemIds, List<BankPreviewItem> plannedItems)
@@ -362,6 +470,50 @@ public final class TabRouteAdvisor
 			}
 		}
 		return -1;
+	}
+
+	private static int firstMainSourceForItem(int[] actualItemIds, int mainStart, int itemId)
+	{
+		for (int slot = mainStart; slot < actualItemIds.length; slot++)
+		{
+			if (actualItemIds[slot] == itemId)
+			{
+				return slot;
+			}
+		}
+		return -1;
+	}
+
+	/** Exact unrestricted same-section swap lower bound: n minus permutation cycles. */
+	static int minimumRemainingSwaps(int[] actualItemIds, List<BankPreviewItem> targetItems)
+	{
+		Map<Integer, Integer> targetSlotByItemId = new HashMap<>();
+		for (int slot = 0; slot < targetItems.size(); slot++)
+		{
+			targetSlotByItemId.put(targetItems.get(slot).getItemId(), slot);
+		}
+		boolean[] visited = new boolean[actualItemIds.length];
+		int cycles = 0;
+		for (int start = 0; start < actualItemIds.length; start++)
+		{
+			if (visited[start])
+			{
+				continue;
+			}
+			cycles++;
+			int slot = start;
+			while (!visited[slot])
+			{
+				visited[slot] = true;
+				Integer next = targetSlotByItemId.get(actualItemIds[slot]);
+				if (next == null)
+				{
+					throw new IllegalArgumentException("actual and target item IDs must match");
+				}
+				slot = next;
+			}
+		}
+		return actualItemIds.length - cycles;
 	}
 
 	private static int numberedItemCount(List<TargetTab> targets)
@@ -1271,47 +1423,49 @@ public final class TabRouteAdvisor
 		private final Phase phase;
 		private final int completed;
 		private final int total;
+		private final int minimumRemainingSwaps;
 
-		private Progress(Phase phase, int completed, int total)
+		private Progress(Phase phase, int completed, int total, int minimumRemainingSwaps)
 		{
 			this.phase = Objects.requireNonNull(phase, "phase");
 			this.completed = completed;
 			this.total = total;
+			this.minimumRemainingSwaps = minimumRemainingSwaps;
 		}
 
 		private static Progress none()
 		{
-			return new Progress(Phase.REPAIRING, 0, 0);
+			return new Progress(Phase.REPAIRING, 0, 0, -1);
 		}
 
 		private static Progress recovering(int foreignItems)
 		{
-			return new Progress(Phase.RECOVERING, 0, foreignItems);
+			return new Progress(Phase.RECOVERING, 0, foreignItems, -1);
 		}
 
 		private static Progress repairing(int tabs)
 		{
-			return new Progress(Phase.REPAIRING, 0, tabs);
+			return new Progress(Phase.REPAIRING, 0, tabs, -1);
 		}
 
 		private static Progress creating(int created, int total)
 		{
-			return new Progress(Phase.CREATING, created, total);
+			return new Progress(Phase.CREATING, created, total, -1);
 		}
 
 		private static Progress distributing(int placed, int total)
 		{
-			return new Progress(Phase.DISTRIBUTING, placed, total);
+			return new Progress(Phase.DISTRIBUTING, placed, total, -1);
 		}
 
-		private static Progress sorting(int correct, int total)
+		private static Progress sorting(int correct, int total, int minimumRemainingSwaps)
 		{
-			return new Progress(Phase.SORTING, correct, total);
+			return new Progress(Phase.SORTING, correct, total, minimumRemainingSwaps);
 		}
 
 		private static Progress complete(int total)
 		{
-			return new Progress(Phase.COMPLETE, total, total);
+			return new Progress(Phase.COMPLETE, total, total, 0);
 		}
 
 		public Phase getPhase()
@@ -1327,6 +1481,11 @@ public final class TabRouteAdvisor
 		public int getTotal()
 		{
 			return total;
+		}
+
+		public int getMinimumRemainingSwaps()
+		{
+			return minimumRemainingSwaps;
 		}
 
 		public int getPercent()

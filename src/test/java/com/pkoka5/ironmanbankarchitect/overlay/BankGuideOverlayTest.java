@@ -221,6 +221,21 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
+	public void bankTagsTitleIsRecognizedAsAFilteredBankView()
+	{
+		assertTrue(BankGuideOverlay.isBankTagTabTitle("Tag tab herbs (35,633,407)"));
+		assertTrue(BankGuideOverlay.isBankTagTabTitle("  TAG TAB gear  "));
+	}
+
+	@Test
+	public void ordinaryBankTitlesAreNotTreatedAsBankTagFilters()
+	{
+		assertFalse(BankGuideOverlay.isBankTagTabTitle(null));
+		assertFalse(BankGuideOverlay.isBankTagTabTitle("The Bank of Gielinor"));
+		assertFalse(BankGuideOverlay.isBankTagTabTitle("Tab 1"));
+	}
+
+	@Test
 	public void disabledHighlightsNeverLeakAConcreteFromToInstructionIntoTheHud()
 	{
 		BankOrganizationPreview preview = previewWithItems(10, 20);
@@ -231,6 +246,17 @@ public class BankGuideOverlayTest
 		assertTrue(hud.contains("Highlights disabled"));
 		assertFalse(hud.contains("FROM"));
 		assertFalse(hud.contains("TO"));
+	}
+
+	@Test
+	public void sortingHudShowsTheExactMinimumRemainingSwapCount()
+	{
+		BankOrganizationPreview preview = previewWithItems(10, 20, 30);
+		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
+			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9]);
+
+		String hud = BankGuideOverlay.tabHudText(assessment, true);
+		assertTrue(hud.contains("MIN SWAPS 2"));
 	}
 
 	@Test

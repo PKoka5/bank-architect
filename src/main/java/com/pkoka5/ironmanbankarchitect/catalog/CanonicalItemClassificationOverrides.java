@@ -2266,6 +2266,59 @@ final class CanonicalItemClassificationOverrides
 			case 11758:
 				return cleanupJunk();
 
+			// Focused corrections from the 757-item Ironman blueprint review.
+			// Wiki: https://oldschool.runescape.wiki/w/Bone_spear?oldid=14797773
+			case 5016: // Equipable melee weapon, not a bone/resource material
+				return weapon();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Collection_log?oldid=15161984
+			case 22711:
+				return collectionTrophy();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Long_kebbit_spike
+			case 10107: // Chiselled into long kebbit bolts for Fletching XP
+				return skillingAmmoComponent();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Impling
+			case 11260: // Required to retain caught implings in Puro-Puro
+			// Wiki: https://oldschool.runescape.wiki/w/Small_fur_pouch
+			case 29466: // Open small fur pouch remains a reusable Hunter container
+				return resourceContainer();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Potions
+			case 10109: // Ground into the secondary for Hunter potions
+				return herbloreSecondary();
+
+			// Repeatable Farming, Firemaking and cave-light utilities.
+			// Wiki: https://oldschool.runescape.wiki/w/Shears
+			case 1735:
+				return tool();
+			// Wiki: https://oldschool.runescape.wiki/w/Bruma_torch
+			case 20720:
+			// Wiki: https://oldschool.runescape.wiki/w/Bullseye_lantern
+			case 4550:
+				return lightSource();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Purple_sweets
+			case 10476:
+				return food();
+
+			// Repeatably grown Farming produce, not Cleanup review items.
+			case 1955: // Cooking apple
+			case 1982: // Tomato
+			case 5986: // Sweetcorn
+				return farmingProduce();
+
+			case 5291: // Guam seed belongs to the Herblore recipe workflow
+				return herbSeed();
+
+			// Wiki: https://oldschool.runescape.wiki/w/Orange_spice?oldid=15241475
+			case 7484:
+			case 7485:
+			case 7486:
+			case 7487:
+				return potion();
+
 			default:
 				return Optional.empty();
 		}
@@ -2354,6 +2407,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> farmingProduce()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.FARMING, "produce"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> herbSeed()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.FARMING, "herb-seed"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> craftingMaterial()
@@ -2450,6 +2508,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> food()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.POTION, "food"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> potion()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.POTION, "potion"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> pvmUtility()

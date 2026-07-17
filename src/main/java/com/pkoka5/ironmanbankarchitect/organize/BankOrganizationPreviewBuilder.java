@@ -9,6 +9,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.WikiItemLists;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutEntry;
 import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
+import com.pkoka5.ironmanbankarchitect.organize.layout.CosmeticSetSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutPlacement;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutRequest;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutResult;
@@ -265,6 +266,10 @@ public final class BankOrganizationPreviewBuilder
 					return new BankCategoryPreview(category, FarmingItemSorter.layout(items, 0));
 				case GEAR:
 					return new BankCategoryPreview(category, gearLayout(items, gearStats));
+				case CLUES:
+					return new BankCategoryPreview(category, semanticLayout(
+						PresetItemSorter.sort(category, items, gearStats),
+						CosmeticSetSemanticRuleSet.forEntries(entries)));
 				default:
 					return new BankCategoryPreview(category,
 						PresetItemSorter.sort(category, items, gearStats));
@@ -279,8 +284,12 @@ public final class BankOrganizationPreviewBuilder
 			planned.addAll(gear.getSetupRows());
 
 			List<LayoutEntry> tailEntries = entriesForItems(entries, gear.getTail());
-			LayoutRequest tailRequest = GearSetSemanticRuleSet.forEntries(tailEntries)
-				.withGridStartColumn(planned.size() % GearItemSorter.GRID_COLUMNS);
+			int gridStartColumn = planned.size() % GearItemSorter.GRID_COLUMNS;
+			int physicalTailRows = (gridStartColumn + tailEntries.size()
+				+ GearItemSorter.GRID_COLUMNS - 1) / GearItemSorter.GRID_COLUMNS;
+			LayoutRequest tailRequest = GearSetSemanticRuleSet
+				.forEntries(tailEntries, Math.max(1, physicalTailRows))
+				.withGridStartColumn(gridStartColumn);
 			planned.addAll(semanticLayout(gear.getTail(), tailRequest));
 			return planned;
 		}

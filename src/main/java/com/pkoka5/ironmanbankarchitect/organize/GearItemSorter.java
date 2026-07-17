@@ -1,12 +1,16 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.GearTierCatalog;
+import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 
 final class GearItemSorter
@@ -96,6 +100,7 @@ final class GearItemSorter
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
 		Set<Integer> reservedPrimaryIds = reservePrimaryItems(setCandidates);
+		Set<Integer> protectedVerticalSetIds = GearSetSemanticRuleSet.presentFamilyItemIds(items);
 		List<BankPreviewItem> fillerOrder = remainingSorted(items, new LinkedHashSet<>(), gearStats);
 
 		for (int[] setRow : SET_ROWS)
@@ -133,35 +138,44 @@ final class GearItemSorter
 				}
 			}
 
-			if (availableFillerCount(fillerOrder, usedItemIds, reservedPrimaryIds, gearStats)
-				< GRID_COLUMNS - primaryCount)
+			int fillersNeeded = GRID_COLUMNS - primaryCount;
+			Set<Integer> rowProtectedVerticalSetIds = protectedVerticalSetIds;
+			if (availableFillerCount(fillerOrder, usedItemIds, reservedPrimaryIds,
+				rowProtectedVerticalSetIds, gearStats) < fillersNeeded)
 			{
-				for (int column = 0; column < SET_COLUMNS; column++)
+				// The dense bank cannot preserve both shapes when no real alternative filler exists.
+				// Keep the primary setup row and release family protection only for this row.
+				rowProtectedVerticalSetIds = Collections.emptySet();
+				if (availableFillerCount(fillerOrder, usedItemIds, reservedPrimaryIds,
+					rowProtectedVerticalSetIds, gearStats) < fillersNeeded)
 				{
-					if (cells[column] != null)
+					for (int column = 0; column < SET_COLUMNS; column++)
 					{
-						usedItemIds.remove(cells[column].getItemId());
-						reservedPrimaryIds.add(cells[column].getItemId());
+						if (cells[column] != null)
+						{
+							usedItemIds.remove(cells[column].getItemId());
+							reservedPrimaryIds.add(cells[column].getItemId());
+						}
 					}
+					continue;
 				}
-				continue;
 			}
 			for (int column = 0; column < GRID_COLUMNS; column++)
 			{
 				if (cells[column] == null && column < SET_COLUMNS && setRow[column] >= 0)
 				{
 					cells[column] = takeBestFillerForSlot(setRow[column], fillerOrder,
-						usedItemIds, reservedPrimaryIds, gearStats);
+						usedItemIds, reservedPrimaryIds, rowProtectedVerticalSetIds, gearStats);
 				}
 				if (cells[column] == null)
 				{
 					cells[column] = takeBestFillerForRow(setRow, fillerOrder,
-						usedItemIds, reservedPrimaryIds, gearStats);
+						usedItemIds, reservedPrimaryIds, rowProtectedVerticalSetIds, gearStats);
 				}
 				if (cells[column] == null)
 				{
 					cells[column] = takeFirstFiller(fillerOrder, usedItemIds,
-						reservedPrimaryIds, gearStats);
+						reservedPrimaryIds, rowProtectedVerticalSetIds, gearStats);
 				}
 				usedItemIds.add(cells[column].getItemId());
 				laidOut.add(cells[column]);
@@ -249,12 +263,14 @@ final class GearItemSorter
 	}
 
 	private static int availableFillerCount(List<BankPreviewItem> candidates, Set<Integer> usedItemIds,
-		Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+		Set<Integer> reservedPrimaryIds, Set<Integer> protectedVerticalSetIds,
+		GearStatsSource gearStats)
 	{
 		int available = 0;
 		for (BankPreviewItem candidate : candidates)
 		{
-			if (isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+			if (isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
+				protectedVerticalSetIds, gearStats))
 			{
 				available++;
 			}
@@ -263,12 +279,14 @@ final class GearItemSorter
 	}
 
 	private static BankPreviewItem takeBestFillerForSlot(int slot, List<BankPreviewItem> candidates,
-		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds,
+		Set<Integer> protectedVerticalSetIds, GearStatsSource gearStats)
 	{
 		for (BankPreviewItem candidate : candidates)
 		{
 			if (slotRankOf(candidate, gearStats) == slot
-				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
+					protectedVerticalSetIds, gearStats))
 			{
 				return candidate;
 			}
@@ -277,13 +295,15 @@ final class GearItemSorter
 	}
 
 	private static BankPreviewItem takeBestFillerForRow(int[] row, List<BankPreviewItem> candidates,
-		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds,
+		Set<Integer> protectedVerticalSetIds, GearStatsSource gearStats)
 	{
 		for (BankPreviewItem candidate : candidates)
 		{
 			int slot = slotRankOf(candidate, gearStats);
 			if (rowContainsSlot(row, slot)
-				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
+					protectedVerticalSetIds, gearStats))
 			{
 				return candidate;
 			}
@@ -292,7 +312,8 @@ final class GearItemSorter
 	}
 
 	private static BankPreviewItem takeFirstFiller(List<BankPreviewItem> candidates,
-		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds,
+		Set<Integer> protectedVerticalSetIds, GearStatsSource gearStats)
 	{
 		// Prefer unstructured accessories (especially rings) before borrowing
 		// from another equipment row. They have no setup row of their own.
@@ -300,7 +321,8 @@ final class GearItemSorter
 		{
 			int slot = slotRankOf(candidate, gearStats);
 			if ((styleRankOf(candidate, gearStats) == STYLE_OTHER || slot >= 12)
-				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
+					protectedVerticalSetIds, gearStats))
 			{
 				return candidate;
 			}
@@ -314,7 +336,8 @@ final class GearItemSorter
 		BankPreviewItem selected = null;
 		for (BankPreviewItem candidate : candidates)
 		{
-			if (!isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds, gearStats))
+			if (!isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
+				protectedVerticalSetIds, gearStats))
 			{
 				continue;
 			}
@@ -329,11 +352,13 @@ final class GearItemSorter
 	}
 
 	private static boolean isAvailableFiller(BankPreviewItem candidate, Set<Integer> usedItemIds,
-		Set<Integer> reservedPrimaryIds, GearStatsSource gearStats)
+		Set<Integer> reservedPrimaryIds, Set<Integer> protectedVerticalSetIds,
+		GearStatsSource gearStats)
 	{
 		return slotRankOf(candidate, gearStats) != 11
 			&& !usedItemIds.contains(candidate.getItemId())
-			&& !reservedPrimaryIds.contains(candidate.getItemId());
+			&& !reservedPrimaryIds.contains(candidate.getItemId())
+			&& !protectedVerticalSetIds.contains(candidate.getItemId());
 	}
 
 	private static boolean rowContainsSlot(int[] row, int slot)
@@ -549,8 +574,19 @@ final class GearItemSorter
 			"occult", "tome");
 	}
 
+	// Tier 1 (Starter) through tier 5 (End); keeps curated tiers within the pre-existing
+	// 0-1000 name-heuristic scale so an untiered item's fallback score stays comparable.
+	private static final int GEAR_TIER_SCORE_STEP = 200;
+
 	private static int gearScore(BankPreviewItem item)
 	{
+		OptionalInt tier = GearTierCatalog.INSTANCE.tierOf(
+			item.getItemId(), item.getDisplayName());
+		if (tier.isPresent())
+		{
+			return tier.getAsInt() * GEAR_TIER_SCORE_STEP;
+		}
+
 		String name = normalizedName(item.getDisplayName());
 		int score = 0;
 		score = Math.max(score, scoreIfContains(name, 1000, "torva", "ancestral", "masori", "tumeken", "twisted bow",

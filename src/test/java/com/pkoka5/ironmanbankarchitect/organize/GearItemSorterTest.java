@@ -253,6 +253,37 @@ public class GearItemSorterTest
 	}
 
 	@Test
+	public void primarySetupWinsWhenACompactBankCannotAlsoPreserveVerticalFamilies()
+	{
+		List<BankPreviewItem> input = Arrays.asList(
+			item(950001, "Melee body"), item(950002, "Ranged body"),
+			item(950003, "Magic body"), item(950004, "Prayer body"),
+			item(544, "Monk's robe top"), item(542, "Monk's robe"),
+			item(4720, "Dharok's platebody"), item(4722, "Dharok's platelegs"));
+		GearStatsSource stats = itemId -> {
+			if (itemId < 950001 || itemId > 950004)
+			{
+				// Keep the four exact set members out of later setup-row reservations;
+				// this fixture isolates the no-alternative-filler fallback itself.
+				return Optional.of(new GearStats(GearSlot.RING,
+					0, 0, 0, 0, 0, 0, 0, 0, 0));
+			}
+			int style = itemId - 950001;
+			return Optional.of(new GearStats(GearSlot.BODY,
+				style == 0 ? 10 : 0, 0, 0, style == 2 ? 10 : 0,
+				style == 1 ? 10 : 0, 0, 0, style == 3 ? 10 : 0, 2000));
+		};
+
+		List<BankPreviewItem> laidOut = GearItemSorter.layout(input, stats);
+
+		assertEquals(Arrays.asList("Melee body", "Ranged body", "Magic body", "Prayer body"),
+			names(laidOut.subList(0, 4)));
+		assertEquals(8, laidOut.size());
+		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
+			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
+	}
+
+	@Test
 	public void sparseEarlySlotDoesNotBlockLaterCompleteRow()
 	{
 		List<BankPreviewItem> input = Arrays.asList(
@@ -365,6 +396,17 @@ public class GearItemSorterTest
 	{
 		assertEquals(true, GearItemSorter.rank(item(1, "Rune platebody")) < GearItemSorter.rank(item(2, "Dragon scimitar")));
 		assertEquals(true, GearItemSorter.rank(item(3, "Magic shortbow")) < GearItemSorter.rank(item(4, "Mystic staff")));
+	}
+
+	@Test
+	public void curatedTierScoreOutranksNameHeuristicForRealItemIds()
+	{
+		int torvaScore = GearItemSorter.score(item(26384, "Torva platebody"), GearStatsSource.NONE);
+		int bandosScore = GearItemSorter.score(item(11832, "Bandos chestplate"), GearStatsSource.NONE);
+		int runeScore = GearItemSorter.score(item(1127, "Rune platebody"), GearStatsSource.NONE);
+
+		assertTrue("End tier must outrank Late tier", torvaScore > bandosScore);
+		assertTrue("Late tier must outrank a lower curated tier", bandosScore > runeScore);
 	}
 
 	private static BankPreviewItem item(int itemId, String name)

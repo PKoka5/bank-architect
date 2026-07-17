@@ -17,7 +17,7 @@ public final class IronmanQuickToolSelector
 		ids(23276, 1275), ids(1271), ids(1273), ids(12297), ids(1269), ids(1267), ids(1265));
 	private static final List<List<Integer>> AXE_TIERS = tiers(
 		ids(28220, 23673), ids(13241, 25066, 30347), ids(28226, 20011),
-		ids(28217, 6739, 25378, 30352), ids(10491), ids(23279, 28214, 1359),
+		ids(28217, 6739, 25378, 30352), ids(23279, 28214, 1359),
 		ids(1357), ids(1355), ids(1361), ids(1353), ids(1349), ids(1351));
 
 	private IronmanQuickToolSelector()

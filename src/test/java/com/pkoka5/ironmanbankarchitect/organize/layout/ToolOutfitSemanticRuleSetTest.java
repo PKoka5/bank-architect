@@ -49,9 +49,9 @@ public class ToolOutfitSemanticRuleSetTest
 	public void verticalOutfitsAndHorizontalSkillRunsCoexist()
 	{
 		List<Integer> angler = Arrays.asList(13258, 13259, 13260, 13261);
-		List<Integer> graceful = Arrays.asList(11850, 11854, 11856, 11858, 11860, 11852);
+		List<Integer> graceful = Arrays.asList(11850, 11852, 11854, 11856, 11858, 11860);
 		List<Integer> lumberjack = Arrays.asList(10941, 10939, 10940, 10933);
-		List<Integer> prospector = Arrays.asList(12013, 12014, 12015, 29478);
+		List<Integer> prospector = Arrays.asList(12013, 12014, 12015, 12016);
 		List<Integer> pyromancer = Arrays.asList(20708, 20704, 20706, 20710);
 		List<Integer> rogue = Arrays.asList(5554, 5553, 5555, 5556, 5557);
 		List<Integer> mining = Arrays.asList(25539, 11920, 5013, 776, 12019, 24481);
@@ -163,8 +163,20 @@ public class ToolOutfitSemanticRuleSetTest
 	{
 		LayoutRequest request = request(Arrays.asList(13639, 11941, 13226));
 
-		assertEquals(1, request.getRules().size());
-		assertEquals("tool.outfit-columns", request.getRules().get(0).getRuleKey());
+		assertEquals(0, request.getRules().size());
+	}
+
+	@Test
+	public void workbookGracefulRecolourUsesItsOwnVerticalColumn()
+	{
+		List<Integer> arceuus = Arrays.asList(13579, 13581, 13583, 13585, 13587, 13589);
+		List<Integer> input = new ArrayList<>(arceuus);
+		for (int index = 0; index < 42; index++) input.add(960000 + index);
+
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(input), input);
+
+		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertVertical(result, arceuus);
 	}
 
 	@Test

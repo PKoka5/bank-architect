@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
+import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -76,6 +77,19 @@ public final class PresetCategoryMapper
 		if (IronmanMainTabPolicy.belongsOnMain(item))
 		{
 			return preset.getCategory("currency-utilities");
+		}
+		String setDomain = ItemSetCatalog.domainOf(item.getItemId()).orElse("");
+		if ("gear".equals(setDomain))
+		{
+			return preset.getCategory("combat-gear");
+		}
+		if ("tools".equals(setDomain))
+		{
+			return preset.getCategory("skilling-tools");
+		}
+		if ("cosmetics".equals(setDomain))
+		{
+			return preset.getCategory("clues-cosmetics");
 		}
 		if (isRunecraftingFocus(item))
 		{

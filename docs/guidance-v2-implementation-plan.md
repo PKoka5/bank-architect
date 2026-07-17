@@ -106,10 +106,13 @@ suppressed. It returns during local sorting and completion.
 - wrong singleton and dirty-highest collapse cases;
 - localized foreign-item recovery to numbered tabs and Main;
 - unordered but membership-clean buckets are reused;
-- anchors created in target order;
-- main distribution follows current top-to-bottom order;
+- anchors created from the first item in final target order;
+- append-aware distribution prefers the next final target slot and safely
+  closes the open prefix cycle when a partial existing tab already owns that
+  item, minimizing the later `n - cycles` swap count;
 - arbitrary target landing positions accepted by membership validation;
-- main sorted before physical buckets;
+- main sorted before physical buckets, with direct two-cycles first and the
+  exact minimum remaining swap count exposed to the guide;
 - all swaps remain inside one section;
 - empty main/physical categories, malformed counts, duplicates and gaps;
 - transition acknowledgement for distribution, recovery, create, collapse and

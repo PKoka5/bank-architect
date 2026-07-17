@@ -23,15 +23,48 @@ import org.junit.Test;
 public class TabRouteAdvisorTest
 {
 	@Test
-	public void mainIsBlueprintTabOneAndFirstPhysicalAnchorUsesEarliestMatchingMainItem()
+	public void mainIsBlueprintTabOneAndFirstPhysicalAnchorUsesFirstPlannedItem()
 	{
 		Assessment result = TabRouteAdvisor.assess(new int[]{9, 2, 3, 1, 4},
 			plan(items(9), items(1, 2), items(3, 4)), counts());
 
-		assertMove(result, MoveType.DRAG_TO_NEW_TAB, 2, 1, -1, 1, 2);
+		assertMove(result, MoveType.DRAG_TO_NEW_TAB, 1, 3, -1, 1, 2);
 		assertEquals(Phase.CREATING, result.getProgress().getPhase());
 		assertEquals("Combat Gear",
 			result.getMove().get().getCategoryName());
+	}
+
+	@Test
+	public void distributionSelectsTheItemExpectedAtTheConfirmedAppendSlot()
+	{
+		Assessment result = TabRouteAdvisor.assess(new int[]{1, 3, 9, 2},
+			plan(items(9), items(1, 2, 3), Collections.emptyList()), counts(1));
+
+		assertMove(result, MoveType.DISTRIBUTE_TO_TAB, 2, 3, -1, 1, 2);
+	}
+
+	@Test
+	public void partialTabAppendClosesAnOpenCycleInsteadOfCreatingAnExtraSwap()
+	{
+		// Target A,B,C,D; existing prefix C,B. C already occupies the next target's
+		// item, so appending A closes A<->C. Appending D first would leave a 3-cycle.
+		Assessment result = TabRouteAdvisor.assess(new int[]{3, 2, 9, 4, 1},
+			plan(items(9), items(1, 2, 3, 4), Collections.emptyList()), counts(2));
+
+		assertMove(result, MoveType.DISTRIBUTE_TO_TAB, 1, 4, -1, 1, 2);
+	}
+
+	@Test
+	public void sortingPrioritizesTwoCyclesAndReportsTheExactSwapLowerBound()
+	{
+		Assessment result = TabRouteAdvisor.assess(new int[]{2, 3, 1, 5, 4},
+			plan(items(1, 2, 3, 4, 5), Collections.emptyList(), Collections.emptyList()),
+			counts());
+
+		assertMove(result, MoveType.SWAP_SECTION, 4, 4, 3, 0, 1);
+		assertEquals(3, result.getProgress().getMinimumRemainingSwaps());
+		assertEquals(3, TabRouteAdvisor.minimumRemainingSwaps(
+			new int[]{2, 3, 1, 5, 4}, items(1, 2, 3, 4, 5)));
 	}
 
 	@Test
@@ -40,7 +73,7 @@ public class TabRouteAdvisorTest
 		Assessment result = TabRouteAdvisor.assess(new int[]{2, 1, 9, 4, 3},
 			plan(items(9), items(1, 2), items(3, 4)), counts(2));
 
-		assertMove(result, MoveType.DRAG_TO_NEW_TAB, 4, 3, -1, 2, 3);
+		assertMove(result, MoveType.DRAG_TO_NEW_TAB, 3, 4, -1, 2, 3);
 	}
 
 	@Test
@@ -84,17 +117,17 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
-	public void distributionFollowsCurrentMainOrderFromTopToBottom()
+	public void distributionBuildsAppendPositionsInFinalOrder()
 	{
 		BankTabPlan plan = plan(items(9), items(1, 2), items(3, 4));
 		Assessment first = TabRouteAdvisor.assess(
 			new int[]{1, 3, 9, 4, 2}, plan, counts(1, 1));
 
-		assertMove(first, MoveType.DISTRIBUTE_TO_TAB, 4, 3, -1, 2, 3);
+		assertMove(first, MoveType.DISTRIBUTE_TO_TAB, 2, 4, -1, 1, 2);
 
 		Assessment second = TabRouteAdvisor.assess(
-			new int[]{1, 4, 3, 9, 2}, plan, counts(1, 2));
-		assertMove(second, MoveType.DISTRIBUTE_TO_TAB, 2, 4, -1, 1, 2);
+			new int[]{1, 2, 3, 9, 4}, plan, counts(2, 1));
+		assertMove(second, MoveType.DISTRIBUTE_TO_TAB, 4, 4, -1, 2, 3);
 		assertEquals(Phase.DISTRIBUTING, second.getProgress().getPhase());
 	}
 
@@ -220,6 +253,74 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
+	public void everyFourItemMainPermutationUsesTheExactMinimumNumberOfSwaps()
+	{
+		BankTabPlan plan = plan(items(1, 2, 3, 4),
+			Collections.emptyList(), Collections.emptyList());
+		for (List<Integer> permutation : permutations(Arrays.asList(1, 2, 3, 4)))
+		{
+			int[] actual = permutation.stream().mapToInt(Integer::intValue).toArray();
+			int minimum = TabRouteAdvisor.minimumRemainingSwaps(actual, items(1, 2, 3, 4));
+			int swaps = 0;
+			while (true)
+			{
+				Assessment assessment = TabRouteAdvisor.assess(actual, plan, counts());
+				if (assessment.getStatus() == Status.COMPLETE)
+				{
+					break;
+				}
+				assertEquals(MoveType.SWAP_SECTION, assessment.getMove().get().getType());
+				Move move = assessment.getMove().get();
+				int temporary = actual[move.getFromSlot()];
+				actual[move.getFromSlot()] = actual[move.getToSlot()];
+				actual[move.getToSlot()] = temporary;
+				swaps++;
+			}
+			assertEquals("non-minimal route for " + permutation, minimum, swaps);
+		}
+	}
+
+	@Test
+	public void cycleClosingAppendIsOptimalForEveryFiveItemPartialPermutation()
+	{
+		List<BankPreviewItem> target = items(1, 2, 3, 4, 5);
+		List<Integer> targetIds = Arrays.asList(1, 2, 3, 4, 5);
+		for (List<Integer> permutation : permutations(targetIds))
+		{
+			for (int prefixSize = 1; prefixSize < targetIds.size(); prefixSize++)
+			{
+				List<Integer> prefix = new ArrayList<>(permutation.subList(0, prefixSize));
+				List<Integer> remaining = new ArrayList<>(targetIds);
+				remaining.removeAll(prefix);
+
+				List<Integer> greedy = new ArrayList<>(prefix);
+				while (greedy.size() < targetIds.size())
+				{
+					int[] partial = greedy.stream().mapToInt(Integer::intValue).toArray();
+					int selected = TabRouteAdvisor.cycleClosingAppendItemId(
+						partial, 0, greedy.size(), target);
+					assertTrue("selected item was not remaining", remaining.remove((Integer) selected));
+					greedy.add(selected);
+				}
+				int greedySwaps = TabRouteAdvisor.minimumRemainingSwaps(
+					greedy.stream().mapToInt(Integer::intValue).toArray(), target);
+
+				int optimum = Integer.MAX_VALUE;
+				List<Integer> originalRemaining = new ArrayList<>(targetIds);
+				originalRemaining.removeAll(prefix);
+				for (List<Integer> suffix : permutations(originalRemaining))
+				{
+					List<Integer> candidate = new ArrayList<>(prefix);
+					candidate.addAll(suffix);
+					optimum = Math.min(optimum, TabRouteAdvisor.minimumRemainingSwaps(
+						candidate.stream().mapToInt(Integer::intValue).toArray(), target));
+				}
+				assertEquals("non-optimal append for prefix " + prefix, optimum, greedySwaps);
+			}
+		}
+	}
+
+	@Test
 	public void sessionAcceptsDistributionAtAnArbitraryTargetPosition()
 	{
 		BankTabPlan plan = plan(items(9), items(1, 2), items(3));
@@ -242,15 +343,15 @@ public class TabRouteAdvisorTest
 		session.assess(new int[]{1, 3, 9, 4, 2}, plan, counts(1, 1));
 
 		Assessment afterAlternative = session.assess(
-			new int[]{2, 1, 3, 9, 4}, plan, counts(2, 1));
+			new int[]{1, 4, 3, 9, 2}, plan, counts(1, 2));
 		assertEquals(Status.WAITING_FOR_BANK, afterAlternative.getStatus());
 		afterAlternative = session.assess(
-			new int[]{2, 1, 3, 9, 4}, plan, counts(2, 1));
+			new int[]{1, 4, 3, 9, 2}, plan, counts(1, 2));
 
 		assertEquals(Status.READY, afterAlternative.getStatus());
 		assertEquals(MoveType.DISTRIBUTE_TO_TAB,
 			afterAlternative.getMove().get().getType());
-		assertEquals(4, afterAlternative.getMove().get().getItemId());
+		assertEquals(2, afterAlternative.getMove().get().getItemId());
 	}
 
 	@Test
@@ -366,20 +467,20 @@ public class TabRouteAdvisorTest
 	{
 		BankTabPlan plan = plan(items(9), items(1, 2), items(3, 4));
 		Session session = new Session();
-		session.assess(new int[]{1, 3, 9, 4, 2}, plan, counts(1, 1), 100);
+		session.assess(new int[]{1, 2, 3, 9, 4}, plan, counts(2, 1), 100);
 
 		Assessment firstHalfFrame = session.assess(
-			new int[]{1, 3, 9, 4, 2}, plan, counts(1, 2), 101);
+			new int[]{1, 2, 3, 9, 4}, plan, counts(2, 2), 101);
 		Assessment repeatedSameTick = session.assess(
-			new int[]{1, 3, 9, 4, 2}, plan, counts(1, 2), 101);
+			new int[]{1, 2, 3, 9, 4}, plan, counts(2, 2), 101);
 
 		assertEquals(Status.WAITING_FOR_BANK, firstHalfFrame.getStatus());
 		assertEquals(Status.WAITING_FOR_BANK, repeatedSameTick.getStatus());
 		assertFalse(repeatedSameTick.getMove().isPresent());
 
 		Assessment settled = session.assess(
-			new int[]{1, 3, 4, 9, 2}, plan, counts(1, 2), 101);
-		assertEquals(Status.READY, settled.getStatus());
+			new int[]{1, 2, 3, 4, 9}, plan, counts(2, 2), 101);
+		assertEquals(Status.COMPLETE, settled.getStatus());
 	}
 
 	@Test
@@ -404,7 +505,7 @@ public class TabRouteAdvisorTest
 		Session createSession = new Session();
 		createSession.assess(new int[]{9, 2, 1, 3}, plan, counts());
 		Assessment afterCreate = createSession.assess(
-			new int[]{2, 9, 1, 3}, plan, counts(1));
+			new int[]{1, 9, 2, 3}, plan, counts(1));
 		assertEquals(MoveType.DRAG_TO_NEW_TAB, afterCreate.getMove().get().getType());
 
 		Session collapseSession = new Session();

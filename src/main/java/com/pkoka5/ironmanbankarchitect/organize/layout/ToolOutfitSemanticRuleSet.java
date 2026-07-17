@@ -30,23 +30,7 @@ public final class ToolOutfitSemanticRuleSet
 	private static final List<Integer> IRONMAN_CONTAINER_PRIORITY = Collections.unmodifiableList(Arrays.asList(
 		11941, 22586, 13226, 24478, 13639, 24482, 19634,
 		12019, 12020, 24481, 25582, 25584, 28140, 28142, 24882));
-	private static final List<OutfitFact> OUTFITS = Collections.unmodifiableList(Arrays.asList(
-		outfit("outfit.angler", 13258, 13259, 13260, 13261),
-		outfit("outfit.carpenter", 24872, 24874, 24876, 24878),
-		outfit("outfit.farmer-male", 13646, 13642, 13640, 13644),
-		outfit("outfit.farmer-female", 13647, 13643, 13641, 13645),
-		outfit("outfit.graceful", 11850, 11854, 11856, 11858, 11860, 11852),
-		outfit("outfit.lumberjack", 10941, 10939, 10940, 10933),
-		outfit("outfit.prospector", 12013, 12014, 12015, 29478),
-		outfit("outfit.pyromancer", 20708, 20704, 20706, 20710),
-		outfit("outfit.raiments-eye", 26850, 26852, 26854, 26856),
-		outfit("outfit.raiments-eye-red", 26858, 26860, 26862),
-		outfit("outfit.raiments-eye-green", 26864, 26866, 26868),
-		outfit("outfit.raiments-eye-blue", 26870, 26872, 26874),
-		outfit("outfit.rogue", 5554, 5553, 5555, 5556, 5557),
-		outfit("outfit.smiths", 27023, 27025, 27027, 27029),
-		outfit("outfit.spirit-angler", 25592, 25594, 25596, 25598),
-		outfit("outfit.zealot", 25438, 25434, 25436, 25440)));
+	private static final List<OutfitFact> OUTFITS = buildOutfits();
 	private static final List<ToolFamilyFact> TOOL_FAMILIES = Collections.unmodifiableList(Arrays.asList(
 		tools("tool.mining", 25539, 11920, 5013, 776, 12019, 24481),
 		tools("tool.woodcutting", 10491, 6739, 6313, 10132, 28136, 28142),
@@ -63,7 +47,56 @@ public final class ToolOutfitSemanticRuleSet
 		tools("tool.utility-containers", 11941, 22586, 13226, 13639, 12020,
 			25582, 28140, 19634),
 		tools("tool.sailing", 31733, 31989, 31986, 31745, 31757)));
-	private static final SemanticRule OUTFIT_RULE = buildOutfitRule();
+
+	private static List<OutfitFact> buildOutfits()
+	{
+		List<OutfitFact> outfits = new ArrayList<>(Arrays.asList(
+		outfit("outfit.angler", 13258, 13259, 13260, 13261),
+		outfit("outfit.carpenter", 24872, 24874, 24876, 24878),
+		outfit("outfit.farmer-male", 13646, 13642, 13640, 13644),
+		outfit("outfit.farmer-female", 13647, 13643, 13641, 13645),
+		outfit("outfit.graceful", 11850, 11852, 11854, 11856, 11858, 11860),
+		outfit("outfit.lumberjack", 10941, 10939, 10940, 10933),
+		outfit("outfit.prospector", 12013, 12014, 12015, 12016),
+		outfit("outfit.pyromancer", 20708, 20704, 20706, 20710),
+		outfit("outfit.raiments-eye", 26850, 26852, 26854, 26856),
+		outfit("outfit.raiments-eye-red", 26858, 26860, 26862),
+		outfit("outfit.raiments-eye-green", 26864, 26866, 26868),
+		outfit("outfit.raiments-eye-blue", 26870, 26872, 26874),
+		outfit("outfit.rogue", 5554, 5553, 5555, 5556, 5557),
+		outfit("outfit.smiths", 27023, 27025, 27027, 27029),
+		outfit("outfit.spirit-angler", 25592, 25594, 25596, 25598),
+		outfit("outfit.zealot", 25438, 25434, 25436, 25440)));
+
+		Set<Integer> reserved = new LinkedHashSet<>();
+		for (OutfitFact outfit : outfits)
+		{
+			for (int itemId : outfit.itemIds) reserved.add(itemId);
+		}
+		for (ItemSetCatalog.SetDefinition definition : ItemSetCatalog.sets("tools"))
+		{
+			boolean overlaps = false;
+			for (Integer itemId : definition.getItemIds())
+			{
+				if (reserved.contains(itemId))
+				{
+					overlaps = true;
+					break;
+				}
+			}
+			if (!overlaps)
+			{
+				int[] itemIds = new int[definition.getItemIds().size()];
+				for (int index = 0; index < itemIds.length; index++)
+				{
+					itemIds[index] = definition.getItemIds().get(index);
+					reserved.add(itemIds[index]);
+				}
+				outfits.add(outfit(definition.getKey(), itemIds));
+			}
+		}
+		return Collections.unmodifiableList(outfits);
+	}
 
 	private ToolOutfitSemanticRuleSet()
 	{
@@ -74,7 +107,11 @@ public final class ToolOutfitSemanticRuleSet
 		Objects.requireNonNull(entries, "entries");
 		List<LayoutEntry> anchored = anchoredEntries(entries);
 		List<SemanticRule> rules = new ArrayList<>();
-		rules.add(OUTFIT_RULE);
+		SemanticRule outfitRule = buildOutfitRule(anchored);
+		if (outfitRule != null)
+		{
+			rules.add(outfitRule);
+		}
 		SemanticRule skillRuns = buildPresentRows(anchored, SKILL_RUN_RULE_KEY, TOOL_FAMILIES);
 		if (skillRuns != null)
 		{
@@ -186,25 +223,16 @@ public final class ToolOutfitSemanticRuleSet
 		return owned;
 	}
 
-	private static SemanticRule buildOutfitRule()
+	private static SemanticRule buildOutfitRule(List<LayoutEntry> entries)
 	{
-		List<SemanticAtom> atoms = new ArrayList<>(OUTFITS.size());
+		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>(OUTFITS.size());
 		for (OutfitFact outfit : OUTFITS)
 		{
-			List<SemanticAtom.Member> members = new ArrayList<>(outfit.itemIds.length);
-			for (int index = 0; index < outfit.itemIds.length; index++)
-			{
-				members.add(new SemanticAtom.Member("slot-" + index, outfit.itemIds[index]));
-			}
-			atoms.add(new SemanticAtom(outfit.key, members));
+			List<Integer> itemIds = new ArrayList<>(outfit.itemIds.length);
+			for (int itemId : outfit.itemIds) itemIds.add(itemId);
+			definitions.add(ItemSetCatalog.definition("tools", outfit.key, outfit.key, itemIds));
 		}
-		return SemanticRule.builder()
-			.ruleKey(OUTFIT_RULE_KEY)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.VERTICAL_RUN)
-			.allowedWidths(Collections.singleton(1))
-			.build();
+		return VerticalItemSetRuleFactory.build(OUTFIT_RULE_KEY, entries, definitions);
 	}
 
 	private static SemanticRule buildPresentRows(List<LayoutEntry> entries, String ruleKey,

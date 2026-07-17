@@ -289,7 +289,7 @@ public class ResourceItemRegistryTest
 		assertSubcategory(6687, "potion-dose-3");
 		assertSubcategory(21175, "teleport");
 		assertSubcategory(5464, "produce-container");
-		assertSubcategory(7484, "cooking-material");
+		assertSubcategory(7484, "potion");
 	}
 
 	@Test
@@ -302,14 +302,14 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
-	public void cookingToolsAndContainersDoNotPollutePvmSupplies()
+	public void cookingToolsContainersAndSpicyStewSuppliesKeepDistinctRoles()
 	{
 		assertCategory(1887, "Cake tin", ItemCategory.TOOL);
 		assertCategory(2313, "Pie dish", ItemCategory.SKILLING);
 		assertCategory(2315, "Pie shell", ItemCategory.SKILLING);
 		assertCategory(5464, "Cabbages(3)", ItemCategory.FARMING);
 		assertCategory(5446, "Onions(4)", ItemCategory.FARMING);
-		assertCategory(7484, "Orange spice (4)", ItemCategory.SKILLING);
+		assertCategory(7484, "Orange spice (4)", ItemCategory.POTION);
 		assertCategory(3434, "Sacred oil(2)", ItemCategory.SKILLING);
 		assertCategory(1825, "Waterskin(3)", ItemCategory.TOOL);
 	}
@@ -1519,8 +1519,10 @@ public class ResourceItemRegistryTest
 		{
 			assertCategoryOnly(itemId, ItemCategory.SKILLING);
 		}
+		// The whole Evil Dave spice family is consumed as spicy-stew supplies;
+		// it belongs beside the other colours rather than in raw Resources.
 		assertAuditFamily(new int[] {7484, 7485, 7486, 7487},
-			ItemCategory.SKILLING, "cooking-material");
+			ItemCategory.POTION, "potion");
 
 		// Elemental metal and split logs are confirmed repeatable materials, but
 		// exact category overrides cannot change their existing OTHER_RESOURCE zone.
@@ -1706,6 +1708,22 @@ public class ResourceItemRegistryTest
 		assertClassification(21134, "Ring of returning(3)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21136, "Ring of returning(2)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21138, "Ring of returning(1)", ItemCategory.TELEPORT, "teleport");
+	}
+
+	@Test
+	public void reviewedBlueprintOutliersUseTheirRepeatableGameplayFunction()
+	{
+		assertClassification(5016, "Bone spear", ItemCategory.GEAR, "weapon");
+		assertClassification(22711, "Collection log", ItemCategory.CLUE, "collection-trophy");
+		assertClassification(10107, "Long kebbit spike", ItemCategory.SKILLING, "ammo-component");
+		assertAuditFamily(new int[] {11260, 29466}, ItemCategory.TOOL, "resource-container");
+		assertClassification(10109, "Kebbit teeth", ItemCategory.HERBLORE, "secondary");
+		assertClassification(1735, "Shears", ItemCategory.TOOL, "tool");
+		assertAuditFamily(new int[] {20720, 4550}, ItemCategory.TOOL, "light-source");
+		assertClassification(10476, "Purple sweets", ItemCategory.POTION, "food");
+		assertAuditFamily(new int[] {1955, 1982, 5986}, ItemCategory.FARMING, "produce");
+		assertClassification(5291, "Guam seed", ItemCategory.FARMING, "herb-seed");
+		assertAuditFamily(new int[] {7484, 7485, 7486, 7487}, ItemCategory.POTION, "potion");
 	}
 
 	@Test

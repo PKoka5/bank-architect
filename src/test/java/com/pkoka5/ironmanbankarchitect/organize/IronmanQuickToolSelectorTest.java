@@ -37,4 +37,15 @@ public class IronmanQuickToolSelectorTest
 		assertEquals(new HashSet<>(Arrays.asList(23680, 23673)),
 			IronmanQuickToolSelector.select(snapshot));
 	}
+
+	@Test
+	public void blessedAxeDoesNotDisplaceTheBestGeneralPurposeAxe()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(10491, 1, 1),
+			new BankItemSnapshot(1359, 1, 2)));
+
+		assertEquals(new HashSet<>(Arrays.asList(1359)),
+			IronmanQuickToolSelector.select(snapshot));
+	}
 }
