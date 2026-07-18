@@ -191,7 +191,7 @@ public final class RandomBankSimulator
 			if (status == Status.COMPLETE)
 			{
 				boolean verified = bank.matchesPlan(plan);
-				return SimulationResult.completed(seed, scenario, itemCount, planTabs(plan),
+				return SimulationResult.completed(seed, scenario, itemCount, sampled, planTabs(plan),
 					moveCounts, minimumSwapsAtSortStart, verified);
 			}
 			if (status == Status.WAITING_FOR_BANK)
@@ -484,8 +484,10 @@ public final class RandomBankSimulator
 		private final boolean finalOrderVerified;
 		private final String errorMessage;
 		private final List<Integer> failedItemIds;
+		private final List<Integer> sampledItemIds;
 
-		private SimulationResult(long seed, Scenario scenario, int itemCount, int planTabs,
+		private SimulationResult(long seed, Scenario scenario, int itemCount,
+			List<Integer> sampledItemIds, int planTabs,
 			Outcome outcome, Status finalStatus, Map<MoveType, Integer> moveCounts,
 			int minimumSwapsAtSortStart, boolean finalOrderVerified, String errorMessage,
 			List<Integer> failedItemIds)
@@ -501,29 +503,30 @@ public final class RandomBankSimulator
 			this.finalOrderVerified = finalOrderVerified;
 			this.errorMessage = errorMessage;
 			this.failedItemIds = failedItemIds;
+			this.sampledItemIds = new ArrayList<>(sampledItemIds);
 		}
 
 		static SimulationResult completed(long seed, Scenario scenario, int itemCount,
-			int planTabs, Map<MoveType, Integer> moveCounts, int minimumSwapsAtSortStart,
-			boolean finalOrderVerified)
+			List<Integer> sampled, int planTabs, Map<MoveType, Integer> moveCounts,
+			int minimumSwapsAtSortStart, boolean finalOrderVerified)
 		{
-			return new SimulationResult(seed, scenario, itemCount, planTabs, Outcome.COMPLETED,
-				Status.COMPLETE, moveCounts, minimumSwapsAtSortStart, finalOrderVerified,
-				"", Collections.emptyList());
+			return new SimulationResult(seed, scenario, itemCount, sampled, planTabs,
+				Outcome.COMPLETED, Status.COMPLETE, moveCounts, minimumSwapsAtSortStart,
+				finalOrderVerified, "", Collections.emptyList());
 		}
 
 		static SimulationResult blocked(long seed, Scenario scenario, int itemCount,
 			List<Integer> sampled, Outcome outcome, Status status, int planTabs)
 		{
-			return new SimulationResult(seed, scenario, itemCount, planTabs, outcome, status,
-				new EnumMap<>(MoveType.class), -1, false, "", new ArrayList<>(sampled));
+			return new SimulationResult(seed, scenario, itemCount, sampled, planTabs, outcome,
+				status, new EnumMap<>(MoveType.class), -1, false, "", new ArrayList<>(sampled));
 		}
 
 		static SimulationResult planBuildError(long seed, Scenario scenario, int itemCount,
 			List<Integer> sampled, RuntimeException ex)
 		{
-			return new SimulationResult(seed, scenario, itemCount, 0, Outcome.PLAN_BUILD_ERROR,
-				null, new EnumMap<>(MoveType.class), -1, false,
+			return new SimulationResult(seed, scenario, itemCount, sampled, 0,
+				Outcome.PLAN_BUILD_ERROR, null, new EnumMap<>(MoveType.class), -1, false,
 				ex.getClass().getSimpleName() + ": " + String.valueOf(ex.getMessage()),
 				new ArrayList<>(sampled));
 		}
@@ -596,6 +599,11 @@ public final class RandomBankSimulator
 		public List<Integer> getFailedItemIds()
 		{
 			return Collections.unmodifiableList(failedItemIds);
+		}
+
+		public List<Integer> getSampledItemIds()
+		{
+			return Collections.unmodifiableList(sampledItemIds);
 		}
 	}
 }

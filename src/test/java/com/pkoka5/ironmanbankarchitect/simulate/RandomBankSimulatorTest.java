@@ -72,6 +72,8 @@ public class RandomBankSimulatorTest
 			42, Scenario.RANDOM_TABS, 30, universe);
 
 		assertEquals(first.getOutcome(), second.getOutcome());
+		assertEquals(first.getSampledItemIds(), second.getSampledItemIds());
+		assertEquals(30, first.getSampledItemIds().size());
 		assertEquals(first.getTotalMoves(), second.getTotalMoves());
 		assertEquals(first.getSwapMoves(), second.getSwapMoves());
 		assertEquals(first.getMoveCounts(), second.getMoveCounts());

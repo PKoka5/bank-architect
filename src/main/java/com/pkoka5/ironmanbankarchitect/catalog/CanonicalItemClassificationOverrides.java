@@ -2319,6 +2319,143 @@ final class CanonicalItemClassificationOverrides
 			case 7487:
 				return potion();
 
+			/*
+			 * Simulator-driven cleanup review, 2026-07-18. These are exact
+			 * player-facing IDs from the bundled gameval registry. Adjacent CERT
+			 * and PLACEHOLDER records intentionally remain fail-closed.
+			 */
+			case 10043: // Larupia top
+			case 10045: // Larupia hat; legs (10041) were already GEAR
+				return gear();
+
+			case 10595: // Clockwork suit, unwound
+			case 10596: // Clockwork suit, wound
+				return questUtility();
+
+			case 5350: // Empty plant pot; later plant-pot stages were already FARMING
+				return farmingSupply();
+			case 6311: // Gout tuber
+				return farmingProduce();
+
+			case 11095: // Abyssal bracelet(5)
+			case 11097: // Abyssal bracelet(4)
+			case 11099: // Abyssal bracelet(3)
+			case 11101: // Abyssal bracelet(2)
+			case 11103: // Abyssal bracelet(1)
+				return runecraftingUtility();
+
+			// Standalone player-facing partyhat cosmetics.
+			case 1038:
+			case 1040:
+			case 1042:
+			case 1044:
+			case 1046:
+			case 1048:
+			case 11862: // Black partyhat
+			case 11863: // Rainbow partyhat
+			case 27828: // Silver partyhat
+				return clueCosmetic();
+
+			// Complete player-facing metal/chromatic dragon-mask family.
+			case 12363:
+			case 12365:
+			case 12367:
+			case 12369:
+			case 12371:
+			case 12518:
+			case 12520:
+			case 12522:
+			case 12524:
+			case 23270:
+			case 23273:
+			case 12249: // Imp mask
+			case 21211: // 4th birthday hat
+			case 27820: // 10th birthday balloons
+				return clueCosmetic();
+
+			case 1794: // Bronze wire
+				return craftingMaterial();
+			case 1933: // Pot of flour
+				return cookingMaterial();
+
+			// Complete player-facing bird-house tier run.
+			case 21512:
+			case 21515:
+			case 21518:
+			case 21521:
+			case 22192:
+			case 22195:
+			case 22198:
+			case 22201:
+			case 22204:
+				return skillingResource();
+
+			// All current player-facing uncharged trident states.
+			case 11908:
+			case 22290:
+			case 33328:
+			case 33434:
+				return weapon();
+
+			// Complete page runs for all six god-book families.
+			case 3827:
+			case 3828:
+			case 3829:
+			case 3830:
+			case 3831:
+			case 3832:
+			case 3833:
+			case 3834:
+			case 3835:
+			case 3836:
+			case 3837:
+			case 3838:
+			case 12613:
+			case 12614:
+			case 12615:
+			case 12616:
+			case 12617:
+			case 12618:
+			case 12619:
+			case 12620:
+			case 12621:
+			case 12622:
+			case 12623:
+			case 12624:
+				return treasureTrail();
+
+			case 3840: // Holy book
+			case 3842: // Unholy book
+			case 3844: // Book of balance
+			case 12608: // Book of war
+			case 12610: // Book of law
+			case 12612: // Book of darkness
+				return magicOffhand();
+
+			case 12863: // Dwarf cannon set
+				return cannonPart();
+
+			// Player-facing ballista weapons and previously unclassified assembly stages.
+			case 19478: // Light ballista
+			case 19481: // Heavy ballista
+			case 26712: // Heavy ballista (or)
+				return weapon();
+			case 19586: // Light frame
+			case 19589: // Heavy frame
+			case 19592: // Ballista limbs
+			case 19595: // Incomplete light ballista
+			case 19598: // Incomplete heavy ballista
+				return skillingAmmoComponent();
+
+			// Complete current player-facing prayer-scroll family.
+			case 21034: // Dexterous prayer scroll
+			case 21047: // Torn prayer scroll
+			case 21079: // Arcane prayer scroll
+			case 30626: // Deadeye prayer scroll
+			case 30627: // Mystic vigour prayer scroll
+			case 21804: // Ancient crystal
+				return equipmentUpgrade();
+
 			default:
 				return Optional.empty();
 		}
@@ -2407,6 +2544,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> farmingProduce()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.FARMING, "produce"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> farmingSupply()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.FARMING, "farming-supply"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> herbSeed()
