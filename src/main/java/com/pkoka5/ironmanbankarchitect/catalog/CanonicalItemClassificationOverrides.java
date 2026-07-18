@@ -2456,6 +2456,234 @@ final class CanonicalItemClassificationOverrides
 			case 21804: // Ancient crystal
 				return equipmentUpgrade();
 
+			/*
+			 * Cleanup benchmark protocol v1, curation round 2. Exact player-facing
+			 * IDs only; adjacent CERT and PLACEHOLDER records remain fail-closed.
+			 * This adds category/tab routing only, never ordered family metadata.
+			 */
+			case 33: // Lit candle
+			case 36: // Candle
+				return lightSource();
+
+			// Complete candle-lantern state family, including both candle colours.
+			case 4527:
+			case 4529:
+			case 4531:
+			case 4532:
+			case 4534:
+				return lightSource();
+
+			case 2025: // Cocktail shaker
+				return cookingTool();
+
+			case 2574: // Treasure Trails sextant
+				return treasureTrail();
+
+			case 989: // Crystal key
+			case 23951: // Enhanced crystal key
+				return rewardKey();
+
+			// Complete bronze/steel/black/silver/gold Shade key matrix.
+			case 3450:
+			case 3451:
+			case 3452:
+			case 3453:
+			case 3454:
+			case 3455:
+			case 3456:
+			case 3457:
+			case 3458:
+			case 3459:
+			case 3460:
+			case 3461:
+			case 3462:
+			case 3463:
+			case 3464:
+			case 3465:
+			case 3466:
+			case 3467:
+			case 3468:
+			case 3469:
+			case 25424:
+			case 25426:
+			case 25428:
+			case 25430:
+			case 25432:
+				return bossAccessKey();
+
+			// Bullseye-lantern components remain resources; usable states are tools.
+			case 4542: // Lantern lens
+			case 4544: // Bullseye lantern (unf)
+				return craftingMaterial();
+			case 4546: // Bullseye lantern (empty)
+			case 4548: // Bullseye lantern (unlit)
+				return lightSource();
+
+			// Complete player-facing elegant clothing family.
+			case 10400:
+			case 10402:
+			case 10404:
+			case 10406:
+			case 10408:
+			case 10410:
+			case 10412:
+			case 10414:
+			case 10416:
+			case 10418:
+			case 10420:
+			case 10422:
+			case 10424:
+			case 10426:
+			case 10428:
+			case 10430:
+			case 10432:
+			case 10434:
+			case 10436:
+			case 10438:
+			case 12315:
+			case 12317:
+			case 12339:
+			case 12341:
+			case 12343:
+			case 12345:
+			case 12347:
+			case 12349:
+				return clueCosmetic();
+
+			case 9666: // Proselyte harness (male pack)
+			case 9668: // Initiate harness (male pack)
+			case 9670: // Proselyte harness (female pack)
+				return gear();
+
+			case 11891: // Saradomin banner
+			case 11892: // Zamorak banner
+				return clueCosmetic();
+
+			// Complete six-god book page-set family.
+			case 13149:
+			case 13151:
+			case 13153:
+			case 13155:
+			case 13157:
+			case 13159:
+				return treasureTrail();
+
+			// Complete unidentified and identified Fossil Island remains family.
+			case 21562:
+			case 21564:
+			case 21566:
+			case 21568:
+			case 21570:
+			case 21572:
+			case 21574:
+			case 21576:
+			case 21578:
+			case 21580:
+			case 21582:
+			case 21584:
+			case 21586:
+			case 21588:
+			case 21600:
+			case 21602:
+			case 21604:
+			case 21606:
+			case 21608:
+			case 21610:
+			case 21612:
+			case 21614:
+			case 21616:
+			case 21618:
+			case 21620:
+				return skillingPrayerResource();
+
+			case 21820: // Revenant ether
+				return equipmentCharge();
+
+			case 19939: // Master clue strange device
+			case 23183: // Beginner clue strange device
+				return treasureTrail();
+
+			case 22494:
+			case 22496:
+			case 22498:
+			case 22500:
+			case 22502: // Sinhaza shroud tiers 1-5
+				return clueCosmetic();
+
+			// Thammaron's and accursed sceptres: charged/uncharged and upgraded states.
+			case 22552:
+			case 22555:
+			case 27662:
+			case 27665:
+			case 27676:
+			case 27679:
+			case 27785:
+			case 27788:
+				return weapon();
+
+			case 23911:
+			case 23913:
+			case 23915:
+			case 23917:
+			case 23919:
+			case 23921:
+			case 23923:
+			case 23925: // Eight crystal crown colours
+				return clueCosmetic();
+
+			// Current repairable broken ancient-sceptre and trouver states.
+			case 28238:
+			case 28240:
+			case 28242:
+			case 28244:
+			case 33504:
+			case 33508:
+			case 33512:
+			case 33516:
+			case 33827:
+				return weapon();
+
+			// Complete Dizana's quiver lifecycle, including locked and broken states.
+			case 28826:
+			case 28828:
+			case 28947:
+			case 28949:
+			case 28951:
+			case 28953:
+			case 28955:
+			case 28957:
+			case 33524:
+			case 33526:
+			case 33528:
+			case 33530:
+				return gear();
+
+			case 29084: // Sulphur blades
+				return weapon();
+
+			case 29224: // Blue butterfly wing
+			case 29227: // White butterfly wing
+			case 29230: // Black butterfly wing
+				return skillingResource();
+
+			case 29482: // Brimhaven voucher
+				return currency();
+
+			case 20020: // Lesser demon mask
+			case 20023: // Greater demon mask
+			case 20026: // Black demon mask
+				return clueCosmetic();
+
+			case 25712:
+			case 25714:
+			case 25715:
+			case 25716:
+			case 25717:
+			case 25718:
+			case 25719:
+			case 25720: // Complete player-facing clan cloak colour family
+				return clueCosmetic();
+
 			default:
 				return Optional.empty();
 		}
@@ -2564,6 +2792,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> cookingMaterial()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.SKILLING, "cooking-material"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> currency()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.CURRENCY, "currency"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> potionDose(int doses)
