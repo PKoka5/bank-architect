@@ -406,8 +406,18 @@ final class CanonicalItemClassificationOverrides
 			case 26356: // Frozen key
 				return bossAccessKey();
 
+			// Complete player-facing champion-scroll collection.
+			case 6798:
+			case 6799:
 			case 6800: // Giant champion scroll
+			case 6801:
+			case 6802:
+			case 6803:
+			case 6804:
+			case 6805:
+			case 6806:
 			case 6807: // Zombie champion scroll
+			case 6808:
 			case 7975: // Crawling hand
 			case 7977: // Basilisk head
 			case 7981: // Kq head
@@ -901,6 +911,14 @@ final class CanonicalItemClassificationOverrides
 
 			// Wiki: https://oldschool.runescape.wiki/w/Rod_of_ivandis?oldid=15252513
 			// Charged silver staff, autocasting weapon, and tier-2 vampyre weapon after the quest.
+			case 7637: // Silvthrill rod
+			case 7638: // Enchanted Silvthrill rod
+			case 7639:
+			case 7640:
+			case 7641:
+			case 7642:
+			case 7643:
+			case 7644:
 			case 7645:
 			case 7646:
 			case 7647:
@@ -2324,8 +2342,16 @@ final class CanonicalItemClassificationOverrides
 			 * player-facing IDs from the bundled gameval registry. Adjacent CERT
 			 * and PLACEHOLDER records intentionally remain fail-closed.
 			 */
-			case 10043: // Larupia top
-			case 10045: // Larupia hat; legs (10041) were already GEAR
+			// Complete kyatt, larupia, and graahk hunter-fur outfit family.
+			case 10035:
+			case 10037:
+			case 10039:
+			case 10041:
+			case 10043:
+			case 10045:
+			case 10047:
+			case 10049:
+			case 10051:
 				return gear();
 
 			case 10595: // Clockwork suit, unwound
@@ -2683,6 +2709,219 @@ final class CanonicalItemClassificationOverrides
 			case 25719:
 			case 25720: // Complete player-facing clan cloak colour family
 				return clueCosmetic();
+
+			/*
+			 * Cleanup benchmark protocol v1, curation round 3. Exact player-facing
+			 * IDs only; adjacent CERT, PLACEHOLDER, cache, and activity records
+			 * remain fail-closed. This adds routing only, not family ordering.
+			 */
+			// Complete six-god Treasure Trails coif family.
+			case 10374:
+			case 10382:
+			case 10390:
+			case 12496:
+			case 12504:
+			case 12512:
+				return clueCosmetic();
+
+			// Complete six-god Treasure Trails crozier family.
+			case 10440:
+			case 10442:
+			case 10444:
+			case 12199:
+			case 12263:
+			case 12275:
+				return clueCosmetic();
+
+			// Complete six-god Treasure Trails cloak family.
+			case 10446:
+			case 10448:
+			case 10450:
+			case 12197:
+			case 12261:
+			case 12273:
+				return clueCosmetic();
+
+			// Complete six-god Treasure Trails mitre family.
+			case 10452:
+			case 10454:
+			case 10456:
+			case 12203:
+			case 12259:
+			case 12271:
+				return clueCosmetic();
+
+			// Complete six-god Treasure Trails robe-top family.
+			case 10458:
+			case 10460:
+			case 10462:
+			case 12193:
+			case 12253:
+			case 12265:
+				return clueCosmetic();
+
+			// Complete six-god Treasure Trails robe-bottom family.
+			case 10464:
+			case 10466:
+			case 10468:
+			case 12195:
+			case 12255:
+			case 12267:
+				return clueCosmetic();
+
+			// Complete six-god Treasure Trails stole family.
+			case 10470:
+			case 10472:
+			case 10474:
+			case 12201:
+			case 12257:
+			case 12269:
+				return clueCosmetic();
+
+			// Complete Treasure Trails metal-cane family.
+			case 12373:
+			case 12375:
+			case 12377:
+			case 12379:
+				return clueCosmetic();
+
+			// Complete Treasure Trails headband colour family.
+			case 2645:
+			case 2647:
+			case 2649:
+			case 12299:
+			case 12301:
+			case 12303:
+			case 12305:
+			case 12307:
+				return clueCosmetic();
+
+			// Complete Treasure Trails boater colour family.
+			case 7319:
+			case 7321:
+			case 7323:
+			case 7325:
+			case 7327:
+			case 12309:
+			case 12311:
+			case 12313:
+				return clueCosmetic();
+
+			// Complete Treasure Trails cavalier colour family.
+			case 2639:
+			case 2641:
+			case 2643:
+			case 12321:
+			case 12323:
+			case 12325:
+				return clueCosmetic();
+
+			// Complete Treasure Trails beret colour family.
+			case 2633:
+			case 2635:
+			case 2637:
+			case 12247:
+				return clueCosmetic();
+
+			// Player-facing standalone Treasure Trails novelty clothing.
+			case 10392: // Powdered wig
+			case 10394: // Flared trousers
+			case 10396: // Pantaloons
+			case 10398: // Sleeping cap
+			case 12430: // Afro
+				return clueCosmetic();
+
+			// Complete Chompy-bird kill-count hat family.
+			case 2978:
+			case 2979:
+			case 2980:
+			case 2981:
+			case 2982:
+			case 2983:
+			case 2984:
+			case 2985:
+			case 2986:
+			case 2987:
+			case 2988:
+			case 2989:
+			case 2990:
+			case 2991:
+			case 2992:
+			case 2993:
+			case 2994:
+			case 2995:
+				return collectionTrophy();
+
+			// Complete player-facing Fremennik cloak colour family.
+			case 3759:
+			case 3761:
+			case 3763:
+			case 3765:
+			case 3777:
+			case 3779:
+			case 3781:
+			case 3783:
+			case 3785:
+			case 3787:
+			case 3789:
+				return clueCosmetic();
+
+			// Complete Temple Trekking/Burgh de Rott skill-tome family.
+			case 7779:
+			case 7780:
+			case 7781:
+			case 7782:
+			case 7783:
+			case 7784:
+			case 7785:
+			case 7786:
+			case 7787:
+			case 7788:
+			case 7789:
+			case 7790:
+			case 7791:
+			case 7792:
+			case 7793:
+			case 7794:
+			case 7795:
+			case 7796:
+			case 7797:
+			case 7798:
+			case 7799:
+				return skillingResource();
+
+			// Complete wood, jungle, desert, and polar camouflage outfit family.
+			case 10053:
+			case 10055:
+			case 10057:
+			case 10059:
+			case 10061:
+			case 10063:
+			case 10065:
+			case 10067:
+				return skillingOutfit();
+
+			case 12596: // Rangers' tunic
+			case 23249: // Rangers' tights
+				return gear();
+
+			case 12640: // Amylase crystal
+			case 12641: // Amylase pack
+				return skillingResource();
+
+			// Complete normal-game Voidwaker component and assembled family.
+			case 27681:
+			case 27684:
+			case 27687:
+				return equipmentUpgrade();
+			case 27690:
+				return weapon();
+
+			// Remaining repeatable Rod of Ivandis production states.
+			case 7636: // Rod dust
+				return craftingMaterial();
+			case 7649: // Rod mould
+				return tool();
 
 			default:
 				return Optional.empty();
