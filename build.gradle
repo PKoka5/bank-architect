@@ -65,6 +65,17 @@ tasks.register('simulateRandomBanks', JavaExec) {
 	)
 }
 
+tasks.register('aggregateCleanupReview', JavaExec) {
+	group = 'verification'
+	description = 'Runs the fixed multi-seed cleanup-review benchmark and writes aggregate reports.'
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.pkoka5.ironmanbankarchitect.simulate.AggregateCleanupReviewRunner'
+	args(
+		project.findProperty('aggregateOutput') ?: 'build/reports/bank-simulation/aggregate'
+	)
+}
+
 wrapper {
 	gradleVersion = '8.7'
 	distributionType = Wrapper.DistributionType.BIN
