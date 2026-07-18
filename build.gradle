@@ -50,6 +50,21 @@ tasks.register('exportEffectiveItemClassifications', JavaExec) {
 	)
 }
 
+tasks.register('simulateRandomBanks', JavaExec) {
+	group = 'verification'
+	description = 'Simulates random banks against the tab guidance route and reports outcomes.'
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.pkoka5.ironmanbankarchitect.simulate.RandomBankSimulationRunner'
+	args(
+		project.findProperty('simBanks') ?: '50',
+		project.findProperty('simSeed') ?: '20260718',
+		project.findProperty('simMinItems') ?: '6',
+		project.findProperty('simMaxItems') ?: '120',
+		project.findProperty('simOutput') ?: 'build/reports/bank-simulation/report.tsv'
+	)
+}
+
 wrapper {
 	gradleVersion = '8.7'
 	distributionType = Wrapper.DistributionType.BIN
