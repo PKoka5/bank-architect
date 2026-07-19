@@ -3083,6 +3083,57 @@ final class CanonicalItemClassificationOverrides
 			case 10882:
 				return clueCosmetic();
 
+			// Charged jewellery slice 1: exact player-facing states route independently of ordering.
+			case 2552:
+			case 2554:
+			case 2556:
+			case 2558:
+			case 2560:
+			case 2562:
+			case 2564:
+			case 2566: // Ring of dueling, 8 -> 1
+			case 3853:
+			case 3855:
+			case 3857:
+			case 3859:
+			case 3861:
+			case 3863:
+			case 3865:
+			case 3867: // Games necklace, 8 -> 1
+			case 21166:
+			case 21169:
+			case 21171:
+			case 21173:
+			case 21175: // Burning amulet, 5 -> 1
+			case 21146:
+			case 21149:
+			case 21151:
+			case 21153:
+			case 21155: // Necklace of passage, 5 -> 1
+			case 11968:
+			case 11970:
+			case 11105:
+			case 11107:
+			case 11109:
+			case 11111:
+			case 11113: // Skills necklace, 6 -> 1 plus uncharged
+			case 19707: // Amulet of eternal glory
+			case 11978:
+			case 11976:
+			case 1712:
+			case 1710:
+			case 1708:
+			case 1706:
+			case 1704: // Standard amulet of glory, 6 -> 1 plus uncharged
+			case 11964:
+			case 11966:
+			case 10354:
+			case 10356:
+			case 10358:
+			case 10360:
+			case 10362: // Trimmed amulet of glory, 6 -> 1 plus uncharged
+				return teleport();
+
 			/*
 			 * Workstream A exit review, pass 2. Complete normal-game live-cat
 			 * lifecycle plus the sole player-facing random-event mystery box.

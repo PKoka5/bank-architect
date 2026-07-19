@@ -30,7 +30,7 @@ public class ResourceItemSortMetadataCatalogTest
 		ItemSortMetadata halibut = catalog.findById(32336).get();
 		ItemSortMetadata prayerPotion = catalog.findById(2434).get();
 
-		assertEquals(318, catalog.size());
+		assertEquals(366, catalog.size());
 		assertEquals(20, shark.getImmediateHealMax());
 		assertEquals(ItemSortMetadata.HealModel.VARIABLE, anglerfish.getHealModel());
 		assertEquals(3, anglerfish.getImmediateHealMin());
@@ -48,7 +48,7 @@ public class ResourceItemSortMetadataCatalogTest
 		assertEquals(4, prayerPotion.getVariantValue());
 		assertEquals("osrs-wiki-potions-15243625", prayerPotion.getSourceKey());
 		assertFalse(catalog.findById(999_999).isPresent());
-		assertEquals(15, catalog.sourceKeys().size());
+		assertEquals(16, catalog.sourceKeys().size());
 		assertEquals("Pineapple pizza", ResourceItemRegistry.INSTANCE.findById(2301).get().getDisplayName());
 		assertEquals("Blighted manta ray", ResourceItemRegistry.INSTANCE.findById(24589).get().getDisplayName());
 		assertEquals("Halibut", ResourceItemRegistry.INSTANCE.findById(32336).get().getDisplayName());
@@ -59,16 +59,19 @@ public class ResourceItemSortMetadataCatalogTest
 	{
 		int foodCount = 0;
 		int doseCount = 0;
+		int chargeCount = 0;
 		int workflowStageCount = 0;
 		for (ItemSortMetadata metadata : ResourceItemSortMetadataCatalog.INSTANCE.entries())
 		{
 			if (metadata.isFood()) foodCount++;
 			if (metadata.getVariantKind() == ItemSortMetadata.VariantKind.DOSE) doseCount++;
+			if (metadata.getVariantKind() == ItemSortMetadata.VariantKind.CHARGE) chargeCount++;
 			if (metadata.getVariantKind() == ItemSortMetadata.VariantKind.WORKFLOW_STAGE) workflowStageCount++;
 		}
 
 		assertEquals(43, foodCount);
 		assertEquals(88, doseCount);
+		assertEquals(48, chargeCount);
 		assertEquals(187, workflowStageCount);
 		assertWorkflowFamily("herb.guam", 199, 249, 91);
 		assertWorkflowFamily("herb.ranarr", 207, 257, 99);
