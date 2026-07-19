@@ -134,9 +134,9 @@ split, not an inference from item names or value.
 
 A charged elemental tome is functional combat equipment and belongs in Combat Gear. Its empty tome
 belongs with its charge pages in Slayer & Boss Loot. The current exact-ID routing implements this
-for the charged and empty fire, water, and earth tomes. Burnt/searing and soaked pages also reach
-Slayer & Boss Loot. Soiled page (30068), the earth-tome charge page, currently deviates and remains
-in Storage & Cleanup; this review records the discrepancy but deliberately does not change it.
+for the charged and empty fire, water, and earth tomes. Burnt/searing, soaked, and soiled pages all
+reach Slayer & Boss Loot. The Soiled page deviation recorded on 2026-07-19 was resolved the same
+day with an exact-ID override for 30068; its duplicate record 30069 stays fail-closed.
 
 ### Alch and production-stock gear
 

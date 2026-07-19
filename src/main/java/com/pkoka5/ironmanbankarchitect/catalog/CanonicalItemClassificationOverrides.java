@@ -2637,6 +2637,8 @@ final class CanonicalItemClassificationOverrides
 				return skillingPrayerResource();
 
 			case 21820: // Revenant ether
+			// Wiki: https://oldschool.runescape.wiki/w/Soiled_page
+			case 30068: // Soiled page, the earth-tome charge page; duplicate 30069 stays fail-closed
 				return equipmentCharge();
 
 			case 19939: // Master clue strange device

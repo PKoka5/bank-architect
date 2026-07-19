@@ -26,12 +26,19 @@ public class RealBankReviewCurationTest
 	}
 
 	@Test
+	public void soiledPageJoinsTheOtherTomePagesInBossLoot()
+	{
+		assertFamily(ItemCategory.UNIQUE, "slayer-boss-loot", 30068); // Soiled page
+	}
+
+	@Test
 	public void unknownAndExcludedControlsRemainFailClosed()
 	{
 		for (int itemId : new int[] {
 			0, -1, 2_000_000_000,
 			16701, // PLACEHOLDER Seal of passage
-			17365, 17366, 17367, 17368 // PLACEHOLDER spice records
+			17365, 17366, 17367, 17368, // PLACEHOLDER spice records
+			30069 // Duplicate Soiled Page record
 		})
 		{
 			CatalogItem item = CompositeItemCatalog.DEFAULT.findById(itemId)
