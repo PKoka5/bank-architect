@@ -258,17 +258,22 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		image.addTo(label);
 	}
 
+	// 16px version of the Plugin Hub icon.png: blueprint bank grid with a gold coin.
 	private static BufferedImage createIcon()
 	{
 		BufferedImage icon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = icon.createGraphics();
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		graphics.setColor(new Color(38, 83, 64));
-		graphics.fillRoundRect(1, 1, 14, 14, 4, 4);
-		graphics.setColor(new Color(214, 186, 101));
-		graphics.fillRect(4, 4, 8, 2);
-		graphics.fillRect(4, 7, 8, 2);
-		graphics.fillRect(4, 10, 8, 2);
+		graphics.setColor(new Color(27, 59, 111));
+		graphics.fillRoundRect(1, 1, 14, 14, 6, 6);
+		graphics.setColor(new Color(94, 135, 184));
+		graphics.fillRect(3, 3, 4, 4);
+		graphics.fillRect(9, 3, 4, 4);
+		graphics.fillRect(3, 9, 4, 4);
+		graphics.setColor(new Color(242, 169, 59));
+		graphics.fillOval(8, 8, 7, 7);
+		graphics.setColor(new Color(184, 122, 27));
+		graphics.drawOval(8, 8, 7, 7);
 		graphics.dispose();
 		return icon;
 	}
