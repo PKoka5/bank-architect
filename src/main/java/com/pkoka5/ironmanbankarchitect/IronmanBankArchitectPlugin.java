@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 @PluginDescriptor(
 	name = "Bank Architect",
-	description = "Read-only bank blueprint planner with manual organization guidance.",
+	description = "Creates an Ironman bank blueprint with read-only, manual move guidance.",
 	tags = {"bank", "planner", "blueprint", "organization", "ironman"}
 )
 public final class IronmanBankArchitectPlugin extends Plugin

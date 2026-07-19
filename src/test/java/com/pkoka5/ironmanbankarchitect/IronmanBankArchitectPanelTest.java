@@ -87,7 +87,7 @@ public class IronmanBankArchitectPanelTest
 
 		assertTrue(panelText.contains("Profile"));
 		assertTrue(panelText.contains(AllRoundIronmanPreset.PROFILE_NAME));
-		assertTrue(panelText.contains("Read-only whole-bank organization planner"));
+		assertTrue(panelText.contains("Read-only Ironman bank blueprint planner"));
 		assertTrue(panelText.contains("Main action"));
 		assertTrue(panelText.contains("Analyze My Bank"));
 		assertTrue(panelText.contains("Whole Bank Scan"));

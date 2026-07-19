@@ -43,7 +43,7 @@ import net.runelite.client.ui.PluginPanel;
 final class IronmanBankArchitectPanel extends PluginPanel
 {
 	private static final String TITLE = "Bank Architect";
-	private static final String SUMMARY = "Read-only whole-bank organization planner";
+	private static final String SUMMARY = "Read-only Ironman bank blueprint planner";
 	private static final String SAFETY_NOTE = "No bank actions are automated.";
 	private static final String MAIN_ACTION_LABEL = "Main action";
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";

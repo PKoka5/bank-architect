@@ -456,6 +456,11 @@ not require optional presets or GE-value sorting.
 - `./gradlew test`, the fixed 50-bank simulation, and `./gradlew build` pass with 150/150 simulation
   completion after any fixes.
 
+**Status — 2026-07-19:** Phase 6A is waived by maintainer decision. Substitute evidence is the
+in-game mechanics probe that passed on 2026-07-13 (`docs/bank-tab-mechanics.md`) and the 770-item
+real-bank blueprint review (`docs/research/real-bank-blueprint-review.md`), validated against the
+live plan with its findings fixed and regression-pinned by `RealBankFixtureTest`.
+
 ### Phase 6B - Plugin Hub submission package
 
 #### Scope
