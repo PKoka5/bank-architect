@@ -2923,6 +2923,166 @@ final class CanonicalItemClassificationOverrides
 			case 7649: // Rod mould
 				return tool();
 
+			/*
+			 * Workstream A exit review, pass 1. Complete normal-game player-facing
+			 * families only; spoilt/burnt food and ALUFT activity/cache copies stay
+			 * fail-closed. Routing only, with no recipe or variant ordering metadata.
+			 */
+			// Complete cocktail-spirit family.
+			case 2015: // Vodka
+			case 2017: // Whisky
+			case 2019: // Gin
+			case 2021: // Brandy
+				return food();
+
+			// Complete usable and premade Gnome cocktail family.
+			case 2028:
+			case 2030:
+			case 2032:
+			case 2034:
+			case 2036:
+			case 2038:
+			case 2040:
+			case 2048:
+			case 2054:
+			case 2064:
+			case 2074:
+			case 2080:
+			case 2084:
+			case 2092:
+				return food();
+			// Complete unfinished Gnome cocktail workflow.
+			case 2042:
+			case 2044:
+			case 2046:
+			case 2050:
+			case 2052:
+			case 2056:
+			case 2058:
+			case 2060:
+			case 2062:
+			case 2066:
+			case 2068:
+			case 2070:
+			case 2072:
+			case 2076:
+			case 2078:
+			case 2082:
+			case 2086:
+			case 2088:
+			case 2090:
+				return cookingMaterial();
+			case 2094:
+			case 2096:
+			case 2098:
+			case 2100: // Spoilt cocktail states
+				return cleanupJunk();
+
+			// Complete usable and premade Gnome bowl family.
+			case 2185:
+			case 2187:
+			case 2191:
+			case 2195:
+			case 2229:
+			case 2231:
+			case 2233:
+			case 2235:
+				return food();
+			// Complete unfinished Gnome bowl workflow.
+			case 2177:
+			case 2178:
+			case 2179:
+			case 2181:
+			case 2183:
+			case 2189:
+			case 2193:
+				return cookingMaterial();
+			case 2173: // Spoilt gnomebowl
+			case 2175: // Burnt gnomebowl
+				return cleanupJunk();
+
+			// Complete usable and premade Gnome crunchies family.
+			case 2205:
+			case 2209:
+			case 2213:
+			case 2217:
+			case 2237:
+			case 2239:
+			case 2241:
+			case 2243:
+				return food();
+			// Complete unfinished Gnome crunchies workflow.
+			case 2201:
+			case 2202:
+			case 2203:
+			case 2207:
+			case 2211:
+			case 2215:
+				return cookingMaterial();
+			case 2197: // Spoilt crunchies
+			case 2199: // Burnt crunchies
+				return cleanupJunk();
+
+			// Complete usable and premade Gnome batta family.
+			case 2219:
+			case 2221:
+			case 2223:
+			case 2225:
+			case 2227:
+			case 2253:
+			case 2255:
+			case 2259:
+			case 2277:
+			case 2281:
+				return food();
+			// Complete unfinished Gnome batta workflow.
+			case 2249:
+			case 2250:
+			case 2251:
+			case 2257:
+			case 2261:
+			case 2263:
+			case 2265:
+			case 2267:
+			case 2269:
+			case 2271:
+			case 2273:
+			case 2275:
+			case 2279:
+				return cookingMaterial();
+			case 2245: // Spoilt batta
+			case 2247: // Burnt batta
+				return cleanupJunk();
+
+			// Complete player-facing POH barrel drink family.
+			case 7740:
+			case 7744:
+			case 7746:
+			case 7750:
+			case 7752:
+			case 7754:
+				return food();
+			case 7742: // Empty beer glass
+				return cookingTool();
+
+			// Complete Keldagrim shirt and trouser colour family.
+			case 5030:
+			case 5032:
+			case 5034:
+			case 5036:
+			case 5038:
+			case 5040:
+				return clueCosmetic();
+
+			// Complete player-facing Tower of Life satchel family.
+			case 10877:
+			case 10878:
+			case 10879:
+			case 10880:
+			case 10881:
+			case 10882:
+				return clueCosmetic();
+
 			default:
 				return Optional.empty();
 		}
