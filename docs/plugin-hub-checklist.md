@@ -9,13 +9,14 @@ substitute for the live rules. The maintainer must recheck the current
 the current RuneLite rejected/rolled-back feature guidance, and all submission
 CI feedback immediately before opening the submission pull request.
 
-Status summary for this candidate: **30 done / 1 TODO-maintainer / 7
-verify-at-submission**.
+Status summary for this candidate: **33 done / 0 TODO-maintainer / 5
+verify-at-submission** (the remaining verify rows track Plugin Hub CI and
+reviewer feedback on PR runelite/plugin-hub#14053).
 
 | # | Check | Status | Local evidence / required action |
 |---:|---|---|---|
 | 1 | Standard repository layout | done | Root Gradle files, wrapper, `src/main/java`, `src/main/resources`, and tests follow the Plugin Hub template shape. |
-| 2 | Public repository is reachable | verify-at-submission | `origin` is `https://github.com/PKoka5/ironman-bank-architect.git`; confirm public visibility without maintainer credentials. |
+| 2 | Public repository is reachable | done | Repository visibility switched to public by the maintainer on 2026-07-19 and confirmed reachable without credentials, with LICENSE and `icon.png` visible. |
 | 3 | Supported Java/RuneLite baseline | done | Java 11 and `latest.release` match the current official setup guidance. |
 | 4 | Standard Plugin Hub build type | done | `runelite-plugin.properties` declares `build=standard`; no custom submission build is required. |
 | 5 | Runtime dependency boundary | done | Production has only RuneLite `compileOnly`; JUnit and the RuneLite test client are test-only. No dependency was added for Phase 6B. |
@@ -47,16 +48,17 @@ verify-at-submission**.
 | 31 | Generated/scratch hygiene | done | `.gitignore` excludes Gradle/build output, local audit caches, and `tmp/`; these paths are absent from the jar. |
 | 32 | Phase 6A release gate disposition | done | Maintainer waiver dated 2026-07-19 is recorded in the roadmap with mechanics-probe and 770-item real-bank substitute evidence. |
 | 33 | Local candidate verification | done | Full tests, fixed simulation (150/150), and build pass on 2026-07-19; rerun after any later candidate change. |
-| 34 | Screenshot requirement and presentation rules | verify-at-submission | The current Plugin Hub README requires a useful README but does not publish a hard screenshot format; check the live submission template/reviewer guidance. |
+| 34 | Screenshot requirement and presentation rules | done | Live Plugin Hub README rechecked on 2026-07-19: no hard screenshot format is published; the README ships three redacted screenshots. Respond to any reviewer feedback. |
 | 35 | Build/dependency verification rules | verify-at-submission | Confirm `build=standard` is still accepted and no transitive/runtime dependency has introduced a verification requirement. |
 | 36 | Marker, pinned commit, and CI | verify-at-submission | Confirm the current marker format, use the final full commit hash, and require both build and Plugin Hub checks to pass. |
-| 37 | Actual publication actions | TODO-maintainer | After approval, commit/push the candidate, fork/update Plugin Hub, and open the submission PR. This task performs none of those actions. |
+| 37 | Actual publication actions | done | Candidate commit `5098e733fe423069f436919077b1e1ced177b568` pushed; `runelite/plugin-hub` forked as `PKoka5/plugin-hub`; marker `plugins/bank-architect` pushed on branch `add-bank-architect`; submission PR runelite/plugin-hub#14053 opened 2026-07-19 (maintainer-delegated). |
 | 38 | Final live-requirements refresh | verify-at-submission | Refresh every `verify-at-submission` row on the submission date and record any changed requirement before requesting review. |
 
 ## Maintainer TODOs
 
-1. Commit and push the approved candidate, create the Plugin Hub marker at the
-   final commit, and open the actual submission pull request.
+None remaining. The submission PR is open; the outstanding work is responding
+to Plugin Hub CI results and reviewer feedback on
+[runelite/plugin-hub#14053](https://github.com/runelite/plugin-hub/pull/14053).
 
 Resolved 2026-07-19: the original `icon.png` (gold coin landing in a blueprint
 bank grid) was generated in-repo from simple shapes and approved by the
