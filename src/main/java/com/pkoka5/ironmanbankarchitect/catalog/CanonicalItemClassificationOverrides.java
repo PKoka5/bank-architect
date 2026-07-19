@@ -3150,6 +3150,42 @@ final class CanonicalItemClassificationOverrides
 			case 10362: // Trimmed amulet of glory, 6 -> 1 plus uncharged
 				return teleport();
 
+			// Charged jewellery slice 2: exact player-facing states route independently of ordering.
+			case 11972:
+			case 11974:
+			case 11118:
+			case 11120:
+			case 11122:
+			case 11124:
+			case 11126: // Combat bracelet, 6 -> 1 plus uncharged
+			case 11194:
+			case 11193:
+			case 11192:
+			case 11191:
+			case 11190: // Digsite pendant, 5 -> 1; final use destroys the pendant
+			case 20786:
+			case 20787:
+			case 20788:
+			case 20789:
+			case 20790:
+			case 12785: // Imbued ring of wealth, 5 -> 1 plus uncharged
+			case 11980:
+			case 11982:
+			case 11984:
+			case 11986:
+			case 11988:
+			case 2572: // Standard ring of wealth, 5 -> 1 plus uncharged
+			case 21268: // Eternal slayer ring
+			case 11866:
+			case 11867:
+			case 11868:
+			case 11869:
+			case 11870:
+			case 11871:
+			case 11872:
+			case 11873: // Slayer ring, 8 -> 1; final use destroys the ring
+				return teleport();
+
 			/*
 			 * Workstream A exit review, pass 2. Complete normal-game live-cat
 			 * lifecycle plus the sole player-facing random-event mystery box.

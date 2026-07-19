@@ -30,7 +30,7 @@ public class ResourceItemSortMetadataCatalogTest
 		ItemSortMetadata halibut = catalog.findById(32336).get();
 		ItemSortMetadata prayerPotion = catalog.findById(2434).get();
 
-		assertEquals(366, catalog.size());
+		assertEquals(399, catalog.size());
 		assertEquals(20, shark.getImmediateHealMax());
 		assertEquals(ItemSortMetadata.HealModel.VARIABLE, anglerfish.getHealModel());
 		assertEquals(3, anglerfish.getImmediateHealMin());
@@ -71,7 +71,7 @@ public class ResourceItemSortMetadataCatalogTest
 
 		assertEquals(43, foodCount);
 		assertEquals(88, doseCount);
-		assertEquals(48, chargeCount);
+		assertEquals(81, chargeCount);
 		assertEquals(187, workflowStageCount);
 		assertWorkflowFamily("herb.guam", 199, 249, 91);
 		assertWorkflowFamily("herb.ranarr", 207, 257, 99);
