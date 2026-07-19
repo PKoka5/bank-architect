@@ -9,7 +9,7 @@ substitute for the live rules. The maintainer must recheck the current
 the current RuneLite rejected/rolled-back feature guidance, and all submission
 CI feedback immediately before opening the submission pull request.
 
-Status summary for this candidate: **25 done / 6 TODO-maintainer / 7
+Status summary for this candidate: **26 done / 5 TODO-maintainer / 7
 verify-at-submission**.
 
 | # | Check | Status | Local evidence / required action |
@@ -29,7 +29,7 @@ verify-at-submission**.
 | 13 | Shipped preset claims are accurate | done | Only Ironman — All-Round Bank is described as selectable; Main/PvM/PvP/Skiller are explicitly unavailable. |
 | 14 | README covers installation and complete workflow | done | Plugin Hub installation plus scan → blueprint → safe preparation → guided manual moves → completion are documented. |
 | 15 | Original screenshots | TODO-maintainer | Capture and approve original sidebar plus blueprint/guide screenshots; review them for account or bank-sensitive information and replace both README placeholders. |
-| 16 | Original Plugin Hub icon | TODO-maintainer | Supply an original, rights-cleared root `icon.png`; the current published guide says icons are optional and no larger than 48×72 px, but recheck that limit at submission. |
+| 16 | Original Plugin Hub icon | done | Root `icon.png` (48×48, maintainer-approved 2026-07-19) is an original generated design — a gold coin landing in a blueprint bank grid — built from simple shapes with no Jagex or third-party art. The guide's 48×72 px limit is satisfied; recheck the limit at submission. |
 | 17 | Read-only/manual-only contract is prominent | done | README states supported bank reads and explicitly excludes clicks, drags, typing, packets, widget/game-state mutation, and automated bank actions. |
 | 18 | Forbidden implementation scan | done | Production scan found no reflection, JNI/native loading, `Runtime.exec`, `ProcessBuilder`, or external-process path. |
 | 19 | Bundled resources are jar-safe | done | All seven production datasets are loaded with `getResourceAsStream`; runtime never assumes an unpacked resource path. |
@@ -55,15 +55,18 @@ verify-at-submission**.
 
 ## Maintainer TODOs
 
-1. Provide and approve an original, rights-cleared `icon.png`.
-2. Capture and approve original sidebar and blueprint/guide screenshots, then
+1. Capture and approve original sidebar and blueprint/guide screenshots, then
    replace the README placeholders.
-3. Choose and publish a user support channel.
-4. Confirm the initial release version and optional properties version field.
-5. Approve the final Plugin Hub name, description, tags, and configuration
+2. Choose and publish a user support channel.
+3. Confirm the initial release version and optional properties version field.
+4. Approve the final Plugin Hub name, description, tags, and configuration
    default.
-6. Commit and push the approved candidate, create the Plugin Hub marker at the
+5. Commit and push the approved candidate, create the Plugin Hub marker at the
    final commit, and open the actual submission pull request.
+
+Resolved 2026-07-19: the original `icon.png` (gold coin landing in a blueprint
+bank grid) was generated in-repo from simple shapes and approved by the
+maintainer.
 
 No asset, support destination, release decision, commit, or pull request is
 fabricated by this checklist.
