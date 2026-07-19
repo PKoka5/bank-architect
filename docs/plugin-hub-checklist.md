@@ -9,7 +9,7 @@ substitute for the live rules. The maintainer must recheck the current
 the current RuneLite rejected/rolled-back feature guidance, and all submission
 CI feedback immediately before opening the submission pull request.
 
-Status summary for this candidate: **27 done / 4 TODO-maintainer / 7
+Status summary for this candidate: **30 done / 1 TODO-maintainer / 7
 verify-at-submission**.
 
 | # | Check | Status | Local evidence / required action |
@@ -39,9 +39,9 @@ verify-at-submission**.
 | 23 | Current Jagex/RuneLite feature policy | verify-at-submission | Recheck current third-party-client and rejected/rolled-back guidance; respond to reviewer concerns rather than relying on this dated review. |
 | 24 | Repository licence | done | Root `LICENSE` is BSD-2-Clause, the licence recommended by the current Plugin Hub guide, with the repository author/year. |
 | 25 | Bundled third-party data provenance | done | Pinned source manifest records source URLs, retrieval dates, revisions, and licences; README links it. |
-| 26 | User support channel | TODO-maintainer | Choose and publish the support/issues channel that users should use; do not imply RuneLite provides support for Plugin Hub plugins. |
-| 27 | Release version | TODO-maintainer | Confirm the initial release version (`0.1.0` is currently the Gradle project value) and decide whether to add the optional properties `version` field. |
-| 28 | Final metadata/default approval | TODO-maintainer | Approve the final name, 71-character description, tags, and enabled-by-default `Show next manual move` setting. |
+| 26 | User support channel | done | GitHub Issues on the plugin repository, published in the README with an explicit note that RuneLite does not provide support (maintainer-delegated decision, 2026-07-19). |
+| 27 | Release version | done | Initial release version confirmed as `0.1.0` (the Gradle project value). The optional properties `version` field is deliberately omitted; Plugin Hub builds from the pinned commit (maintainer-delegated decision, 2026-07-19). |
+| 28 | Final metadata/default approval | done | Name `Bank Architect`, the 71-character description, tags, and the enabled-by-default `Show next manual move` setting approved as-is (maintainer-delegated decision, 2026-07-19). |
 | 29 | Jar contains production classes only | done | Built jar contains 179 production `.class` files and no test/simulator/research class. |
 | 30 | Jar resource hygiene | done | Nine non-class files: manifest, properties, and seven required bundled datasets; no fixtures, reports, research caches, docs, screenshots, or tmp material. |
 | 31 | Generated/scratch hygiene | done | `.gitignore` excludes Gradle/build output, local audit caches, and `tmp/`; these paths are absent from the jar. |
@@ -55,11 +55,7 @@ verify-at-submission**.
 
 ## Maintainer TODOs
 
-1. Choose and publish a user support channel.
-2. Confirm the initial release version and optional properties version field.
-3. Approve the final Plugin Hub name, description, tags, and configuration
-   default.
-4. Commit and push the approved candidate, create the Plugin Hub marker at the
+1. Commit and push the approved candidate, create the Plugin Hub marker at the
    final commit, and open the actual submission pull request.
 
 Resolved 2026-07-19: the original `icon.png` (gold coin landing in a blueprint

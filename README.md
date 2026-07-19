@@ -96,6 +96,13 @@ highlighted FROM/TO swap, and the exact minimum number of swaps remaining:
 
 ![Sorting guidance with minimum swap count](docs/screenshots/bank-guide-sorting.png)
 
+## Support
+
+Questions, bug reports, and suggestions go through
+[GitHub Issues](https://github.com/PKoka5/ironman-bank-architect/issues).
+Bank Architect is a third-party Plugin Hub plugin; RuneLite itself does not
+provide support for it.
+
 ## Development
 
 The project targets Java 11 and follows RuneLite's standard Plugin Hub project
