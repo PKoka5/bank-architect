@@ -82,12 +82,19 @@ name resemblance.
 
 ## Screenshots
 
-> **TODO-maintainer:** Add an original screenshot of the Bank Architect sidebar
-> showing the Ironman profile and analysis controls.
+The sidebar with a completed whole-bank scan while the guide walks the
+distribution phase — one highlighted manual drag at a time:
 
-> **TODO-maintainer:** Add an original screenshot of the blueprint and manual
-> Bank Guide, with account and bank-sensitive information reviewed before
-> publication.
+![Bank Architect sidebar and distribution guidance](docs/screenshots/bank-guide-distributing.png)
+
+The generated blueprint with the Main section and nine purpose-driven tabs:
+
+![Bank blueprint dialog](docs/screenshots/bank-blueprint.png)
+
+The sorting phase inside a planned tab, showing the validation grid, the
+highlighted FROM/TO swap, and the exact minimum number of swaps remaining:
+
+![Sorting guidance with minimum swap count](docs/screenshots/bank-guide-sorting.png)
 
 ## Development
 
