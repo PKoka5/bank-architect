@@ -3432,11 +3432,6 @@ final class CanonicalItemClassificationOverrides
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.POTION, "food"));
 	}
 
-	private static Optional<ItemClassificationRefiner.Classification> potion()
-	{
-		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.POTION, "potion"));
-	}
-
 	private static Optional<ItemClassificationRefiner.Classification> pvmUtility()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.POTION, "pvm-utility"));
