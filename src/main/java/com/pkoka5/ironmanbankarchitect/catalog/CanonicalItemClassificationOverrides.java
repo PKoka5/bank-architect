@@ -3083,6 +3083,51 @@ final class CanonicalItemClassificationOverrides
 			case 10882:
 				return clueCosmetic();
 
+			/*
+			 * Workstream A exit review, pass 2. Complete normal-game live-cat
+			 * lifecycle plus the sole player-facing random-event mystery box.
+			 * Quest cats, dummy declarations, and the placeholder box stay closed.
+			 */
+			case 1555:
+			case 1556:
+			case 1557:
+			case 1558:
+			case 1559:
+			case 1560: // Kitten colour states
+			case 1561:
+			case 1562:
+			case 1563:
+			case 1564:
+			case 1565:
+			case 1566: // Grown cat colour states
+			case 1567:
+			case 1568:
+			case 1569:
+			case 1570:
+			case 1571:
+			case 1572: // Overgrown cat colour states
+			case 6549:
+			case 6550:
+			case 6551:
+			case 6552:
+			case 6553:
+			case 6554: // Lazy cat colour states
+			case 6555:
+			case 6556:
+			case 6557:
+			case 6558:
+			case 6559:
+			case 6560: // Wily cat colour states
+			case 7581: // Overgrown hellcat
+			case 7582: // Hell cat
+			case 7583: // Hell-kitten
+			case 7584: // Lazy hell cat
+			case 7585: // Wily hellcat
+				return clueCosmetic();
+
+			case 6199: // Random-event mystery box
+				return rewardDrop();
+
 			default:
 				return Optional.empty();
 		}
@@ -3322,6 +3367,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> rewardKey()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.UNIQUE, "reward-key"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> rewardDrop()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.UNIQUE, "reward-drop"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> salvagingRelic()

@@ -170,6 +170,11 @@ This criterion does not require cleanup to become numerically small. A large rem
 when its highest-frequency rows are demonstrably legitimate review material rather than hidden bank
 resources, gear, supplies, or utilities.
 
+**Status - 2026-07-19:** Workstream A met this exit criterion under cleanup benchmark protocol v1.
+The two recorded reviews in `docs/research/cleanup-exit-review-pass-1.md` and
+`docs/research/cleanup-exit-review-pass-2.md` use the same registry revision and protocol and satisfy
+all seven conditions above.
+
 ## Phase 3 - Deliver deterministic data-gated families
 
 **Workstream:** B - charged jewellery, potion/food extensions, and farming relationships.
@@ -531,4 +536,3 @@ The remaining roadmap is complete when:
 - the Plugin Hub submission package passes its current local checklist and all required verification
   commands;
 - optional internal presets and unresolved data gates are not represented as released features.
-
