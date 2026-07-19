@@ -76,6 +76,19 @@ tasks.register('aggregateCleanupReview', JavaExec) {
 	)
 }
 
+tasks.register('generateRealBankFixture', JavaExec) {
+	group = 'verification'
+	description = 'Deliberately regenerates the ID-only real-bank routing regression fixture.'
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.pkoka5.ironmanbankarchitect.organize.RealBankFixtureGenerator'
+	args(
+		project.findProperty('realBankExport') ?: 'tmp/bank-export-2026-07-19.txt',
+		project.findProperty('realBankFixture') ?:
+			'src/test/resources/com/pkoka5/ironmanbankarchitect/organize/real-bank-fixture-2026-07-19.tsv'
+	)
+}
+
 wrapper {
 	gradleVersion = '8.7'
 	distributionType = Wrapper.DistributionType.BIN

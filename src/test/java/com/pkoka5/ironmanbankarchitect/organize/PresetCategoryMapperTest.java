@@ -87,7 +87,7 @@ public class PresetCategoryMapperTest
 		for (int itemId : new int[] {
 			19687, 19689, 19691, 19693, 19695, 19697,
 			12810, 12811, 12812,
-			1506, 6065, 6066, 6067, 6068, 6069, 6070,
+			6065, 6066, 6067, 6068, 6069, 6070,
 			9944, 9945, 9946, 6750, 6752, 284, 285
 		})
 		{
@@ -110,10 +110,12 @@ public class PresetCategoryMapperTest
 	{
 		assertRegistryItemsRoute("combat-gear", 5016);
 		assertRegistryItemsRoute("clues-cosmetics", 22711);
-		assertRegistryItemsRoute("resources", 10107);
+		assertRegistryItemsRoute("resources", 10107,
+			7480, 7481, 7482, 7483, 7484, 7485, 7486, 7487,
+			7488, 7489, 7490, 7491, 7492, 7493, 7494, 7495);
 		assertRegistryItemsRoute("skilling-tools", 11260, 29466, 1735, 20720, 4550);
 		assertRegistryItemsRoute("herblore", 10109, 5291);
-		assertRegistryItemsRoute("potions-food", 10476, 7484, 7485, 7486, 7487);
+		assertRegistryItemsRoute("potions-food", 10476);
 		assertRegistryItemsRoute("seeds-farming", 1955, 1982, 5986);
 	}
 
@@ -326,14 +328,14 @@ public class PresetCategoryMapperTest
 			602, 681, 1804, 1805, 1808, 1809, 1810, 2946, 2949, 2951, 3107,
 			3696, 3697, 3719, 4200, 4415, 4444, 5586, 5587, 5601, 5605, 6712,
 			6747, 7001, 7410, 7807, 9020, 9103, 26952, 28413, 28414, 28415,
-			28964, 28965, 28966, 28967, 30320, 30989, 30990, 4021);
-		assertRegistryItemsRoute("clues-cosmetics", 1506, 6786, 6787, 7917);
+			28964, 28965, 28966, 28967, 30320, 30989, 30990);
+		assertRegistryItemsRoute("clues-cosmetics", 6786, 6787, 7917);
 		assertRegistryItemsRoute("skilling-tools",
 			4, 88, 552, 775, 776, 1456, 1580, 1585, 2871, 2872, 2873,
 			2874, 2957, 2958, 3157, 3159, 4020, 4023, 4031, 4446, 4567,
 			4657, 6465, 6544, 7409, 7534, 7535, 7649, 9064, 9065, 9625, 10491,
 			11323, 20722, 22435, 24673, 24674, 24675, 24676, 24678, 24680,
-			24942, 28575, 28577, 31398, 31986);
+			24942, 28575, 28577, 31398, 31986, 1506, 4021, 4022, 9083);
 	}
 
 	@Test
@@ -363,14 +365,15 @@ public class PresetCategoryMapperTest
 			26904, 7579, 25812, 29898, 29899, 33771, 9656, 9657, 9658,
 			3265, 28386, 28387, 33770, 29928);
 		assertRegistryItemsRoute("currency-utilities", 3691, 6125, 6126, 6127);
-		assertRegistryItemsRoute("resources", 7528, 3422, 3424, 3426, 3428);
+		assertRegistryItemsRoute("resources", 7528, 3422, 3424, 3426, 3428,
+			7480, 7481, 7482, 7483, 7484, 7485, 7486, 7487,
+			7488, 7489, 7490, 7491, 7492, 7493, 7494, 7495);
 		assertRegistryItemsRoute("combat-gear", 732, 7645, 7646, 7647, 7648);
 		assertRegistryItemsRoute("potions-food",
-			3153, 7488, 7489, 7490, 7491, 7521, 7523, 7524, 7525, 7526,
+			3153, 7521, 7523, 7524, 7525, 7526,
 			7568, 2343, 30985, 7509, 7510, 4417, 4419, 4421, 4423, 6714,
-			2149, 22081, 9021, 9022, 9023, 9024, 4610, 7480, 7481, 7482,
-			7483, 2379, 3408, 3410, 3412, 3414, 3416, 3417, 3418, 3419,
-			11204, 7479, 7492, 7493, 7494, 7495);
+			2149, 22081, 9021, 9022, 9023, 9024, 4610, 2379,
+			3408, 3410, 3412, 3414, 3416, 3417, 3418, 3419, 11204, 7479);
 	}
 
 	@Test

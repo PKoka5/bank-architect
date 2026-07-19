@@ -121,6 +121,38 @@ Some item groups are better suited to dedicated external storage than a bank slo
 POH Costume Room, STASH units, Potion Storage, and similar. These are advisory-only suggestions
 in the plugin — no automation moves items into external storage.
 
+## Deliberate routing policies
+
+### Currency split
+
+The Ironman preset keeps actively spent progression currencies such as Hallowed marks and Marks of
+grace in Main. Collection and minigame currencies — Tokkul, Stardust, Numulite, Golden nuggets,
+Frog tokens, and Trading sticks — live in Clues & Cosmetics. This is a maintainer-approved product
+split, not an inference from item names or value.
+
+### Elemental tomes
+
+A charged elemental tome is functional combat equipment and belongs in Combat Gear. Its empty tome
+belongs with its charge pages in Slayer & Boss Loot. The current exact-ID routing implements this
+for the charged and empty fire, water, and earth tomes. Burnt/searing and soaked pages also reach
+Slayer & Boss Loot. Soiled page (30068), the earth-tome charge page, currently deviates and remains
+in Storage & Cleanup; this review records the discrepancy but deliberately does not change it.
+
+### Alch and production-stock gear
+
+Alch placement is an explicit real-bank preview decision, not a static category assigned by the
+item classifier. It applies only in the Ironman preset to non-placeholder items that first route to
+Combat Gear, and never moves a listed special-attack weapon. Reviewed exact-ID alch stock with more
+than one copy moves when it has a positive high-alch value. A reviewed singleton needs a positive
+value and at least one strictly better owned item in the same combat-style/slot tier.
+
+For other gear, the item must have more than one copy and local gear stats. Bulk non-weapon,
+non-ammo stock moves at eight or more copies when its high-alch value is at least 1,000 coins and
+one strictly better same-tier item is owned. The general fallback requires a high-alch value of at
+least 5,000 coins and two strictly better same-tier items. This is why smithed platebody stacks can
+join Slayer & Boss Loot while useful best/backup gear, cheap clothing, weapon/ammo stacks, unknown-
+value items, and placeholders stay out of the alch workflow.
+
 ## DENSE_001 — Filler-free blueprints
 
 A generated blueprint is a dense order of actual entries from the player's bank. The plugin never

@@ -2205,12 +2205,13 @@ final class CanonicalItemClassificationOverrides
 			case 4202:
 				return questUtility();
 
-			// The completed amulet has no documented use after Monkey Madness II:
-			// "the amulet is no longer used after Chapter III of the quest."
+			// Complete player-facing M'speak family plus the repeatable Lunar access seal.
 			// Wiki: https://oldschool.runescape.wiki/w/M'speak_amulet?oldid=15183584
 			case 4021:
 			case 4022:
-				return cleanupQuestItem();
+			// Wiki: https://oldschool.runescape.wiki/w/Seal_of_passage
+			case 9083:
+				return questUtility();
 
 			// Ongoing desert-heat protection, but no combat bonuses.
 			// Wiki: https://oldschool.runescape.wiki/w/Slave_robe?oldid=15183223
@@ -2330,12 +2331,25 @@ final class CanonicalItemClassificationOverrides
 			case 5291: // Guam seed belongs to the Herblore recipe workflow
 				return herbSeed();
 
+			// Complete Recipe for Disaster spice-dose families: cooking ingredients, not potions.
+			case 7480:
+			case 7481:
+			case 7482:
+			case 7483: // Red spice, 4 -> 1
 			// Wiki: https://oldschool.runescape.wiki/w/Orange_spice?oldid=15241475
 			case 7484:
 			case 7485:
 			case 7486:
-			case 7487:
-				return potion();
+			case 7487: // Orange spice, 4 -> 1
+			case 7488:
+			case 7489:
+			case 7490:
+			case 7491: // Brown spice, 4 -> 1
+			case 7492:
+			case 7493:
+			case 7494:
+			case 7495: // Yellow spice, 4 -> 1
+				return cookingMaterial();
 
 			/*
 			 * Simulator-driven cleanup review, 2026-07-18. These are exact

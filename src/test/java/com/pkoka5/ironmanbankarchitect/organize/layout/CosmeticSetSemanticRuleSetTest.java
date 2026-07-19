@@ -79,7 +79,7 @@ public class CosmeticSetSemanticRuleSetTest
 		List<List<Integer>> families = Arrays.asList(
 			Arrays.asList(19687, 19697, 19689, 19693, 19691, 19695),
 			Arrays.asList(12810, 12811, 12812),
-			Arrays.asList(1506, 6070, 6065, 6066, 6067, 6068, 6069),
+			Arrays.asList(6070, 6065, 6066, 6067, 6068, 6069),
 			Arrays.asList(9945, 9946, 9944),
 			Arrays.asList(6750, 6752),
 			Arrays.asList(284, 285));

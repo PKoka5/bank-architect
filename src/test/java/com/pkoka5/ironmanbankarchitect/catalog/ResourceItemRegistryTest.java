@@ -289,7 +289,7 @@ public class ResourceItemRegistryTest
 		assertSubcategory(6687, "potion-dose-3");
 		assertSubcategory(21175, "teleport");
 		assertSubcategory(5464, "produce-container");
-		assertSubcategory(7484, "potion");
+		assertSubcategory(7484, "cooking-material");
 	}
 
 	@Test
@@ -309,7 +309,7 @@ public class ResourceItemRegistryTest
 		assertCategory(2315, "Pie shell", ItemCategory.SKILLING);
 		assertCategory(5464, "Cabbages(3)", ItemCategory.FARMING);
 		assertCategory(5446, "Onions(4)", ItemCategory.FARMING);
-		assertCategory(7484, "Orange spice (4)", ItemCategory.POTION);
+		assertCategory(7484, "Orange spice (4)", ItemCategory.SKILLING);
 		assertCategory(3434, "Sacred oil(2)", ItemCategory.SKILLING);
 		assertCategory(1825, "Waterskin(3)", ItemCategory.TOOL);
 	}
@@ -1190,8 +1190,8 @@ public class ResourceItemRegistryTest
 	{
 		assertCategory(552, "Ghostspeak amulet", ItemCategory.TOOL);
 		assertSubcategory(552, "quest-utility");
-		assertCategory(4021, "M'speak amulet", ItemCategory.CLEANUP);
-		assertSubcategory(4021, "quest-item");
+		assertCategory(4021, "M'speak amulet", ItemCategory.TOOL);
+		assertSubcategory(4021, "quest-utility");
 		assertCategory(6544, "Catspeak amulet(e)", ItemCategory.TOOL);
 		assertSubcategory(6544, "quest-utility");
 		assertCategory(6465, "Ring of charos(a)", ItemCategory.TOOL);
@@ -1519,10 +1519,11 @@ public class ResourceItemRegistryTest
 		{
 			assertCategoryOnly(itemId, ItemCategory.SKILLING);
 		}
-		// The whole Evil Dave spice family is consumed as spicy-stew supplies;
-		// it belongs beside the other colours rather than in raw Resources.
-		assertAuditFamily(new int[] {7484, 7485, 7486, 7487},
-			ItemCategory.POTION, "potion");
+		// All four Evil Dave colours are cooking ingredients for spicy stews.
+		assertAuditFamily(new int[] {
+			7480, 7481, 7482, 7483, 7484, 7485, 7486, 7487,
+			7488, 7489, 7490, 7491, 7492, 7493, 7494, 7495
+		}, ItemCategory.SKILLING, "cooking-material");
 
 		// Elemental metal and split logs are confirmed repeatable materials, but
 		// exact category overrides cannot change their existing OTHER_RESOURCE zone.
@@ -1642,9 +1643,7 @@ public class ResourceItemRegistryTest
 		assertAuditFamily(new int[] {89}, ItemCategory.TOOL, "skilling-utility");
 		assertAuditFamily(new int[] {4677, 4250, 4202},
 			ItemCategory.TOOL, "quest-utility");
-		// Wiki: https://oldschool.runescape.wiki/w/M'speak_amulet?oldid=15183584
-		// The completed amulet is no longer used after Chapter III of Monkey Madness II.
-		assertAuditFamily(new int[] {4021, 4022}, ItemCategory.CLEANUP, "quest-item");
+		assertAuditFamily(new int[] {4021, 4022, 9083}, ItemCategory.TOOL, "quest-utility");
 		assertAuditFamily(new int[] {1845, 1846}, ItemCategory.TOOL, "skilling-utility");
 		assertAuditFamily(new int[] {6066, 6067}, ItemCategory.CLUE, "cosmetic");
 		assertAuditFamily(new int[] {4187, 4188, 4183},
@@ -1723,7 +1722,10 @@ public class ResourceItemRegistryTest
 		assertClassification(10476, "Purple sweets", ItemCategory.POTION, "food");
 		assertAuditFamily(new int[] {1955, 1982, 5986}, ItemCategory.FARMING, "produce");
 		assertClassification(5291, "Guam seed", ItemCategory.FARMING, "herb-seed");
-		assertAuditFamily(new int[] {7484, 7485, 7486, 7487}, ItemCategory.POTION, "potion");
+		assertAuditFamily(new int[] {
+			7480, 7481, 7482, 7483, 7484, 7485, 7486, 7487,
+			7488, 7489, 7490, 7491, 7492, 7493, 7494, 7495
+		}, ItemCategory.SKILLING, "cooking-material");
 	}
 
 	@Test
