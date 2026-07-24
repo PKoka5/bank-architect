@@ -164,6 +164,7 @@ public class NextMoveAdvisorTest
 		Assessment result = NextMoveAdvisor.assess(new int[]{10, 20, 10}, plan(10, 10, 20));
 
 		assertEquals(Status.DUPLICATE_ITEMS, result.getStatus());
+		assertEquals(List.of(10), result.getDuplicateItemIds());
 		assertFalse(result.getMove().isPresent());
 	}
 

@@ -18,6 +18,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
 
@@ -194,6 +195,39 @@ public class BankGuideOverlayTest
 
 		assertTrue(message.contains("\nUndo that move manually,\n"));
 		assertTrue(message.endsWith("Analyze My Bank again."));
+	}
+
+	@Test
+	public void duplicateItemsMessageFallsBackWhenNamesAreEmpty()
+	{
+		assertEquals("Duplicate item IDs detected.\nAnalyze again after the bank compacts.",
+			BankGuideOverlay.duplicateItemsMessage(List.of()));
+	}
+
+	@Test
+	public void duplicateItemsMessageShowsOneName()
+	{
+		assertEquals("Duplicate items detected:\nFeather"
+				+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.",
+			BankGuideOverlay.duplicateItemsMessage(List.of("Feather")));
+	}
+
+	@Test
+	public void duplicateItemsMessageShowsThreeNamesWithoutARemainder()
+	{
+		assertEquals("Duplicate items detected:\nFeather, Hammer, Lobster"
+				+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.",
+			BankGuideOverlay.duplicateItemsMessage(
+				List.of("Feather", "Hammer", "Lobster")));
+	}
+
+	@Test
+	public void duplicateItemsMessageLimitsFiveNamesAndReportsTheRemainder()
+	{
+		assertEquals("Duplicate items detected:\nFeather, Hammer, Lobster (+2 more)"
+				+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.",
+			BankGuideOverlay.duplicateItemsMessage(
+				List.of("Feather", "Hammer", "Lobster", "Needle", "Pot")));
 	}
 
 	@Test

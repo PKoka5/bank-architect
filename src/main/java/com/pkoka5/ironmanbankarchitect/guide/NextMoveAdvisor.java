@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Pure next-move planner for a dense bank order. Guidance is deliberately
@@ -42,7 +43,7 @@ public final class NextMoveAdvisor
 			if (itemId <= 0 || planned.isBlank())
 			{
 				return Assessment.blocked(Status.UNSUPPORTED_PLAN,
-					progress(actualItemIds, plannedItems));
+					progress(actualItemIds, plannedItems), List.of());
 			}
 			if (plannedCounts.merge(itemId, 1, Integer::sum) > 1)
 			{
@@ -67,36 +68,39 @@ public final class NextMoveAdvisor
 		GuideProgress progress = progress(actualItemIds, plannedItems);
 		if (!plannedDuplicates.isEmpty() || !actualDuplicates.isEmpty())
 		{
-			return Assessment.blocked(Status.DUPLICATE_ITEMS, progress);
+			Set<Integer> duplicateItemIds = new TreeSet<>(plannedDuplicates);
+			duplicateItemIds.addAll(actualDuplicates);
+			return Assessment.blocked(Status.DUPLICATE_ITEMS, progress,
+				List.copyOf(duplicateItemIds));
 		}
 		if (!plannedCounts.equals(actualCounts))
 		{
-			return Assessment.blocked(Status.RESCAN_REQUIRED, progress);
+			return Assessment.blocked(Status.RESCAN_REQUIRED, progress, List.of());
 		}
 
 		int plannedSize = plannedItems.size();
 		if (actualItemIds.length < plannedSize)
 		{
-			return Assessment.blocked(Status.RESCAN_REQUIRED, progress);
+			return Assessment.blocked(Status.RESCAN_REQUIRED, progress, List.of());
 		}
 		for (int slot = 0; slot < plannedSize; slot++)
 		{
 			if (actualItemIds[slot] <= 0)
 			{
-				return Assessment.blocked(Status.UNSTABLE_TARGET, progress);
+				return Assessment.blocked(Status.UNSTABLE_TARGET, progress, List.of());
 			}
 		}
 		for (int slot = plannedSize; slot < actualItemIds.length; slot++)
 		{
 			if (actualItemIds[slot] > 0)
 			{
-				return Assessment.blocked(Status.UNSTABLE_TARGET, progress);
+				return Assessment.blocked(Status.UNSTABLE_TARGET, progress, List.of());
 			}
 		}
 
 		if (progress.getCorrectSlots() == progress.getPlannedSlots())
 		{
-			return Assessment.blocked(Status.COMPLETE, progress);
+			return Assessment.blocked(Status.COMPLETE, progress, List.of());
 		}
 
 		Map<Integer, Integer> slotByItemId = new HashMap<>();
@@ -120,7 +124,7 @@ public final class NextMoveAdvisor
 			Integer sourceSlot = slotByItemId.get(expectedItemId);
 			if (sourceSlot == null)
 			{
-				return Assessment.blocked(Status.RESCAN_REQUIRED, progress);
+				return Assessment.blocked(Status.RESCAN_REQUIRED, progress, List.of());
 			}
 
 			int distance = Math.abs(sourceSlot - targetSlot);
@@ -137,7 +141,7 @@ public final class NextMoveAdvisor
 		}
 
 		return bestMove == null
-			? Assessment.blocked(Status.RESCAN_REQUIRED, progress)
+			? Assessment.blocked(Status.RESCAN_REQUIRED, progress, List.of())
 			: Assessment.ready(bestMove, progress);
 	}
 
@@ -249,22 +253,28 @@ public final class NextMoveAdvisor
 		private final Status status;
 		private final NextMove move;
 		private final GuideProgress progress;
+		private final List<Integer> duplicateItemIds;
 
-		private Assessment(Status status, NextMove move, GuideProgress progress)
+		private Assessment(Status status, NextMove move, GuideProgress progress,
+			List<Integer> duplicateItemIds)
 		{
 			this.status = Objects.requireNonNull(status, "status");
 			this.move = move;
 			this.progress = Objects.requireNonNull(progress, "progress");
+			this.duplicateItemIds = List.copyOf(
+				Objects.requireNonNull(duplicateItemIds, "duplicateItemIds"));
 		}
 
 		private static Assessment ready(NextMove move, GuideProgress progress)
 		{
-			return new Assessment(Status.READY, Objects.requireNonNull(move, "move"), progress);
+			return new Assessment(Status.READY, Objects.requireNonNull(move, "move"), progress,
+				List.of());
 		}
 
-		private static Assessment blocked(Status status, GuideProgress progress)
+		private static Assessment blocked(Status status, GuideProgress progress,
+			List<Integer> duplicateItemIds)
 		{
-			return new Assessment(status, null, progress);
+			return new Assessment(status, null, progress, duplicateItemIds);
 		}
 
 		public Status getStatus()
@@ -280,6 +290,11 @@ public final class NextMoveAdvisor
 		public GuideProgress getProgress()
 		{
 			return progress;
+		}
+
+		public List<Integer> getDuplicateItemIds()
+		{
+			return duplicateItemIds;
 		}
 	}
 

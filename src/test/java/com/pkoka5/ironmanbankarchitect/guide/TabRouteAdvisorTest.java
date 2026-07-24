@@ -198,10 +198,22 @@ public class TabRouteAdvisorTest
 			TabRouteAdvisor.assess(new int[]{1, 2, 9}, plan, new int[]{1}).getStatus());
 		assertEquals(Status.UNSTABLE_BANK,
 			TabRouteAdvisor.assess(new int[]{1, 2, 9}, plan, counts(0, 1)).getStatus());
-		assertEquals(Status.DUPLICATE_ITEMS,
-			TabRouteAdvisor.assess(new int[]{1, 1, 9}, plan, counts()).getStatus());
+		Assessment duplicates = TabRouteAdvisor.assess(
+			new int[]{1, 1, 9}, plan, counts());
+		assertEquals(Status.DUPLICATE_ITEMS, duplicates.getStatus());
+		assertEquals(List.of(1), duplicates.getDuplicateItemIds());
 		assertEquals(Status.UNSTABLE_BANK,
 			TabRouteAdvisor.assess(new int[]{1, 2, -1}, plan, counts()).getStatus());
+	}
+
+	@Test
+	public void duplicateItemsIncludeTheSortedUnionFromPlanAndBank()
+	{
+		Assessment result = TabRouteAdvisor.assess(new int[]{7, 7, 9},
+			plan(items(9), items(4, 4), Collections.emptyList()), counts());
+
+		assertEquals(Status.DUPLICATE_ITEMS, result.getStatus());
+		assertEquals(List.of(4, 7), result.getDuplicateItemIds());
 	}
 
 	@Test
