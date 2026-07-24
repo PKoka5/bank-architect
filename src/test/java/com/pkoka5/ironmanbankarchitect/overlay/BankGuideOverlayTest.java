@@ -231,6 +231,55 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
+	public void duplicatePlaceholderRecoveryOnlyTargetsMatchingPlaceholders()
+	{
+		assertTrue(BankGuideOverlay.isDuplicatePlaceholder(
+			6687, true, Collections.singleton(6687)));
+		assertFalse(BankGuideOverlay.isDuplicatePlaceholder(
+			6687, false, Collections.singleton(6687)));
+		assertFalse(BankGuideOverlay.isDuplicatePlaceholder(
+			4151, true, Collections.singleton(6687)));
+	}
+
+	@Test
+	public void planOnlyDuplicateDoesNotMarkAUniqueActualPlaceholderForRelease()
+	{
+		int[] actualItemIds = {4, 7, 9};
+		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(actualItemIds,
+			BankTabPlan.fromPreview(previewWithItems(4, 4, 9)), new int[9]);
+
+		assertEquals(Status.DUPLICATE_ITEMS, assessment.getStatus());
+		assertEquals(List.of(4), assessment.getDuplicateItemIds());
+		assertTrue(BankGuideOverlay.duplicateIds(actualItemIds).isEmpty());
+		assertFalse(BankGuideOverlay.isDuplicatePlaceholder(
+			4, true, BankGuideOverlay.duplicateIds(actualItemIds)));
+	}
+
+	@Test
+	public void actualDuplicateIdsAreDetectedIndependentlyOfThePlan()
+	{
+		assertEquals(Collections.singleton(4),
+			BankGuideOverlay.duplicateIds(new int[]{4, 7, 4, -1}));
+	}
+
+	@Test
+	public void duplicateItemsOnANumberedTabDirectThePlayerToAllItems()
+	{
+		assertEquals("Duplicate items detected:\nFeather"
+				+ "\nOpen All items to highlight\nthe duplicate placeholders.",
+			BankGuideOverlay.duplicateItemsOpenAllMessage(List.of("Feather")));
+	}
+
+	@Test
+	public void duplicatePlaceholderRecoveryExplainsTheManualReleaseAction()
+	{
+		assertEquals("Duplicate placeholders found:\nFeather"
+				+ "\nRight-click each highlighted slot,"
+				+ "\nchoose Release, then Analyze again.",
+			BankGuideOverlay.duplicatePlaceholderRecoveryMessage(List.of("Feather")));
+	}
+
+	@Test
 	public void missingMainRecoveryTargetNamesInfinityInsteadOfNewTab()
 	{
 		String mainMessage = BankGuideOverlay.missingTabTargetMessage(

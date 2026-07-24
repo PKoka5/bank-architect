@@ -190,14 +190,53 @@ public final class BankGuideOverlay extends Overlay
 			String blockedMessage = tabBlockedMessage(assessment.getStatus());
 			if (assessment.getStatus() == TabRouteAdvisor.Status.DUPLICATE_ITEMS)
 			{
-				List<String> names = new ArrayList<>();
+				// Releasing a placeholder is an explicit recovery action rather
+				// than an advised move. Do not let transition verification
+				// reinterpret that bank change as an unexpected drag.
+				tabRouteSession.reset();
+				List<String> names = duplicateItemNames(assessment.getDuplicateItemIds());
+				Set<Integer> actualDuplicateItemIds = duplicateIds(actualItemIds);
+				Set<Integer> duplicatePlaceholderSlots = duplicatePlaceholderSlots(
+					actualItemIds, actualDuplicateItemIds);
+				Set<Integer> duplicatePlaceholderItemIds = new HashSet<>();
+				for (int slot : duplicatePlaceholderSlots)
+				{
+					duplicatePlaceholderItemIds.add(actualItemIds[slot]);
+				}
+				List<Integer> duplicatePlaceholderIds = new ArrayList<>();
 				for (int itemId : assessment.getDuplicateItemIds())
 				{
-					ItemComposition composition = client.getItemDefinition(itemId);
-					String name = composition == null ? null : composition.getName();
-					names.add(name == null || name.isEmpty() ? "#" + itemId : name);
+					if (duplicatePlaceholderItemIds.contains(itemId))
+					{
+						duplicatePlaceholderIds.add(itemId);
+					}
 				}
-				blockedMessage = duplicateItemsMessage(names);
+				if (currentBankTab != ALL_ITEMS_TAB)
+				{
+					blockedMessage = duplicatePlaceholderSlots.isEmpty()
+						? duplicateItemsMessage(names)
+						: duplicateItemsOpenAllMessage(
+							duplicateItemNames(duplicatePlaceholderIds));
+				}
+				else
+				{
+					List<BankSlotWidget> duplicatePlaceholders = new ArrayList<>();
+					for (BankSlotWidget slot : bankSlots)
+					{
+						if (duplicatePlaceholderSlots.contains(slot.logicalSlot))
+						{
+							duplicatePlaceholders.add(slot);
+						}
+					}
+					if (!duplicatePlaceholders.isEmpty())
+					{
+						return blockedDuplicatePlaceholders(graphics, gridBounds,
+							duplicatePlaceholderRecoveryMessage(
+								duplicateItemNames(duplicatePlaceholderIds)),
+							duplicatePlaceholders);
+					}
+					blockedMessage = duplicateItemsMessage(names);
+				}
 			}
 			return blocked(graphics, gridBounds, blockedMessage,
 				blockedProgressPercent(assessment.getStatus(),
@@ -299,6 +338,64 @@ public final class BankGuideOverlay extends Overlay
 		guideController.publishGuideProgress(message, percent);
 		drawStatus(graphics, gridBounds, message);
 		return null;
+	}
+
+	private Dimension blockedDuplicatePlaceholders(Graphics2D graphics, Rectangle gridBounds,
+		String message, List<BankSlotWidget> duplicatePlaceholders)
+	{
+		guideController.publishGuideProgress(message, -1);
+		drawDuplicatePlaceholderRecovery(graphics, gridBounds, duplicatePlaceholders);
+		drawStatus(graphics, gridBounds, message, true,
+			duplicatePlaceholders.get(0).bounds,
+			duplicatePlaceholders.size() > 1 ? duplicatePlaceholders.get(1).bounds : null);
+		return null;
+	}
+
+	private List<String> duplicateItemNames(List<Integer> itemIds)
+	{
+		List<String> names = new ArrayList<>();
+		for (int itemId : itemIds)
+		{
+			ItemComposition composition = client.getItemDefinition(itemId);
+			String name = composition == null ? null : composition.getName();
+			names.add(name == null || name.isEmpty() ? "#" + itemId : name);
+		}
+		return names;
+	}
+
+	private boolean isPlaceholderItem(int rawItemId)
+	{
+		ItemComposition composition = client.getItemDefinition(rawItemId);
+		return composition != null && composition.getPlaceholderTemplateId() != -1;
+	}
+
+	private Set<Integer> duplicatePlaceholderSlots(int[] actualItemIds,
+		Set<Integer> actualDuplicateItemIds)
+	{
+		Set<Integer> slots = new HashSet<>();
+		if (actualDuplicateItemIds.isEmpty())
+		{
+			return slots;
+		}
+
+		ItemContainer bank = client.getItemContainer(InventoryID.BANK);
+		if (bank == null)
+		{
+			return slots;
+		}
+		Item[] items = bank.getItems();
+		int limit = Math.min(items.length, actualItemIds.length);
+		for (int slot = 0; slot < limit; slot++)
+		{
+			Item item = items[slot];
+			if (item != null && actualDuplicateItemIds.contains(actualItemIds[slot])
+				&& isDuplicatePlaceholder(actualItemIds[slot],
+					isPlaceholderItem(item.getId()), actualDuplicateItemIds))
+			{
+				slots.add(slot);
+			}
+		}
+		return slots;
 	}
 
 	/**
@@ -557,6 +654,26 @@ public final class BankGuideOverlay extends Overlay
 			? SlotValidationState.MISPLACED : SlotValidationState.WRONG;
 	}
 
+	static Set<Integer> duplicateIds(int[] itemIds)
+	{
+		Set<Integer> seen = new HashSet<>();
+		Set<Integer> duplicates = new HashSet<>();
+		for (int itemId : itemIds)
+		{
+			if (itemId > 0 && !seen.add(itemId))
+			{
+				duplicates.add(itemId);
+			}
+		}
+		return duplicates;
+	}
+
+	static boolean isDuplicatePlaceholder(int canonicalItemId, boolean placeholder,
+		Set<Integer> duplicateItemIds)
+	{
+		return placeholder && duplicateItemIds.contains(canonicalItemId);
+	}
+
 	static String duplicateItemsMessage(List<String> names)
 	{
 		if (names.isEmpty())
@@ -564,12 +681,39 @@ public final class BankGuideOverlay extends Overlay
 			return tabBlockedMessage(TabRouteAdvisor.Status.DUPLICATE_ITEMS);
 		}
 
+		return "Duplicate items detected:\n"
+			+ summarizedNames(names)
+			+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.";
+	}
+
+	static String duplicateItemsOpenAllMessage(List<String> names)
+	{
+		if (names.isEmpty())
+		{
+			return duplicateItemsMessage(names);
+		}
+		return "Duplicate items detected:\n"
+			+ summarizedNames(names)
+			+ "\nOpen All items to highlight\nthe duplicate placeholders.";
+	}
+
+	static String duplicatePlaceholderRecoveryMessage(List<String> names)
+	{
+		if (names.isEmpty())
+		{
+			return duplicateItemsMessage(names);
+		}
+		return "Duplicate placeholders found:\n"
+			+ summarizedNames(names)
+			+ "\nRight-click each highlighted slot,\nchoose Release, then Analyze again.";
+	}
+
+	private static String summarizedNames(List<String> names)
+	{
 		int shown = Math.min(3, names.size());
 		String more = names.size() > shown
 			? " (+" + (names.size() - shown) + " more)" : "";
-		return "Duplicate items detected:\n"
-			+ String.join(", ", names.subList(0, shown)) + more
-			+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.";
+		return String.join(", ", names.subList(0, shown)) + more;
 	}
 
 	static String tabBlockedMessage(TabRouteAdvisor.Status status)
@@ -825,6 +969,41 @@ public final class BankGuideOverlay extends Overlay
 		if (slotBounds.y + slotBounds.height
 			> viewportBounds.y + viewportBounds.height) return "below this view";
 		return "outside the visible bank area";
+	}
+
+	private static void drawDuplicatePlaceholderRecovery(Graphics2D graphics,
+		Rectangle viewportBounds, List<BankSlotWidget> duplicatePlaceholders)
+	{
+		Graphics2D bankGraphics = (Graphics2D) graphics.create();
+		try
+		{
+			bankGraphics.clip(viewportBounds);
+			bankGraphics.setFont(bankGraphics.getFont().deriveFont(Font.BOLD, 11f));
+			BankSlotWidget firstOffscreen = null;
+			for (BankSlotWidget placeholder : duplicatePlaceholders)
+			{
+				if (isFullyVisible(viewportBounds, placeholder.bounds))
+				{
+					drawMoveCell(bankGraphics, placeholder.bounds, WRONG_BORDER, "RELEASE");
+				}
+				else if (firstOffscreen == null)
+				{
+					firstOffscreen = placeholder;
+				}
+			}
+			if (firstOffscreen != null)
+			{
+				int edgeY = edgeY(firstOffscreen, viewportBounds);
+				int edgeX = edgeX(firstOffscreen,
+					viewportBounds.x + viewportBounds.width / 2, viewportBounds);
+				drawEdgeBadge(bankGraphics, edgeX, edgeY, WRONG_BORDER,
+					"RELEASE", edgeY <= viewportBounds.y + 14, viewportBounds);
+			}
+		}
+		finally
+		{
+			bankGraphics.dispose();
+		}
 	}
 
 	private static void drawSwapMove(Graphics2D graphics, int fromSlot, int toSlot,
