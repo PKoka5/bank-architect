@@ -187,7 +187,19 @@ public final class BankGuideOverlay extends Overlay
 		if (assessment.getStatus() != TabRouteAdvisor.Status.READY
 			&& assessment.getStatus() != TabRouteAdvisor.Status.COMPLETE)
 		{
-			return blocked(graphics, gridBounds, tabBlockedMessage(assessment.getStatus()),
+			String blockedMessage = tabBlockedMessage(assessment.getStatus());
+			if (assessment.getStatus() == TabRouteAdvisor.Status.DUPLICATE_ITEMS)
+			{
+				List<String> names = new ArrayList<>();
+				for (int itemId : assessment.getDuplicateItemIds())
+				{
+					ItemComposition composition = client.getItemDefinition(itemId);
+					String name = composition == null ? null : composition.getName();
+					names.add(name == null || name.isEmpty() ? "#" + itemId : name);
+				}
+				blockedMessage = duplicateItemsMessage(names);
+			}
+			return blocked(graphics, gridBounds, blockedMessage,
 				blockedProgressPercent(assessment.getStatus(),
 					assessment.getProgress().getPercent()));
 		}
@@ -543,6 +555,21 @@ public final class BankGuideOverlay extends Overlay
 		}
 		return plannedSlotByItemId.containsKey(actualItemId)
 			? SlotValidationState.MISPLACED : SlotValidationState.WRONG;
+	}
+
+	static String duplicateItemsMessage(List<String> names)
+	{
+		if (names.isEmpty())
+		{
+			return tabBlockedMessage(TabRouteAdvisor.Status.DUPLICATE_ITEMS);
+		}
+
+		int shown = Math.min(3, names.size());
+		String more = names.size() > shown
+			? " (+" + (names.size() - shown) + " more)" : "";
+		return "Duplicate items detected:\n"
+			+ String.join(", ", names.subList(0, shown)) + more
+			+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.";
 	}
 
 	static String tabBlockedMessage(TabRouteAdvisor.Status status)

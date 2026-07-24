@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Pure tab-aware route planner. It first builds clean category buckets from
@@ -44,24 +45,25 @@ public final class TabRouteAdvisor
 
 		if (tabCounts.length != MAX_TABS || plan.getNumberedTabs().size() > MAX_TABS)
 		{
-			return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none());
+			return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none(), List.of());
 		}
 
 		Validation validation = validateItems(actualItemIds, plan.getFlattenedItems());
 		if (validation.status != null)
 		{
-			return Assessment.blocked(validation.status, Progress.none());
+			return Assessment.blocked(validation.status, Progress.none(),
+				validation.duplicateItemIds);
 		}
 
 		int currentTabs = leadingTabCount(tabCounts);
 		if (currentTabs < 0)
 		{
-			return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none());
+			return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none(), List.of());
 		}
 		int mainStart = sumLeadingCounts(tabCounts, currentTabs);
 		if (mainStart > actualItemIds.length)
 		{
-			return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none());
+			return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none(), List.of());
 		}
 
 		List<TargetTab> targets = plan.getNumberedTabs();
@@ -79,7 +81,7 @@ public final class TabRouteAdvisor
 		{
 			if (currentTabs == 0)
 			{
-				return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none());
+				return Assessment.blocked(Status.UNSTABLE_BANK, Progress.none(), List.of());
 			}
 			TargetTab target = currentTabs <= targets.size() ? targets.get(currentTabs - 1) : null;
 			return Assessment.ready(Move.collapseTab(currentTabs, target),
@@ -99,7 +101,7 @@ public final class TabRouteAdvisor
 			if (sourceSlot < 0)
 			{
 				return Assessment.blocked(Status.UNSTABLE_BANK,
-					Progress.creating(currentTabs, targets.size()));
+					Progress.creating(currentTabs, targets.size()), List.of());
 			}
 			return Assessment.ready(Move.dragToNewTab(itemById.get(actualItemIds[sourceSlot]),
 				sourceSlot, target), Progress.creating(currentTabs, targets.size()));
@@ -127,7 +129,7 @@ public final class TabRouteAdvisor
 		if (!hasExactSectionMembership(actualItemIds, plan, tabCounts, mainStart))
 		{
 			return Assessment.blocked(Status.UNSTABLE_BANK,
-				Progress.distributing(mainStart, numberedItemTotal));
+				Progress.distributing(mainStart, numberedItemTotal), List.of());
 		}
 
 		int correctPositions = correctPositionCount(actualItemIds, plan.getFlattenedItems());
@@ -170,7 +172,7 @@ public final class TabRouteAdvisor
 		}
 
 		return Assessment.blocked(Status.COMPLETE,
-			Progress.complete(actualItemIds.length));
+			Progress.complete(actualItemIds.length), List.of());
 	}
 
 	static boolean isCleanBucketSkeleton(int[] actualItemIds, BankTabPlan plan,
@@ -399,11 +401,12 @@ public final class TabRouteAdvisor
 		{
 			if (item == null || item.isBlank() || item.getItemId() <= 0)
 			{
-				return Validation.blocked(Status.UNSUPPORTED_PLAN);
+				return Validation.blocked(Status.UNSUPPORTED_PLAN, List.of());
 			}
 			if (!plannedIds.add(item.getItemId()))
 			{
-				return Validation.blocked(Status.DUPLICATE_ITEMS);
+				return Validation.blocked(Status.DUPLICATE_ITEMS,
+					duplicateItemIds(actualItemIds, plannedItems));
 			}
 		}
 
@@ -412,16 +415,41 @@ public final class TabRouteAdvisor
 		{
 			if (itemId <= 0)
 			{
-				return Validation.blocked(Status.UNSTABLE_BANK);
+				return Validation.blocked(Status.UNSTABLE_BANK, List.of());
 			}
 			if (!actualIds.add(itemId))
 			{
-				return Validation.blocked(Status.DUPLICATE_ITEMS);
+				return Validation.blocked(Status.DUPLICATE_ITEMS,
+					duplicateItemIds(actualItemIds, plannedItems));
 			}
 		}
 		return actualItemIds.length == plannedItems.size() && actualIds.equals(plannedIds)
 			? Validation.valid()
-			: Validation.blocked(Status.RESCAN_REQUIRED);
+			: Validation.blocked(Status.RESCAN_REQUIRED, List.of());
+	}
+
+	private static List<Integer> duplicateItemIds(int[] actualItemIds,
+		List<BankPreviewItem> plannedItems)
+	{
+		Set<Integer> duplicates = new TreeSet<>();
+		Set<Integer> plannedIds = new HashSet<>();
+		for (BankPreviewItem item : plannedItems)
+		{
+			if (item != null && item.getItemId() > 0 && !plannedIds.add(item.getItemId()))
+			{
+				duplicates.add(item.getItemId());
+			}
+		}
+
+		Set<Integer> actualIds = new HashSet<>();
+		for (int itemId : actualItemIds)
+		{
+			if (itemId > 0 && !actualIds.add(itemId))
+			{
+				duplicates.add(itemId);
+			}
+		}
+		return List.copyOf(duplicates);
 	}
 
 	private static Map<Integer, BankPreviewItem> itemsById(List<BankPreviewItem> items)
@@ -664,12 +692,12 @@ public final class TabRouteAdvisor
 				pendingTabCounts = Arrays.copyOf(tabCounts, tabCounts.length);
 				pendingSinceTick = tickCount;
 				return Assessment.blocked(Status.WAITING_FOR_BANK,
-					pinnedAssessment.getProgress());
+					pinnedAssessment.getProgress(), List.of());
 			}
 			if (tickCount <= pendingSinceTick)
 			{
 				return Assessment.blocked(Status.WAITING_FOR_BANK,
-					pinnedAssessment.getProgress());
+					pinnedAssessment.getProgress(), List.of());
 			}
 			Assessment alternative = TabRouteAdvisor.assess(actualItemIds, plan, tabCounts,
 				focusTabNumber);
@@ -681,7 +709,7 @@ public final class TabRouteAdvisor
 				return alternative;
 			}
 			return Assessment.blocked(Status.MANUAL_RECOVERY_REQUIRED,
-				pinnedAssessment.getProgress());
+				pinnedAssessment.getProgress(), List.of());
 		}
 
 		private static boolean isSafeAlternative(Assessment assessment)
@@ -1372,22 +1400,28 @@ public final class TabRouteAdvisor
 		private final Status status;
 		private final Move move;
 		private final Progress progress;
+		private final List<Integer> duplicateItemIds;
 
-		private Assessment(Status status, Move move, Progress progress)
+		private Assessment(Status status, Move move, Progress progress,
+			List<Integer> duplicateItemIds)
 		{
 			this.status = Objects.requireNonNull(status, "status");
 			this.move = move;
 			this.progress = Objects.requireNonNull(progress, "progress");
+			this.duplicateItemIds = List.copyOf(
+				Objects.requireNonNull(duplicateItemIds, "duplicateItemIds"));
 		}
 
 		private static Assessment ready(Move move, Progress progress)
 		{
-			return new Assessment(Status.READY, Objects.requireNonNull(move, "move"), progress);
+			return new Assessment(Status.READY, Objects.requireNonNull(move, "move"), progress,
+				List.of());
 		}
 
-		private static Assessment blocked(Status status, Progress progress)
+		private static Assessment blocked(Status status, Progress progress,
+			List<Integer> duplicateItemIds)
 		{
-			return new Assessment(status, null, progress);
+			return new Assessment(status, null, progress, duplicateItemIds);
 		}
 
 		public Status getStatus()
@@ -1403,6 +1437,11 @@ public final class TabRouteAdvisor
 		public Progress getProgress()
 		{
 			return progress;
+		}
+
+		public List<Integer> getDuplicateItemIds()
+		{
+			return duplicateItemIds;
 		}
 	}
 
@@ -1485,20 +1524,23 @@ public final class TabRouteAdvisor
 	private static final class Validation
 	{
 		private final Status status;
+		private final List<Integer> duplicateItemIds;
 
-		private Validation(Status status)
+		private Validation(Status status, List<Integer> duplicateItemIds)
 		{
 			this.status = status;
+			this.duplicateItemIds = List.copyOf(
+				Objects.requireNonNull(duplicateItemIds, "duplicateItemIds"));
 		}
 
 		private static Validation valid()
 		{
-			return new Validation(null);
+			return new Validation(null, List.of());
 		}
 
-		private static Validation blocked(Status status)
+		private static Validation blocked(Status status, List<Integer> duplicateItemIds)
 		{
-			return new Validation(Objects.requireNonNull(status, "status"));
+			return new Validation(Objects.requireNonNull(status, "status"), duplicateItemIds);
 		}
 	}
 }
