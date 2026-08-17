@@ -122,14 +122,14 @@ public class BankGuideOverlayTest
 	@Test
 	public void itemViewportIsLimitedByBothTheItemLayerAndOuterContainer()
 	{
-		assertEquals(new Rectangle(20, 30, 80, 70), BankGuideOverlay.itemViewportBounds(
+		assertEquals(new Rectangle(20, 30, 80, 70), BankOverlayGeometry.itemViewportBounds(
 			new Rectangle(20, 10, 80, 200), new Rectangle(0, 30, 120, 70)));
 	}
 
 	@Test
 	public void nonOverlappingItemAndOuterBoundsFailClosed()
 	{
-		assertNull(BankGuideOverlay.itemViewportBounds(
+		assertNull(BankOverlayGeometry.itemViewportBounds(
 			new Rectangle(0, 0, 100, 100), new Rectangle(200, 200, 100, 100)));
 	}
 
@@ -138,9 +138,9 @@ public class BankGuideOverlayTest
 	{
 		Rectangle viewport = new Rectangle(10, 10, 100, 100);
 
-		assertTrue(BankGuideOverlay.isFullyVisible(viewport,
+		assertTrue(BankOverlayGeometry.isFullyVisible(viewport,
 			new Rectangle(20, 20, 30, 30)));
-		assertFalse(BankGuideOverlay.isFullyVisible(viewport,
+		assertFalse(BankOverlayGeometry.isFullyVisible(viewport,
 			new Rectangle(20, 95, 30, 30)));
 	}
 
@@ -367,10 +367,41 @@ public class BankGuideOverlayTest
 		Rectangle source = new Rectangle(610, 110, 36, 32);
 
 		Rectangle bounds = BankGuideOverlay.statusBounds(
-			canvas, grid, 260, 70, source, null, true);
+			canvas, grid, 260, 70, true, source);
 
 		assertTrue(bounds.x + bounds.width < grid.x);
 		assertFalse(bounds.intersects(source));
+	}
+
+	@Test
+	public void hudSlidesUnderTheLegendInsteadOfMovingOntoBankSlots()
+	{
+		// Only the strip right of the bank is wide enough, and the legend has
+		// claimed the top of it. The free space below it must win over any
+		// position inside the grid.
+		Rectangle canvas = new Rectangle(0, 0, 700, 500);
+		Rectangle grid = new Rectangle(20, 40, 420, 400);
+		Rectangle legend = new Rectangle(446, 40, 230, 60);
+
+		Rectangle bounds = BankGuideOverlay.statusBounds(
+			canvas, grid, 200, 70, true, null, null, legend);
+
+		assertFalse(bounds.intersects(legend));
+		assertTrue(canvas.contains(bounds));
+		assertTrue("must stay clear of the bank grid", bounds.x >= grid.x + grid.width);
+		assertTrue("must sit below the legend", bounds.y >= legend.y + legend.height);
+	}
+
+	@Test
+	public void hudIgnoresAReleasedLegendClaim()
+	{
+		Rectangle canvas = new Rectangle(0, 0, 1200, 800);
+		Rectangle grid = new Rectangle(600, 100, 300, 500);
+
+		Rectangle bounds = BankGuideOverlay.statusBounds(
+			canvas, grid, 260, 70, true, null, null, null);
+
+		assertTrue(bounds.x + bounds.width < grid.x);
 	}
 
 	@Test
@@ -380,7 +411,7 @@ public class BankGuideOverlayTest
 		Rectangle source = new Rectangle(230, 10, 36, 32);
 
 		Rectangle bounds = BankGuideOverlay.statusBounds(
-			grid, grid, 140, 60, source, null, true);
+			grid, grid, 140, 60, true, source);
 
 		assertTrue(grid.contains(bounds));
 		assertFalse(bounds.intersects(source));

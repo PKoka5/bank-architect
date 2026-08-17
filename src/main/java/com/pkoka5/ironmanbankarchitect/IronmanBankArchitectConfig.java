@@ -19,6 +19,26 @@ public interface IronmanBankArchitectConfig extends Config
 		return true;
 	}
 
+	@ConfigItem(
+		keyName = "showCategoryOverlay",
+		name = "Colour bank items by destination",
+		description = "After a scan, tint every bank item with the colour of the blueprint tab it is planned for. Drawing only; works in any bank view."
+	)
+	default boolean showCategoryOverlay()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "categoryOverlayOpacity",
+		name = "Destination colour opacity",
+		description = "Fill strength of the destination colours, 0-100. Borders stay fully visible."
+	)
+	default int categoryOverlayOpacity()
+	{
+		return 25;
+	}
+
 	/**
 	 * Player-recorded item-to-category corrections, stored locally as
 	 * {@code itemId=categoryKey} pairs. Hidden because it is edited through the

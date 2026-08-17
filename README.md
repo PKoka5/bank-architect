@@ -25,7 +25,10 @@ Bank Architect has no separate installer, account, or external service.
 2. **Review the blueprint:** select **Show My Bank** to inspect the proposed
    Main section and nine purpose-driven tabs. The blueprint preserves owned
    item IDs, quantities, and real placeholders; it does not invent missing
-   items or blank slots.
+   items or blank slots. Your bank is also tinted in place: every item takes
+   the colour of the tab it is planned for, with a legend beside the bank. That
+   works in any bank view and needs nothing beyond the scan, so you can see the
+   plan before deciding to act on it.
 3. **Prepare the bank:** open the vanilla **All items** view and clear bank
    search and bank-tag filters. Either rearrange mode works; **Insert** mode
    usually needs fewer drags than **Swap** and the guide reports both counts.
@@ -60,7 +63,7 @@ Corrections apply to the real item, so making one on a placeholder works too.
 Bank Architect is analysis and guidance software, not bank automation.
 
 - It reads the open bank through supported RuneLite APIs and draws a sidebar,
-  blueprint dialog, and input-transparent guide overlay.
+  blueprint dialog, and input-transparent guide and destination-colour overlays.
 - While **Assign Categories** is on it adds its own options to the bank
   right-click menu. Those options only record your choice in local settings;
   they perform no bank action.
@@ -70,6 +73,10 @@ Bank Architect is analysis and guidance software, not bank automation.
   requests, analytics, telemetry, or external services.
 - It does not read the player's inventory or equipped items.
 - The player always performs and confirms every bank move manually.
+
+The destination-colour overlay only draws, so it has no such gates and stays
+available in any bank view. Only the move guide, which makes claims about what
+is safe to drag next, fails closed.
 
 Guidance fails closed when it cannot safely interpret the bank. In particular,
 it pauses unless the bank is open in vanilla **All items** with search and

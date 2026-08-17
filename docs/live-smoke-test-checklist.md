@@ -19,6 +19,10 @@ you are willing to reorganize (or after noting your current arrangement).
       instruction wording and the minimum-drag count change accordingly.
 - [ ] Note bank size (item count), current tab count, and rough current organization.
 - [ ] Active preset: `Ironman — All-Round Bank` (the only released preset).
+- [ ] Destination colours: after a scan, confirm every bank item is tinted with its planned tab
+      colour and that the legend sits beside the bank without covering slots. Check it in the All
+      items view, inside a tab, with a bank-tag filter active, and while scrolled. Confirm the
+      config toggle hides it and that the opacity setting takes effect.
 - [ ] Category corrections: with **Assign Categories** on, right-click a bank item, confirm the
       **Bank Architect** submenu lists the ten destinations, pick one, re-analyze and confirm the
       item moved tab in the blueprint. Confirm the correction survives a client restart, that

@@ -14,7 +14,9 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
+import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
+import com.pkoka5.ironmanbankarchitect.overlay.BankOverlayReservations;
 import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
@@ -87,13 +89,11 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Inject
 	private IronmanBankArchitectConfig config;
 
-	@Inject
-	private ConfigManager configManager;
-
 	private NavigationButton navigationButton;
 	private IronmanBankArchitectPanel panel;
 	private BankGuideController guideController;
 	private BankGuideOverlay guideOverlay;
+	private BankCategoryOverlay categoryOverlay;
 	private ExecutorService analysisExecutor;
 	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
 	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
@@ -109,8 +109,14 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
 		categoryOverrides = UserCategoryOverrides.parse(config.categoryOverrides());
 		guideController.publishCategoryOverrideCount(categoryOverrides.size());
-		guideOverlay = new BankGuideOverlay(this, client, guideController, config);
+		// Both overlays want the free canvas beside the bank; the shared claim
+		// keeps the guidance panel off the destination legend on a small window.
+		BankOverlayReservations reservations = new BankOverlayReservations();
+		guideOverlay = new BankGuideOverlay(this, client, guideController, config, reservations);
 		overlayManager.add(guideOverlay);
+		categoryOverlay = new BankCategoryOverlay(this, client, guideController, config,
+			reservations);
+		overlayManager.add(categoryOverlay);
 
 		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon,
 			this::resetCategoryOverrides);
@@ -137,6 +143,12 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		{
 			overlayManager.remove(guideOverlay);
 			guideOverlay = null;
+		}
+
+		if (categoryOverlay != null)
+		{
+			overlayManager.remove(categoryOverlay);
+			categoryOverlay = null;
 		}
 
 		if (panel != null)

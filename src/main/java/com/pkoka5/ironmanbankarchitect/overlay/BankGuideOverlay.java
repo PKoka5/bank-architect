@@ -1,5 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.overlay;
 
+import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.isFullyVisible;
+import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.isSafeGeometry;
+import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.itemViewportBounds;
+
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
@@ -14,7 +18,6 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -74,6 +77,7 @@ public final class BankGuideOverlay extends Overlay
 	private final Client client;
 	private final BankGuideController guideController;
 	private final IronmanBankArchitectConfig config;
+	private final BankOverlayReservations reservations;
 	private final TabRouteAdvisor.Session tabRouteSession = new TabRouteAdvisor.Session();
 	private final Map<Integer, Integer> canonicalItemIdCache = new HashMap<>();
 	private BankOrganizationPreview cachedPreview;
@@ -84,10 +88,17 @@ public final class BankGuideOverlay extends Overlay
 	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
 		IronmanBankArchitectConfig config)
 	{
+		this(plugin, client, guideController, config, new BankOverlayReservations());
+	}
+
+	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
+		IronmanBankArchitectConfig config, BankOverlayReservations reservations)
+	{
 		super(plugin);
 		this.client = client;
 		this.guideController = guideController;
 		this.config = config;
+		this.reservations = reservations;
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
 		setPosition(OverlayPosition.DYNAMIC);
 		setMovable(false);
@@ -271,7 +282,7 @@ public final class BankGuideOverlay extends Overlay
 		try
 		{
 			bankGraphics.clip(gridBounds);
-			bankGraphics.setFont(bankGraphics.getFont().deriveFont(Font.BOLD, 11f));
+			BankOverlayText.prepare(bankGraphics, BankOverlayText.smallFont());
 			bankGraphics.setStroke(new BasicStroke(1f));
 			if (showFinalValidation)
 			{
@@ -308,7 +319,7 @@ public final class BankGuideOverlay extends Overlay
 			Graphics2D connectorGraphics = (Graphics2D) graphics.create();
 			try
 			{
-				connectorGraphics.setFont(connectorGraphics.getFont().deriveFont(Font.BOLD, 11f));
+				BankOverlayText.prepare(connectorGraphics, BankOverlayText.smallFont());
 				drawTabMove(connectorGraphics, move, tabTarget.getBounds(), allByLogicalSlot,
 					visibleByLogicalSlot, gridBounds);
 			}
@@ -1006,7 +1017,7 @@ public final class BankGuideOverlay extends Overlay
 		try
 		{
 			bankGraphics.clip(viewportBounds);
-			bankGraphics.setFont(bankGraphics.getFont().deriveFont(Font.BOLD, 11f));
+			BankOverlayText.prepare(bankGraphics, BankOverlayText.smallFont());
 			BankSlotWidget firstOffscreen = null;
 			for (BankSlotWidget placeholder : duplicatePlaceholders)
 			{
@@ -1169,8 +1180,8 @@ public final class BankGuideOverlay extends Overlay
 		graphics.draw(bounds);
 		graphics.fillRect(bounds.x + 1, bounds.y + bounds.height - 13,
 			Math.min(bounds.width - 2, graphics.getFontMetrics().stringWidth(label) + 5), 12);
-		graphics.setColor(Color.BLACK);
-		graphics.drawString(label, bounds.x + 3, bounds.y + bounds.height - 3);
+		BankOverlayText.draw(graphics, label, bounds.x + 3, bounds.y + bounds.height - 3,
+			Color.BLACK);
 	}
 
 	private static void drawEdgeBadge(Graphics2D graphics, int centerX, int edgeY, Color color,
@@ -1186,8 +1197,7 @@ public final class BankGuideOverlay extends Overlay
 		graphics.fillRoundRect(x - 2, y - 2, width + 4, height + 4, 5, 5);
 		graphics.setColor(color);
 		graphics.fillRoundRect(x, y, width, height, 4, 4);
-		graphics.setColor(Color.BLACK);
-		graphics.drawString(label, x + 5, y + 12);
+		BankOverlayText.draw(graphics, label, x + 5, y + 12, Color.BLACK);
 	}
 
 	private static int edgeY(BankSlotWidget offscreenSlot, Rectangle viewportBounds)
@@ -1202,20 +1212,19 @@ public final class BankGuideOverlay extends Overlay
 		return Math.max(minimum, Math.min(maximum, value));
 	}
 
-	private static void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text)
+	private void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text)
 	{
 		drawStatus(graphics, gridBounds, text, false, null, null);
 	}
 
-	private static void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text,
+	private void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text,
 		boolean preferOutside, Rectangle firstAvoid, Rectangle secondAvoid)
 	{
 		Graphics2D statusGraphics = (Graphics2D) graphics.create();
 		try
 		{
-			Font font = statusGraphics.getFont().deriveFont(Font.BOLD, 14f);
-			statusGraphics.setFont(font);
-			FontMetrics metrics = statusGraphics.getFontMetrics(font);
+			BankOverlayText.prepare(statusGraphics, BankOverlayText.regularFont());
+			FontMetrics metrics = statusGraphics.getFontMetrics();
 			String[] rawLines = text.split("\\n", -1);
 			String[] lines = new String[rawLines.length];
 			int maxTextWidth = Math.max(20, Math.min(280, gridBounds.width - 24));
@@ -1227,18 +1236,20 @@ public final class BankGuideOverlay extends Overlay
 			}
 			int lineHeight = metrics.getHeight();
 			int height = lineHeight * lines.length + 10;
+			// The destination legend has already claimed its spot this frame, so
+			// the movable status panel is the one that gives way.
 			Rectangle statusBounds = statusBounds(statusGraphics.getClipBounds(), gridBounds,
-				width + 14, height, firstAvoid, secondAvoid, preferOutside);
+				width + 14, height, preferOutside, firstAvoid, secondAvoid,
+				reservations.getLegendBounds());
 			int x = statusBounds.x;
 			int y = statusBounds.y;
 
 			statusGraphics.setColor(STATUS_BACKGROUND);
 			statusGraphics.fillRoundRect(x, y, width + 14, height, 7, 7);
-			statusGraphics.setColor(STATUS_FOREGROUND);
 			for (int i = 0; i < lines.length; i++)
 			{
-				statusGraphics.drawString(lines[i], x + 7,
-					y + 5 + metrics.getAscent() + i * lineHeight);
+				BankOverlayText.draw(statusGraphics, lines[i], x + 7,
+					y + 5 + metrics.getAscent() + i * lineHeight, STATUS_FOREGROUND);
 			}
 		}
 		finally
@@ -1248,18 +1259,30 @@ public final class BankGuideOverlay extends Overlay
 	}
 
 	static Rectangle statusBounds(Rectangle canvasBounds, Rectangle gridBounds,
-		int width, int height, Rectangle firstAvoid, Rectangle secondAvoid,
-		boolean preferOutside)
+		int width, int height, boolean preferOutside, Rectangle... avoid)
 	{
 		Rectangle canvas = isSafeGeometry(canvasBounds) ? canvasBounds : gridBounds;
 		List<Rectangle> candidates = new ArrayList<>();
 		int gap = 6;
+		int leftX = gridBounds.x - width - gap;
+		int rightX = gridBounds.x + gridBounds.width + gap;
 		if (preferOutside)
 		{
-			candidates.add(new Rectangle(gridBounds.x - width - gap, gridBounds.y + 4,
-				width, height));
-			candidates.add(new Rectangle(gridBounds.x + gridBounds.width + gap,
-				gridBounds.y + 4, width, height));
+			candidates.add(new Rectangle(leftX, gridBounds.y + 4, width, height));
+			candidates.add(new Rectangle(rightX, gridBounds.y + 4, width, height));
+			// Beside the bank but lower down, stacked under whatever already
+			// claimed that strip. Sliding down the free margin beats falling
+			// back inside the grid, which would cover bank slots.
+			for (Rectangle area : avoid)
+			{
+				if (!isSafeGeometry(area))
+				{
+					continue;
+				}
+				int belowY = area.y + area.height + gap;
+				candidates.add(new Rectangle(leftX, belowY, width, height));
+				candidates.add(new Rectangle(rightX, belowY, width, height));
+			}
 		}
 		candidates.add(new Rectangle(gridBounds.x + gridBounds.width - width - 4,
 			gridBounds.y + 4, width, height));
@@ -1271,8 +1294,7 @@ public final class BankGuideOverlay extends Overlay
 
 		for (Rectangle candidate : candidates)
 		{
-			if (canvas.contains(candidate) && !intersects(candidate, firstAvoid)
-				&& !intersects(candidate, secondAvoid))
+			if (canvas.contains(candidate) && !intersectsAny(candidate, avoid))
 			{
 				return candidate;
 			}
@@ -1287,6 +1309,18 @@ public final class BankGuideOverlay extends Overlay
 		return new Rectangle(gridBounds.x + 4, gridBounds.y + 4,
 			Math.min(width, Math.max(1, gridBounds.width - 8)),
 			Math.min(height, Math.max(1, gridBounds.height - 8)));
+	}
+
+	private static boolean intersectsAny(Rectangle candidate, Rectangle[] avoid)
+	{
+		for (Rectangle area : avoid)
+		{
+			if (intersects(candidate, area))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static boolean intersects(Rectangle candidate, Rectangle avoid)
@@ -1347,30 +1381,6 @@ public final class BankGuideOverlay extends Overlay
 		}
 	}
 
-	private static boolean isSafeGeometry(Rectangle bounds)
-	{
-		return bounds != null && bounds.width > 0 && bounds.height > 0;
-	}
-
-	static Rectangle itemViewportBounds(Rectangle itemBounds, Rectangle outerBounds)
-	{
-		if (!isSafeGeometry(itemBounds))
-		{
-			return itemBounds;
-		}
-		if (!isSafeGeometry(outerBounds))
-		{
-			return new Rectangle(itemBounds);
-		}
-		Rectangle intersection = itemBounds.intersection(outerBounds);
-		return isSafeGeometry(intersection) ? intersection : null;
-	}
-
-	static boolean isFullyVisible(Rectangle viewportBounds, Rectangle slotBounds)
-	{
-		return isSafeGeometry(viewportBounds) && isSafeGeometry(slotBounds)
-			&& viewportBounds.contains(slotBounds);
-	}
 
 	private static int centerX(Rectangle bounds)
 	{
