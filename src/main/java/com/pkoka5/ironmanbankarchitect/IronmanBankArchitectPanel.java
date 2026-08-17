@@ -48,10 +48,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final String MAIN_ACTION_LABEL = "Main action";
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
 	private static final String BLUEPRINT_ACTION_LABEL = "Blueprint";
+	private static final String CATEGORY_CORRECTION_LABEL = "Category Corrections";
+	private static final String CATEGORY_CORRECTION_HELP =
+		"Corrections are stored locally and win over the bundled classification. "
+			+ "Analyze again to rebuild the blueprint.";
 	private static final String PREVIEW_BLOCK_HELP =
 		"Guided mode highlights one manual bank action at a time.";
 	private static final String PREVIEW_OVERLAY_NOTE =
-		"Guides tab creation and item order in vanilla All items + Swap mode; every move stays manual.";
+		"Guides tab creation and item order in the vanilla All items view, in Swap or Insert mode; "
+			+ "Insert usually needs fewer drags. Every move stays manual.";
 	private static final int STATUS_REFRESH_MILLIS = 100;
 	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
@@ -72,6 +77,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton toggleButton;
 	private final JButton analyzeButton;
 	private final JButton showBankButton;
+	private final JButton assignCategoriesButton;
+	private final JButton resetOverridesButton;
+	private final JLabel categoryOverrideLabel;
 	private final JLabel statusLabel;
 	private final JLabel catalogSummaryLabel;
 	private final JLabel organizationPreviewLabel;
@@ -95,6 +103,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
 		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer)
+	{
+		this(guideController, analyzeCallback, itemIconRenderer, () -> {});
+	}
+
+	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
+		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback)
 	{
 		this.guideController = guideController;
 		this.itemIconRenderer = itemIconRenderer;
@@ -121,6 +135,19 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		showBankButton = new JButton("Show My Bank");
 		showBankButton.addActionListener(event -> showBankDialog());
 
+		assignCategoriesButton = new JButton();
+		assignCategoriesButton.addActionListener(event -> {
+			guideController.toggleCategoryAssignMode();
+			refreshControls();
+		});
+
+		resetOverridesButton = new JButton("Reset Corrections");
+		resetOverridesButton.addActionListener(event -> {
+			resetOverridesCallback.run();
+			refreshControls();
+		});
+
+		categoryOverrideLabel = label("");
 		statusLabel = label("");
 		catalogSummaryLabel = label("");
 		organizationPreviewLabel = label("");
@@ -147,6 +174,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		cardConstraints.gridy++;
 		content.add(card(WHOLE_BANK_SCAN_LABEL, catalogSummaryLabel, organizationPreviewLabel),
 			cardConstraints);
+		cardConstraints.gridy++;
+		content.add(card(CATEGORY_CORRECTION_LABEL, assignCategoriesButton, categoryOverrideLabel,
+			resetOverridesButton, mutedLabel(CATEGORY_CORRECTION_HELP)), cardConstraints);
 		cardConstraints.gridy++;
 		content.add(card("Bank Guide", toggleButton, statusLabel, guideProgressBar,
 			guideProgressLabel, mutedLabel(PREVIEW_BLOCK_HELP), mutedLabel(PREVIEW_OVERLAY_NOTE)),
@@ -209,6 +239,21 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return guideProgressLabel;
 	}
 
+	JButton getAssignCategoriesButton()
+	{
+		return assignCategoriesButton;
+	}
+
+	JButton getResetOverridesButton()
+	{
+		return resetOverridesButton;
+	}
+
+	JLabel getCategoryOverrideLabel()
+	{
+		return categoryOverrideLabel;
+	}
+
 	JProgressBar getGuideProgressBar()
 	{
 		return guideProgressBar;
@@ -223,11 +268,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshControls()
 	{
 		toggleButton.setText(guideController.isGuideEnabled() ? "Hide Bank Guide" : "Show Bank Guide");
+		assignCategoriesButton.setText(guideController.isCategoryAssignMode()
+			? "Stop Assigning" : "Assign Categories");
 		refreshStatus();
 	}
 
 	private void refreshStatus()
 	{
+		categoryOverrideLabel.setText(sidebarHtml(guideController.getCategoryOverrideText()));
+		resetOverridesButton.setEnabled(guideController.getCategoryOverrideCount() > 0);
 		statusLabel.setText(sidebarHtml(guideController.getStatusText()));
 		guideProgressLabel.setText(sidebarHtml(guideController.getGuideProgressText()));
 		int percent = guideController.getGuideProgressPercent();

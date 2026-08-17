@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
+import com.pkoka5.ironmanbankarchitect.guide.RearrangeMode;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.MoveType;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Status;
@@ -121,14 +122,14 @@ public class BankGuideOverlayTest
 	@Test
 	public void itemViewportIsLimitedByBothTheItemLayerAndOuterContainer()
 	{
-		assertEquals(new Rectangle(20, 30, 80, 70), BankGuideOverlay.itemViewportBounds(
+		assertEquals(new Rectangle(20, 30, 80, 70), BankOverlayGeometry.itemViewportBounds(
 			new Rectangle(20, 10, 80, 200), new Rectangle(0, 30, 120, 70)));
 	}
 
 	@Test
 	public void nonOverlappingItemAndOuterBoundsFailClosed()
 	{
-		assertNull(BankGuideOverlay.itemViewportBounds(
+		assertNull(BankOverlayGeometry.itemViewportBounds(
 			new Rectangle(0, 0, 100, 100), new Rectangle(200, 200, 100, 100)));
 	}
 
@@ -137,9 +138,9 @@ public class BankGuideOverlayTest
 	{
 		Rectangle viewport = new Rectangle(10, 10, 100, 100);
 
-		assertTrue(BankGuideOverlay.isFullyVisible(viewport,
+		assertTrue(BankOverlayGeometry.isFullyVisible(viewport,
 			new Rectangle(20, 20, 30, 30)));
-		assertFalse(BankGuideOverlay.isFullyVisible(viewport,
+		assertFalse(BankOverlayGeometry.isFullyVisible(viewport,
 			new Rectangle(20, 95, 30, 30)));
 	}
 
@@ -184,7 +185,9 @@ public class BankGuideOverlayTest
 		assertTrue(BankGuideOverlay.isTabTargetMove(MoveType.TRANSFER_TO_TAB));
 		assertTrue(BankGuideOverlay.isTabTargetMove(MoveType.RETURN_TO_MAIN));
 		assertFalse(BankGuideOverlay.isTabTargetMove(MoveType.SWAP_SECTION));
-		assertTrue(BankGuideOverlay.isGridSwap(MoveType.SWAP_SECTION));
+		assertTrue(BankGuideOverlay.isGridMove(MoveType.SWAP_SECTION));
+		assertTrue(BankGuideOverlay.isGridMove(MoveType.INSERT_SECTION));
+		assertFalse(BankGuideOverlay.isTabTargetMove(MoveType.INSERT_SECTION));
 	}
 
 	@Test
@@ -325,7 +328,7 @@ public class BankGuideOverlayTest
 		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
 			new int[]{20, 10}, BankTabPlan.fromPreview(preview), new int[9]);
 
-		String hud = BankGuideOverlay.tabHudText(assessment, false);
+		String hud = BankGuideOverlay.tabHudText(assessment, false, RearrangeMode.SWAP);
 		assertTrue(hud.contains("Highlights disabled"));
 		assertFalse(hud.contains("FROM"));
 		assertFalse(hud.contains("TO"));
@@ -338,8 +341,22 @@ public class BankGuideOverlayTest
 		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
 			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9]);
 
-		String hud = BankGuideOverlay.tabHudText(assessment, true);
+		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.SWAP);
 		assertTrue(hud.contains("MIN SWAPS 2"));
+	}
+
+	@Test
+	public void insertModeHudNamesTheDropInsteadOfASwap()
+	{
+		BankOrganizationPreview preview = previewWithItems(10, 20, 30);
+		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
+			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9], 0,
+			RearrangeMode.INSERT);
+
+		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.INSERT);
+		assertTrue(hud.contains("MIN INSERTS 1"));
+		assertTrue(hud.contains("MOVE -> DROP"));
+		assertFalse(hud.contains("MIN SWAPS"));
 	}
 
 	@Test
@@ -350,10 +367,41 @@ public class BankGuideOverlayTest
 		Rectangle source = new Rectangle(610, 110, 36, 32);
 
 		Rectangle bounds = BankGuideOverlay.statusBounds(
-			canvas, grid, 260, 70, source, null, true);
+			canvas, grid, 260, 70, true, source);
 
 		assertTrue(bounds.x + bounds.width < grid.x);
 		assertFalse(bounds.intersects(source));
+	}
+
+	@Test
+	public void hudSlidesUnderTheLegendInsteadOfMovingOntoBankSlots()
+	{
+		// Only the strip right of the bank is wide enough, and the legend has
+		// claimed the top of it. The free space below it must win over any
+		// position inside the grid.
+		Rectangle canvas = new Rectangle(0, 0, 700, 500);
+		Rectangle grid = new Rectangle(20, 40, 420, 400);
+		Rectangle legend = new Rectangle(446, 40, 230, 60);
+
+		Rectangle bounds = BankGuideOverlay.statusBounds(
+			canvas, grid, 200, 70, true, null, null, legend);
+
+		assertFalse(bounds.intersects(legend));
+		assertTrue(canvas.contains(bounds));
+		assertTrue("must stay clear of the bank grid", bounds.x >= grid.x + grid.width);
+		assertTrue("must sit below the legend", bounds.y >= legend.y + legend.height);
+	}
+
+	@Test
+	public void hudIgnoresAReleasedLegendClaim()
+	{
+		Rectangle canvas = new Rectangle(0, 0, 1200, 800);
+		Rectangle grid = new Rectangle(600, 100, 300, 500);
+
+		Rectangle bounds = BankGuideOverlay.statusBounds(
+			canvas, grid, 260, 70, true, null, null, null);
+
+		assertTrue(bounds.x + bounds.width < grid.x);
 	}
 
 	@Test
@@ -363,7 +411,7 @@ public class BankGuideOverlayTest
 		Rectangle source = new Rectangle(230, 10, 36, 32);
 
 		Rectangle bounds = BankGuideOverlay.statusBounds(
-			grid, grid, 140, 60, source, null, true);
+			grid, grid, 140, 60, true, source);
 
 		assertTrue(grid.contains(bounds));
 		assertFalse(bounds.intersects(source));

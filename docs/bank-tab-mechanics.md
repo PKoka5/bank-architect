@@ -26,7 +26,34 @@ Sources checked in July 2026:
   validated against `InventoryID.BANK`; screen order must not be inferred from
   flat slot numbers across section boundaries.
 - `BANK_CURRENTTAB == 0` is the vanilla All-items view.
-- `BANK_INSERTMODE == 0` is Swap mode.
+- `BANK_INSERTMODE == 0` is Swap mode; any other value is Insert mode.
+
+## Rearrange modes
+
+Both modes are supported. They differ only in how a same-section reorder
+transforms the flat item container:
+
+- **Swap** exchanges the dragged item with the drop slot occupant. Sorting a
+  section of `n` items needs exactly `n - permutation cycles` drags.
+- **Insert** removes the dragged item and reinserts it at the drop slot index,
+  shifting every slot in between by one. Sorting needs exactly
+  `n - longest increasing subsequence` drags.
+
+Insert is the cheaper mode on a shuffled section, because the cycle count grows
+like `ln n` while the longest increasing subsequence grows like `2*sqrt(n)`.
+
+Two consequences shape the guidance:
+
+- A planned drop **slot index** is invalid the moment an insert drag starts,
+  since everything between source and drop shifts. Insert steps are therefore
+  anchored to the item that currently occupies the drop slot.
+- Dropping on a slot to the *right* of the source lands the item *behind* that
+  slot's occupant, because removing the source shifts the section left first.
+  The planner aims one slot earlier in that direction.
+
+An insert whose source and drop slot lie in the same section never changes any
+tab count, so section boundaries survive. Cross-section inserts are never
+advised and are rejected by transition verification.
 
 The product's blueprint numbering intentionally follows the visual/player
 model:
@@ -66,7 +93,8 @@ Internal order does not matter during bucket construction.
 
 ### Phase 0 - fail closed
 
-- Require vanilla All items, Swap mode and no active search/tag filter.
+- Require vanilla All items and no active search/tag filter. Either rearrange
+  mode is accepted; the sorting phase plans for whichever one is active.
 - Require exactly nine contiguous tab-count inputs.
 - Require dense, unique canonical bank IDs with no fillers or true gaps.
 - Require the live and planned item sets to match exactly.

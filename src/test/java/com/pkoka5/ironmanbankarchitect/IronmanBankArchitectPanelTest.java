@@ -95,14 +95,43 @@ public class IronmanBankArchitectPanelTest
 		assertTrue(panelText.contains("Show My Bank"));
 		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
 		assertTrue(panelText.contains("Guided mode highlights one manual bank action"));
-		assertTrue(panelText.contains("vanilla All items + Swap mode"));
+		assertTrue(panelText.contains("in Swap or Insert mode"));
 		assertTrue(panelText.contains("Guides tab creation and item order"));
-		assertTrue(panelText.contains("every move stays manual"));
+		assertTrue(panelText.contains("Every move stays manual"));
 		assertTrue(panel.getGuideProgressLabel().getText().contains("Analyze your bank"));
 		assertFalse(panelText.contains("Advanced preview block"));
 		assertFalse(panelText.contains("Owned:"));
 		assertFalse(panelText.contains("Missing:"));
 
+		panel.shutdown();
+	}
+
+	@Test
+	public void categoryCorrectionCardTracksAssignModeAndRecordedCount()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		boolean[] reset = {false};
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {},
+			(item, label) -> {}, () -> reset[0] = true);
+
+		assertTrue(String.join("\n", collectLabelText(panel)).contains("Category Corrections"));
+		assertEquals("Assign Categories", panel.getAssignCategoriesButton().getText());
+		assertTrue(panel.getCategoryOverrideLabel().getText().contains("No category corrections"));
+		assertFalse(panel.getResetOverridesButton().isEnabled());
+
+		panel.getAssignCategoriesButton().doClick();
+		assertTrue(controller.isCategoryAssignMode());
+		assertEquals("Stop Assigning", panel.getAssignCategoriesButton().getText());
+		assertTrue(panel.getCategoryOverrideLabel().getText().contains("Right-click a bank item"));
+
+		controller.publishCategoryOverrideCount(2);
+		panel.getAssignCategoriesButton().doClick();
+		assertFalse(controller.isCategoryAssignMode());
+		assertTrue(panel.getCategoryOverrideLabel().getText().contains("2 items are corrected"));
+		assertTrue(panel.getResetOverridesButton().isEnabled());
+
+		panel.getResetOverridesButton().doClick();
+		assertTrue(reset[0]);
 		panel.shutdown();
 	}
 

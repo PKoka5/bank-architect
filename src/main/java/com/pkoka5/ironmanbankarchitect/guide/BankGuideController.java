@@ -29,6 +29,9 @@ public final class BankGuideController
 	public static final String GUIDANCE_BANK_CLOSED_STATUS = "Open your bank for item-order guidance.";
 	public static final String GUIDANCE_DISABLED_STATUS = "Enable Bank Guide to show the next manual move.";
 	public static final String GUIDANCE_READY_STATUS = "Open the vanilla All items view to begin item-order guidance.";
+	public static final String NO_OVERRIDES_STATUS = "No category corrections yet.";
+	public static final String ASSIGN_MODE_HINT =
+		"Right-click a bank item and pick a destination to correct where it lands.";
 
 	private final List<VisualBlock> availableBlocks;
 	private final AtomicReference<BankGuideState> state;
@@ -42,6 +45,8 @@ public final class BankGuideController
 	private final AtomicReference<String> guideProgressText = new AtomicReference<>(NO_GUIDANCE_PROGRESS_STATUS);
 	private final AtomicInteger guideProgressPercent = new AtomicInteger(-1);
 	private final AtomicBoolean bankOpen = new AtomicBoolean(false);
+	private final AtomicBoolean categoryAssignMode = new AtomicBoolean(false);
+	private final AtomicInteger categoryOverrideCount = new AtomicInteger(0);
 
 	public BankGuideController(BankProfile profile)
 	{
@@ -84,6 +89,43 @@ public final class BankGuideController
 	public void toggleGuide()
 	{
 		state.updateAndGet(current -> current.withGuideEnabled(!current.isGuideEnabled()));
+	}
+
+	/**
+	 * While assign mode is on, the bank right-click menu offers the blueprint
+	 * destinations so the player can correct a classification.
+	 */
+	public boolean isCategoryAssignMode()
+	{
+		return categoryAssignMode.get();
+	}
+
+	public void toggleCategoryAssignMode()
+	{
+		categoryAssignMode.set(!categoryAssignMode.get());
+	}
+
+	public void setCategoryAssignMode(boolean enabled)
+	{
+		categoryAssignMode.set(enabled);
+	}
+
+	public void publishCategoryOverrideCount(int count)
+	{
+		categoryOverrideCount.set(Math.max(0, count));
+	}
+
+	public int getCategoryOverrideCount()
+	{
+		return categoryOverrideCount.get();
+	}
+
+	public String getCategoryOverrideText()
+	{
+		int count = categoryOverrideCount.get();
+		String summary = count == 0 ? NO_OVERRIDES_STATUS
+			: count + (count == 1 ? " item is" : " items are") + " corrected by hand.";
+		return categoryAssignMode.get() ? summary + " " + ASSIGN_MODE_HINT : summary;
 	}
 
 	public boolean isBankOpen()

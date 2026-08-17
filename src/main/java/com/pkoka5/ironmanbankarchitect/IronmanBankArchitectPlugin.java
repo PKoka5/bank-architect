@@ -1,18 +1,23 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
+import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
+import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
+import com.pkoka5.ironmanbankarchitect.overlay.BankOverlayReservations;
+import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -29,8 +34,15 @@ import javax.inject.Inject;
 import javax.swing.JLabel;
 import net.runelite.api.Client;
 import net.runelite.api.ItemComposition;
+import net.runelite.api.Menu;
+import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
+import net.runelite.api.events.MenuOpened;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemEquipmentStats;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemStats;
@@ -40,6 +52,7 @@ import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.AsyncBufferedImage;
+import net.runelite.client.util.ColorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +64,10 @@ import org.slf4j.LoggerFactory;
 public final class IronmanBankArchitectPlugin extends Plugin
 {
 	static final String PLUGIN_NAME = "Bank Architect";
+
+	private static final String ASSIGN_MENU_OPTION = "Bank Architect";
+	private static final String CLEAR_OVERRIDE_OPTION = "Use automatic classification";
+	private static final Color ASSIGN_MENU_COLOR = new Color(242, 169, 59);
 
 	private static final Logger log = LoggerFactory.getLogger(IronmanBankArchitectPlugin.class);
 
@@ -76,7 +93,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private IronmanBankArchitectPanel panel;
 	private BankGuideController guideController;
 	private BankGuideOverlay guideOverlay;
+	private BankCategoryOverlay categoryOverlay;
 	private ExecutorService analysisExecutor;
+	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
 	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
 
 	@Override
@@ -88,10 +107,19 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			return thread;
 		});
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
-		guideOverlay = new BankGuideOverlay(this, client, guideController, config);
+		categoryOverrides = UserCategoryOverrides.parse(config.categoryOverrides());
+		guideController.publishCategoryOverrideCount(categoryOverrides.size());
+		// Both overlays want the free canvas beside the bank; the shared claim
+		// keeps the guidance panel off the destination legend on a small window.
+		BankOverlayReservations reservations = new BankOverlayReservations();
+		guideOverlay = new BankGuideOverlay(this, client, guideController, config, reservations);
 		overlayManager.add(guideOverlay);
+		categoryOverlay = new BankCategoryOverlay(this, client, guideController, config,
+			reservations);
+		overlayManager.add(categoryOverlay);
 
-		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon);
+		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon,
+			this::resetCategoryOverrides);
 		navigationButton = NavigationButton.builder()
 			.tooltip(PLUGIN_NAME)
 			.icon(createIcon())
@@ -117,6 +145,12 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			guideOverlay = null;
 		}
 
+		if (categoryOverlay != null)
+		{
+			overlayManager.remove(categoryOverlay);
+			categoryOverlay = null;
+		}
+
 		if (panel != null)
 		{
 			panel.shutdown();
@@ -131,6 +165,106 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		guideController = null;
 		panel = null;
 		itemIcons.clear();
+	}
+
+	/**
+	 * Offers the blueprint destinations on a bank item while assign mode is on,
+	 * so the player can correct an item the bundled classification placed wrong.
+	 * This only adds menu options; nothing is clicked or moved for the player.
+	 */
+	@Subscribe
+	public void onMenuOpened(MenuOpened event)
+	{
+		BankGuideController controller = guideController;
+		if (controller == null || !controller.isCategoryAssignMode())
+		{
+			return;
+		}
+
+		int itemId = bankItemIdFor(event.getMenuEntries());
+		if (itemId <= 0)
+		{
+			return;
+		}
+
+		ItemComposition composition = itemManager.getItemComposition(itemId);
+		String itemName = composition == null ? "item" : composition.getName();
+		MenuEntry parent = client.getMenu().createMenuEntry(1)
+			.setOption(ASSIGN_MENU_OPTION)
+			.setTarget(ColorUtil.wrapWithColorTag(itemName, ASSIGN_MENU_COLOR))
+			.setType(MenuAction.RUNELITE);
+		Menu submenu = parent.createSubMenu();
+
+		Optional<String> current = categoryOverrides.categoryKeyFor(itemId);
+		for (BankCategory category : BankPresets.IRONMAN.getCategories())
+		{
+			boolean active = current.isPresent() && current.get().equals(category.getKey());
+			submenu.createMenuEntry(-1)
+				.setOption((active ? "* " : "") + category.getName())
+				.setType(MenuAction.RUNELITE)
+				.onClick(entry -> applyCategoryOverride(itemId, itemName, category.getKey()));
+		}
+		if (current.isPresent())
+		{
+			submenu.createMenuEntry(-1)
+				.setOption(CLEAR_OVERRIDE_OPTION)
+				.setType(MenuAction.RUNELITE)
+				.onClick(entry -> applyCategoryOverride(itemId, itemName, null));
+		}
+	}
+
+	/**
+	 * Canonical item ID of the bank slot the menu was opened on, or -1 when the
+	 * menu does not belong to a bank item. Placeholders resolve to the real item
+	 * so a correction made on one applies to the item itself.
+	 */
+	private int bankItemIdFor(MenuEntry[] entries)
+	{
+		for (MenuEntry entry : entries)
+		{
+			if (entry.getParam1() != InterfaceID.Bankmain.ITEMS)
+			{
+				continue;
+			}
+			// Prefer the widget's own item: it is the bank slot occupant even
+			// when the entry itself carries no item ID.
+			Widget widget = entry.getWidget();
+			int itemId = widget == null ? entry.getItemId() : widget.getItemId();
+			ItemComposition composition = client.getItemDefinition(itemId);
+			int canonical = BankItemIds.canonical(itemId,
+				composition == null ? -1 : composition.getPlaceholderTemplateId(),
+				composition == null ? -1 : composition.getPlaceholderId());
+			if (canonical > 0)
+			{
+				return canonical;
+			}
+		}
+		return -1;
+	}
+
+	private void applyCategoryOverride(int itemId, String itemName, String categoryKey)
+	{
+		categoryOverrides.put(itemId, categoryKey);
+		persistCategoryOverrides();
+		log.debug("Category override for {} ({}) set to {}", itemName, itemId, categoryKey);
+		analyzeBank();
+	}
+
+	private void resetCategoryOverrides()
+	{
+		categoryOverrides.clear();
+		persistCategoryOverrides();
+		analyzeBank();
+	}
+
+	private void persistCategoryOverrides()
+	{
+		config.setCategoryOverrides(categoryOverrides.serialize());
+		BankGuideController controller = guideController;
+		if (controller != null)
+		{
+			controller.publishCategoryOverrideCount(categoryOverrides.size());
+		}
 	}
 
 	@Provides
@@ -188,7 +322,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
 				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
 				itemId -> Optional.ofNullable(gearStatsById.get(itemId)),
-				itemId -> alchValuesById.getOrDefault(itemId, 0)));
+				itemId -> alchValuesById.getOrDefault(itemId, 0),
+				categoryOverrides));
 		}
 		catch (RuntimeException ex)
 		{

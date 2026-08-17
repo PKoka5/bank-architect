@@ -64,9 +64,83 @@ public class TabRouteAdvisorTest
 			counts());
 
 		assertMove(result, MoveType.SWAP_SECTION, 2, 0, 1, 0, 1);
-		assertEquals(3, result.getProgress().getMinimumRemainingSwaps());
+		assertEquals(3, result.getProgress().getMinimumRemainingDrags());
 		assertEquals(3, TabRouteAdvisor.minimumRemainingSwaps(
 			new int[]{2, 3, 1, 5, 4}, items(1, 2, 3, 4, 5)));
+	}
+
+	@Test
+	public void insertModeAdvisesADropAnchoredOnTheSlotOccupant()
+	{
+		// Item 1 sits behind 2 and 3; dropping it on slot 0 pushes both right.
+		int[] bank = {2, 3, 1, 5, 4};
+		Assessment result = TabRouteAdvisor.assess(bank,
+			plan(items(1, 2, 3, 4, 5), Collections.emptyList(), Collections.emptyList()),
+			counts(), 0, RearrangeMode.INSERT);
+
+		assertMove(result, MoveType.INSERT_SECTION, 1, 2, 0, 0, 1);
+		assertEquals(2, result.getMove().get().getAnchorItemId());
+		assertEquals(2, result.getProgress().getMinimumRemainingDrags());
+		assertEquals(RearrangeMode.INSERT, result.getProgress().getMode());
+	}
+
+	@Test
+	public void sortingProgressQuotesBothModeBoundsSoGuidanceCanRecommendInsert()
+	{
+		int[] bank = {2, 3, 1, 5, 4};
+		BankTabPlan plan = plan(items(1, 2, 3, 4, 5), Collections.emptyList(),
+			Collections.emptyList());
+
+		Assessment swap = TabRouteAdvisor.assess(bank, plan, counts(), 0, RearrangeMode.SWAP);
+		assertEquals(3, swap.getProgress().getMinimumRemainingDrags());
+		assertEquals(2, swap.getProgress().getMinimumRemainingDragsInOtherMode());
+
+		Assessment insert = TabRouteAdvisor.assess(bank, plan, counts(), 0, RearrangeMode.INSERT);
+		assertEquals(2, insert.getProgress().getMinimumRemainingDrags());
+		assertEquals(3, insert.getProgress().getMinimumRemainingDragsInOtherMode());
+	}
+
+	@Test
+	public void insertGuidanceOnlyAdvancesAfterTheAdvisedDropIsPerformed()
+	{
+		BankTabPlan plan = plan(items(1, 2, 3, 4), Collections.emptyList(),
+			Collections.emptyList());
+		Session session = new Session();
+		Assessment first = session.assess(new int[]{3, 1, 2, 4}, plan, counts(), 1, 0,
+			RearrangeMode.INSERT);
+		assertMove(first, MoveType.INSERT_SECTION, 3, 0, 2, 0, 1);
+
+		// A swap instead of the advised drop is not the transition we asked for.
+		assertEquals(Status.WAITING_FOR_BANK, session.assess(new int[]{1, 3, 2, 4}, plan,
+			counts(), 2, 0, RearrangeMode.INSERT).getStatus());
+
+		// Performing the advised drop finishes the section.
+		assertEquals(Status.COMPLETE, session.assess(new int[]{1, 2, 3, 4}, plan, counts(), 3, 0,
+			RearrangeMode.INSERT).getStatus());
+	}
+
+	@Test
+	public void switchingRearrangeModeDropsThePinnedAdviceInsteadOfMisreadingTheNextDrag()
+	{
+		BankTabPlan plan = plan(items(1, 2, 3, 4), Collections.emptyList(),
+			Collections.emptyList());
+		Session session = new Session();
+		assertMove(session.assess(new int[]{3, 1, 2, 4}, plan, counts(), 1, 0,
+			RearrangeMode.INSERT), MoveType.INSERT_SECTION, 3, 0, 2, 0, 1);
+
+		Assessment afterSwitch = session.assess(new int[]{3, 1, 2, 4}, plan, counts(), 2, 0,
+			RearrangeMode.SWAP);
+		assertEquals(MoveType.SWAP_SECTION, afterSwitch.getMove().get().getType());
+	}
+
+	@Test
+	public void insertRouteTerminatesForEveryStartingOrder()
+	{
+		BankTabPlan plan = plan(items(9, 8), items(1, 2), items(3, 4));
+		for (List<Integer> permutation : permutations(Arrays.asList(1, 2, 3, 4, 8, 9)))
+		{
+			assertTerminates(plan, model(permutation, counts()), RearrangeMode.INSERT);
+		}
 	}
 
 	@Test
@@ -609,9 +683,15 @@ public class TabRouteAdvisorTest
 
 	private static void assertTerminates(BankTabPlan plan, ModelBank bank)
 	{
+		assertTerminates(plan, bank, RearrangeMode.SWAP);
+	}
+
+	private static void assertTerminates(BankTabPlan plan, ModelBank bank, RearrangeMode mode)
+	{
 		for (int action = 0; action < 30; action++)
 		{
-			Assessment result = TabRouteAdvisor.assess(bank.itemIds(), plan, bank.tabCounts());
+			Assessment result = TabRouteAdvisor.assess(bank.itemIds(), plan, bank.tabCounts(),
+				0, mode);
 			if (result.getStatus() == Status.COMPLETE)
 			{
 				return;
@@ -762,6 +842,11 @@ public class TabRouteAdvisorTest
 					assertEquals(sectionForSlot(move.getFromSlot()),
 						sectionForSlot(move.getToSlot()));
 					Collections.swap(items, move.getFromSlot(), move.getToSlot());
+					break;
+				case INSERT_SECTION:
+					assertEquals(sectionForSlot(move.getFromSlot()),
+						sectionForSlot(move.getToSlot()));
+					items.add(move.getToSlot(), items.remove(move.getFromSlot()));
 					break;
 				default:
 					throw new AssertionError("unsupported move " + move.getType());

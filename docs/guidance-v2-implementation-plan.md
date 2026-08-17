@@ -73,8 +73,9 @@ The overlay reads only:
 - native tag state from `VarClientID.BANKTAGS_ACTIVE_TAG`;
 - `InterfaceID.Bankmain.ITEMS`, `ITEMS_CONTAINER` and `TABS`.
 
-It requires vanilla All items, Swap mode, no search/tag filter, complete
-widget-to-container ID mapping and safe visible geometry.
+It requires vanilla All items, no search/tag filter, complete widget-to-container
+ID mapping and safe visible geometry. Either rearrange mode is accepted; the
+sorting phase plans swaps or inserts to match the active one.
 
 ## Tab targets and overlay rendering
 

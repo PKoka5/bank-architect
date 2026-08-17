@@ -39,9 +39,22 @@ public final class TabRouteAdvisor
 	public static Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
 		int focusTabNumber)
 	{
+		return assess(actualItemIds, plan, tabCounts, focusTabNumber, RearrangeMode.SWAP);
+	}
+
+	/**
+	 * @param mode bank rearrange mode the player has selected. Only the sorting
+	 * phase differs: swap mode advises same-section exchanges, insert mode
+	 * advises same-section drops. Collapse, create, distribute, transfer, and
+	 * return-to-main drags behave identically in both modes.
+	 */
+	public static Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
+		int focusTabNumber, RearrangeMode mode)
+	{
 		Objects.requireNonNull(actualItemIds, "actualItemIds");
 		Objects.requireNonNull(plan, "plan");
 		Objects.requireNonNull(tabCounts, "tabCounts");
+		Objects.requireNonNull(mode, "mode");
 
 		if (tabCounts.length != MAX_TABS || plan.getNumberedTabs().size() > MAX_TABS)
 		{
@@ -133,8 +146,9 @@ public final class TabRouteAdvisor
 		}
 
 		int correctPositions = correctPositionCount(actualItemIds, plan.getFlattenedItems());
-		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length,
-			minimumRemainingSwaps(actualItemIds, plan.getFlattenedItems()));
+		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length, mode,
+			minimumRemainingSwaps(actualItemIds, plan.getFlattenedItems()),
+			minimumRemainingInserts(actualItemIds, plan, mainStart));
 		if (focusTabNumber >= 1 && focusTabNumber <= targets.size())
 		{
 			int focusStart = 0;
@@ -143,30 +157,30 @@ public final class TabRouteAdvisor
 				focusStart += targets.get(tabIndex).getItems().size();
 			}
 			TargetTab focus = targets.get(focusTabNumber - 1);
-			Move focusSwap = nextSectionSwap(actualItemIds, focusStart, focus.getItems(),
+			Move focusMove = nextSectionMove(mode, actualItemIds, focusStart, focus.getItems(),
 				focus.getBankTabNumber(), focus.getBlueprintCategoryNumber(),
 				focus.getCategoryName());
-			if (focusSwap != null)
+			if (focusMove != null)
 			{
-				return Assessment.ready(focusSwap, sorting);
+				return Assessment.ready(focusMove, sorting);
 			}
 		}
-		Move mainSwap = nextSectionSwap(actualItemIds, mainStart, plan.getMainItems(),
+		Move mainMove = nextSectionMove(mode, actualItemIds, mainStart, plan.getMainItems(),
 			0, 1, plan.getMainCategoryName());
-		if (mainSwap != null)
+		if (mainMove != null)
 		{
-			return Assessment.ready(mainSwap, sorting);
+			return Assessment.ready(mainMove, sorting);
 		}
 
 		int sectionStart = 0;
 		for (TargetTab target : targets)
 		{
-			Move tabSwap = nextSectionSwap(actualItemIds, sectionStart, target.getItems(),
+			Move tabMove = nextSectionMove(mode, actualItemIds, sectionStart, target.getItems(),
 				target.getBankTabNumber(), target.getBlueprintCategoryNumber(),
 				target.getCategoryName());
-			if (tabSwap != null)
+			if (tabMove != null)
 			{
-				return Assessment.ready(tabSwap, sorting);
+				return Assessment.ready(tabMove, sorting);
 			}
 			sectionStart += target.getItems().size();
 		}
@@ -321,6 +335,44 @@ public final class TabRouteAdvisor
 				targetTab, blueprintTabNumber, categoryName);
 		}
 		return null;
+	}
+
+	private static Move nextSectionMove(RearrangeMode mode, int[] actualItemIds, int sectionStart,
+		List<BankPreviewItem> targetItems, int targetTab, int blueprintTabNumber,
+		String categoryName)
+	{
+		if (mode == RearrangeMode.SWAP)
+		{
+			return nextSectionSwap(actualItemIds, sectionStart, targetItems, targetTab,
+				blueprintTabNumber, categoryName);
+		}
+
+		SectionInsertPlanner.Step step = SectionInsertPlanner.nextStep(actualItemIds,
+			sectionStart, targetItems);
+		return step == null ? null
+			: Move.insertSection(step.getItem(), step.getFromSlot(), step.getDropSlot(),
+				step.getAnchorItemId(), targetTab, blueprintTabNumber, categoryName);
+	}
+
+	/**
+	 * Exact remaining-insert lower bound for the sorting phase. Counted per
+	 * section because an insert may not cross a section boundary, unlike the
+	 * swap bound where a permutation cycle never leaves its own section once
+	 * membership is exact.
+	 */
+	private static int minimumRemainingInserts(int[] actualItemIds, BankTabPlan plan,
+		int mainStart)
+	{
+		int total = SectionInsertPlanner.minimumRemainingInserts(actualItemIds, mainStart,
+			plan.getMainItems());
+		int sectionStart = 0;
+		for (TargetTab target : plan.getNumberedTabs())
+		{
+			total += SectionInsertPlanner.minimumRemainingInserts(actualItemIds, sectionStart,
+				target.getItems());
+			sectionStart += target.getItems().size();
+		}
+		return total;
 	}
 
 	private static Move nextAppendFriendlyDistribution(int[] actualItemIds, int mainStart,
@@ -627,6 +679,7 @@ public final class TabRouteAdvisor
 		private int pendingSinceTick;
 		private int syntheticTick;
 		private int focusTabNumber;
+		private RearrangeMode mode = RearrangeMode.SWAP;
 
 		public Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts)
 		{
@@ -642,15 +695,26 @@ public final class TabRouteAdvisor
 		public Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
 			int tickCount, int focusTabNumber)
 		{
+			return assess(actualItemIds, plan, tabCounts, tickCount, focusTabNumber,
+				RearrangeMode.SWAP);
+		}
+
+		public Assessment assess(int[] actualItemIds, BankTabPlan plan, int[] tabCounts,
+			int tickCount, int focusTabNumber, RearrangeMode mode)
+		{
 			Objects.requireNonNull(actualItemIds, "actualItemIds");
 			Objects.requireNonNull(plan, "plan");
 			Objects.requireNonNull(tabCounts, "tabCounts");
+			Objects.requireNonNull(mode, "mode");
 
 			this.focusTabNumber = focusTabNumber;
-			if (pinnedPlan != plan)
+			if (pinnedPlan != plan || this.mode != mode)
 			{
+				// Switching rearrange mode invalidates the pinned advice: the
+				// pending drag would be verified against the wrong transform.
 				reset();
 				pinnedPlan = plan;
+				this.mode = mode;
 			}
 			if (pinnedAssessment != null
 				&& Arrays.equals(pinnedActualItemIds, actualItemIds)
@@ -660,8 +724,8 @@ public final class TabRouteAdvisor
 				{
 					// Only the viewed tab changed; the bank itself did not, so
 					// recompute directly without transition verification.
-					pin(actualItemIds, tabCounts,
-						TabRouteAdvisor.assess(actualItemIds, plan, tabCounts, focusTabNumber));
+					pin(actualItemIds, tabCounts, TabRouteAdvisor.assess(actualItemIds, plan,
+						tabCounts, focusTabNumber, mode));
 				}
 				clearPending();
 				return pinnedAssessment;
@@ -677,8 +741,8 @@ public final class TabRouteAdvisor
 				}
 			}
 
-			pin(actualItemIds, tabCounts,
-				TabRouteAdvisor.assess(actualItemIds, plan, tabCounts, focusTabNumber));
+			pin(actualItemIds, tabCounts, TabRouteAdvisor.assess(actualItemIds, plan, tabCounts,
+				focusTabNumber, mode));
 			return pinnedAssessment;
 		}
 
@@ -700,10 +764,10 @@ public final class TabRouteAdvisor
 					pinnedAssessment.getProgress(), List.of());
 			}
 			Assessment alternative = TabRouteAdvisor.assess(actualItemIds, plan, tabCounts,
-				focusTabNumber);
+				focusTabNumber, mode);
 			if (isSafeAlternative(alternative)
 				&& matchesSafeManualTransition(pinnedActualItemIds, pinnedTabCounts,
-					actualItemIds, tabCounts))
+					actualItemIds, tabCounts, mode))
 			{
 				pin(actualItemIds, tabCounts, alternative);
 				return alternative;
@@ -746,7 +810,7 @@ public final class TabRouteAdvisor
 	}
 
 	private static boolean matchesSafeManualTransition(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts)
+		int[] afterItems, int[] afterCounts, RearrangeMode mode)
 	{
 		if (!sameUniqueItemSet(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
@@ -801,7 +865,9 @@ public final class TabRouteAdvisor
 			return matchesAnyReturnToMain(beforeItems, beforeCounts, afterItems, afterCounts,
 				decreased, beforeTabs);
 		}
-		return matchesAnySwap(beforeItems, afterItems);
+		return mode == RearrangeMode.INSERT
+			? matchesAnyInsert(beforeItems, beforeCounts, afterItems)
+			: matchesAnySwap(beforeItems, afterItems);
 	}
 
 	private static boolean hasValidSectionBounds(int[] items, int[] counts)
@@ -921,6 +987,62 @@ public final class TabRouteAdvisor
 			&& beforeItems[second] == afterItems[first];
 	}
 
+	/**
+	 * Recognises one insert drag: a single item lifted out and dropped back
+	 * elsewhere, which rotates every slot in between by one. The rotated window
+	 * must stay inside one section, otherwise the drag moved an item between
+	 * tabs and the tab counts would have changed.
+	 */
+	private static boolean matchesAnyInsert(int[] beforeItems, int[] beforeCounts,
+		int[] afterItems)
+	{
+		if (beforeItems.length != afterItems.length)
+		{
+			return false;
+		}
+		int first = -1;
+		int last = -1;
+		for (int slot = 0; slot < beforeItems.length; slot++)
+		{
+			if (beforeItems[slot] == afterItems[slot])
+			{
+				continue;
+			}
+			if (first < 0)
+			{
+				first = slot;
+			}
+			last = slot;
+		}
+		if (first < 0 || !sameSection(beforeCounts, beforeItems.length, first, last))
+		{
+			return false;
+		}
+		return Arrays.equals(afterItems, SectionInsertPlanner.applyInsert(beforeItems, first, last))
+			|| Arrays.equals(afterItems, SectionInsertPlanner.applyInsert(beforeItems, last, first));
+	}
+
+	/** True when both slots fall inside the same tab section or both inside main. */
+	private static boolean sameSection(int[] counts, int itemCount, int firstSlot, int lastSlot)
+	{
+		int tabs = leadingTabCount(counts);
+		if (tabs < 0 || firstSlot < 0 || lastSlot >= itemCount)
+		{
+			return false;
+		}
+		int sectionStart = 0;
+		for (int tabIndex = 0; tabIndex < tabs; tabIndex++)
+		{
+			int sectionEnd = sectionStart + counts[tabIndex];
+			if (firstSlot < sectionEnd)
+			{
+				return lastSlot < sectionEnd;
+			}
+			sectionStart = sectionEnd;
+		}
+		return firstSlot >= sectionStart;
+	}
+
 	private static boolean otherTabSectionsUnchanged(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, int tabs, int firstExcluded, int secondExcluded)
 	{
@@ -973,9 +1095,26 @@ public final class TabRouteAdvisor
 			case SWAP_SECTION:
 				return matchesSwap(beforeItems, beforeCounts,
 					afterItems, afterCounts, move);
+			case INSERT_SECTION:
+				return matchesInsert(beforeItems, beforeCounts,
+					afterItems, afterCounts, move);
 			default:
 				return false;
 		}
+	}
+
+	private static boolean matchesInsert(int[] beforeItems, int[] beforeCounts,
+		int[] afterItems, int[] afterCounts, Move move)
+	{
+		if (!Arrays.equals(beforeCounts, afterCounts)
+			|| beforeItems.length != afterItems.length
+			|| move.getFromSlot() < 0 || move.getFromSlot() >= beforeItems.length
+			|| move.getToSlot() < 0 || move.getToSlot() >= beforeItems.length)
+		{
+			return false;
+		}
+		return Arrays.equals(afterItems, SectionInsertPlanner.applyInsert(beforeItems,
+			move.getFromSlot(), move.getToSlot()));
 	}
 
 	private static boolean matchesCollapse(int[] beforeItems, int[] beforeCounts,
@@ -1270,7 +1409,8 @@ public final class TabRouteAdvisor
 		DISTRIBUTE_TO_TAB,
 		TRANSFER_TO_TAB,
 		RETURN_TO_MAIN,
-		SWAP_SECTION
+		SWAP_SECTION,
+		INSERT_SECTION
 	}
 
 	public static final class Move
@@ -1284,10 +1424,19 @@ public final class TabRouteAdvisor
 		private final int targetTab;
 		private final int blueprintTabNumber;
 		private final String categoryName;
+		private final int anchorItemId;
 
 		private Move(MoveType type, int itemId, String displayName, int fromSlot,
 			int toSlot, int sourceTab, int targetTab, int blueprintTabNumber,
 			String categoryName)
+		{
+			this(type, itemId, displayName, fromSlot, toSlot, sourceTab, targetTab,
+				blueprintTabNumber, categoryName, -1);
+		}
+
+		private Move(MoveType type, int itemId, String displayName, int fromSlot,
+			int toSlot, int sourceTab, int targetTab, int blueprintTabNumber,
+			String categoryName, int anchorItemId)
 		{
 			this.type = Objects.requireNonNull(type, "type");
 			this.itemId = itemId;
@@ -1298,6 +1447,7 @@ public final class TabRouteAdvisor
 			this.targetTab = targetTab;
 			this.blueprintTabNumber = blueprintTabNumber;
 			this.categoryName = Objects.requireNonNull(categoryName, "categoryName");
+			this.anchorItemId = anchorItemId;
 		}
 
 		private static Move collapseTab(int tabNumber, TargetTab target)
@@ -1349,6 +1499,15 @@ public final class TabRouteAdvisor
 				sourceSlot, targetSlot, targetTab, targetTab, blueprintTabNumber, categoryName);
 		}
 
+		private static Move insertSection(BankPreviewItem item, int sourceSlot,
+			int dropSlot, int anchorItemId, int targetTab, int blueprintTabNumber,
+			String categoryName)
+		{
+			return new Move(MoveType.INSERT_SECTION, item.getItemId(), item.getDisplayName(),
+				sourceSlot, dropSlot, targetTab, targetTab, blueprintTabNumber, categoryName,
+				anchorItemId);
+		}
+
 		public MoveType getType()
 		{
 			return type;
@@ -1372,6 +1531,16 @@ public final class TabRouteAdvisor
 		public int getToSlot()
 		{
 			return toSlot;
+		}
+
+		/**
+		 * Item that currently occupies the drop slot of an insert move, or -1
+		 * for every other move type. Insert guidance names this item because
+		 * the drop slot index shifts as soon as the drag starts.
+		 */
+		public int getAnchorItemId()
+		{
+			return anchorItemId;
 		}
 
 		public int getTargetTab()
@@ -1450,49 +1619,61 @@ public final class TabRouteAdvisor
 		private final Phase phase;
 		private final int completed;
 		private final int total;
+		private final RearrangeMode mode;
 		private final int minimumRemainingSwaps;
+		private final int minimumRemainingInserts;
 
-		private Progress(Phase phase, int completed, int total, int minimumRemainingSwaps)
+		private Progress(Phase phase, int completed, int total, RearrangeMode mode,
+			int minimumRemainingSwaps, int minimumRemainingInserts)
 		{
 			this.phase = Objects.requireNonNull(phase, "phase");
 			this.completed = completed;
 			this.total = total;
+			this.mode = Objects.requireNonNull(mode, "mode");
 			this.minimumRemainingSwaps = minimumRemainingSwaps;
+			this.minimumRemainingInserts = minimumRemainingInserts;
 		}
 
 		private static Progress none()
 		{
-			return new Progress(Phase.REPAIRING, 0, 0, -1);
+			return outsideSorting(Phase.REPAIRING, 0, 0);
 		}
 
 		private static Progress recovering(int foreignItems)
 		{
-			return new Progress(Phase.RECOVERING, 0, foreignItems, -1);
+			return outsideSorting(Phase.RECOVERING, 0, foreignItems);
 		}
 
 		private static Progress repairing(int tabs)
 		{
-			return new Progress(Phase.REPAIRING, 0, tabs, -1);
+			return outsideSorting(Phase.REPAIRING, 0, tabs);
 		}
 
 		private static Progress creating(int created, int total)
 		{
-			return new Progress(Phase.CREATING, created, total, -1);
+			return outsideSorting(Phase.CREATING, created, total);
 		}
 
 		private static Progress distributing(int placed, int total)
 		{
-			return new Progress(Phase.DISTRIBUTING, placed, total, -1);
+			return outsideSorting(Phase.DISTRIBUTING, placed, total);
 		}
 
-		private static Progress sorting(int correct, int total, int minimumRemainingSwaps)
+		private static Progress outsideSorting(Phase phase, int completed, int total)
 		{
-			return new Progress(Phase.SORTING, correct, total, minimumRemainingSwaps);
+			return new Progress(phase, completed, total, RearrangeMode.SWAP, -1, -1);
+		}
+
+		private static Progress sorting(int correct, int total, RearrangeMode mode,
+			int minimumRemainingSwaps, int minimumRemainingInserts)
+		{
+			return new Progress(Phase.SORTING, correct, total, mode, minimumRemainingSwaps,
+				minimumRemainingInserts);
 		}
 
 		private static Progress complete(int total)
 		{
-			return new Progress(Phase.COMPLETE, total, total, 0);
+			return new Progress(Phase.COMPLETE, total, total, RearrangeMode.SWAP, 0, 0);
 		}
 
 		public Phase getPhase()
@@ -1510,9 +1691,29 @@ public final class TabRouteAdvisor
 			return total;
 		}
 
-		public int getMinimumRemainingSwaps()
+		/** Rearrange mode this sorting progress was assessed for. */
+		public RearrangeMode getMode()
 		{
-			return minimumRemainingSwaps;
+			return mode;
+		}
+
+		/**
+		 * Exact lower bound on the drags still needed to finish sorting in the
+		 * mode the assessment was made for, or -1 outside the sorting phase.
+		 */
+		public int getMinimumRemainingDrags()
+		{
+			return mode == RearrangeMode.SWAP ? minimumRemainingSwaps : minimumRemainingInserts;
+		}
+
+		/**
+		 * Exact lower bound for the mode the player is not currently using, so
+		 * guidance can quote what switching would cost or save. -1 outside the
+		 * sorting phase.
+		 */
+		public int getMinimumRemainingDragsInOtherMode()
+		{
+			return mode == RearrangeMode.SWAP ? minimumRemainingInserts : minimumRemainingSwaps;
 		}
 
 		public int getPercent()
