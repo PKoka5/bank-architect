@@ -61,13 +61,13 @@ public final class BankSnapshotReader
 	static Optional<BankItemSnapshot> snapshotItem(int itemId, int quantity, int placeholderTemplateId,
 		int placeholderItemId, int slotIndex)
 	{
-		if (itemId <= 0 || itemId == ItemID.BANK_FILLER)
+		int canonicalItemId = BankItemIds.canonical(itemId, placeholderTemplateId, placeholderItemId);
+		if (canonicalItemId < 0)
 		{
 			return Optional.empty();
 		}
 		if (placeholderTemplateId != -1)
 		{
-			int canonicalItemId = placeholderItemId > 0 ? placeholderItemId : itemId;
 			return Optional.of(new BankItemSnapshot(canonicalItemId, 0, slotIndex, true));
 		}
 		if (!isSnapshotItem(itemId, quantity))

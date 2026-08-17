@@ -19,6 +19,11 @@ you are willing to reorganize (or after noting your current arrangement).
       instruction wording and the minimum-drag count change accordingly.
 - [ ] Note bank size (item count), current tab count, and rough current organization.
 - [ ] Active preset: `Ironman — All-Round Bank` (the only released preset).
+- [ ] Category corrections: with **Assign Categories** on, right-click a bank item, confirm the
+      **Bank Architect** submenu lists the ten destinations, pick one, re-analyze and confirm the
+      item moved tab in the blueprint. Confirm the correction survives a client restart, that
+      **Use automatic classification** clears one item, and that **Reset Corrections** clears all.
+      With assign mode off, confirm the bank right-click menu is untouched.
 
 ## Session steps
 

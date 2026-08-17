@@ -38,12 +38,32 @@ Bank Architect has no separate installer, account, or external service.
 You can also copy the text blueprint for personal review without starting the
 move guide.
 
+## Correcting a classification
+
+Classification fails closed, so an item the bundled data cannot place
+confidently lands in **Storage & Cleanup** rather than being guessed into a tab
+from a name resemblance. When that is wrong, or when you simply want an item
+somewhere else, you can say so:
+
+1. Select **Assign Categories** in the sidebar.
+2. Right-click the item in your bank and choose **Bank Architect**, then the
+   destination you want.
+3. Select **Analyze My Bank** again to rebuild the blueprint.
+
+Your correction wins over every automatic rule and is stored locally with the
+plugin's settings, so it survives a client restart. **Reset Corrections** clears
+them all; choosing **Use automatic classification** clears a single item.
+Corrections apply to the real item, so making one on a placeholder works too.
+
 ## Safety and privacy
 
 Bank Architect is analysis and guidance software, not bank automation.
 
 - It reads the open bank through supported RuneLite APIs and draws a sidebar,
   blueprint dialog, and input-transparent guide overlay.
+- While **Assign Categories** is on it adds its own options to the bank
+  right-click menu. Those options only record your choice in local settings;
+  they perform no bank action.
 - It never clicks, drags, types, sends packets, changes widgets, manipulates
   game state, or performs bank actions.
 - It does not use reflection, native code, external processes, runtime network
@@ -69,7 +89,8 @@ Their sources, retrieval dates, revisions, and licences are pinned in the
 repository. There are no runtime Wiki calls and no remotely updated rules.
 Unknown or weakly supported classifications fail closed into the
 **Storage & Cleanup** review tab instead of being confidently routed from a
-name resemblance.
+name resemblance. Your own corrections are the way out of that tab and are the
+only classification input that is not bundled with the plugin.
 
 ## Current limitations
 
@@ -79,7 +100,8 @@ name resemblance.
   policy are not presented as shipped. This includes GE-value loot ordering
   and selectable additional presets.
 - Storage & Cleanup is a deliberate review destination. It can contain an item
-  the player chooses to keep; the plugin never drops or removes anything.
+  the player chooses to keep; the plugin never drops or removes anything. Items
+  that land there wrongly can be reassigned by hand.
 - Manual guidance supports only the bank states and move types it can validate
   safely. It pauses rather than guessing.
 

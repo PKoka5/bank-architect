@@ -107,6 +107,35 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	@Test
+	public void categoryCorrectionCardTracksAssignModeAndRecordedCount()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		boolean[] reset = {false};
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {},
+			(item, label) -> {}, () -> reset[0] = true);
+
+		assertTrue(String.join("\n", collectLabelText(panel)).contains("Category Corrections"));
+		assertEquals("Assign Categories", panel.getAssignCategoriesButton().getText());
+		assertTrue(panel.getCategoryOverrideLabel().getText().contains("No category corrections"));
+		assertFalse(panel.getResetOverridesButton().isEnabled());
+
+		panel.getAssignCategoriesButton().doClick();
+		assertTrue(controller.isCategoryAssignMode());
+		assertEquals("Stop Assigning", panel.getAssignCategoriesButton().getText());
+		assertTrue(panel.getCategoryOverrideLabel().getText().contains("Right-click a bank item"));
+
+		controller.publishCategoryOverrideCount(2);
+		panel.getAssignCategoriesButton().doClick();
+		assertFalse(controller.isCategoryAssignMode());
+		assertTrue(panel.getCategoryOverrideLabel().getText().contains("2 items are corrected"));
+		assertTrue(panel.getResetOverridesButton().isEnabled());
+
+		panel.getResetOverridesButton().doClick();
+		assertTrue(reset[0]);
+		panel.shutdown();
+	}
+
+	@Test
 	public void selectedBlockMatchDetailsDoNotRenderInMainOrganizerSidebar()
 	{
 		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());

@@ -59,11 +59,18 @@ public final class BankOrganizationPreviewBuilder
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
 		GearStatsSource gearStats, ItemValueSource itemValues)
 	{
+		return build(snapshot, catalog, preset, gearStats, itemValues, CategoryOverrideSource.NONE);
+	}
+
+	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
+		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides)
+	{
 		Objects.requireNonNull(snapshot, "snapshot");
 		Objects.requireNonNull(catalog, "catalog");
 		Objects.requireNonNull(preset, "preset");
 		Objects.requireNonNull(gearStats, "gearStats");
 		Objects.requireNonNull(itemValues, "itemValues");
+		Objects.requireNonNull(overrides, "overrides");
 
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
 		for (BankCategory category : preset.getCategories())
@@ -109,6 +116,14 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
 			}
+			// The player's own choice is applied last so it wins over every
+			// automatic rule, including the quick-tool and alch overrides above.
+			BankCategory overridden = overriddenCategory(preset, overrides,
+				catalogItem.getItemId());
+			if (overridden != null)
+			{
+				category = overridden;
+			}
 			MutableCategoryPreview preview = previewsByCategory.get(category.getKey());
 			if (preview == null)
 			{
@@ -125,6 +140,28 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		return new BankOrganizationPreview(preset, categories);
+	}
+
+	/**
+	 * Resolves a player override to a category of this preset, or {@code null}
+	 * when there is no override or the recorded key is not part of the preset.
+	 */
+	private static BankCategory overriddenCategory(BankPreset preset,
+		CategoryOverrideSource overrides, int itemId)
+	{
+		Optional<String> key = overrides.categoryKeyFor(itemId);
+		if (!key.isPresent())
+		{
+			return null;
+		}
+		for (BankCategory category : preset.getCategories())
+		{
+			if (category.getKey().equals(key.get()))
+			{
+				return category;
+			}
+		}
+		return null;
 	}
 
 	private static CatalogItem effectiveCatalogItem(CatalogItem item, int itemId, GearStatsSource gearStats)

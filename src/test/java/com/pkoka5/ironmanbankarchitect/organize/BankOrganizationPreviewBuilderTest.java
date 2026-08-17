@@ -53,6 +53,82 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	@Test
+	public void aPlayerCorrectionRescuesAnItemFromTheReviewDeadEnd()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 3, 0),
+			new BankItemSnapshot(999999, 1, 1)
+		));
+
+		BankOrganizationPreview automatic = BankOrganizationPreviewBuilder.build(snapshot,
+			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
+		assertEquals(1, automatic.getCategories().get(9).getItemCount());
+
+		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(snapshot,
+			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN, GearStatsSource.NONE,
+			ItemValueSource.NONE, overrides(999999, "currency-utilities"));
+
+		assertEquals(0, corrected.getCategories().get(9).getItemCount());
+		assertEquals(1, corrected.getCategories().get(0).getItemCount());
+		assertEquals("Unknown item #999999",
+			corrected.getCategories().get(0).getSampleItems().get(0));
+	}
+
+	@Test
+	public void aCorrectionOverridesAConfidentAutomaticClassification()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Collections.singletonList(
+			new BankItemSnapshot(5297, 3, 0)));
+
+		// Irit seed is confidently routed to herblore without a correction.
+		assertEquals(1, BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			BankPresets.IRONMAN).getCategories().get(3).getItemCount());
+
+		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(snapshot,
+			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN, GearStatsSource.NONE,
+			ItemValueSource.NONE, overrides(5297, "combat-gear"));
+
+		assertEquals(0, corrected.getCategories().get(3).getItemCount());
+		assertEquals(1, corrected.getCategories().get(1).getItemCount());
+	}
+
+	@Test
+	public void aCorrectionNamingAnUnknownCategoryIsIgnoredRatherThanBreakingThePlan()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Collections.singletonList(
+			new BankItemSnapshot(999999, 1, 0)));
+
+		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(snapshot,
+			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN, GearStatsSource.NONE,
+			ItemValueSource.NONE, overrides(999999, "not-a-preset-category"));
+
+		assertEquals(1, corrected.getCategories().get(9).getItemCount());
+	}
+
+	@Test
+	public void anEmptyCorrectionSetLeavesTheAutomaticPlanUntouched()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 3, 0),
+			new BankItemSnapshot(209, 2, 1),
+			new BankItemSnapshot(145, 1, 2),
+			new BankItemSnapshot(999999, 1, 3)
+		));
+
+		assertEquals(
+			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+				BankPresets.IRONMAN).toPreviewText(),
+			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+				BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
+				CategoryOverrideSource.NONE).toPreviewText());
+	}
+
+	private static CategoryOverrideSource overrides(int itemId, String categoryKey)
+	{
+		return candidate -> candidate == itemId ? Optional.of(categoryKey) : Optional.empty();
+	}
+
+	@Test
 	public void previewTextRendersReadableTabPlan()
 	{
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(

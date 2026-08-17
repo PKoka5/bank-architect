@@ -18,4 +18,27 @@ public interface IronmanBankArchitectConfig extends Config
 	{
 		return true;
 	}
+
+	/**
+	 * Player-recorded item-to-category corrections, stored locally as
+	 * {@code itemId=categoryKey} pairs. Hidden because it is edited through the
+	 * bank right-click menu and the sidebar, not by hand.
+	 */
+	@ConfigItem(
+		keyName = "categoryOverrides",
+		name = "",
+		description = "",
+		hidden = true
+	)
+	default String categoryOverrides()
+	{
+		return "";
+	}
+
+	@ConfigItem(
+		keyName = "categoryOverrides",
+		name = "",
+		description = ""
+	)
+	void setCategoryOverrides(String serialized);
 }

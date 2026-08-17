@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.overlay;
 
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
+import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
 import com.pkoka5.ironmanbankarchitect.guide.RearrangeMode;
@@ -546,11 +547,7 @@ public final class BankGuideOverlay extends Overlay
 
 	static int canonicalItemId(int itemId, int placeholderTemplateId, int placeholderItemId)
 	{
-		if (itemId <= 0 || itemId == ItemID.BANK_FILLER)
-		{
-			return -1;
-		}
-		return placeholderTemplateId != -1 && placeholderItemId > 0 ? placeholderItemId : itemId;
+		return BankItemIds.canonical(itemId, placeholderTemplateId, placeholderItemId);
 	}
 
 	private List<BankSlotWidget> collectBankSlots(Widget container, int logicalSlotLimit,
