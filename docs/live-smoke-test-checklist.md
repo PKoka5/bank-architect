@@ -13,8 +13,10 @@ you are willing to reorganize (or after noting your current arrangement).
 - [ ] Build from the current main commit; `./gradlew test`, the fixed 50-bank simulation
       (150/150 COMPLETED), and `./gradlew build` all pass locally.
 - [ ] RuneLite client with the plugin installed from that local build.
-- [ ] Bank requirements: vanilla All-items view, Swap mode (not Insert), no search filter and no
-      active bank tag; the overlay must itself confirm these gates before showing guidance.
+- [ ] Bank requirements: vanilla All-items view, no search filter and no active bank tag; the
+      overlay must itself confirm these gates before showing guidance. Either rearrange mode
+      works — run the sorting phase once in Swap and once in Insert mode and confirm the
+      instruction wording and the minimum-drag count change accordingly.
 - [ ] Note bank size (item count), current tab count, and rough current organization.
 - [ ] Active preset: `Ironman — All-Round Bank` (the only released preset).
 

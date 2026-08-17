@@ -211,7 +211,7 @@ public final class RandomBankSimulator
 			waits = 0;
 			if (assessment.getProgress().getPhase() == Phase.SORTING && minimumSwapsAtSortStart < 0)
 			{
-				minimumSwapsAtSortStart = assessment.getProgress().getMinimumRemainingSwaps();
+				minimumSwapsAtSortStart = assessment.getProgress().getMinimumRemainingDrags();
 			}
 			Move move = assessment.getMove().get();
 			moveCounts.merge(move.getType(), 1, Integer::sum);

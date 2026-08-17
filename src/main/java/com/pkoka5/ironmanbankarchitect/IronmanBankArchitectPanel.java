@@ -48,10 +48,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final String MAIN_ACTION_LABEL = "Main action";
 	private static final String WHOLE_BANK_SCAN_LABEL = "Whole Bank Scan";
 	private static final String BLUEPRINT_ACTION_LABEL = "Blueprint";
+
 	private static final String PREVIEW_BLOCK_HELP =
 		"Guided mode highlights one manual bank action at a time.";
 	private static final String PREVIEW_OVERLAY_NOTE =
-		"Guides tab creation and item order in vanilla All items + Swap mode; every move stays manual.";
+		"Guides tab creation and item order in the vanilla All items view, in Swap or Insert mode; "
+			+ "Insert usually needs fewer drags. Every move stays manual.";
 	private static final int STATUS_REFRESH_MILLIS = 100;
 	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
@@ -72,6 +74,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton toggleButton;
 	private final JButton analyzeButton;
 	private final JButton showBankButton;
+
 	private final JLabel statusLabel;
 	private final JLabel catalogSummaryLabel;
 	private final JLabel organizationPreviewLabel;
@@ -148,6 +151,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		content.add(card(WHOLE_BANK_SCAN_LABEL, catalogSummaryLabel, organizationPreviewLabel),
 			cardConstraints);
 		cardConstraints.gridy++;
+
 		content.add(card("Bank Guide", toggleButton, statusLabel, guideProgressBar,
 			guideProgressLabel, mutedLabel(PREVIEW_BLOCK_HELP), mutedLabel(PREVIEW_OVERLAY_NOTE)),
 			cardConstraints);
@@ -223,11 +227,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshControls()
 	{
 		toggleButton.setText(guideController.isGuideEnabled() ? "Hide Bank Guide" : "Show Bank Guide");
+
 		refreshStatus();
 	}
 
 	private void refreshStatus()
 	{
+
 		statusLabel.setText(sidebarHtml(guideController.getStatusText()));
 		guideProgressLabel.setText(sidebarHtml(guideController.getGuideProgressText()));
 		int percent = guideController.getGuideProgressPercent();

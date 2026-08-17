@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.overlay;
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
+import com.pkoka5.ironmanbankarchitect.guide.RearrangeMode;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Move;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.MoveType;
@@ -125,11 +126,8 @@ public final class BankGuideOverlay extends Overlay
 			return blocked(graphics, gridBounds,
 				"Open the vanilla All items tab for item-order guidance.");
 		}
-		if (client.getVarbitValue(VarbitID.BANK_INSERTMODE) != SWAP_MODE)
-		{
-			return blocked(graphics, gridBounds,
-				"Switch the bank rearrange mode to Swap for safe guided moves.");
-		}
+		RearrangeMode rearrangeMode = client.getVarbitValue(VarbitID.BANK_INSERTMODE) == SWAP_MODE
+			? RearrangeMode.SWAP : RearrangeMode.INSERT;
 		if (isFilteredBankView())
 		{
 			return blocked(graphics, gridBounds,
@@ -177,12 +175,12 @@ public final class BankGuideOverlay extends Overlay
 		if (suggestNextMove)
 		{
 			assessment = tabRouteSession.assess(actualItemIds, cachedTabPlan, tabCounts,
-				client.getTickCount(), currentBankTab);
+				client.getTickCount(), currentBankTab, rearrangeMode);
 		}
 		else
 		{
 			assessment = TabRouteAdvisor.assess(actualItemIds, cachedTabPlan, tabCounts,
-				currentBankTab);
+				currentBankTab, rearrangeMode);
 		}
 		if (assessment.getStatus() != TabRouteAdvisor.Status.READY
 			&& assessment.getStatus() != TabRouteAdvisor.Status.COMPLETE)
@@ -245,7 +243,7 @@ public final class BankGuideOverlay extends Overlay
 
 		Move move = assessment.getMove().orElse(null);
 		if (sectionRange != null && move != null
-			&& !isSectionLocalSwap(move, sectionRange[0], sectionRange[1]))
+			&& !isSectionLocalMove(move, sectionRange[0], sectionRange[1]))
 		{
 			return blocked(graphics, gridBounds,
 				"Nothing left to sort in this tab right now.\nOpen the All items tab to continue guidance.",
@@ -261,8 +259,8 @@ public final class BankGuideOverlay extends Overlay
 		}
 
 		String guideText = tabGuideText(assessment, visibleByLogicalSlot.keySet(),
-			allByLogicalSlot, gridBounds);
-		String hudText = tabHudText(assessment, suggestNextMove);
+			allByLogicalSlot, gridBounds, rearrangeMode);
+		String hudText = tabHudText(assessment, suggestNextMove, rearrangeMode);
 		guideController.publishGuideProgress(guideText, assessment.getProgress().getPercent());
 		Map<Integer, Integer> plannedSlotByItemId = cachedPlannedSlotByItemId;
 		boolean showFinalValidation = assessment.getProgress().getPhase() == Phase.SORTING
@@ -291,9 +289,11 @@ public final class BankGuideOverlay extends Overlay
 				}
 			}
 
-			if (suggestNextMove && move != null && isGridSwap(move.getType()))
+			if (suggestNextMove && move != null && isGridMove(move.getType()))
 			{
-				drawSwapMove(bankGraphics, move.getFromSlot(), move.getToSlot(),
+				boolean insert = move.getType() == MoveType.INSERT_SECTION;
+				drawGridMove(bankGraphics, move.getFromSlot(), move.getToSlot(),
+					insert ? "MOVE" : "FROM", insert ? "DROP" : "TO",
 					allByLogicalSlot, visibleByLogicalSlot, gridBounds);
 			}
 		}
@@ -445,9 +445,9 @@ public final class BankGuideOverlay extends Overlay
 		return true;
 	}
 
-	static boolean isSectionLocalSwap(Move move, int sectionStart, int sectionEnd)
+	static boolean isSectionLocalMove(Move move, int sectionStart, int sectionEnd)
 	{
-		return isGridSwap(move.getType())
+		return isGridMove(move.getType())
 			&& move.getFromSlot() >= sectionStart && move.getFromSlot() < sectionEnd
 			&& move.getToSlot() >= sectionStart && move.getToSlot() < sectionEnd;
 	}
@@ -759,10 +759,11 @@ public final class BankGuideOverlay extends Overlay
 	}
 
 	private String tabGuideText(TabRouteAdvisor.Assessment assessment, Set<Integer> visibleSlots,
-		Map<Integer, BankSlotWidget> allByLogicalSlot, Rectangle viewportBounds)
+		Map<Integer, BankSlotWidget> allByLogicalSlot, Rectangle viewportBounds,
+		RearrangeMode mode)
 	{
 		TabRouteAdvisor.Progress progress = assessment.getProgress();
-		String progressLine = progressText(progress);
+		String progressLine = progressText(progress, mode);
 		if (assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE)
 		{
 			return "Blueprint complete: Main and blueprint tabs 2-10 match their final order.";
@@ -804,12 +805,14 @@ public final class BankGuideOverlay extends Overlay
 					+ " from bank position " + (move.getSourceTab() + 1)
 					+ " onto the infinity (All items) icon to return it to Main.";
 				break;
+			case INSERT_SECTION:
+				instruction = "Sort " + sectionLabel(move) + " (" + move.getCategoryName()
+					+ "): drag the highlighted MOVE item " + move.getDisplayName()
+					+ " onto the DROP slot. Everything in between shifts one place.";
+				break;
 			case SWAP_SECTION:
 			default:
-				String section = move.getTargetTab() == 0
-					? "Main"
-					: "blueprint tab " + move.getBlueprintTabNumber();
-				instruction = "Sort " + section + " (" + move.getCategoryName()
+				instruction = "Sort " + sectionLabel(move) + " (" + move.getCategoryName()
 					+ "): swap the highlighted FROM item to TO: "
 					+ move.getDisplayName() + ".";
 				break;
@@ -824,7 +827,13 @@ public final class BankGuideOverlay extends Overlay
 		return progressLine + "\n" + instruction;
 	}
 
-	private static String progressText(TabRouteAdvisor.Progress progress)
+	private static String sectionLabel(Move move)
+	{
+		return move.getTargetTab() == 0
+			? "Main" : "blueprint tab " + move.getBlueprintTabNumber();
+	}
+
+	private static String progressText(TabRouteAdvisor.Progress progress, RearrangeMode mode)
 	{
 		String phase;
 		switch (progress.getPhase())
@@ -851,12 +860,26 @@ public final class BankGuideOverlay extends Overlay
 		}
 		String text = phase + ": " + progress.getPercent() + "% ("
 			+ progress.getCompleted() + "/" + progress.getTotal() + ").";
-		return progress.getPhase() == Phase.SORTING
-			? text + " Minimum swaps remaining: " + progress.getMinimumRemainingSwaps() + "."
+		if (progress.getPhase() != Phase.SORTING)
+		{
+			return text;
+		}
+
+		int remaining = progress.getMinimumRemainingDrags();
+		if (mode == RearrangeMode.INSERT)
+		{
+			return text + " Minimum inserts remaining: " + remaining + ".";
+		}
+
+		text += " Minimum swaps remaining: " + remaining + ".";
+		int inserts = progress.getMinimumRemainingDragsInOtherMode();
+		return inserts >= 0 && inserts < remaining
+			? text + " Insert mode would need " + inserts + "."
 			: text;
 	}
 
-	static String tabHudText(TabRouteAdvisor.Assessment assessment, boolean suggestNextMove)
+	static String tabHudText(TabRouteAdvisor.Assessment assessment, boolean suggestNextMove,
+		RearrangeMode mode)
 	{
 		if (assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE)
 		{
@@ -870,13 +893,14 @@ public final class BankGuideOverlay extends Overlay
 		}
 		if (move == null)
 		{
-			return progressText(assessment.getProgress());
+			return progressText(assessment.getProgress(), mode);
 		}
 		String progress = assessment.getProgress().getPhase().name() + "  "
 			+ assessment.getProgress().getPercent() + "%";
 		if (assessment.getProgress().getPhase() == Phase.SORTING)
 		{
-			progress += "  MIN SWAPS " + assessment.getProgress().getMinimumRemainingSwaps();
+			progress += (mode == RearrangeMode.INSERT ? "  MIN INSERTS " : "  MIN SWAPS ")
+				+ assessment.getProgress().getMinimumRemainingDrags();
 		}
 			switch (move.getType())
 		{
@@ -896,13 +920,19 @@ public final class BankGuideOverlay extends Overlay
 			case RETURN_TO_MAIN:
 				return "RECOVERY\nFROM: " + move.getDisplayName() + " / POS "
 					+ (move.getSourceTab() + 1) + "\nTO INFINITY -> MAIN";
+			case INSERT_SECTION:
+				return progress + "  SORT " + hudSectionLabel(move)
+					+ "\nMOVE -> DROP\n" + move.getDisplayName();
 			case SWAP_SECTION:
 			default:
-				String section = move.getTargetTab() == 0 ? "MAIN"
-					: "TAB " + move.getBlueprintTabNumber();
-				return progress + "  SORT " + section
+				return progress + "  SORT " + hudSectionLabel(move)
 					+ "\nFROM -> TO\n" + move.getDisplayName();
 		}
+	}
+
+	private static String hudSectionLabel(Move move)
+	{
+		return move.getTargetTab() == 0 ? "MAIN" : "TAB " + move.getBlueprintTabNumber();
 	}
 
 	static boolean isTabTargetMove(MoveType type)
@@ -912,9 +942,10 @@ public final class BankGuideOverlay extends Overlay
 			|| type == MoveType.RETURN_TO_MAIN;
 	}
 
-	static boolean isGridSwap(MoveType type)
+	/** Move types the player performs inside the item grid rather than on a tab. */
+	static boolean isGridMove(MoveType type)
 	{
-		return type == MoveType.SWAP_SECTION;
+		return type == MoveType.SWAP_SECTION || type == MoveType.INSERT_SECTION;
 	}
 
 	private static Widget resolveTabTarget(Widget tabs, Move move)
@@ -1006,7 +1037,8 @@ public final class BankGuideOverlay extends Overlay
 		}
 	}
 
-	private static void drawSwapMove(Graphics2D graphics, int fromSlot, int toSlot,
+	private static void drawGridMove(Graphics2D graphics, int fromSlot, int toSlot,
+		String sourceLabel, String targetLabel,
 		Map<Integer, BankSlotWidget> allByLogicalSlot,
 		Map<Integer, BankSlotWidget> visibleByLogicalSlot, Rectangle viewportBounds)
 	{
@@ -1019,8 +1051,8 @@ public final class BankGuideOverlay extends Overlay
 		{
 			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds),
 				centerX(target.bounds), centerY(target.bounds));
-			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, "FROM");
-			drawMoveCell(graphics, target.bounds, MOVE_TARGET, "TO");
+			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, sourceLabel);
+			drawMoveCell(graphics, target.bounds, MOVE_TARGET, targetLabel);
 			return;
 		}
 
@@ -1029,9 +1061,9 @@ public final class BankGuideOverlay extends Overlay
 			int targetY = edgeY(logicalTarget, viewportBounds);
 			int targetX = edgeX(logicalTarget, centerX(source.bounds), viewportBounds);
 			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds), targetX, targetY);
-			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, "FROM");
+			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, sourceLabel);
 			drawEdgeBadge(graphics, targetX, targetY, MOVE_TARGET,
-				"TO", targetY <= viewportBounds.y + 14, viewportBounds);
+				targetLabel, targetY <= viewportBounds.y + 14, viewportBounds);
 			return;
 		}
 
@@ -1041,8 +1073,8 @@ public final class BankGuideOverlay extends Overlay
 			int sourceX = edgeX(logicalSource, centerX(target.bounds), viewportBounds);
 			drawArrowConnector(graphics, sourceX, sourceY, centerX(target.bounds), centerY(target.bounds));
 			drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
-				"FROM", sourceY <= viewportBounds.y + 14, viewportBounds);
-			drawMoveCell(graphics, target.bounds, MOVE_TARGET, "TO");
+				sourceLabel, sourceY <= viewportBounds.y + 14, viewportBounds);
+			drawMoveCell(graphics, target.bounds, MOVE_TARGET, targetLabel);
 			return;
 		}
 
@@ -1056,7 +1088,7 @@ public final class BankGuideOverlay extends Overlay
 				viewportBounds.x + viewportBounds.width - 14);
 		}
 		drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
-			"FROM", sourceY <= viewportBounds.y + 14, viewportBounds);
+			sourceLabel, sourceY <= viewportBounds.y + 14, viewportBounds);
 	}
 
 	private static void drawTabMove(Graphics2D graphics, Move move, Rectangle targetBounds,

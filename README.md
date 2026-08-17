@@ -26,11 +26,12 @@ Bank Architect has no separate installer, account, or external service.
    Main section and nine purpose-driven tabs. The blueprint preserves owned
    item IDs, quantities, and real placeholders; it does not invent missing
    items or blank slots.
-3. **Prepare the bank:** open the vanilla **All items** view, select **Swap**
-   mode, and clear bank search and bank-tag filters.
+3. **Prepare the bank:** open the vanilla **All items** view and clear bank
+   search and bank-tag filters. Either rearrange mode works; **Insert** mode
+   usually needs fewer drags than **Swap** and the guide reports both counts.
 4. **Follow manual guidance:** select **Show Bank Guide**. The overlay describes
    one supported manual tab or item move at a time. You perform every collapse,
-   drag, and swap yourself.
+   drag, swap, and drop yourself.
 5. **Finish sorting:** the guide re-reads the bank after each manual action and
    advances only when the observed state is safe and consistent with the plan.
 
@@ -51,10 +52,12 @@ Bank Architect is analysis and guidance software, not bank automation.
 - The player always performs and confirms every bank move manually.
 
 Guidance fails closed when it cannot safely interpret the bank. In particular,
-it pauses unless the bank is open in vanilla **All items** and **Swap** mode
-with search and bank-tag filters cleared. It also pauses on unsupported tab
-states, unsafe geometry, or a bank view that no longer matches the expected
-plan.
+it pauses unless the bank is open in vanilla **All items** with search and
+bank-tag filters cleared. It also pauses on unsupported tab states, unsafe
+geometry, or a bank view that no longer matches the expected plan. Each advised
+move is verified against the bank change you actually made — in Swap mode an
+exchange, in Insert mode a single-item shift — and guidance pauses rather than
+guessing when the observed change is something else.
 
 The generated blueprint stays in the running client. Bank Architect does not
 upload bank contents or send them to the OSRS Wiki or another service.
@@ -92,7 +95,8 @@ The generated blueprint with the Main section and nine purpose-driven tabs:
 ![Bank blueprint dialog](docs/screenshots/bank-blueprint.png)
 
 The sorting phase inside a planned tab, showing the validation grid, the
-highlighted FROM/TO swap, and the exact minimum number of swaps remaining:
+highlighted FROM/TO swap, and the exact minimum number of drags remaining (in
+Insert mode the same grid highlights a MOVE/DROP pair instead):
 
 ![Sorting guidance with minimum swap count](docs/screenshots/bank-guide-sorting.png)
 

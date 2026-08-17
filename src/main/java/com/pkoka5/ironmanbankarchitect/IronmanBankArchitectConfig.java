@@ -12,7 +12,7 @@ public interface IronmanBankArchitectConfig extends Config
 	@ConfigItem(
 		keyName = "suggestNextMove",
 		name = "Show next manual move",
-		description = "Highlight the next safe manual collapse, tab drag, or same-section swap in the vanilla All items bank view."
+		description = "Highlight the next safe manual collapse, tab drag, or same-section reorder in the vanilla All items bank view. Guidance follows the bank's Swap or Insert mode."
 	)
 	default boolean suggestNextMove()
 	{

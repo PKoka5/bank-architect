@@ -35,7 +35,7 @@ reviewer feedback on PR runelite/plugin-hub#14053).
 | 18 | Forbidden implementation scan | done | Production scan found no reflection, JNI/native loading, `Runtime.exec`, `ProcessBuilder`, or external-process path. |
 | 19 | Bundled resources are jar-safe | done | All seven production datasets are loaded with `getResourceAsStream`; runtime never assumes an unpacked resource path. |
 | 20 | No runtime network or telemetry | done | No production network client, analytics, telemetry, or runtime dataset download exists. URL/URI text is pinned source-manifest validation only. |
-| 21 | Fail-closed gates are disclosed | done | README documents All items, Swap mode, cleared search/tag filters, safe geometry, supported tab state, and plan consistency gates. |
+| 21 | Fail-closed gates are disclosed | done | README documents All items, cleared search/tag filters, safe geometry, supported tab state, and plan consistency gates. Both bank rearrange modes are supported, so mode is no longer a gate. |
 | 22 | Local data behaviour is disclosed | done | README describes bundled pinned datasets, no runtime Wiki calls, and unknown/weak classification routing to Storage & Cleanup. |
 | 23 | Current Jagex/RuneLite feature policy | verify-at-submission | Recheck current third-party-client and rejected/rolled-back guidance; respond to reviewer concerns rather than relying on this dated review. |
 | 24 | Repository licence | done | Root `LICENSE` is BSD-2-Clause, the licence recommended by the current Plugin Hub guide, with the repository author/year. |

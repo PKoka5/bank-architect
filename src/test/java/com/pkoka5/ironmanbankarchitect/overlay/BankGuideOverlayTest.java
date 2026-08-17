@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
+import com.pkoka5.ironmanbankarchitect.guide.RearrangeMode;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.MoveType;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Status;
@@ -184,7 +185,9 @@ public class BankGuideOverlayTest
 		assertTrue(BankGuideOverlay.isTabTargetMove(MoveType.TRANSFER_TO_TAB));
 		assertTrue(BankGuideOverlay.isTabTargetMove(MoveType.RETURN_TO_MAIN));
 		assertFalse(BankGuideOverlay.isTabTargetMove(MoveType.SWAP_SECTION));
-		assertTrue(BankGuideOverlay.isGridSwap(MoveType.SWAP_SECTION));
+		assertTrue(BankGuideOverlay.isGridMove(MoveType.SWAP_SECTION));
+		assertTrue(BankGuideOverlay.isGridMove(MoveType.INSERT_SECTION));
+		assertFalse(BankGuideOverlay.isTabTargetMove(MoveType.INSERT_SECTION));
 	}
 
 	@Test
@@ -325,7 +328,7 @@ public class BankGuideOverlayTest
 		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
 			new int[]{20, 10}, BankTabPlan.fromPreview(preview), new int[9]);
 
-		String hud = BankGuideOverlay.tabHudText(assessment, false);
+		String hud = BankGuideOverlay.tabHudText(assessment, false, RearrangeMode.SWAP);
 		assertTrue(hud.contains("Highlights disabled"));
 		assertFalse(hud.contains("FROM"));
 		assertFalse(hud.contains("TO"));
@@ -338,8 +341,22 @@ public class BankGuideOverlayTest
 		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
 			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9]);
 
-		String hud = BankGuideOverlay.tabHudText(assessment, true);
+		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.SWAP);
 		assertTrue(hud.contains("MIN SWAPS 2"));
+	}
+
+	@Test
+	public void insertModeHudNamesTheDropInsteadOfASwap()
+	{
+		BankOrganizationPreview preview = previewWithItems(10, 20, 30);
+		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
+			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9], 0,
+			RearrangeMode.INSERT);
+
+		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.INSERT);
+		assertTrue(hud.contains("MIN INSERTS 1"));
+		assertTrue(hud.contains("MOVE -> DROP"));
+		assertFalse(hud.contains("MIN SWAPS"));
 	}
 
 	@Test

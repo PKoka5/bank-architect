@@ -95,9 +95,9 @@ public class IronmanBankArchitectPanelTest
 		assertTrue(panelText.contains("Show My Bank"));
 		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
 		assertTrue(panelText.contains("Guided mode highlights one manual bank action"));
-		assertTrue(panelText.contains("vanilla All items + Swap mode"));
+		assertTrue(panelText.contains("in Swap or Insert mode"));
 		assertTrue(panelText.contains("Guides tab creation and item order"));
-		assertTrue(panelText.contains("every move stays manual"));
+		assertTrue(panelText.contains("Every move stays manual"));
 		assertTrue(panel.getGuideProgressLabel().getText().contains("Analyze your bank"));
 		assertFalse(panelText.contains("Advanced preview block"));
 		assertFalse(panelText.contains("Owned:"));
