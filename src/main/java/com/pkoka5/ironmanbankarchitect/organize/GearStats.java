@@ -19,9 +19,49 @@ public final class GearStats
 	private final int rangedStrength;
 	private final int prayerBonus;
 	private final int defenceSum;
+	private final int stabDefence;
+	private final int slashDefence;
+	private final int crushDefence;
+	private final int magicDefence;
+	private final int rangedDefence;
+	private final int magicDamageTenths;
+	private final int attackSpeed;
+	private final boolean comparable;
 
+	/**
+	 * Tier-only stats: enough to score and lay out an item, but not enough to
+	 * prove one item beats another. {@link #dominates(GearStats)} always answers
+	 * {@code false} for these.
+	 */
 	public GearStats(GearSlot slot, int stabAttack, int slashAttack, int crushAttack, int magicAttack,
 		int rangedAttack, int meleeStrength, int rangedStrength, int prayerBonus, int defenceSum)
+	{
+		this(slot, stabAttack, slashAttack, crushAttack, magicAttack, rangedAttack, meleeStrength,
+			rangedStrength, prayerBonus, defenceSum, 0, 0, 0, 0, 0, 0, 0, false);
+	}
+
+	/**
+	 * Full stats, as read from the game's item data. {@code magicDamageTenths}
+	 * carries the magic damage percentage in tenths so the comparison stays in
+	 * whole numbers, and {@code attackSpeed} is the raw tick count where lower
+	 * is better.
+	 */
+	public GearStats(GearSlot slot, int stabAttack, int slashAttack, int crushAttack, int magicAttack,
+		int rangedAttack, int meleeStrength, int rangedStrength, int prayerBonus,
+		int stabDefence, int slashDefence, int crushDefence, int magicDefence, int rangedDefence,
+		int magicDamageTenths, int attackSpeed)
+	{
+		this(slot, stabAttack, slashAttack, crushAttack, magicAttack, rangedAttack, meleeStrength,
+			rangedStrength, prayerBonus,
+			stabDefence + slashDefence + crushDefence + magicDefence + rangedDefence,
+			stabDefence, slashDefence, crushDefence, magicDefence, rangedDefence,
+			magicDamageTenths, attackSpeed, true);
+	}
+
+	private GearStats(GearSlot slot, int stabAttack, int slashAttack, int crushAttack, int magicAttack,
+		int rangedAttack, int meleeStrength, int rangedStrength, int prayerBonus, int defenceSum,
+		int stabDefence, int slashDefence, int crushDefence, int magicDefence, int rangedDefence,
+		int magicDamageTenths, int attackSpeed, boolean comparable)
 	{
 		this.slot = Objects.requireNonNull(slot, "slot");
 		this.stabAttack = stabAttack;
@@ -33,6 +73,70 @@ public final class GearStats
 		this.rangedStrength = rangedStrength;
 		this.prayerBonus = prayerBonus;
 		this.defenceSum = defenceSum;
+		this.stabDefence = stabDefence;
+		this.slashDefence = slashDefence;
+		this.crushDefence = crushDefence;
+		this.magicDefence = magicDefence;
+		this.rangedDefence = rangedDefence;
+		this.magicDamageTenths = magicDamageTenths;
+		this.attackSpeed = attackSpeed;
+		this.comparable = comparable;
+	}
+
+	/** True when the full stat vector is known, so items can be compared. */
+	public boolean isComparable()
+	{
+		return comparable;
+	}
+
+	/**
+	 * Pareto dominance: this item is beaten outright when {@code other} is at
+	 * least equal on every stat and strictly better on at least one.
+	 *
+	 * <p>Unlike {@link #score()} this cannot produce a false positive. A score
+	 * collapses fifteen axes into one number, so it can rank an item lower even
+	 * though that item is the better choice on some axis; dominance makes a
+	 * claim that holds on every axis at once.</p>
+	 *
+	 * <p>Fails closed: without the full stat vector on both sides, or across
+	 * different equipment slots, the answer is {@code false}. Not being able to
+	 * judge is not the same as being beaten.</p>
+	 */
+	public boolean dominates(GearStats other)
+	{
+		if (other == null || !comparable || !other.comparable || slot != other.slot)
+		{
+			return false;
+		}
+
+		int[] mine = comparisonVector();
+		int[] theirs = other.comparisonVector();
+		boolean strictlyBetterSomewhere = false;
+		for (int axis = 0; axis < mine.length; axis++)
+		{
+			if (mine[axis] < theirs[axis])
+			{
+				return false;
+			}
+			if (mine[axis] > theirs[axis])
+			{
+				strictlyBetterSomewhere = true;
+			}
+		}
+		return strictlyBetterSomewhere;
+	}
+
+	/** Every axis oriented so that higher is better, including attack speed. */
+	private int[] comparisonVector()
+	{
+		return new int[]{
+			stabAttack, slashAttack, crushAttack, magicAttack, rangedAttack,
+			stabDefence, slashDefence, crushDefence, magicDefence, rangedDefence,
+			meleeStrength, rangedStrength, magicDamageTenths, prayerBonus,
+			// A lower tick count attacks faster, so negate it to keep the whole
+			// vector pointing the same way.
+			-attackSpeed
+		};
 	}
 
 	public GearSlot getSlot()

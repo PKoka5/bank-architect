@@ -372,11 +372,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			return Optional.empty();
 		}
 
-		int defenceSum = equipment.getDstab() + equipment.getDslash() + equipment.getDcrush()
-			+ equipment.getDmagic() + equipment.getDrange();
+		// Magic damage is a percentage; keep it in tenths so the comparison never
+		// depends on float equality.
+		int magicDamageTenths = Math.round(equipment.getMdmg() * 10f);
 		return Optional.of(new GearStats(slot, equipment.getAstab(), equipment.getAslash(), equipment.getAcrush(),
 			equipment.getAmagic(), equipment.getArange(), equipment.getStr(), equipment.getRstr(),
-			equipment.getPrayer(), defenceSum));
+			equipment.getPrayer(), equipment.getDstab(), equipment.getDslash(), equipment.getDcrush(),
+			equipment.getDmagic(), equipment.getDrange(), magicDamageTenths, equipment.getAspeed()));
 	}
 
 	private void renderItemIcon(BankPreviewItem item, JLabel label)
@@ -394,7 +396,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	}
 
 	// 16px version of the Plugin Hub icon.png: blueprint bank grid with a gold coin.
-	private static BufferedImage createIcon()
+	static BufferedImage createIcon()
 	{
 		BufferedImage icon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = icon.createGraphics();

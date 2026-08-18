@@ -7,6 +7,7 @@ import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
+import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;

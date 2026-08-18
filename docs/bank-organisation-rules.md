@@ -153,6 +153,19 @@ least 5,000 coins and two strictly better same-tier items. This is why smithed p
 join Slayer & Boss Loot while useful best/backup gear, cheap clothing, weapon/ammo stacks, unknown-
 value items, and placeholders stay out of the alch workflow.
 
+The general fallback additionally requires the item to be beaten outright: some owned item in the
+same slot must be at least equal on all fifteen equipment stats and strictly better on at least one,
+with attack speed counted so that a lower tick is better. The tier score that produces "strictly
+better" collapses those fifteen stats into a single number, so on its own it can rank an item lower
+even where that item is the better choice on some axis. Requiring dominance as well can only remove
+alch candidates, never add them.
+
+Two deliberate exemptions. Bulk production stock is identified by quantity rather than by being
+beaten, so it does not require dominance: twenty-five rune platebodies are smithing output even
+though nothing owned beats their raw defence. Reviewed exact-ID stock is a maintainer decision and
+outranks the automatic proof. Items whose full stat vector is unavailable are never treated as
+beaten, because being unable to judge is not the same as losing.
+
 ## DENSE_001 — Filler-free blueprints
 
 A generated blueprint is a dense order of actual entries from the player's bank. The plugin never

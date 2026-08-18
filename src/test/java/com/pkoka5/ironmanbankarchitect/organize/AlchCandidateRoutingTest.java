@@ -55,6 +55,61 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
+	public void gearThatOnlyLosesOnTheTierScoreStaysInCombatGear()
+	{
+		// Item 4 scores lowest of all four, so the tier score alone calls it
+		// outclassed. Nothing owned actually beats it though: its ranged defence
+		// is far above every alternative. Only item 3, which is beaten on every
+		// single stat, may move.
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(1, body(120, 120, 120, 120, 120));
+		stats.put(2, body(110, 110, 110, 110, 110));
+		stats.put(3, body(100, 100, 100, 100, 100));
+		stats.put(4, body(0, 0, 0, 0, 480));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1, 1, 0),
+			new BankItemSnapshot(2, 1, 1),
+			new BankItemSnapshot(3, 3, 2),
+			new BankItemSnapshot(4, 3, 3)
+		)), GEAR_CATALOG, BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> 39000);
+
+		assertEquals(3, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(1, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+		assertEquals("Gear 3",
+			categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+	}
+
+	@Test
+	public void aReviewedItemStillMovesWhenNothingBeatsItOutright()
+	{
+		// The whip scores far higher but loses on crush defence, so it does not
+		// beat the adamant 2h outright. The reviewed listing is a maintainer
+		// decision and outranks the automatic proof.
+		int betterWeaponId = 99_004;
+		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
+			itemId == ItemID.ADAMANT_2H_SWORD ? "Adamant 2h sword" : "Abyssal whip",
+			ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(betterWeaponId, new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0,
+			0, 0, 0, 0, 0, 0, 4));
+		stats.put(ItemID.ADAMANT_2H_SWORD, new GearStats(GearSlot.WEAPON, 50, 0, 0, 0, 0, 50, 0, 0,
+			0, 0, 5, 0, 0, 0, 4));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(betterWeaponId, 1, 0),
+			new BankItemSnapshot(ItemID.ADAMANT_2H_SWORD, 1, 1))),
+			catalog, BankPresets.IRONMAN, itemId -> Optional.ofNullable(stats.get(itemId)),
+			itemId -> itemId == ItemID.ADAMANT_2H_SWORD ? 3840 : 0);
+
+		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals("Adamant 2h sword",
+			categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+	}
+
+	@Test
 	public void singleCopyOutclassedGearNeverBecomesAnAlchCandidate()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
@@ -340,9 +395,24 @@ public class AlchCandidateRoutingTest
 			categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
 	}
 
+	/**
+	 * Body armour whose defence is spread evenly over the five defence types,
+	 * so the total matches {@code defence} exactly while the item still carries
+	 * a full, comparable stat vector.
+	 */
+	/** Body armour with each defence type set individually. */
+	private static GearStats body(int stab, int slash, int crush, int magic, int ranged)
+	{
+		return new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 0, 0, 0,
+			stab, slash, crush, magic, ranged, 0, 0);
+	}
+
 	private static GearStats meleeBody(int defence)
 	{
-		return new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 0, 0, 0, defence);
+		int perType = defence / 5;
+		int remainder = defence - perType * 4;
+		return new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 0, 0, 0,
+			perType, perType, perType, perType, remainder, 0, 0);
 	}
 
 	private static BankCategoryPreview categoryByKey(BankOrganizationPreview preview, String key)
