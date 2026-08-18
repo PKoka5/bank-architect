@@ -27,9 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.swing.JLabel;
 import net.runelite.api.Client;
@@ -89,23 +88,20 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Inject
 	private IronmanBankArchitectConfig config;
 
+	@Inject
+	private ScheduledExecutorService analysisExecutor;
+
 	private NavigationButton navigationButton;
 	private IronmanBankArchitectPanel panel;
 	private BankGuideController guideController;
 	private BankGuideOverlay guideOverlay;
 	private BankCategoryOverlay categoryOverlay;
-	private ExecutorService analysisExecutor;
 	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
 	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
 
 	@Override
 	protected void startUp()
 	{
-		analysisExecutor = Executors.newSingleThreadExecutor(runnable -> {
-			Thread thread = new Thread(runnable, "ironman-bank-architect-analysis");
-			thread.setDaemon(true);
-			return thread;
-		});
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
 		categoryOverrides = UserCategoryOverrides.parse(config.categoryOverrides());
 		guideController.publishCategoryOverrideCount(categoryOverrides.size());
@@ -156,12 +152,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			panel.shutdown();
 		}
 
-		if (analysisExecutor != null)
-		{
-			analysisExecutor.shutdownNow();
-			analysisExecutor = null;
-		}
-
+		// The executor belongs to the client and is shared, so it is never shut
+		// down here. Clearing guideController is what makes a late analysis
+		// task fall through without touching a disposed panel.
 		guideController = null;
 		panel = null;
 		itemIcons.clear();
@@ -276,8 +269,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private void analyzeBank()
 	{
 		BankGuideController controller = guideController;
-		ExecutorService executor = analysisExecutor;
-		if (controller == null || executor == null || executor.isShutdown())
+		if (controller == null)
 		{
 			return;
 		}
@@ -298,7 +290,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			Map<Integer, Integer> alchValuesById = collectAlchValues(bankSnapshot);
 			try
 			{
-				executor.execute(() -> publishBankAnalysis(controller, bankSnapshot, gearStatsById, alchValuesById));
+				analysisExecutor.execute(() -> publishBankAnalysis(controller, bankSnapshot, gearStatsById, alchValuesById));
 			}
 			catch (RejectedExecutionException ignored)
 			{
