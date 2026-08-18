@@ -78,7 +78,7 @@ public final class BankOrganizationPreviewBuilder
 			previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category));
 		}
 
-		Map<String, List<Integer>> gearScoresByKey = new LinkedHashMap<>();
+		Map<String, List<OwnedGear>> ownedGearByKey = new LinkedHashMap<>();
 		java.util.Set<Integer> quickToolIds = IronmanQuickToolSelector.select(snapshot);
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
@@ -95,8 +95,10 @@ public final class BankOrganizationPreviewBuilder
 				{
 					continue;
 				}
-				gearScoresByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
-					.add(GearItemSorter.score(new BankPreviewItem(catalogItem, bankItem.getQuantity()), gearStats));
+				ownedGearByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
+					.add(new OwnedGear(GearItemSorter.score(
+						new BankPreviewItem(catalogItem, bankItem.getQuantity()), gearStats),
+						stats.get()));
 			}
 		}
 
@@ -112,7 +114,7 @@ public final class BankOrganizationPreviewBuilder
 			}
 			if (!bankItem.isPlaceholder()
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-				gearStats, itemValues, gearScoresByKey))
+				gearStats, itemValues, ownedGearByKey))
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
 			}
@@ -194,9 +196,17 @@ public final class BankOrganizationPreviewBuilder
 	 * strictly better owned items is a duplicate the player will realistically
 	 * never wear again; when it is also worth alching it moves to the alch
 	 * review tab instead of cluttering the gear columns.
+	 *
+	 * <p>The tier score that produces "strictly better" collapses fifteen stats
+	 * into one number, so on its own it can rank an item lower even when that
+	 * item is the better choice on some axis. Automatically chosen items must
+	 * therefore also be beaten outright by an owned item - see
+	 * {@link GearStats#dominates(GearStats)}. Hand-reviewed stock in
+	 * {@link IronmanAlchCandidateCatalog} is exempt: an explicit maintainer
+	 * decision outranks the automatic rule.</p>
 	 */
 	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
-		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<Integer>> gearScoresByKey)
+		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<OwnedGear>> ownedGearByKey)
 	{
 		if (preset.getType() != BankPresetType.IRONMAN || !"combat-gear".equals(category.getKey()))
 		{
@@ -224,27 +234,38 @@ public final class BankOrganizationPreviewBuilder
 			return false;
 		}
 
-		List<Integer> scores = gearScoresByKey.get(gearKey(stats.get()));
-		if (scores == null)
+		List<OwnedGear> owned = ownedGearByKey.get(gearKey(stats.get()));
+		if (owned == null)
 		{
 			return false;
 		}
 
 		int ownScore = GearItemSorter.score(new BankPreviewItem(catalogItem, quantity), gearStats);
 		int strictlyBetter = 0;
-		for (int score : scores)
+		boolean beatenOutright = false;
+		for (OwnedGear candidate : owned)
 		{
-			if (score > ownScore)
+			if (candidate.score > ownScore)
 			{
 				strictlyBetter++;
 			}
+			if (candidate.stats.dominates(stats.get()))
+			{
+				beatenOutright = true;
+			}
 		}
+		// An explicit maintainer decision outranks the automatic proof.
+		boolean provenReplaceable = reviewedAlchable || beatenOutright;
 
 		// Bulk production stock (rune platebodies, crafted jewellery) moves out
 		// regardless of alch value, but weapons and ammo stay: high quantities
 		// there are consumables (chinchompas, thrown weapons), not stock.
 		GearSlot slot = stats.get().getSlot();
 		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
+		// Deliberately not gated on dominance: this rule identifies production
+		// stock by quantity, not by an item being beaten. Twenty-five rune
+		// platebodies are smithing output even though nothing owned beats their
+		// raw defence.
 		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
 			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1)
 		{
@@ -254,12 +275,26 @@ public final class BankOrganizationPreviewBuilder
 		int requiredBetterItems = reviewedAlchable ? 1 : OUTCLASSED_BY_COUNT;
 		int requiredAlchValue = reviewedAlchable ? 1 : ALCH_VALUE_THRESHOLD;
 		return highAlchValue >= requiredAlchValue
-			&& strictlyBetter >= requiredBetterItems;
+			&& strictlyBetter >= requiredBetterItems
+			&& provenReplaceable;
 	}
 
 	private static String gearKey(GearStats stats)
 	{
 		return stats.style().ordinal() + ":" + stats.slotRank();
+	}
+
+	/** One owned combat-gear item, kept per style/slot bucket for comparison. */
+	private static final class OwnedGear
+	{
+		private final int score;
+		private final GearStats stats;
+
+		private OwnedGear(int score, GearStats stats)
+		{
+			this.score = score;
+			this.stats = stats;
+		}
 	}
 
 	private static final class MutableCategoryPreview
