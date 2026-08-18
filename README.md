@@ -60,6 +60,10 @@ Corrections apply to the real item, so making one on a placeholder works too.
 
 ## Safety and privacy
 
+Reviewing this for the Plugin Hub? [docs/for-reviewers.md](docs/for-reviewers.md)
+points at the four files that touch live client state and answers the usual
+questions about the bundled data, the menu entries, and threading.
+
 Bank Architect is analysis and guidance software, not bank automation.
 
 - It reads the open bank through supported RuneLite APIs and draws a sidebar,

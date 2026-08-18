@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+// Used only to validate the shape of source-attribution strings in a bundled
+// manifest. This class opens no connection; the plugin makes no network calls.
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
