@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
+import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.util.ArrayList;
 import java.util.Collections;

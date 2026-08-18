@@ -1,4 +1,4 @@
-package com.pkoka5.ironmanbankarchitect.overlay;
+package com.pkoka5.ironmanbankarchitect.organize;
 
 import java.awt.Color;
 
@@ -10,7 +10,7 @@ import java.awt.Color;
  * stay distinguishable against the bank's dark background. The palette is fixed
  * rather than generated so a tab keeps the same colour between sessions.</p>
  */
-final class CategoryPalette
+public final class CategoryPalette
 {
 	private static final Color[] COLORS = {
 		new Color(255, 205, 60),   // 1 Frequently Used, Runes & Teleports
@@ -29,13 +29,13 @@ final class CategoryPalette
 	{
 	}
 
-	static int size()
+	public static int size()
 	{
 		return COLORS.length;
 	}
 
 	/** Opaque colour for a destination, cycling if a preset ever grows past ten. */
-	static Color colorFor(int categoryIndex)
+	public static Color colorFor(int categoryIndex)
 	{
 		if (categoryIndex < 0)
 		{
@@ -45,7 +45,7 @@ final class CategoryPalette
 	}
 
 	/** Same colour at the configured overlay opacity, clamped to a sane range. */
-	static Color colorFor(int categoryIndex, int opacityPercent)
+	public static Color colorFor(int categoryIndex, int opacityPercent)
 	{
 		Color base = colorFor(categoryIndex);
 		int alpha = Math.max(0, Math.min(100, opacityPercent)) * 255 / 100;

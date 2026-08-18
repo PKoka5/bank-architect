@@ -85,14 +85,8 @@ public class IronmanBankArchitectPanelTest
 
 		String panelText = String.join("\n", collectLabelText(panel));
 
-		assertTrue(panelText.contains("Profile"));
 		assertTrue(panelText.contains(AllRoundIronmanPreset.PROFILE_NAME));
-		assertTrue(panelText.contains("Read-only Ironman bank blueprint planner"));
-		assertTrue(panelText.contains("Main action"));
-		assertTrue(panelText.contains("Analyze My Bank"));
-		assertTrue(panelText.contains("Whole Bank Scan"));
-		assertTrue(panelText.contains("Blueprint"));
-		assertTrue(panelText.contains("Show My Bank"));
+		assertTrue(panelText.contains("Analyze Bank"));
 		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
 		assertTrue(panelText.contains("Guided mode highlights one manual bank action"));
 		assertTrue(panelText.contains("in Swap or Insert mode"));
@@ -107,6 +101,63 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	@Test
+	public void restingPanelShowsTheDestinationGridAndKeepsProseFolded()
+	{
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
+			new BankGuideController(AllRoundIronmanPreset.create()),
+			() -> {});
+
+		// One cell per blueprint destination, and the prose starts out of sight.
+		assertEquals(10, panel.getDestinationCells().size());
+		assertFalse("details must start folded", panel.getDetailsPanel().isVisible());
+		assertTrue("the summary lives inside the folded details",
+			isInside(panel.getDetailsPanel(), panel.getCatalogSummaryLabel()));
+		assertTrue(isInside(panel.getDetailsPanel(), panel.getOrganizationPreviewLabel()));
+		assertTrue(isInside(panel.getDetailsPanel(), panel.getResetOverridesButton()));
+
+		// Without a scan every cell is empty, so no count is painted.
+		for (IronmanBankArchitectPanel.DestinationCell cell : panel.getDestinationCells())
+		{
+			assertEquals("", cell.getCount());
+		}
+
+		panel.shutdown();
+	}
+
+	@Test
+	public void aScanFillsEveryDestinationCellThatHasItems()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0),
+			new BankItemSnapshot(209, 1, 1),
+			new BankItemSnapshot(999999, 1, 2)
+		));
+		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot,
+			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+		panel.getAnalyzeButton().doClick();
+
+		// Herblore holds the two seeds, cleanup review holds the unknown item.
+		assertEquals("2", panel.getDestinationCells().get(3).getCount());
+		assertEquals("1", panel.getDestinationCells().get(9).getCount());
+		assertEquals("", panel.getDestinationCells().get(1).getCount());
+
+		panel.shutdown();
+	}
+
+	@Test
+	public void theNextMoveLineKeepsOneSentenceAndParksTheRestInTheTooltip()
+	{
+		assertEquals("", IronmanBankArchitectPanel.firstSentence(""));
+		assertEquals("Drag Mind helmet to tab 2.", IronmanBankArchitectPanel.firstSentence(
+			"Distributing: 99%\nDrag Mind helmet to tab 2. Main is processed top to bottom."));
+		assertEquals("Blueprint complete.",
+			IronmanBankArchitectPanel.firstSentence("Sorting: 100%\nBlueprint complete."));
+	}
+
+	@Test
 	public void categoryCorrectionCardTracksAssignModeAndRecordedCount()
 	{
 		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
@@ -114,14 +165,14 @@ public class IronmanBankArchitectPanelTest
 		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {},
 			(item, label) -> {}, () -> reset[0] = true);
 
-		assertTrue(String.join("\n", collectLabelText(panel)).contains("Category Corrections"));
-		assertEquals("Assign Categories", panel.getAssignCategoriesButton().getText());
+		// The switch carries its state in the tooltip, not in a flipping label.
+		assertEquals("Assign categories", panel.getAssignCategoriesButton().getToolTipText());
 		assertTrue(panel.getCategoryOverrideLabel().getText().contains("No category corrections"));
 		assertFalse(panel.getResetOverridesButton().isEnabled());
 
 		panel.getAssignCategoriesButton().doClick();
 		assertTrue(controller.isCategoryAssignMode());
-		assertEquals("Stop Assigning", panel.getAssignCategoriesButton().getText());
+		assertTrue(panel.getAssignCategoriesButton().getToolTipText().contains("right-click"));
 		assertTrue(panel.getCategoryOverrideLabel().getText().contains("Right-click a bank item"));
 
 		controller.publishCategoryOverrideCount(2);
@@ -175,7 +226,7 @@ public class IronmanBankArchitectPanelTest
 		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
 
 		assertTrue(panel.getGuideProgressBar().isVisible());
-		assertEquals(42, panel.getGuideProgressBar().getValue());
+		assertEquals(42, panel.getGuideProgressBar().getPercentage());
 		panel.shutdown();
 	}
 
@@ -228,6 +279,19 @@ public class IronmanBankArchitectPanelTest
 		assertFalse(source.contains("ItemContainer"));
 		assertFalse(source.contains("ItemManager"));
 		assertFalse(source.contains("net.runelite.api."));
+	}
+
+	private static boolean isInside(Container container, Component target)
+	{
+		for (Component component : container.getComponents())
+		{
+			if (component == target
+				|| component instanceof Container && isInside((Container) component, target))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static List<String> collectLabelText(Container container)

@@ -396,7 +396,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	}
 
 	// 16px version of the Plugin Hub icon.png: blueprint bank grid with a gold coin.
-	private static BufferedImage createIcon()
+	static BufferedImage createIcon()
 	{
 		BufferedImage icon = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = icon.createGraphics();
