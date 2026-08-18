@@ -62,12 +62,40 @@ preview of the planned layout. It is disposed in `shutDown`.
 
 ## Why another bank plugin
 
-Most bank organisers on the Hub render a *virtual* layout: the bank interface is
-repainted so it looks organised while the real bank is untouched. This plugin
+Two things separate this from the bank organisers already on the Hub, and they
+are also where most of the line count comes from.
+
+**It computes a layout for your bank rather than applying a template.** The
+common approach is a fixed template, or a set of category rules that decide
+*which tab* an item belongs to and stop there. A template only works if your
+bank resembles the one it was built from; a tab assignment leaves the inside of
+the tab in whatever order the items happened to be. Here the destination is only
+the first step. `organize/layout/` is a 7,100-line placement engine that packs
+each tab from the items you actually own: eight semantic rule sets propose
+blocks — gear sets, rune blocks, potion doses grouped by dose, resource zones by
+skill, tool and outfit sets — and a scored packer chooses a placement that fits
+the tab's real width and item count. Eleven per-category sorters order what is
+left. Nothing is placed that you do not own, and no filler is invented.
+
+**Gear is grouped by combat style and slot, with the best first.** Melee, ranged
+and magic get their own lanes, each slot forms a row, and within a slot the
+order is decided from real equipment stats plus a 309-entry gear tier catalogue
+— so a strength set, a ranged set and a mage set end up as recognisable blocks
+instead of an alphabetical pile. The same stat comparison drives the alch
+review: an item only moves out of combat gear when an owned item beats it
+outright on all fifteen equipment stats.
+
+Both claims are checkable. `docs/research/` holds the dated studies the rules
+were built from, including a review of the most-imported community bank
+templates, and `./gradlew aggregateCleanupReview` replays 1,800 generated banks
+through the whole planner and asserts every one reaches a complete, dense layout
+with no stalled or non-terminating route.
+
+Separately: most organisers render a *virtual* layout, repainting the bank
+interface so it looks organised while the real bank is untouched. This plugin
 does the opposite — it guides the player through physically rearranging the real
-bank, one manual drag at a time, and therefore never writes to a bank widget.
-That is also why it is stricter than it has to be: it does not modify widgets at
-all.
+bank, one manual drag at a time. That is why it never writes to a bank widget at
+all, which is stricter than the rules require.
 
 ## Fail-closed behaviour
 
