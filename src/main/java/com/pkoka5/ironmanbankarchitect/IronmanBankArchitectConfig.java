@@ -61,4 +61,27 @@ public interface IronmanBankArchitectConfig extends Config
 		description = ""
 	)
 	void setCategoryOverrides(String serialized);
+
+	/**
+	 * The player's blueprint tab order, stored locally as comma-separated
+	 * category keys. Hidden because it is edited through the sidebar's tab
+	 * order dialog, not by hand.
+	 */
+	@ConfigItem(
+		keyName = "tabOrder",
+		name = "",
+		description = "",
+		hidden = true
+	)
+	default String tabOrder()
+	{
+		return "";
+	}
+
+	@ConfigItem(
+		keyName = "tabOrder",
+		name = "",
+		description = ""
+	)
+	void setTabOrder(String serialized);
 }

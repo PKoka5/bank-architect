@@ -11,7 +11,9 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
+import com.pkoka5.ironmanbankarchitect.organize.BankTabOrder;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
 import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
@@ -24,6 +26,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,7 +118,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		overlayManager.add(categoryOverlay);
 
 		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon,
-			this::resetCategoryOverrides);
+			this::resetCategoryOverrides, tabOrderModel());
 		navigationButton = NavigationButton.builder()
 			.tooltip(PLUGIN_NAME)
 			.icon(createIcon())
@@ -189,7 +192,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		Menu submenu = parent.createSubMenu();
 
 		Optional<String> current = categoryOverrides.categoryKeyFor(itemId);
-		for (BankCategory category : BankPresets.IRONMAN.getCategories())
+		for (BankCategory category : activePreset().getCategories())
 		{
 			boolean active = current.isPresent() && current.get().equals(category.getKey());
 			submenu.createMenuEntry(-1)
@@ -260,6 +263,36 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		}
 	}
 
+	/** The all-round preset with its destinations in the order the player chose. */
+	private BankPreset activePreset()
+	{
+		return BankTabOrder.apply(BankPresets.IRONMAN, config.tabOrder());
+	}
+
+	/**
+	 * Stores an order the player arranged in the sidebar and re-plans the bank
+	 * from it. Only the placement of the destinations changes: classification
+	 * and corrections are keyed by destination, never by position.
+	 */
+	private TabOrderModel tabOrderModel()
+	{
+		return new TabOrderModel()
+		{
+			@Override
+			public List<BankCategory> categories()
+			{
+				return activePreset().getCategories();
+			}
+
+			@Override
+			public void save(List<String> keys)
+			{
+				config.setTabOrder(BankTabOrder.serialize(keys));
+				analyzeBank();
+			}
+		};
+	}
+
 	@Provides
 	IronmanBankArchitectConfig provideConfig(ConfigManager configManager)
 	{
@@ -309,10 +342,11 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 		try
 		{
+			BankPreset preset = activePreset();
 			controller.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
-				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN));
+				CompositeItemCatalog.DEFAULT, preset));
 			controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
-				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
+				CompositeItemCatalog.DEFAULT, preset,
 				itemId -> Optional.ofNullable(gearStatsById.get(itemId)),
 				itemId -> alchValuesById.getOrDefault(itemId, 0),
 				categoryOverrides));
