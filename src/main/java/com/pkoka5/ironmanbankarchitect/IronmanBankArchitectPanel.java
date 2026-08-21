@@ -94,6 +94,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton showBankButton;
 	private final JButton assignCategoriesButton;
 	private final JButton resetOverridesButton;
+	private final JButton tabOrderButton;
+	private final TabOrderModel tabOrderModel;
 	private final JLabel categoryOverrideLabel;
 	private final JLabel statusLabel;
 	private final JLabel catalogSummaryLabel;
@@ -108,6 +110,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private BankOrganizationPreview renderedDestinations;
 	private JDialog bankDialog;
+	private TabOrderDialog tabOrderDialog;
 	private JTabbedPane bankTabs;
 	private JButton exportBlueprintButton;
 
@@ -130,8 +133,17 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
 		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback)
 	{
+		this(guideController, analyzeCallback, itemIconRenderer, resetOverridesCallback,
+			TabOrderModel.DEFAULT);
+	}
+
+	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
+		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback,
+		TabOrderModel tabOrderModel)
+	{
 		this.guideController = guideController;
 		this.itemIconRenderer = itemIconRenderer;
+		this.tabOrderModel = tabOrderModel;
 
 		setLayout(new BorderLayout(0, 8));
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -163,6 +175,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			resetOverridesCallback.run();
 			refreshControls();
 		});
+
+		tabOrderButton = new JButton("Tab Order");
+		tabOrderButton.setFont(FontManager.getRunescapeSmallFont());
+		tabOrderButton.setToolTipText("Arrange the blueprint tabs");
+		tabOrderButton.setFocusPainted(false);
+		tabOrderButton.addActionListener(event -> showTabOrderDialog());
 
 		categoryOverrideLabel = label("");
 		statusLabel = label("");
@@ -199,6 +217,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		cardConstraints.fill = GridBagConstraints.HORIZONTAL;
 		cardConstraints.insets = new Insets(0, 0, 8, 0);
 		content.add(destinationGrid(), cardConstraints);
+		cardConstraints.gridy++;
+		content.add(tabOrderButton, cardConstraints);
 		cardConstraints.gridy++;
 		content.add(guideProgressBar, cardConstraints);
 		cardConstraints.gridy++;
@@ -338,6 +358,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	void shutdown()
 	{
 		statusTimer.stop();
+		if (tabOrderDialog != null)
+		{
+			tabOrderDialog.dispose();
+			tabOrderDialog = null;
+		}
 		if (bankDialog != null)
 		{
 			bankDialog.dispose();
@@ -385,6 +410,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return resetOverridesButton;
 	}
 
+	JButton getTabOrderButton()
+	{
+		return tabOrderButton;
+	}
+
 	JLabel getCategoryOverrideLabel()
 	{
 		return categoryOverrideLabel;
@@ -403,6 +433,19 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	ProgressBar getGuideProgressBar()
 	{
 		return guideProgressBar;
+	}
+
+	/**
+	 * Opens the tab arranger. Only one is kept open, so repeated clicks do not
+	 * leave stale copies of an order the player has already changed.
+	 */
+	private void showTabOrderDialog()
+	{
+		if (tabOrderDialog != null)
+		{
+			tabOrderDialog.dispose();
+		}
+		tabOrderDialog = TabOrderDialog.show(this, tabOrderModel, itemIconRenderer);
 	}
 
 	private void onToggleGuide()
@@ -571,6 +614,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			sprite.setIcon(null);
 			sprite.setText("");
 			setBackground(filled ? DESTINATION_CELL_BG : DESTINATION_EMPTY_BG);
+			// The colour belongs to the destination, not to the cell, so a
+			// reordered tab keeps the colour the player already knows.
+			setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0,
+				CategoryPalette.colorForCategory(category == null ? ""
+					: category.getCategory().getKey(), categoryIndex)));
 			BankPreviewItem icon = iconItem(category);
 			if (icon != null)
 			{

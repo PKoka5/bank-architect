@@ -120,9 +120,9 @@ public final class BankCategoryOverlay extends Overlay
 					continue;
 				}
 				shownCategories.add(categoryIndex);
-				bankGraphics.setColor(CategoryPalette.colorFor(categoryIndex, opacity));
+				bankGraphics.setColor(CategoryPalette.colorFor(cachedIndex.paletteIndex(categoryIndex), opacity));
 				bankGraphics.fill(bounds);
-				bankGraphics.setColor(CategoryPalette.colorFor(categoryIndex));
+				bankGraphics.setColor(CategoryPalette.colorFor(cachedIndex.paletteIndex(categoryIndex)));
 				bankGraphics.draw(bounds);
 			}
 		}
@@ -206,7 +206,7 @@ public final class BankCategoryOverlay extends Overlay
 			int y = legend.y + LEGEND_PADDING;
 			for (int categoryIndex : categoryIndexes)
 			{
-				legendGraphics.setColor(CategoryPalette.colorFor(categoryIndex));
+				legendGraphics.setColor(CategoryPalette.colorFor(cachedIndex.paletteIndex(categoryIndex)));
 				legendGraphics.fillRect(legend.x + LEGEND_PADDING,
 					y + (lineHeight - LEGEND_SWATCH) / 2, LEGEND_SWATCH, LEGEND_SWATCH);
 				BankOverlayText.draw(legendGraphics, cachedIndex.categoryName(categoryIndex),

@@ -58,6 +58,22 @@ plugin's settings, so it survives a client restart. **Reset Corrections** clears
 them all; choosing **Use automatic classification** clears a single item.
 Corrections apply to the real item, so making one on a placeholder works too.
 
+## Choosing the tab order
+
+The blueprint always fills the bank's main section first, then nine tabs. If you
+want your own order for those nine:
+
+1. Select **Tab Order** in the sidebar, under the destination icons.
+2. Move a tab with its up and down arrows. The change is saved as you make it
+   and the blueprint is rebuilt straight away.
+3. **Reset to default** puts the preset order back.
+
+The main section stays first because it is not a tab. Reordering only decides
+where a destination goes: which items land in it, the corrections you have made,
+and the layout inside the tab are all unchanged, and each destination keeps its
+colour so moving one tab does not recolour the rest. Your order is stored locally
+with the plugin's settings and survives a client restart.
+
 ## Safety and privacy
 
 Reviewing this for the Plugin Hub? [docs/for-reviewers.md](docs/for-reviewers.md)

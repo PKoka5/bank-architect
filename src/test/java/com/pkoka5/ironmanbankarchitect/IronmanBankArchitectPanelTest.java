@@ -12,6 +12,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
+import com.pkoka5.ironmanbankarchitect.organize.BankTabOrder;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
@@ -326,6 +327,41 @@ public class IronmanBankArchitectPanelTest
 				layoutTree(child);
 			}
 		}
+	}
+
+	@Test
+	public void tabOrderButtonSavesAnArrangedOrder()
+	{
+		List<String> saved = new ArrayList<>();
+		TabOrderModel model = new TabOrderModel()
+		{
+			@Override
+			public List<com.pkoka5.ironmanbankarchitect.organize.BankCategory> categories()
+			{
+				return BankTabOrder.apply(BankPresets.IRONMAN,
+					BankTabOrder.serialize(saved)).getCategories();
+			}
+
+			@Override
+			public void save(List<String> keys)
+			{
+				saved.clear();
+				saved.addAll(keys);
+			}
+		};
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
+			new BankGuideController(AllRoundIronmanPreset.create()), () -> {}, (item, label) -> {},
+			() -> {}, model);
+
+		assertTrue(panel.getTabOrderButton().isEnabled());
+		// The dialog itself needs a display, so exercise what its buttons call.
+		model.save(BankTabOrder.moved(BankTabOrder.orderedKeys(BankPresets.IRONMAN, ""), 9, -1));
+
+		List<String> stored = BankTabOrder.orderedKeys(BankPresets.IRONMAN,
+			BankTabOrder.serialize(saved));
+		assertEquals("storage-cleanup", stored.get(8));
+		assertEquals("currency-utilities", stored.get(0));
+		panel.shutdown();
 	}
 
 	private static JScrollPane findScrollPane(Container container)

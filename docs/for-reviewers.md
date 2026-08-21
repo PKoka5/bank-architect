@@ -12,7 +12,7 @@ no external process, no file I/O, and no third-party dependency.
 
 ## Only four files touch live client state
 
-Of 120 production source files, exactly four import anything that reads or
+Of 123 production source files, exactly four import anything that reads or
 reacts to the running game:
 
 | File | Lines | What it does |
@@ -28,7 +28,7 @@ grep -rlE 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Me
 
 Twelve further files import `net.runelite.api.gameval.ItemID` and nothing else —
 those are compile-time item-ID constants in classification tables, with no
-client access. The remaining 104 files import no RuneLite API at all: they are
+client access. The remaining 107 files import no RuneLite API at all: they are
 the item catalogue, the layout engine, and the sorters, all pure functions over
 plain data. That is where the line count lives.
 
@@ -58,7 +58,10 @@ stats and prices are collected on the client thread first, so the background
 task works only from plain maps.
 
 **A separate window.** "Show My Bank" opens a `JDialog` with a read-only
-preview of the planned layout. It is disposed in `shutDown`.
+preview of the planned layout. It is disposed in `shutDown`. A second `JDialog`,
+the tab arranger, lets the player order the destinations; it writes one
+comma-separated list of destination keys to plugin config and re-runs the
+analysis. Both are disposed with the panel.
 
 ## Why another bank plugin
 
@@ -110,7 +113,7 @@ The destination-colour overlay only draws and therefore has no such gates.
 ## Verification
 
 ```sh
-./gradlew test                # 848 tests
+./gradlew test                # 858 tests
 ./gradlew simulateRandomBanks # 150 generated banks, all reach a complete plan
 ./gradlew aggregateCleanupReview
 ```
