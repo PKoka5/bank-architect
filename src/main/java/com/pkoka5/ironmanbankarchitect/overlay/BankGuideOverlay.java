@@ -275,6 +275,9 @@ public final class BankGuideOverlay extends Overlay
 		String hudText = tabHudText(assessment, suggestNextMove, rearrangeMode);
 		guideController.publishGuideProgress(guideText, assessment.getProgress().getPercent());
 		Map<Integer, Integer> plannedSlotByItemId = cachedPlannedSlotByItemId;
+		// A complete blueprint keeps drawing, all green: the player asked to see
+		// the finished result confirmed rather than have the colours vanish, and
+		// switches the guide off by hand once they have looked at it.
 		boolean showFinalValidation = assessment.getProgress().getPhase() == Phase.SORTING
 			|| assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE;
 

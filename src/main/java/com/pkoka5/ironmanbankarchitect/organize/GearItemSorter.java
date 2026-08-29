@@ -70,6 +70,12 @@ final class GearItemSorter
 	 * Callers may apply secondary grouping rules to the tail, but must never
 	 * repack the setup rows or the four combat-style columns would be lost.
 	 */
+	/** The dense order alone, with no aligned setup rows and so nothing to pad. */
+	static List<BankPreviewItem> dense(List<BankPreviewItem> items, GearStatsSource gearStats)
+	{
+		return remainingSorted(items, new LinkedHashSet<>(), gearStats);
+	}
+
 	static GearLayout plan(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		Map<String, List<BankPreviewItem>> setCandidates = new LinkedHashMap<>();

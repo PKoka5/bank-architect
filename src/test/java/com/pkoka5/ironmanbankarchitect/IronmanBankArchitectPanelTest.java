@@ -11,8 +11,10 @@ import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
-import com.pkoka5.ironmanbankarchitect.organize.BankTabOrder;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
@@ -26,6 +28,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
+import javax.swing.Box;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
@@ -329,39 +334,504 @@ public class IronmanBankArchitectPanelTest
 		}
 	}
 
-	@Test
-	public void tabOrderButtonSavesAnArrangedOrder()
+	/** A model backed by a plan in memory, standing in for the config. */
+	private static final class RecordingLayoutModel implements BankLayoutModel
 	{
-		List<String> saved = new ArrayList<>();
-		TabOrderModel model = new TabOrderModel()
-		{
-			@Override
-			public List<com.pkoka5.ironmanbankarchitect.organize.BankCategory> categories()
-			{
-				return BankTabOrder.apply(BankPresets.IRONMAN,
-					BankTabOrder.serialize(saved)).getCategories();
-			}
+		private BankLayoutPlan stored = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		private int saves;
 
-			@Override
-			public void save(List<String> keys)
-			{
-				saved.clear();
-				saved.addAll(keys);
-			}
-		};
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
+		@Override
+		public com.pkoka5.ironmanbankarchitect.organize.BankPreset preset()
+		{
+			return BankPresets.IRONMAN;
+		}
+
+		@Override
+		public BankLayoutPlan plan()
+		{
+			return stored;
+		}
+
+		@Override
+		public int itemCount(String categoryKey)
+		{
+			return 7;
+		}
+
+		@Override
+		public void save(BankLayoutPlan plan)
+		{
+			stored = plan;
+			saves++;
+		}
+	}
+
+	private static IronmanBankArchitectPanel panelWith(BankLayoutModel model)
+	{
+		return new IronmanBankArchitectPanel(
 			new BankGuideController(AllRoundIronmanPreset.create()), () -> {}, (item, label) -> {},
 			() -> {}, model);
+	}
+
+	@Test
+	public void layoutEditorStaysClosedUntilTheTabLayoutButtonIsPressed()
+	{
+		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
 
 		assertTrue(panel.getTabOrderButton().isEnabled());
-		// The dialog itself needs a display, so exercise what its buttons call.
-		model.save(BankTabOrder.moved(BankTabOrder.orderedKeys(BankPresets.IRONMAN, ""), 9, -1));
+		assertFalse(panel.isLayoutEditorVisible());
 
-		List<String> stored = BankTabOrder.orderedKeys(BankPresets.IRONMAN,
-			BankTabOrder.serialize(saved));
-		assertEquals("storage-cleanup", stored.get(8));
-		assertEquals("currency-utilities", stored.get(0));
+		panel.getTabOrderButton().doClick();
+
+		assertTrue(panel.isLayoutEditorVisible());
 		panel.shutdown();
+	}
+
+	/**
+	 * The reported case: runes start in the main section and the player wants
+	 * them on the combat gear tab, without teleports coming along.
+	 */
+	@Test
+	public void oneTagLeavesItsBundleForAnotherTab()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+		int gearTab = model.plan().destinationOf("gear");
+
+		panel.moveTagTo("runes", gearTab);
+
+		assertEquals(gearTab, model.plan().destinationOf("runes"));
+		assertFalse(model.plan().getTagKeys(gearTab).contains("teleports"));
+		assertEquals(1, model.saves);
+		panel.shutdown();
+	}
+
+	@Test
+	public void movingTheLastTagOffATabLeavesThatTabEmpty()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		for (String key : new ArrayList<>(
+			model.plan().getTagKeys(BankLayoutPlan.MAIN_DESTINATION_INDEX)))
+		{
+			panel.moveTagTo(key, 4);
+		}
+
+		assertTrue(model.plan().getTagKeys(BankLayoutPlan.MAIN_DESTINATION_INDEX).isEmpty());
+		panel.shutdown();
+	}
+
+	/** Taking a tag off a tab sends it to the fallback rather than nowhere. */
+	@Test
+	public void removingATagSendsItToTheFallbackTab()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		panel.removeFromTab("potions");
+
+		assertEquals(model.plan().destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY),
+			model.plan().destinationOf("potions"));
+		panel.shutdown();
+	}
+
+	@Test
+	public void theFallbackTagAlwaysKeepsATab()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+		int before = model.plan().destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY);
+
+		panel.removeFromTab(BankLayoutPlan.FALLBACK_TAG_KEY);
+
+		assertEquals(before, model.plan().destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY));
+		assertEquals(0, model.saves);
+		panel.shutdown();
+	}
+
+	/** Every tag keeps a home, so no items drop out of the blueprint. */
+	@Test
+	public void everyTagStillHasADestinationAfterAMove()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		panel.moveTagTo("gems", 2);
+		panel.moveTagTo("food", 2);
+
+		for (com.pkoka5.ironmanbankarchitect.organize.BankTag tag
+			: com.pkoka5.ironmanbankarchitect.organize.BankTags.all())
+		{
+			assertTrue(tag.getKey(), model.plan().destinationOf(tag.getKey()) >= 0);
+		}
+		panel.shutdown();
+	}
+
+	@Test
+	public void everyTagGetsARowSoNoneIsUnreachable()
+	{
+		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
+		panel.getTabOrderButton().doClick();
+
+		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().size(),
+			countRows(panel.getLayoutRows()));
+		panel.shutdown();
+	}
+	/**
+	 * The move instructions call the first real tab "blueprint tab 1", so the
+	 * layout screen has to as well. Numbering the main section as tab one would
+	 * have the two halves of the plugin name the same tab differently.
+	 */
+	@Test
+	public void tabsAreNumberedFromTheFirstRealTabNotFromTheMainSection()
+	{
+		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
+		panel.getTabOrderButton().doClick();
+
+		panel.selectDestination(BankLayoutPlan.MAIN_DESTINATION_INDEX);
+		assertTrue(headingOf(panel).contains("Main section"));
+
+		panel.selectDestination(3);
+		String heading = headingOf(panel);
+		assertTrue(heading, heading.contains("Tab 3"));
+		assertFalse(heading, heading.contains("Tab 4"));
+		panel.shutdown();
+	}
+
+	/** The heading names what the destination holds, not just its number. */
+	@Test
+	public void theHeadingSpellsOutWhichCategoriesAreOnTheShownTab()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+		int storage = model.plan().destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY);
+
+		panel.moveTagTo("cosmetics", storage);
+		panel.selectDestination(storage);
+
+		String heading = headingOf(panel);
+		assertTrue(heading, heading.contains(
+			com.pkoka5.ironmanbankarchitect.organize.BankTags.byKey("cosmetics").getName()));
+		assertTrue(heading, heading.contains(
+			com.pkoka5.ironmanbankarchitect.organize.BankTags.byKey(
+				BankLayoutPlan.FALLBACK_TAG_KEY).getName()));
+		panel.shutdown();
+	}
+
+	/** The list is organised tab first: a heading per destination, then its categories. */
+	@Test
+	public void theListIsGroupedByTabWithAHeadingForEveryDestination()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		List<String> headings = new ArrayList<>();
+		for (Component child : panel.getLayoutRows().getComponents())
+		{
+			if (child instanceof JLabel)
+			{
+				headings.add(((JLabel) child).getText());
+			}
+		}
+
+		assertTrue(headings.toString(), headings.get(0).startsWith("Main section"));
+		for (int tab = 1; tab < BankLayoutPlan.DESTINATION_COUNT; tab++)
+		{
+			final String expected = "Tab " + tab;
+			boolean found = false;
+			for (String heading : headings)
+			{
+				found = found || heading.startsWith(expected);
+			}
+			assertTrue(expected + " missing from " + headings, found);
+		}
+		panel.shutdown();
+	}
+
+	/** An emptied tab keeps its heading, so the player can see it is empty on purpose. */
+	@Test
+	public void anEmptiedTabIsStillListedAsEmpty()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		for (String key : new ArrayList<>(
+			model.plan().getTagKeys(BankLayoutPlan.MAIN_DESTINATION_INDEX)))
+		{
+			panel.moveTagTo(key, 4);
+		}
+
+		boolean sawEmptyNote = false;
+		for (Component child : panel.getLayoutRows().getComponents())
+		{
+			sawEmptyNote = sawEmptyNote || (child instanceof JLabel
+				&& ((JLabel) child).getText().startsWith("Empty"));
+		}
+		assertTrue(sawEmptyNote);
+		panel.shutdown();
+	}
+
+	/**
+	 * A vertical BoxLayout centres anything narrower than the widest child, so a
+	 * single row that asks to be wide staggers the whole column to the right and
+	 * pushes the buttons out of view. Every child must share one left edge.
+	 */
+	@Test
+	public void everyRowInTheEditorSharesOneLeftEdgeAndOneWidth()
+	{
+		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
+		panel.getTabOrderButton().doClick();
+
+		int width = -1;
+		for (Component child : panel.getLayoutRows().getComponents())
+		{
+			if (child instanceof Box.Filler)
+			{
+				continue;
+			}
+			assertEquals(child.getClass().getName(),
+				Component.LEFT_ALIGNMENT, ((JComponent) child).getAlignmentX(), 0.001);
+			int preferred = child.getPreferredSize().width;
+			if (width < 0)
+			{
+				width = preferred;
+			}
+			assertEquals(child.getClass().getName(), width, preferred);
+		}
+		panel.shutdown();
+	}
+
+	/** Every tag needs a way off its tab, and the fallback needs it refused. */
+	@Test
+	public void everyTagRowCarriesARemoveButton()
+	{
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		int rows = 0;
+		int enabledRemovals = 0;
+		for (Component child : panel.getLayoutRows().getComponents())
+		{
+			if (!(child instanceof JPanel))
+			{
+				continue;
+			}
+			rows++;
+			List<AbstractButton> buttons = new ArrayList<>();
+			collectButtons((Container) child, buttons);
+			assertEquals("row " + rows + " is missing controls", 3, buttons.size());
+			if (buttons.get(2).isEnabled())
+			{
+				enabledRemovals++;
+			}
+		}
+
+		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().size(), rows);
+		// Every tag but the fallback can be taken off its tab.
+		assertEquals(rows - 1, enabledRemovals);
+		panel.shutdown();
+	}
+
+	/**
+	 * An edited layout is no longer the layout it was loaded from, so the list
+	 * must say so rather than leave a saved profile looking selected.
+	 */
+	@Test
+	public void editingALayoutLeavesTheProfileListShowingUnsaved()
+	{
+		ProfileLayoutModel model = new ProfileLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		assertEquals(BankLayoutProfiles.DEFAULT_NAME,
+			panel.getProfileChooser().getSelectedItem());
+
+		panel.moveTagTo("runes", 6);
+
+		assertEquals("Custom (unsaved)", panel.getProfileChooser().getSelectedItem());
+		panel.shutdown();
+	}
+
+	@Test
+	public void savedLayoutsAreOfferedAndTheBundledOneComesFirst()
+	{
+		ProfileLayoutModel model = new ProfileLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		panel.moveTagTo("runes", 6);
+		model.saveProfile("Maugor setup", panel.getLayoutPlan());
+		panel.getTabOrderButton().doClick();
+		panel.getTabOrderButton().doClick();
+
+		assertEquals(BankLayoutProfiles.DEFAULT_NAME, panel.getProfileChooser().getItemAt(0));
+		assertEquals("Maugor setup", panel.getProfileChooser().getSelectedItem());
+		panel.shutdown();
+	}
+
+	/**
+	 * The two layout options live beside the tabs they affect. They were only in
+	 * the client's plugin settings at first, where nobody arranging tabs thinks
+	 * to look.
+	 */
+	@Test
+	public void layoutOptionsSitInTheEditorAndSaveWhenTicked()
+	{
+		ProfileLayoutModel model = new ProfileLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		assertTrue(panel.getFillRowsBox().isSelected());
+		assertTrue(panel.getAlchPileBox().isSelected());
+
+		panel.getFillRowsBox().doClick();
+
+		assertFalse(model.options().fillRows());
+		assertTrue("the other option must be left alone", model.options().alchPile());
+		panel.shutdown();
+	}
+
+	@Test
+	public void reopeningTheEditorShowsTheStoredOptions()
+	{
+		ProfileLayoutModel model = new ProfileLayoutModel();
+		model.saveOptions(new BankLayoutOptions(false, false));
+		IronmanBankArchitectPanel panel = panelWith(model);
+
+		panel.getTabOrderButton().doClick();
+
+		assertFalse(panel.getFillRowsBox().isSelected());
+		assertFalse(panel.getAlchPileBox().isSelected());
+		panel.shutdown();
+	}
+
+	/** A model that keeps its profiles in memory, standing in for the config. */
+	private static final class ProfileLayoutModel implements BankLayoutModel
+	{
+		private BankLayoutPlan working = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		private BankLayoutProfiles profiles = BankLayoutProfiles.parse("", "");
+		private BankLayoutOptions layoutOptions = BankLayoutOptions.DEFAULTS;
+
+		@Override
+		public BankLayoutOptions options()
+		{
+			return layoutOptions;
+		}
+
+		@Override
+		public void saveOptions(BankLayoutOptions options)
+		{
+			layoutOptions = options;
+		}
+
+		@Override
+		public com.pkoka5.ironmanbankarchitect.organize.BankPreset preset()
+		{
+			return BankPresets.IRONMAN;
+		}
+
+		@Override
+		public BankLayoutPlan plan()
+		{
+			return working;
+		}
+
+		@Override
+		public int itemCount(String tagKey)
+		{
+			return 0;
+		}
+
+		@Override
+		public void save(BankLayoutPlan plan)
+		{
+			working = plan;
+		}
+
+		@Override
+		public List<String> profileNames()
+		{
+			return profiles.names();
+		}
+
+		@Override
+		public String matchingProfile()
+		{
+			for (String name : profiles.names())
+			{
+				if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.planFor(name))
+					.getDestinations().equals(working.getDestinations()))
+				{
+					return name;
+				}
+			}
+
+			return "";
+		}
+
+		@Override
+		public void selectProfile(String name)
+		{
+			profiles = profiles.withActive(name);
+			working = BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.activePlan());
+		}
+
+		@Override
+		public void saveProfile(String name, BankLayoutPlan plan)
+		{
+			profiles = profiles.withProfile(name, plan.serialize());
+			working = plan;
+		}
+
+		@Override
+		public void deleteProfile(String name)
+		{
+			profiles = profiles.without(name);
+		}
+	}
+
+	private static void collectButtons(Container container, List<AbstractButton> found)
+	{
+		for (Component child : container.getComponents())
+		{
+			if (child instanceof AbstractButton)
+			{
+				found.add((AbstractButton) child);
+			}
+			else if (child instanceof Container)
+			{
+				collectButtons((Container) child, found);
+			}
+		}
+	}
+
+	private static String headingOf(IronmanBankArchitectPanel panel)
+	{
+		return panel.getLayoutHeading().getText();
+	}
+
+	private static int countRows(JPanel rows)
+	{
+		int count = 0;
+		for (Component child : rows.getComponents())
+		{
+			if (child instanceof JPanel)
+			{
+				count++;
+			}
+		}
+
+		return count;
 	}
 
 	private static JScrollPane findScrollPane(Container container)

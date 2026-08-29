@@ -9,11 +9,16 @@ import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
-import com.pkoka5.ironmanbankarchitect.organize.BankTabOrder;
+import com.pkoka5.ironmanbankarchitect.organize.BankTag;
+import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
 import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
@@ -60,8 +65,9 @@ import org.slf4j.LoggerFactory;
 
 @PluginDescriptor(
 	name = "Bank Architect",
-	description = "Creates an Ironman bank blueprint with read-only, manual move guidance.",
-	tags = {"bank", "planner", "blueprint", "organization", "ironman"}
+	description = "Design your own bank tabs, then sort them by hand with read-only move guidance.",
+	tags = {"bank", "banking", "tabs", "layout", "planner", "blueprint",
+		"organize", "organise", "organization", "sort", "sorting", "tags", "ironman"}
 )
 public final class IronmanBankArchitectPlugin extends Plugin
 {
@@ -101,6 +107,10 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private BankCategoryOverlay categoryOverlay;
 	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
 	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
+	// Counted per tag while the blueprint is built, because the layout screen
+	// needs to show what a tab would weigh under an arrangement the player has
+	// not saved yet, and the destinations alone no longer say which tag is which.
+	private final Map<String, Integer> tagItemCounts = new ConcurrentHashMap<>();
 
 	@Override
 	protected void startUp()
@@ -118,7 +128,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		overlayManager.add(categoryOverlay);
 
 		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon,
-			this::resetCategoryOverrides, tabOrderModel());
+			this::resetCategoryOverrides, bankLayoutModel());
 		navigationButton = NavigationButton.builder()
 			.tooltip(PLUGIN_NAME)
 			.icon(createIcon())
@@ -191,14 +201,20 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			.setType(MenuAction.RUNELITE);
 		Menu submenu = parent.createSubMenu();
 
+		// Tags rather than categories: the plan places tags, so a correction has
+		// to name one or the player could not say which part of a bundle an item
+		// belongs to. Built back to front because the menu renders bottom-up, so
+		// the list reads in catalogue order on screen.
 		Optional<String> current = categoryOverrides.categoryKeyFor(itemId);
-		for (BankCategory category : activePreset().getCategories())
+		List<BankTag> tags = BankTags.all();
+		for (int index = tags.size() - 1; index >= 0; index--)
 		{
-			boolean active = current.isPresent() && current.get().equals(category.getKey());
+			BankTag tag = tags.get(index);
+			boolean active = current.isPresent() && current.get().equals(tag.getKey());
 			submenu.createMenuEntry(-1)
-				.setOption((active ? "* " : "") + category.getName())
+				.setOption((active ? "* " : "") + tag.getName())
 				.setType(MenuAction.RUNELITE)
-				.onClick(entry -> applyCategoryOverride(itemId, itemName, category.getKey()));
+				.onClick(entry -> applyCategoryOverride(itemId, itemName, tag.getKey()));
 		}
 		if (current.isPresent())
 		{
@@ -263,31 +279,140 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		}
 	}
 
-	/** The all-round preset with its destinations in the order the player chose. */
-	private BankPreset activePreset()
+	/** The player's assignment of categories to bank destinations. */
+	private BankLayoutPlan activePlan()
 	{
-		return BankTabOrder.apply(BankPresets.IRONMAN, config.tabOrder());
+		return BankLayoutPlan.parse(BankPresets.IRONMAN, config.tabOrder());
+	}
+
+	/** The player's layout choices that no plan can state for them. */
+	private BankLayoutOptions activeOptions()
+	{
+		return new BankLayoutOptions(config.fillRows(), config.alchPile());
+	}
+
+	/** The layouts the player has saved or imported, and which one they loaded. */
+	private BankLayoutProfiles savedProfiles()
+	{
+		return BankLayoutProfiles.parse(config.layoutProfiles(), config.activeLayoutProfile());
+	}
+
+	private void storeProfiles(BankLayoutProfiles profiles)
+	{
+		config.setLayoutProfiles(profiles.serialize());
+		config.setActiveLayoutProfile(profiles.getActiveName());
 	}
 
 	/**
-	 * Stores an order the player arranged in the sidebar and re-plans the bank
-	 * from it. Only the placement of the destinations changes: classification
-	 * and corrections are keyed by destination, never by position.
+	 * The all-round preset. Its ten categories still own classification and
+	 * layout; where their items end up is the plan's business, so the preset
+	 * itself no longer changes when the player rearranges the bank.
 	 */
-	private TabOrderModel tabOrderModel()
+	private BankPreset activePreset()
 	{
-		return new TabOrderModel()
+		return BankPresets.IRONMAN;
+	}
+
+	/**
+	 * Stores a plan the player arranged in the layout screen and re-plans the
+	 * bank from it. Only the placement of the tags changes: classification and
+	 * corrections are keyed by category, never by destination or position.
+	 */
+	private BankLayoutModel bankLayoutModel()
+	{
+		return new BankLayoutModel()
 		{
 			@Override
-			public List<BankCategory> categories()
+			public BankPreset preset()
 			{
-				return activePreset().getCategories();
+				return BankPresets.IRONMAN;
 			}
 
 			@Override
-			public void save(List<String> keys)
+			public BankLayoutPlan plan()
 			{
-				config.setTabOrder(BankTabOrder.serialize(keys));
+				return activePlan();
+			}
+
+			@Override
+			public int itemCount(String tagKey)
+			{
+				Integer count = tagItemCounts.get(tagKey);
+				return count == null ? 0 : count;
+			}
+
+			@Override
+			public void save(BankLayoutPlan plan)
+			{
+				config.setTabOrder(plan.completedFor(BankPresets.IRONMAN).serialize());
+				analyzeBank();
+			}
+
+			@Override
+			public List<String> profileNames()
+			{
+				return savedProfiles().names();
+			}
+
+			/**
+			 * Compared by the plan the layout produces, not by the text it was
+			 * stored as, so a profile written by an older version still counts as
+			 * a match once both sides mean the same arrangement.
+			 */
+			@Override
+			public String matchingProfile()
+			{
+				BankLayoutProfiles profiles = savedProfiles();
+				List<List<String>> current = activePlan().getDestinations();
+				for (String name : profiles.names())
+				{
+					if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.planFor(name))
+						.getDestinations().equals(current))
+					{
+						return name;
+					}
+				}
+
+				return "";
+			}
+
+			@Override
+			public void selectProfile(String name)
+			{
+				BankLayoutProfiles profiles = savedProfiles().withActive(name);
+				config.setActiveLayoutProfile(profiles.getActiveName());
+				config.setTabOrder(BankLayoutPlan
+					.parse(BankPresets.IRONMAN, profiles.activePlan())
+					.serialize());
+				analyzeBank();
+			}
+
+			@Override
+			public void saveProfile(String name, BankLayoutPlan plan)
+			{
+				BankLayoutProfiles profiles = savedProfiles().withProfile(name,
+					plan.completedFor(BankPresets.IRONMAN).serialize());
+				storeProfiles(profiles);
+				save(plan);
+			}
+
+			@Override
+			public void deleteProfile(String name)
+			{
+				storeProfiles(savedProfiles().without(name));
+			}
+
+			@Override
+			public BankLayoutOptions options()
+			{
+				return activeOptions();
+			}
+
+			@Override
+			public void saveOptions(BankLayoutOptions options)
+			{
+				config.setFillRows(options.fillRows());
+				config.setAlchPile(options.alchPile());
 				analyzeBank();
 			}
 		};
@@ -342,14 +467,22 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 		try
 		{
+			BankLayoutPlan plan = activePlan();
 			BankPreset preset = activePreset();
 			controller.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
 				CompositeItemCatalog.DEFAULT, preset));
-			controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(bankSnapshot,
+			// Classified per category, then grouped into the plan's destinations
+			// before anything is sorted, so a bundle whose tags share a tab is
+			// still laid out as one block.
+			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bankSnapshot,
 				CompositeItemCatalog.DEFAULT, preset,
 				itemId -> Optional.ofNullable(gearStatsById.get(itemId)),
 				itemId -> alchValuesById.getOrDefault(itemId, 0),
-				categoryOverrides));
+				categoryOverrides, plan,
+				new BankLayoutOptions(config.fillRows(), config.alchPile()));
+			tagItemCounts.clear();
+			tagItemCounts.putAll(preview.getTagCounts());
+			controller.publishOrganizationPreview(preview);
 		}
 		catch (RuntimeException ex)
 		{

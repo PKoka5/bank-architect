@@ -49,30 +49,113 @@ from a name resemblance. When that is wrong, or when you simply want an item
 somewhere else, you can say so:
 
 1. Select **Assign Categories** in the sidebar.
-2. Right-click the item in your bank and choose **Bank Architect**, then the
-   destination you want.
+2. Right-click the item in your bank and choose **Bank Architect**, then the tag
+   you want it on.
 3. Select **Analyze My Bank** again to rebuild the blueprint.
 
+The menu lists tags rather than the ten bundles, so you can be exact: you can say
+an item is a *Secondary* rather than only that it is Herblore. The item then goes
+wherever you have put that tag, so a correction and your tab layout can never
+disagree.
+
 Your correction wins over every automatic rule and is stored locally with the
-plugin's settings, so it survives a client restart. **Reset Corrections** clears
+plugin's settings, so it survives a client restart. Corrections you made before
+the bundles were split still work. **Reset Corrections** clears
 them all; choosing **Use automatic classification** clears a single item.
 Corrections apply to the real item, so making one on a placeholder works too.
 
-## Choosing the tab order
+## Choosing your tab layout
 
-The blueprint always fills the bank's main section first, then nine tabs. If you
-want your own order for those nine:
+The blueprint fills the bank's main section and nine tabs. You decide which
+categories go where:
 
-1. Select **Tab Order** in the sidebar, under the destination icons.
-2. Move a tab with its up and down arrows. The change is saved as you make it
-   and the blueprint is rebuilt straight away.
-3. **Reset to default** puts the preset order back.
+1. Select **Tab Layout** in the sidebar, under the destination icons.
+2. The list is organised tab by tab: **Main section**, then **Tab 1** to
+   **Tab 9**, each showing what is on it.
+3. Every tab has a dropdown listing the categories and tags that are not on it
+   yet, each with the tab it currently sits on. Pick one to move it here. The
+   no-entry button beside a tag takes it off and sends it to the Storage &
+   Cleanup tab.
+4. Where a tab holds more than one tag, the arrows decide which comes first.
+5. Every change is saved as you make it and the blueprint is rebuilt straight
+   away. **Reset to default** puts the preset arrangement back.
 
-The main section stays first because it is not a tab. Reordering only decides
-where a destination goes: which items land in it, the corrections you have made,
-and the layout inside the tab are all unchanged, and each destination keeps its
-colour so moving one tab does not recolour the rest. Your order is stored locally
-with the plugin's settings and survives a client restart.
+The destination icons above the list carry their own numbers — **M** for the
+main section, then **1** to **9** — and the count of what lands on each, so you
+can see the shape of the bank while you build it.
+
+### Saving and sharing a layout
+
+The dropdown at the top of the editor holds your saved layouts. **Ironman -
+All-Round** is the bundled one and always means the preset's own arrangement, so
+there is always a way back to a working bank. As soon as you change something
+the list shows **Custom (unsaved)**, because an edited layout is no longer the
+one you loaded.
+
+- **Save as** stores the current layout under a name.
+- **Export** copies it to your clipboard as a share code you can paste anywhere.
+- **Import** reads a code someone gave you. It is always saved under a free
+  name, so importing never overwrites a layout you built.
+- **Delete** forgets a saved layout. The bundled one cannot be deleted.
+
+A share code looks like `BAv1~Maugor setup~frequently-used+runes|gear|...` — the
+tag names stay readable on purpose, so a code that has lost something can be
+spotted by eye rather than only failing mysteriously. Nothing is uploaded: the
+code goes to your clipboard and you decide where it goes next.
+
+### Categories and tags
+
+The preset's ten categories are bundles. Each splits into tags you can place
+separately, so runes need not follow teleports and food need not sit with
+potions. Any number of tags may share a tab, and a tab left holding none is
+simply not created — so you can keep the main section empty as a place to dump
+loot and sort it later. Every tag always has a tab, so nothing falls out of the
+blueprint.
+
+Some bundles are laid out as a whole: the Herblore tags form recipe rows, the
+resource tags follow their skill zones, and combat gear builds setup rows. Those
+layouts survive as long as the tags stay on one tab. Split them across tabs and
+each side is arranged on its own, which loses the rows rather than breaking
+them — a trade you are free to make.
+
+### Two settings in the layout editor
+
+Both sit under the help text in **Tab Layout**, beside the tabs they affect.
+They are also in the client's plugin settings under Bank Architect, since they
+are stored there.
+
+**Fill part-empty rows** decides what happens when a group does not fill a row.
+A bank tab cannot hold an empty slot, so an aligned row only keeps its shape if
+real items fill it. On, gear setups and Herblore recipes stay in aligned rows and
+an occasional unrelated item sits in a row to complete it. Off, nothing is placed
+where it does not belong and the alignment is dropped instead. Turn it off if you
+have ever wondered why a pair of gloves is nowhere near the rest of its set.
+
+**Gather outclassed gear for alching** moves equipment you own two strictly
+better versions of, and that is worth alching, to the Slayer & Boss Loot tab.
+Turn it off to keep every piece of gear in the combat gear tab, for example when
+you keep a spare set on purpose.
+
+### Two ways to arrange Herblore
+
+By default the Herblore tab is a **row per recipe**: grimy herb, clean herb,
+seed, unfinished potion, secondary, then the 3, 2 and 1 dose.
+
+Move **Part Doses** onto the tab that holds **Potions** and it changes to
+**runs by kind** instead: all the grimy herbs, then all the clean ones, then the
+unfinished potions, the secondaries and the seeds.
+
+There is no switch for this, because moving that tag already says it. Recipe
+rows only earn their space while the doses are on hand to finish the recipe;
+once you keep your potions together elsewhere, the rows left behind would be
+mostly gaps. Move the doses to any other tab and the recipe rows stay, since
+that says something different.
+
+Reordering only decides where a category goes. Which items land in it, the
+corrections you have made, and the layout inside the tab are all unchanged, and
+each destination keeps its colour so rearranging one tab does not recolour the
+rest. Your layout is stored locally with the plugin's settings and survives a
+client restart.
 
 ## Safety and privacy
 
@@ -134,20 +217,32 @@ only classification input that is not bundled with the plugin.
 
 ## Screenshots
 
-The sidebar with a completed whole-bank scan while the guide walks the
-distribution phase — one highlighted manual drag at a time:
+The layout editor, where you decide what goes on each tab. Every tab lists what
+is on it and has a dropdown to add a category or tag; the arrows order a tab that
+holds more than one, and the no-entry button takes one off:
 
-![Bank Architect sidebar and distribution guidance](docs/screenshots/bank-guide-distributing.png)
+![Tab layout editor](docs/screenshots/tab-layout.png)
 
-The generated blueprint with the Main section and nine purpose-driven tabs:
+Assign mode, which tints every bank item with the colour of the tab it is planned
+for and names the tab in the legend. Right-clicking an item here offers the tags,
+so you can correct one that landed wrong:
+
+![Assign mode colouring the bank by destination](docs/screenshots/bank-assign-mode.png)
+
+The generated blueprint, with the Main section and the tabs your layout produced:
 
 ![Bank blueprint dialog](docs/screenshots/bank-blueprint.png)
 
-The sorting phase inside a planned tab, showing the validation grid, the
-highlighted FROM/TO swap, and the exact minimum number of drags remaining (in
-Insert mode the same grid highlights a MOVE/DROP pair instead):
+The sorting phase inside a planned tab: green for slots already right, and one
+highlighted MOVE/DROP pair at a time with the exact progress remaining (in Swap
+mode the same grid highlights a FROM/TO swap instead):
 
-![Sorting guidance with minimum swap count](docs/screenshots/bank-guide-sorting.png)
+![Sorting guidance inside a planned tab](docs/screenshots/bank-guide-sorting.png)
+
+Recovery, for when an item ends up somewhere the blueprint did not plan. The
+guide names the item and where to drag it back to rather than giving up:
+
+![Recovery guidance for a misplaced item](docs/screenshots/bank-guide-recovery.png)
 
 ## Support
 

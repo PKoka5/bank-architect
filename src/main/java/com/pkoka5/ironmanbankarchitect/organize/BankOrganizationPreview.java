@@ -2,23 +2,45 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class BankOrganizationPreview
 {
 	private final BankPreset preset;
 	private final List<BankCategoryPreview> categories;
+	private final Map<String, Integer> tagCounts;
 
 	public BankOrganizationPreview(BankPreset preset, List<BankCategoryPreview> categories)
 	{
+		this(preset, categories, Collections.<String, Integer>emptyMap());
+	}
+
+	public BankOrganizationPreview(BankPreset preset, List<BankCategoryPreview> categories,
+		Map<String, Integer> tagCounts)
+	{
 		this.preset = Objects.requireNonNull(preset, "preset");
 		this.categories = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(categories, "categories")));
+		this.tagCounts = Collections.unmodifiableMap(
+			new LinkedHashMap<>(Objects.requireNonNull(tagCounts, "tagCounts")));
 	}
 
 	public BankPreset getPreset()
 	{
 		return preset;
+	}
+
+	/**
+	 * How many items each tag holds, for the layout screen to show what a tab
+	 * would weigh under an arrangement the player has not saved yet. Empty when
+	 * the blueprint was built without a plan, because the tags are only resolved
+	 * on that path.
+	 */
+	public Map<String, Integer> getTagCounts()
+	{
+		return tagCounts;
 	}
 
 	public List<BankCategoryPreview> getCategories()

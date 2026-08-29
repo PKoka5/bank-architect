@@ -27,6 +27,11 @@ final class CanonicalItemClassificationOverrides
 			case 10: // Cannon barrels
 			// Wiki: https://oldschool.runescape.wiki/w/Cannon_barrels_(or)?oldid=15190733
 			case 26524: // Reversible ornamented cannon barrels
+			// Only the barrels of the ornamented cannon were listed here, so its
+			// other three parts scattered across generic gear and storage cleanup.
+			case 26520: // Cannon base (or)
+			case 26522: // Cannon stand (or)
+			case 26526: // Cannon furnace (or)
 				return cannonPart();
 
 			case 805: // Rune thrownaxe
@@ -41,6 +46,14 @@ final class CanonicalItemClassificationOverrides
 			case 25574: // Tome of water
 			case 30064: // Tome of earth
 				return magicOffhand();
+
+			// The registry files both Burning claws and its drop piece under
+			// SKILLING, which sent a melee weapon to the resources tab. The
+			// Last Man Standing copy at 33200 stays junk; it is handled below.
+			case 29577: // Burning claws
+				return weapon();
+			case 29574: // Burning claw: drop piece that combines into the weapon
+				return gear();
 
 			case 28997: // Dual macuahuitl
 			case 4158: // Leaf-bladed spear
@@ -1949,7 +1962,39 @@ final class CanonicalItemClassificationOverrides
 			// Wiki: https://oldschool.runescape.wiki/w/Cannon_stand?oldid=15184078
 			case 6:
 			case 8:
+			// The furnace was missing from this list, so three quarters of the
+			// cannon sat in combat gear and the fourth part in storage cleanup.
+			// Wiki: https://oldschool.runescape.wiki/w/Cannon_furnace?oldid=15184080
+			case 12:
 				return cannonPart();
+
+			/*
+			 * Every Void body piece is filed UNKNOWN in the registry while the
+			 * helms, robes, gloves and mace are GEAR, so the tops alone failed
+			 * closed into storage cleanup. That split the set across two tabs
+			 * and made the remaining pieces unassemblable as a Void column.
+			 * Wiki: https://oldschool.runescape.wiki/w/Void_knight_top?oldid=15190001
+			 * Wiki: https://oldschool.runescape.wiki/w/Elite_void_top?oldid=15190004
+			 */
+			case 8839: // Void knight top
+			case 13072: // Elite void top
+			case 15737: // Elite void top, duplicate cache record
+			case 20465: // Void knight top (broken)
+			case 20467: // Elite void top (broken)
+			case 20468: // Elite void top (broken), duplicate cache record
+			case 24177: // Void knight top (l)
+			case 24178: // Elite void top (l)
+			case 26463: // Void knight top (or)
+			case 26469: // Elite void top (or)
+			case 27000: // Void knight top (l)(or)
+			case 27003: // Elite void top (l)(or)
+			case 33476: // Void knight top (l) (broken)
+			case 33478: // Void knight top (l) (mangled)
+			case 33480: // Elite void top (l) (broken)
+			case 33481: // Elite void top (l) (broken), duplicate cache record
+			case 33482: // Elite void top (l) (mangled)
+			case 33483: // Elite void top (l) (mangled), duplicate cache record
+				return body();
 
 			// Repeatable post-quest instructions and holy-water production tools.
 			// Wiki: https://oldschool.runescape.wiki/w/Battered_book?oldid=15261995
@@ -3254,6 +3299,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> feet()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "feet"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> body()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "body"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> head()

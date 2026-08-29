@@ -1,10 +1,17 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutShareCode;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.BankTag;
+import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import com.pkoka5.ironmanbankarchitect.organize.CategoryIcons;
 import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
 import com.pkoka5.ironmanbankarchitect.organize.PresetItemSorter;
@@ -39,9 +46,13 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
@@ -64,6 +75,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			+ "Analyze again to rebuild the blueprint.";
 	private static final String PREVIEW_BLOCK_HELP =
 		"Guided mode highlights one manual bank action at a time.";
+	private static final String LAYOUT_EDITOR_HELP =
+		"Each tab lists what is on it. Use its dropdown to add a category or tag, and "
+			+ "the no-entry button to take one off. A tab left with nothing is simply not "
+			+ "created, so the main section can stay empty for dumping loot. Keeping a "
+			+ "bundle's tags on one tab keeps its layout; splitting them is allowed and "
+			+ "each side is then arranged on its own. Put Part Doses on the tab with "
+			+ "Potions and the Herblore tab runs by kind instead of a row per recipe.";
 	private static final String PREVIEW_OVERLAY_NOTE =
 		"Guides tab creation and item order in the vanilla All items view, in Swap or Insert mode; "
 			+ "Insert usually needs fewer drags. Every move stays manual.";
@@ -86,6 +104,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	// PluginPanel is ~225px wide; leave room for panel padding, card padding
 	// and the scrollbar so wrapped text never clips at the right edge.
 	private static final int SIDEBAR_TEXT_WIDTH = 160;
+	// The layout editor sits inside the same 225px panel, so its rows are pinned
+	// to one width; anything wider pushes the whole column off the right edge.
+	private static final int SIDEBAR_CONTENT_WIDTH = 186;
+	private static final int LAYOUT_NAME_WIDTH = 110;
+	/** Shown in the profile list while the working layout matches no saved one. */
+	private static final String UNSAVED_PROFILE = "Custom (unsaved)";
 
 	private final BankGuideController guideController;
 	private final BiConsumer<BankPreviewItem, JLabel> itemIconRenderer;
@@ -95,7 +119,22 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton assignCategoriesButton;
 	private final JButton resetOverridesButton;
 	private final JButton tabOrderButton;
-	private final TabOrderModel tabOrderModel;
+	private final JButton resetLayoutButton;
+	private final JButton saveProfileButton;
+	private final JButton importButton;
+	private final JButton exportButton;
+	private final JButton deleteProfileButton;
+	private final JComboBox<String> profileChooser;
+	private final JCheckBox fillRowsBox;
+	private final JCheckBox alchPileBox;
+	private boolean refreshingProfiles;
+	private boolean refreshingOptions;
+	private final JPanel layoutEditor;
+	private final JPanel layoutRows;
+	private final JLabel layoutHeading;
+	private final BankLayoutModel bankLayoutModel;
+	private BankLayoutPlan layoutPlan;
+	private int selectedDestination = BankLayoutPlan.MAIN_DESTINATION_INDEX;
 	private final JLabel categoryOverrideLabel;
 	private final JLabel statusLabel;
 	private final JLabel catalogSummaryLabel;
@@ -110,7 +149,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private BankOrganizationPreview renderedDestinations;
 	private JDialog bankDialog;
-	private TabOrderDialog tabOrderDialog;
 	private JTabbedPane bankTabs;
 	private JButton exportBlueprintButton;
 
@@ -134,16 +172,17 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback)
 	{
 		this(guideController, analyzeCallback, itemIconRenderer, resetOverridesCallback,
-			TabOrderModel.DEFAULT);
+			BankLayoutModel.DEFAULT);
 	}
 
 	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
 		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback,
-		TabOrderModel tabOrderModel)
+		BankLayoutModel bankLayoutModel)
 	{
 		this.guideController = guideController;
 		this.itemIconRenderer = itemIconRenderer;
-		this.tabOrderModel = tabOrderModel;
+		this.bankLayoutModel = bankLayoutModel;
+		this.layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 
 		setLayout(new BorderLayout(0, 8));
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -176,11 +215,73 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			refreshControls();
 		});
 
-		tabOrderButton = new JButton("Tab Order");
+		tabOrderButton = new JButton("Tab Layout");
 		tabOrderButton.setFont(FontManager.getRunescapeSmallFont());
-		tabOrderButton.setToolTipText("Arrange the blueprint tabs");
+		tabOrderButton.setToolTipText("Choose which categories go on which tab");
 		tabOrderButton.setFocusPainted(false);
-		tabOrderButton.addActionListener(event -> showTabOrderDialog());
+		tabOrderButton.addActionListener(event -> toggleLayoutEditor());
+
+		layoutHeading = label("");
+		layoutRows = verticalPanel();
+		resetLayoutButton = new JButton("Reset to default");
+		resetLayoutButton.setFont(FontManager.getRunescapeSmallFont());
+		resetLayoutButton.setFocusPainted(false);
+		resetLayoutButton.addActionListener(event ->
+			applyLayoutPlan(BankLayoutPlan.defaultFor(bankLayoutModel.preset())));
+		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
+		fillRowsBox = layoutOptionBox("Fill part-empty rows",
+			"<html>A bank tab cannot hold an empty slot, so an aligned row only keeps its "
+				+ "shape if real items fill it.<br>On: gear setups and Herblore recipes stay "
+				+ "aligned, at the cost of the odd unrelated item in a row.<br>Off: nothing "
+				+ "is placed where it does not belong, at the cost of the alignment.</html>");
+		alchPileBox = layoutOptionBox("Gather outclassed gear",
+			"<html>Move gear you own two strictly better versions of, and that is worth "
+				+ "alching, to the Slayer &amp; Boss Loot tab.<br>Off: every piece of gear "
+				+ "stays in the combat gear tab.</html>");
+
+		profileChooser = new JComboBox<>();
+		profileChooser.setFont(FontManager.getRunescapeSmallFont());
+		profileChooser.setFocusable(false);
+		profileChooser.setToolTipText("The saved layout you are using");
+		profileChooser.addActionListener(event -> onProfileChosen());
+		saveProfileButton = layoutActionButton("Save as", "Save this layout under a name",
+			event -> saveLayoutAs());
+		importButton = layoutActionButton("Import", "Paste a layout shared with you",
+			event -> importLayout());
+		exportButton = layoutActionButton("Export", "Copy this layout to the clipboard to share",
+			event -> exportLayout());
+		deleteProfileButton = layoutActionButton("Delete", "Forget the selected saved layout",
+			event -> deleteSelectedProfile());
+
+		JPanel profileActions = new JPanel(new GridLayout(1, 0, 2, 0));
+		profileActions.setOpaque(false);
+		profileActions.add(saveProfileButton);
+		profileActions.add(importButton);
+		profileActions.add(exportButton);
+		profileActions.add(deleteProfileButton);
+
+		layoutEditor = verticalPanel();
+		layoutEditor.setVisible(false);
+		JLabel layoutHelp = mutedLabel(LAYOUT_EDITOR_HELP);
+		layoutHelp.setAlignmentX(LEFT_ALIGNMENT);
+		layoutRows.setAlignmentX(LEFT_ALIGNMENT);
+		sizeToSidebar(profileChooser, 22);
+		sizeToSidebar(profileActions, 22);
+		layoutEditor.add(profileChooser);
+		layoutEditor.add(Box.createVerticalStrut(3));
+		layoutEditor.add(profileActions);
+		layoutEditor.add(Box.createVerticalStrut(6));
+		layoutEditor.add(layoutHelp);
+		layoutEditor.add(Box.createVerticalStrut(6));
+		layoutEditor.add(fillRowsBox);
+		layoutEditor.add(alchPileBox);
+		layoutEditor.add(Box.createVerticalStrut(6));
+		// Kept for its text, but not shown: every tab already carries its own
+		// heading in the list, so a second copy on top only repeated it.
+		layoutHeading.setVisible(false);
+		layoutEditor.add(layoutRows);
+		layoutEditor.add(Box.createVerticalStrut(6));
+		layoutEditor.add(resetLayoutButton);
 
 		categoryOverrideLabel = label("");
 		statusLabel = label("");
@@ -220,6 +321,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		cardConstraints.gridy++;
 		content.add(tabOrderButton, cardConstraints);
 		cardConstraints.gridy++;
+		content.add(layoutEditor, cardConstraints);
+		cardConstraints.gridy++;
 		content.add(guideProgressBar, cardConstraints);
 		cardConstraints.gridy++;
 		content.add(actionRow(), cardConstraints);
@@ -248,7 +351,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		refreshControls();
 
-		statusTimer = new Timer(STATUS_REFRESH_MILLIS, event -> refreshStatus());
+		// Refreshes the switches too, not just the status text: turning on one
+		// mode turns the other off, and assign mode is also reachable from the
+		// bank's right-click menu, so the lit edges have to follow state the
+		// player did not change from this panel.
+		statusTimer = new Timer(STATUS_REFRESH_MILLIS, event -> refreshControls());
 		statusTimer.start();
 	}
 
@@ -358,11 +465,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	void shutdown()
 	{
 		statusTimer.stop();
-		if (tabOrderDialog != null)
-		{
-			tabOrderDialog.dispose();
-			tabOrderDialog = null;
-		}
 		if (bankDialog != null)
 		{
 			bankDialog.dispose();
@@ -436,16 +538,560 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	}
 
 	/**
-	 * Opens the tab arranger. Only one is kept open, so repeated clicks do not
-	 * leave stale copies of an order the player has already changed.
+	 * Shows or hides the layout editor beneath the destination grid. It lives in
+	 * the sidebar rather than a window of its own so the destinations stay on
+	 * screen while they are being filled: the grid above is the picker, and the
+	 * list below is whatever that destination currently holds.
 	 */
-	private void showTabOrderDialog()
+	private void toggleLayoutEditor()
 	{
-		if (tabOrderDialog != null)
+		setLayoutEditorVisible(!layoutEditor.isVisible());
+	}
+
+	private void setLayoutEditorVisible(boolean visible)
+	{
+		layoutEditor.setVisible(visible);
+		if (visible)
 		{
-			tabOrderDialog.dispose();
+			layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
+			renderLayoutEditor();
 		}
-		tabOrderDialog = TabOrderDialog.show(this, tabOrderModel, itemIconRenderer);
+		tabOrderButton.setToolTipText(visible
+			? "Close the tab layout editor" : "Choose which categories go on which tab");
+		revalidate();
+		repaint();
+	}
+
+	boolean isLayoutEditorVisible()
+	{
+		return layoutEditor.isVisible();
+	}
+
+	/** Highlights a destination in the grid so its row can be found in the list. */
+	void selectDestination(int destinationIndex)
+	{
+		selectedDestination = destinationIndex;
+		renderLayoutEditor();
+	}
+
+	int getSelectedDestination()
+	{
+		return selectedDestination;
+	}
+
+	BankLayoutPlan getLayoutPlan()
+	{
+		return layoutPlan;
+	}
+
+	/**
+	 * Moves one category to one destination. Every category carries its own
+	 * destination chooser, so nothing has to be selected first and no category is
+	 * ever tied to the tab it started on: picking a tab is the whole gesture.
+	 */
+	void moveTagTo(String tagKey, int destinationIndex)
+	{
+		applyLayoutPlan(layoutPlan.withTagAt(tagKey, destinationIndex));
+	}
+
+	JComboBox<String> getProfileChooser()
+	{
+		return profileChooser;
+	}
+
+	JPanel getLayoutRows()
+	{
+		return layoutRows;
+	}
+
+	JLabel getLayoutHeading()
+	{
+		return layoutHeading;
+	}
+
+	/** Reorders a category within its destination, which decides what leads the tab. */
+	void shiftWithinSelected(String tagKey, int offset)
+	{
+		applyLayoutPlan(layoutPlan.withTagShifted(tagKey, offset));
+	}
+
+	private void applyLayoutPlan(BankLayoutPlan updated)
+	{
+		BankLayoutPlan completed = updated.completedFor(bankLayoutModel.preset());
+		if (completed.getDestinations().equals(layoutPlan.getDestinations()))
+		{
+			return;
+		}
+
+		layoutPlan = completed;
+		bankLayoutModel.save(layoutPlan);
+		renderLayoutEditor();
+	}
+
+	private void renderLayoutEditor()
+	{
+		// Reads back the whole assignment, "Tab 3 - Teleports & Runes", so the
+		// player can confirm what they built without counting cells.
+		// Each tab carries its own heading in the list below, so a summary of the
+		// selected one on top would only repeat it, and repeat it in the width
+		// that was already too narrow to read.
+		layoutHeading.setText(destinationName(selectedDestination) + " - "
+			+ describeDestination(selectedDestination));
+
+		// Grouped by destination rather than listing the categories flat: the
+		// question the player is answering is what each tab holds, so the tab is
+		// the heading and its categories sit underneath it. An empty tab still
+		// gets a heading, because "nothing here" is a state worth seeing.
+		layoutRows.removeAll();
+		for (int destination = 0; destination < BankLayoutPlan.DESTINATION_COUNT; destination++)
+		{
+			layoutRows.add(destinationHeader(destination));
+			layoutRows.add(tagChooser(destination));
+			List<String> keys = layoutPlan.getTagKeys(destination);
+			if (keys.isEmpty())
+			{
+				layoutRows.add(emptyDestinationNote());
+			}
+			for (String key : keys)
+			{
+				layoutRows.add(layoutRow(BankTags.byKey(key), destination));
+			}
+			layoutRows.add(Box.createVerticalStrut(6));
+		}
+
+		resetLayoutButton.setEnabled(!layoutPlan.isDefault(bankLayoutModel.preset()));
+		refreshProfiles();
+		refreshLayoutOptions();
+		for (DestinationCell cell : destinationCells)
+		{
+			cell.repaint();
+		}
+		layoutRows.revalidate();
+		layoutRows.repaint();
+		revalidate();
+		repaint();
+	}
+
+	/**
+	 * One tag sitting on a tab, with the controls that move it. The name wraps
+	 * above the buttons rather than beside them: at 225px a name and controls on
+	 * one line squeezed the buttons off the right edge, which left the player
+	 * looking at a list they could read but not change.
+	 */
+	private JPanel layoutRow(BankTag tag, int destination)
+	{
+		String key = tag.getKey();
+		List<String> onDestination = layoutPlan.getTagKeys(destination);
+		int position = onDestination.indexOf(key);
+		boolean isFallback = BankLayoutPlan.FALLBACK_TAG_KEY.equals(key);
+
+		JPanel row = new JPanel(new BorderLayout(4, 0));
+		row.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		row.setBorder(BorderFactory.createCompoundBorder(
+			BorderFactory.createMatteBorder(0, 3, 0, 0,
+				CategoryPalette.colorForCategory(tag.getCategoryKey(), destination)),
+			BorderFactory.createEmptyBorder(2, 4, 2, 2)));
+		sizeToSidebar(row, 40);
+
+		JLabel name = new JLabel("<html><body width='" + LAYOUT_NAME_WIDTH + "'>" + tag.getName()
+			+ "<br><font color='#9a9a9a'>" + bankLayoutModel.itemCount(key)
+			+ " items</font></body></html>");
+		name.setFont(FontManager.getRunescapeSmallFont());
+		name.setForeground(Color.WHITE);
+		name.setToolTipText(tag.getName());
+
+		JPanel buttons = new JPanel(new GridLayout(1, 0, 1, 0));
+		buttons.setOpaque(false);
+		buttons.add(layoutButton("▲", "Move earlier on this tab", position > 0,
+			event -> shiftWithinSelected(key, -1)));
+		buttons.add(layoutButton("▼", "Move later on this tab",
+			position >= 0 && position < onDestination.size() - 1,
+			event -> shiftWithinSelected(key, 1)));
+		buttons.add(layoutButton("⃠", isFallback
+				? "This tag catches everything left over, so it always has a tab"
+				: "Take " + tag.getName() + " off this tab and send it to the "
+					+ fallbackName() + " tab",
+			!isFallback, event -> removeFromTab(key)));
+
+		row.add(name, BorderLayout.CENTER);
+		row.add(buttons, BorderLayout.EAST);
+		return row;
+	}
+
+	/**
+	 * Pins a row to the sidebar's width. A vertical BoxLayout hands a component
+	 * its preferred width and centres whatever is narrower, so one item that
+	 * wants to be wide pushes the whole column out of view; fixing the width
+	 * keeps every row starting at the same left edge.
+	 */
+	private void sizeToSidebar(JComponent component, int height)
+	{
+		Dimension size = new Dimension(SIDEBAR_CONTENT_WIDTH, height);
+		component.setPreferredSize(size);
+		component.setMaximumSize(size);
+		component.setMinimumSize(size);
+		component.setAlignmentX(LEFT_ALIGNMENT);
+	}
+
+	/**
+	 * The chooser that fills a tab. It sits on the tab and lists the tags, not
+	 * the other way round: the player is furnishing a tab, so the tab is what
+	 * they have already picked and the tag is what they are choosing.
+	 */
+	private JComboBox<String> tagChooser(int destination)
+	{
+		JComboBox<String> chooser = new JComboBox<>();
+		String prompt = "Add a category or tag...";
+		chooser.addItem(prompt);
+		final List<String> keys = new ArrayList<>();
+		for (BankTag tag : BankTags.all())
+		{
+			if (layoutPlan.destinationOf(tag.getKey()) == destination)
+			{
+				continue;
+			}
+			keys.add(tag.getKey());
+			chooser.addItem(tag.getName() + "  (" + destinationName(
+				layoutPlan.destinationOf(tag.getKey())) + ")");
+		}
+
+		chooser.setFont(FontManager.getRunescapeSmallFont());
+		chooser.setFocusable(false);
+		chooser.setEnabled(!keys.isEmpty());
+		chooser.setToolTipText("Put a category or tag on " + destinationName(destination));
+		// Without a prototype the box asks to be as wide as its longest entry,
+		// and one long tag name would drag the whole sidebar column off screen.
+		chooser.setPrototypeDisplayValue(prompt);
+		sizeToSidebar(chooser, 22);
+		// The prompt is the resting selection, so choosing the same tag twice in
+		// a row still fires and the list never looks stuck on a past choice.
+		chooser.addActionListener(event -> {
+			int index = chooser.getSelectedIndex() - 1;
+			if (index >= 0 && index < keys.size())
+			{
+				moveTagTo(keys.get(index), destination);
+			}
+		});
+		return chooser;
+	}
+
+	/**
+	 * One layout option, beside the tabs it affects rather than in the client's
+	 * plugin settings. The two of them are the only layout choices a plan cannot
+	 * state, so this is where a player already deciding how a tab should look
+	 * will look for them.
+	 */
+	private JCheckBox layoutOptionBox(String text, String tooltip)
+	{
+		JCheckBox box = new JCheckBox(text);
+		box.setFont(FontManager.getRunescapeSmallFont());
+		box.setForeground(Color.WHITE);
+		box.setOpaque(false);
+		box.setFocusPainted(false);
+		box.setToolTipText(tooltip);
+		box.setAlignmentX(LEFT_ALIGNMENT);
+		box.addActionListener(event -> {
+			if (!refreshingOptions)
+			{
+				bankLayoutModel.saveOptions(
+					new BankLayoutOptions(fillRowsBox.isSelected(), alchPileBox.isSelected()));
+			}
+		});
+		return box;
+	}
+
+	private void refreshLayoutOptions()
+	{
+		refreshingOptions = true;
+		try
+		{
+			BankLayoutOptions options = bankLayoutModel.options();
+			fillRowsBox.setSelected(options.fillRows());
+			alchPileBox.setSelected(options.alchPile());
+		}
+		finally
+		{
+			refreshingOptions = false;
+		}
+	}
+
+	JCheckBox getFillRowsBox()
+	{
+		return fillRowsBox;
+	}
+
+	JCheckBox getAlchPileBox()
+	{
+		return alchPileBox;
+	}
+
+	private JButton layoutActionButton(String text, String tooltip,
+		java.awt.event.ActionListener action)
+	{
+		JButton button = new JButton(text);
+		button.setFont(FontManager.getRunescapeSmallFont());
+		button.setMargin(new Insets(0, 0, 0, 0));
+		button.setFocusPainted(false);
+		button.setToolTipText(tooltip);
+		button.addActionListener(action);
+		return button;
+	}
+
+	/**
+	 * The saved layouts, with the working one marked when it matches none of
+	 * them. Showing "unsaved" rather than leaving a profile selected keeps the
+	 * dropdown honest: an edited layout is no longer the layout it was loaded
+	 * from, and pretending otherwise would lose the player's edits on a switch.
+	 */
+	private void refreshProfiles()
+	{
+		refreshingProfiles = true;
+		try
+		{
+			String matching = bankLayoutModel.matchingProfile();
+			profileChooser.removeAllItems();
+			if (matching.isEmpty())
+			{
+				profileChooser.addItem(UNSAVED_PROFILE);
+			}
+			for (String name : bankLayoutModel.profileNames())
+			{
+				profileChooser.addItem(name);
+			}
+			profileChooser.setSelectedItem(matching.isEmpty() ? UNSAVED_PROFILE : matching);
+			profileChooser.setToolTipText(matching.isEmpty()
+				? "This layout has not been saved under a name"
+				: "Using the saved layout \"" + matching + "\"");
+			deleteProfileButton.setEnabled(!matching.isEmpty()
+				&& !BankLayoutProfiles.DEFAULT_NAME.equals(matching));
+		}
+		finally
+		{
+			refreshingProfiles = false;
+		}
+	}
+
+	private void onProfileChosen()
+	{
+		Object selected = profileChooser.getSelectedItem();
+		if (refreshingProfiles || selected == null || UNSAVED_PROFILE.equals(selected))
+		{
+			return;
+		}
+
+		bankLayoutModel.selectProfile(selected.toString());
+		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
+		renderLayoutEditor();
+	}
+
+	private void saveLayoutAs()
+	{
+		String suggested = bankLayoutModel.matchingProfile();
+		String name = JOptionPane.showInputDialog(this, "Name for this layout:",
+			suggested.isEmpty() || BankLayoutProfiles.DEFAULT_NAME.equals(suggested)
+				? "My layout" : suggested);
+		if (name == null || name.trim().isEmpty())
+		{
+			return;
+		}
+
+		bankLayoutModel.saveProfile(name.trim(), layoutPlan);
+		renderLayoutEditor();
+	}
+
+	/**
+	 * Copies the layout as a share code. Nothing leaves the client: the code goes
+	 * to the clipboard and it is the player who decides where to paste it.
+	 */
+	private void exportLayout()
+	{
+		String matching = bankLayoutModel.matchingProfile();
+		String code = BankLayoutShareCode.encode(
+			matching.isEmpty() ? "Shared layout" : matching, layoutPlan);
+		Toolkit.getDefaultToolkit().getSystemClipboard()
+			.setContents(new StringSelection(code), null);
+		JOptionPane.showMessageDialog(this,
+			"Layout copied to your clipboard. Paste it to share it.",
+			"Tab layout exported", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Reads a pasted share code into a new saved layout. It is always saved under
+	 * a free name, so importing can never overwrite a layout the player built.
+	 */
+	private void importLayout()
+	{
+		String pasted = JOptionPane.showInputDialog(this,
+			"Paste the layout code you were given:", "");
+		if (pasted == null)
+		{
+			return;
+		}
+
+		java.util.Optional<BankLayoutShareCode> decoded = BankLayoutShareCode.decode(pasted);
+		if (!decoded.isPresent())
+		{
+			JOptionPane.showMessageDialog(this,
+				"That does not look like a Bank Architect layout code.",
+				"Import failed", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		BankLayoutPlan imported = BankLayoutPlan
+			.parse(bankLayoutModel.preset(), decoded.get().getPlan())
+			.completedFor(bankLayoutModel.preset());
+		bankLayoutModel.saveProfile(freeProfileName(decoded.get().getName()), imported);
+		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
+		renderLayoutEditor();
+	}
+
+	private void deleteSelectedProfile()
+	{
+		String matching = bankLayoutModel.matchingProfile();
+		if (matching.isEmpty() || BankLayoutProfiles.DEFAULT_NAME.equals(matching))
+		{
+			return;
+		}
+
+		bankLayoutModel.deleteProfile(matching);
+		renderLayoutEditor();
+	}
+
+	/** A name no saved layout is using yet. */
+	private String freeProfileName(String wanted)
+	{
+		List<String> taken = bankLayoutModel.profileNames();
+		if (!taken.contains(wanted))
+		{
+			return wanted;
+		}
+
+		for (int suffix = 2; suffix < taken.size() + 3; suffix++)
+		{
+			String candidate = wanted + " " + suffix;
+			if (!taken.contains(candidate))
+			{
+				return candidate;
+			}
+		}
+
+		return wanted + " copy";
+	}
+
+	private String fallbackName()
+	{
+		return BankTags.byKey(BankLayoutPlan.FALLBACK_TAG_KEY).getName();
+	}
+
+	/**
+	 * Takes a tag off a tab. It goes to the tab holding the fallback tag rather
+	 * than nowhere, because its items still have to live somewhere and a silent
+	 * disappearance is the one outcome the player cannot diagnose.
+	 */
+	void removeFromTab(String tagKey)
+	{
+		if (BankLayoutPlan.FALLBACK_TAG_KEY.equals(tagKey))
+		{
+			return;
+		}
+
+		int fallback = layoutPlan.destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY);
+		moveTagTo(tagKey, fallback < 0 ? BankLayoutPlan.DESTINATION_COUNT - 1 : fallback);
+	}
+
+	private JButton layoutButton(String glyph, String tooltip, boolean enabled,
+		java.awt.event.ActionListener action)
+	{
+		JButton button = new JButton(glyph);
+		button.setPreferredSize(new Dimension(20, 20));
+		button.setMargin(new Insets(0, 0, 0, 0));
+		button.setFont(FontManager.getRunescapeSmallFont());
+		button.setFocusPainted(false);
+		button.setToolTipText(tooltip);
+		button.setEnabled(enabled);
+		button.addActionListener(action);
+		return button;
+	}
+
+	/** The tab this group of rows belongs to, with what it will hold. */
+	private JLabel destinationHeader(int destination)
+	{
+		int items = itemsOnDestination(destination);
+		JLabel header = new JLabel(destinationName(destination)
+			+ (items > 0 ? " - " + items + " items" : ""));
+		header.setFont(FontManager.getRunescapeBoldFont());
+		header.setForeground(destination == selectedDestination
+			? ColorScheme.BRAND_ORANGE : Color.WHITE);
+		header.setBorder(BorderFactory.createEmptyBorder(2, 0, 3, 0));
+		sizeToSidebar(header, 16);
+		return header;
+	}
+
+	private JLabel emptyDestinationNote()
+	{
+		JLabel note = new JLabel("Empty - this tab is not created");
+		note.setFont(FontManager.getRunescapeSmallFont());
+		note.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		note.setBorder(BorderFactory.createEmptyBorder(0, 5, 2, 0));
+		sizeToSidebar(note, 14);
+		return note;
+	}
+
+	/** What a destination holds, spelled out: "Teleports & Runes + Clues". */
+	private String describeDestination(int destinationIndex)
+	{
+		List<String> keys = layoutPlan.getTagKeys(destinationIndex);
+		if (keys.isEmpty())
+		{
+			return "empty";
+		}
+
+		StringBuilder names = new StringBuilder();
+		for (String key : keys)
+		{
+			if (names.length() > 0)
+			{
+				names.append(" + ");
+			}
+			names.append(BankTags.byKey(key).getName());
+		}
+
+		return names.toString();
+	}
+
+	private int itemsOnDestination(int destinationIndex)
+	{
+		int total = 0;
+		for (String key : layoutPlan.getTagKeys(destinationIndex))
+		{
+			total += bankLayoutModel.itemCount(key);
+		}
+
+		return total;
+	}
+
+	/**
+	 * Numbered the way the move instructions already number them: the main
+	 * section is not a tab, so the first real tab is Tab 1. Counting the main
+	 * section as position one here would have the layout screen and the guide
+	 * calling the same tab by two different numbers.
+	 */
+	private static String destinationName(int destinationIndex)
+	{
+		if (destinationIndex < 0)
+		{
+			return "no tab";
+		}
+
+		return destinationIndex == BankLayoutPlan.MAIN_DESTINATION_INDEX
+			? "Main section" : "Tab " + destinationIndex;
+	}
+
+	/** The same identity as {@link #destinationName}, short enough for a 36px cell. */
+	private static String destinationLabel(int destinationIndex)
+	{
+		return destinationIndex == BankLayoutPlan.MAIN_DESTINATION_INDEX
+			? "M" : Integer.toString(destinationIndex);
 	}
 
 	private void onToggleGuide()
@@ -597,7 +1243,17 @@ final class IronmanBankArchitectPanel extends PluginPanel
 				@Override
 				public void mousePressed(MouseEvent event)
 				{
-					showBankDialog(DestinationCell.this.categoryIndex);
+					// While the layout editor is open the grid is the destination
+					// picker, so a click chooses what the list below shows rather
+					// than opening the blueprint over the top of it.
+					if (isLayoutEditorVisible())
+					{
+						selectDestination(DestinationCell.this.categoryIndex);
+					}
+					else
+					{
+						showBankDialog(DestinationCell.this.categoryIndex);
+					}
 				}
 			});
 		}
@@ -624,29 +1280,52 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			{
 				itemIconRenderer.accept(icon, sprite);
 			}
-			setToolTipText(category == null ? null
-				: category.getCategory().getName()
+			setToolTipText(category == null ? destinationName(categoryIndex)
+				: destinationName(categoryIndex) + ": " + category.getCategory().getName()
 					+ (filled ? " - " + category.getItemCount() + " items" : " - empty"));
 			repaint();
+		}
+
+		/** Marks the destination the layout editor is showing. */
+		private boolean isSelected()
+		{
+			return isLayoutEditorVisible() && selectedDestination == categoryIndex;
 		}
 
 		@Override
 		public void paint(Graphics graphics)
 		{
 			super.paint(graphics);
+			if (isSelected())
+			{
+				// Drawn rather than bordered: the bottom edge already carries the
+				// destination's colour, which the selection must not overwrite.
+				graphics.setColor(ColorScheme.BRAND_ORANGE);
+				graphics.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+				graphics.drawRect(1, 1, getWidth() - 3, getHeight() - 3);
+			}
+			// Painted after the sprite so both stay readable over any icon. The
+			// tab's own number goes top left and the item count bottom right, so
+			// the cell says which tab it is even before the bank is scanned.
+			graphics.setFont(FontManager.getRunescapeSmallFont());
+			FontMetrics metrics = graphics.getFontMetrics();
+			String label = destinationLabel(categoryIndex);
+			drawTag(graphics, label, 2, metrics.getAscent() + 1,
+				isSelected() ? ColorScheme.BRAND_ORANGE : Color.WHITE);
 			if (count.isEmpty())
 			{
 				return;
 			}
-			// Painted after the sprite so the count always stays readable.
-			graphics.setFont(FontManager.getRunescapeSmallFont());
-			FontMetrics metrics = graphics.getFontMetrics();
-			int x = getWidth() - metrics.stringWidth(count) - 2;
-			int y = getHeight() - 5;
+			drawTag(graphics, count, getWidth() - metrics.stringWidth(count) - 2,
+				getHeight() - 5, Color.WHITE);
+		}
+
+		private void drawTag(Graphics graphics, String text, int x, int y, Color color)
+		{
 			graphics.setColor(Color.BLACK);
-			graphics.drawString(count, x + 1, y + 1);
-			graphics.setColor(Color.WHITE);
-			graphics.drawString(count, x, y);
+			graphics.drawString(text, x + 1, y + 1);
+			graphics.setColor(color);
+			graphics.drawString(text, x, y);
 		}
 	}
 
