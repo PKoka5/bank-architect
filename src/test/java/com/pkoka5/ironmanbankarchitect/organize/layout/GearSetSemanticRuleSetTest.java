@@ -35,6 +35,42 @@ public class GearSetSemanticRuleSetTest
 	}
 
 	@Test
+	public void voidPiecesFormTheirOwnColumn()
+	{
+		List<Integer> voidSet = Arrays.asList(11665, 8839, 8840, 8842);
+		List<Integer> ids = new ArrayList<>(voidSet);
+		for (int index = 0; index < 24; index++)
+		{
+			ids.add(900000 + index);
+		}
+
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+
+		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertVertical(result, voidSet);
+	}
+
+	/**
+	 * Blood and eclipse moon were known sets but blue moon was not, so the
+	 * magic pieces stayed loose while a lower-tier set took the magic column.
+	 */
+	@Test
+	public void blueMoonPiecesFormTheirOwnColumnLikeTheOtherMoonSets()
+	{
+		List<Integer> blueMoon = Arrays.asList(29019, 29013, 29016);
+		List<Integer> ids = new ArrayList<>(blueMoon);
+		for (int index = 0; index < 24; index++)
+		{
+			ids.add(900000 + index);
+		}
+
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+
+		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertVertical(result, blueMoon);
+	}
+
+	@Test
 	public void incompleteBodyAndLegsStillKeepTheirEquipmentOrder()
 	{
 		List<Integer> ids = new ArrayList<>(Arrays.asList(9674, 9676));

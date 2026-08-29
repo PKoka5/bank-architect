@@ -69,9 +69,23 @@ public final class PresetItemSorter
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt(PresetItemSorter::clueRank)
+			.thenComparing(PresetItemSorter::clueFamily)
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
+	}
+
+	/**
+	 * Keeps a cosmetic family adjacent where plain alphabetical order would
+	 * scatter it. The seven dyes share a colour word with unrelated cosmetics,
+	 * so sorting them by name alone filed each one next to a boater or a pair
+	 * of boots instead of next to the other dyes.
+	 */
+	private static String clueFamily(BankPreviewItem item)
+	{
+		String name = normalizedName(item.getDisplayName());
+		if (name.endsWith(" dye")) return "dye";
+		return name;
 	}
 
 	private static List<BankPreviewItem> sortBossLoot(List<BankPreviewItem> items)

@@ -38,11 +38,78 @@ final class HerbloreItemSorter
 		chain("torstol", "super combat potion")
 	};
 
+	/**
+	 * The order the runs appear in when the tab is grouped by kind rather than by
+	 * recipe: the chain a herb actually travels, with the seeds behind it.
+	 */
+	private static final List<String> RUN_ORDER = java.util.Arrays.asList(
+		"grimy-herbs", "clean-herbs", "unfinished-potions", "secondaries",
+		"herb-seeds", "potion-doses", "herblore-other");
+
 	private HerbloreItemSorter()
 	{
 	}
 
+	/**
+	 * Every kind of Herblore item in one run, rather than a row per recipe.
+	 *
+	 * <p>Recipe rows only pay for themselves while the doses sit on the same tab
+	 * to finish them. Once the player keeps their potions elsewhere, a row per
+	 * recipe is mostly gaps, and a plain run of all the grimy herbs followed by
+	 * all the clean ones is both denser and easier to work through.</p>
+	 */
+	static List<BankPreviewItem> layoutByKind(List<BankPreviewItem> items)
+	{
+		List<BankPreviewItem> herblore = new ArrayList<>();
+		List<BankPreviewItem> farming = new ArrayList<>();
+		for (BankPreviewItem item : items)
+		{
+			if (item.getItemCategory() == ItemCategory.FARMING
+				&& !"herb-seeds".equals(runKey(item)))
+			{
+				farming.add(item);
+			}
+			else
+			{
+				herblore.add(item);
+			}
+		}
+
+		herblore.sort(Comparator
+			.comparingInt(HerbloreItemSorter::runRank)
+			.thenComparing(item -> potionFamily(normalizedName(item.getDisplayName())))
+			.thenComparing(Comparator.comparingInt(
+				(BankPreviewItem item) -> doseOf(normalizedName(item.getDisplayName()))).reversed())
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+
+		List<BankPreviewItem> laidOut = new ArrayList<>(herblore);
+		laidOut.addAll(FarmingItemSorter.layout(farming, laidOut.size() % GRID_COLUMNS));
+		return laidOut;
+	}
+
+	private static int runRank(BankPreviewItem item)
+	{
+		int index = RUN_ORDER.indexOf(runKey(item));
+		return index < 0 ? RUN_ORDER.size() : index;
+	}
+
+	/** Which part of the chain an item belongs to, by the same rule the tags use. */
+	private static String runKey(BankPreviewItem item)
+	{
+		return BankTags.tagFor("herblore", item.getSubcategory()).getKey();
+	}
+
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
+	{
+		return layout(items, true);
+	}
+
+	/**
+	 * The recipe rows. With row filling off, a short row is left short
+	 * rather than padded out with whatever else the tab happens to hold.
+	 */
+	static List<BankPreviewItem> layout(List<BankPreviewItem> items, boolean fillRows)
 	{
 		Set<BankPreviewItem> unused = new LinkedHashSet<>(items);
 		List<RecipeRow> recipeRows = new ArrayList<>();
@@ -99,7 +166,7 @@ final class HerbloreItemSorter
 			{
 				List<BankPreviewItem> rowItems = row.items();
 				int usedColumns = laidOut.size() % GRID_COLUMNS;
-				if (usedColumns != 0 && usedColumns + rowItems.size() > GRID_COLUMNS)
+				if (fillRows && usedColumns != 0 && usedColumns + rowItems.size() > GRID_COLUMNS)
 				{
 					while (laidOut.size() % GRID_COLUMNS != 0 && !herbloreSpillover.isEmpty())
 					{

@@ -218,6 +218,24 @@ public class PresetItemSorterTest
 			"Pegasian crystal", "Burnt page", "Soaked page", "Adamant platebody"), names(sorted));
 	}
 
+	@Test
+	public void dyesStayTogetherInsteadOfSortingBesideSameColouredCosmetics()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("clues-cosmetics"), Arrays.asList(
+				item(1767, "Blue dye", ItemCategory.CLUE),
+				item(7319, "Blue boater", ItemCategory.CLUE),
+				item(1771, "Green dye", ItemCategory.CLUE),
+				item(7323, "Green boater", ItemCategory.CLUE),
+				item(1763, "Red dye", ItemCategory.CLUE),
+				item(4622, "Black dye", ItemCategory.CLUE)));
+
+		List<String> names = names(sorted);
+		int firstDye = names.indexOf("Black dye");
+		assertEquals(Arrays.asList("Black dye", "Blue dye", "Green dye", "Red dye"),
+			names.subList(firstDye, firstDye + 4));
+	}
+
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
 	{
 		String subcategory = category == ItemCategory.UNIQUE

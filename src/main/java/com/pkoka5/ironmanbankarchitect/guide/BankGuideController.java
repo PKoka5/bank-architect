@@ -31,7 +31,7 @@ public final class BankGuideController
 	public static final String GUIDANCE_READY_STATUS = "Open the vanilla All items view to begin item-order guidance.";
 	public static final String NO_OVERRIDES_STATUS = "No category corrections yet.";
 	public static final String ASSIGN_MODE_HINT =
-		"Right-click a bank item and pick a destination to correct where it lands.";
+		"Right-click a bank item and pick a tag to correct where it lands.";
 
 	private final List<VisualBlock> availableBlocks;
 	private final AtomicReference<BankGuideState> state;
@@ -84,16 +84,33 @@ public final class BankGuideController
 	public void setGuideEnabled(boolean enabled)
 	{
 		state.updateAndGet(current -> current.withGuideEnabled(enabled));
+		if (enabled)
+		{
+			categoryAssignMode.set(false);
+		}
 	}
 
 	public void toggleGuide()
 	{
-		state.updateAndGet(current -> current.withGuideEnabled(!current.isGuideEnabled()));
+		boolean enabled = state
+			.updateAndGet(current -> current.withGuideEnabled(!current.isGuideEnabled()))
+			.isGuideEnabled();
+		if (enabled)
+		{
+			categoryAssignMode.set(false);
+		}
 	}
 
 	/**
 	 * While assign mode is on, the bank right-click menu offers the blueprint
 	 * destinations so the player can correct a classification.
+	 *
+	 * <p>Assign mode and the guide are mutually exclusive. Each one paints the
+	 * bank in a different colour language: assign mode tints an item with the
+	 * colour of the tab it is headed for, the guide tints a slot by whether it
+	 * is already correct. Both at once would leave the player unable to tell
+	 * which question a colour is answering, so switching one on switches the
+	 * other off.</p>
 	 */
 	public boolean isCategoryAssignMode()
 	{
@@ -102,12 +119,16 @@ public final class BankGuideController
 
 	public void toggleCategoryAssignMode()
 	{
-		categoryAssignMode.set(!categoryAssignMode.get());
+		setCategoryAssignMode(!categoryAssignMode.get());
 	}
 
 	public void setCategoryAssignMode(boolean enabled)
 	{
 		categoryAssignMode.set(enabled);
+		if (enabled)
+		{
+			state.updateAndGet(current -> current.withGuideEnabled(false));
+		}
 	}
 
 	public void publishCategoryOverrideCount(int count)

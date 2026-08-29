@@ -12,7 +12,7 @@ no external process, no file I/O, and no third-party dependency.
 
 ## Only four files touch live client state
 
-Of 123 production source files, exactly four import anything that reads or
+Of 128 production source files, exactly four import anything that reads or
 reacts to the running game:
 
 | File | Lines | What it does |
@@ -28,7 +28,7 @@ grep -rlE 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Me
 
 Twelve further files import `net.runelite.api.gameval.ItemID` and nothing else —
 those are compile-time item-ID constants in classification tables, with no
-client access. The remaining 107 files import no RuneLite API at all: they are
+client access. The remaining 112 files import no RuneLite API at all: they are
 the item catalogue, the layout engine, and the sorters, all pure functions over
 plain data. That is where the line count lives.
 

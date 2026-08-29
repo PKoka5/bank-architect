@@ -20,11 +20,13 @@ import com.pkoka5.ironmanbankarchitect.organize.layout.RuneSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.SemanticBlockLayoutEngine;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ToolOutfitSemanticRuleSet;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 public final class BankOrganizationPreviewBuilder
 {
@@ -65,6 +67,28 @@ public final class BankOrganizationPreviewBuilder
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
 		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides)
 	{
+		return build(snapshot, catalog, preset, gearStats, itemValues, overrides, null);
+	}
+
+	/**
+	 * The blueprint arranged into the destinations of a plan, rather than into
+	 * the preset's own ten categories. Pass {@code null} for the plan to get the
+	 * per-category blueprint the rest of the analysis is built from.
+	 */
+	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
+		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides,
+		BankLayoutPlan layoutPlan)
+	{
+		return build(snapshot, catalog, preset, gearStats, itemValues, overrides, layoutPlan,
+			BankLayoutOptions.DEFAULTS);
+	}
+
+	/** The blueprint under a plan and the player's layout options. */
+	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
+		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides,
+		BankLayoutPlan layoutPlan, BankLayoutOptions options)
+	{
+		Objects.requireNonNull(options, "options");
 		Objects.requireNonNull(snapshot, "snapshot");
 		Objects.requireNonNull(catalog, "catalog");
 		Objects.requireNonNull(preset, "preset");
@@ -72,10 +96,21 @@ public final class BankOrganizationPreviewBuilder
 		Objects.requireNonNull(itemValues, "itemValues");
 		Objects.requireNonNull(overrides, "overrides");
 
+		// A plan buckets by destination and category together, and those buckets
+		// are only known once the items are read, so they are filled in as they
+		// are met rather than seeded from the preset.
+		BankLayoutPlan plan = layoutPlan == null ? null : layoutPlan.completedFor(preset);
+		// Without a plan there is nothing to read a layout choice from, so the
+		// per-category blueprint keeps the recipe rows it has always had.
+		boolean herbloreRecipeRows = plan == null || BankLayoutStyles.herbloreUsesRecipeRows(plan);
+		Map<String, Integer> tagCounts = new LinkedHashMap<>();
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
-		for (BankCategory category : preset.getCategories())
+		if (plan == null)
 		{
-			previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category));
+			for (BankCategory category : preset.getCategories())
+			{
+				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category, herbloreRecipeRows, options));
+			}
 		}
 
 		Map<String, List<OwnedGear>> ownedGearByKey = new LinkedHashMap<>();
@@ -112,7 +147,7 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory("currency-utilities");
 			}
-			if (!bankItem.isPlaceholder()
+			if (options.alchPile() && !bankItem.isPlaceholder()
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
 				gearStats, itemValues, ownedGearByKey))
 			{
@@ -120,19 +155,65 @@ public final class BankOrganizationPreviewBuilder
 			}
 			// The player's own choice is applied last so it wins over every
 			// automatic rule, including the quick-tool and alch overrides above.
-			BankCategory overridden = overriddenCategory(preset, overrides,
-				catalogItem.getItemId());
-			if (overridden != null)
+			// A correction names a tag, which settles the category too; one that
+			// still names a category is read the way it always was.
+			BankTag pinnedTag = overrideTag(overrides, catalogItem.getItemId());
+			if (pinnedTag != null)
 			{
-				category = overridden;
+				category = preset.getCategory(pinnedTag.getCategoryKey());
 			}
-			MutableCategoryPreview preview = previewsByCategory.get(category.getKey());
-			if (preview == null)
+			else
 			{
-				throw new IllegalStateException("Preset mapper returned unknown category: " + category.getKey());
+				BankCategory overridden = overriddenCategory(preset, overrides,
+					catalogItem.getItemId());
+				if (overridden != null)
+				{
+					category = overridden;
+				}
+			}
+			MutableCategoryPreview preview;
+			if (plan == null)
+			{
+				preview = previewsByCategory.get(category.getKey());
+				if (preview == null)
+				{
+					throw new IllegalStateException("Preset mapper returned unknown category: " + category.getKey());
+				}
+			}
+			else
+			{
+				// Bucketed by destination as well as by category, so the sorter
+				// below sees exactly the items that share a tab. Tags of one
+				// category on one tab share a bucket, which is what keeps a
+				// bundle's layout intact while its parts stay together.
+				BankTag tag = pinnedTag != null ? pinnedTag
+					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
+				if (!bankItem.isPlaceholder())
+				{
+					Integer counted = tagCounts.get(tag.getKey());
+					tagCounts.put(tag.getKey(), counted == null ? 1 : counted + 1);
+				}
+				int destination = plan.destinationOf(tag.getKey());
+				if (destination < 0)
+				{
+					destination = BankLayoutPlan.DESTINATION_COUNT - 1;
+				}
+				String bucketKey = destination + "|" + category.getKey();
+				preview = previewsByCategory.get(bucketKey);
+				if (preview == null)
+				{
+					preview = new MutableCategoryPreview(category, herbloreRecipeRows, options);
+					previewsByCategory.put(bucketKey, preview);
+				}
 			}
 
 			preview.add(toLayoutEntry(bankItem, catalogItem));
+		}
+
+		if (plan != null)
+		{
+			return new BankOrganizationPreview(preset,
+				destinationPreviews(plan, previewsByCategory, gearStats), tagCounts);
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -145,9 +226,89 @@ public final class BankOrganizationPreviewBuilder
 	}
 
 	/**
+	 * The ten destinations of a plan, each laid out from the buckets that landed
+	 * on it.
+	 *
+	 * <p>Sorting happens after grouping, not before, and once per category per
+	 * destination. That is what lets a bundle keep its layout while its tags stay
+	 * together: all seven Herblore tags on one tab is a single call to the recipe
+	 * sorter, so the rows still form. Move the doses to another tab and each side
+	 * is sorted on its own, which loses the rows rather than corrupting them.</p>
+	 */
+	private static List<BankCategoryPreview> destinationPreviews(BankLayoutPlan plan,
+		Map<String, MutableCategoryPreview> buckets, GearStatsSource gearStats)
+	{
+		List<BankCategoryPreview> destinations =
+			new ArrayList<>(BankLayoutPlan.DESTINATION_COUNT);
+		for (int index = 0; index < BankLayoutPlan.DESTINATION_COUNT; index++)
+		{
+			destinations.add(destinationPreview(plan, buckets, index, gearStats));
+		}
+
+		return destinations;
+	}
+
+	/**
+	 * One destination, built from its tags in the order the player arranged them.
+	 * Tags of the same category share a bucket, so the first of them decides
+	 * where that category's block sits on the tab.
+	 */
+	private static BankCategoryPreview destinationPreview(BankLayoutPlan plan,
+		Map<String, MutableCategoryPreview> buckets, int destination, GearStatsSource gearStats)
+	{
+		List<BankPreviewItem> items = new ArrayList<>();
+		List<String> names = new ArrayList<>();
+		Set<String> usedCategories = new LinkedHashSet<>();
+		String firstCategoryKey = null;
+
+		for (String tagKey : plan.getTagKeys(destination))
+		{
+			BankTag tag = BankTags.isKnown(tagKey) ? BankTags.byKey(tagKey) : null;
+			if (tag == null)
+			{
+				continue;
+			}
+			names.add(tag.getName());
+			if (firstCategoryKey == null)
+			{
+				firstCategoryKey = tag.getCategoryKey();
+			}
+			if (!usedCategories.add(tag.getCategoryKey()))
+			{
+				continue;
+			}
+			MutableCategoryPreview bucket = buckets.get(destination + "|" + tag.getCategoryKey());
+			if (bucket != null)
+			{
+				items.addAll(bucket.toImmutable(gearStats).getItems());
+			}
+		}
+
+		String key = firstCategoryKey == null ? "empty-" + destination : firstCategoryKey;
+		String name = names.isEmpty() ? "Empty" : String.join(" + ", names);
+		BankCategorySortMode sortMode = firstCategoryKey == null
+			? BankCategorySortMode.GENERIC : new BankCategory(firstCategoryKey, name).getSortMode();
+		return new BankCategoryPreview(new BankCategory(key, name, sortMode), items);
+	}
+
+	/**
 	 * Resolves a player override to a category of this preset, or {@code null}
 	 * when there is no override or the recorded key is not part of the preset.
 	 */
+	/**
+	 * The tag a correction names, or {@code null} when it names something else.
+	 *
+	 * <p>Corrections made before the bundles were split named a category. Those
+	 * still resolve, through {@link #overriddenCategory}, to that category with
+	 * the tag worked out from the item's own subcategory as before.</p>
+	 */
+	private static BankTag overrideTag(CategoryOverrideSource overrides, int itemId)
+	{
+		Optional<String> key = overrides.categoryKeyFor(itemId);
+		return key.isPresent() && BankTags.isKnown(key.get())
+			? BankTags.byKey(key.get()) : null;
+	}
+
 	private static BankCategory overriddenCategory(BankPreset preset,
 		CategoryOverrideSource overrides, int itemId)
 	{
@@ -300,11 +461,16 @@ public final class BankOrganizationPreviewBuilder
 	private static final class MutableCategoryPreview
 	{
 		private final BankCategory category;
+		private final boolean herbloreRecipeRows;
+		private final BankLayoutOptions options;
 		private final List<LayoutEntry> entries = new ArrayList<>();
 
-		private MutableCategoryPreview(BankCategory category)
+		private MutableCategoryPreview(BankCategory category, boolean herbloreRecipeRows,
+			BankLayoutOptions options)
 		{
 			this.category = category;
+			this.herbloreRecipeRows = herbloreRecipeRows;
+			this.options = options;
 		}
 
 		private void add(LayoutEntry entry)
@@ -342,6 +508,12 @@ public final class BankOrganizationPreviewBuilder
 					return new BankCategoryPreview(category, semanticLayout(
 						PresetItemSorter.sort(category, items, gearStats),
 						CosmeticSetSemanticRuleSet.forEntries(entries)));
+				case HERBLORE:
+					// The only layout the plan can talk out of its default shape:
+					// see BankLayoutStyles for why moving the doses changes it.
+					return new BankCategoryPreview(category, herbloreRecipeRows
+						? HerbloreItemSorter.layout(items, options.fillRows())
+						: HerbloreItemSorter.layoutByKind(items));
 				default:
 					return new BankCategoryPreview(category,
 						PresetItemSorter.sort(category, items, gearStats));
@@ -351,6 +523,20 @@ public final class BankOrganizationPreviewBuilder
 		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
+			if (!options.fillRows())
+			{
+				// The aligned setup rows are the only thing here that needs padding,
+				// so without filling there is nothing to align and the whole tab is
+				// laid out as the dense tail. Sets still hold together as columns;
+				// what goes is the four-style grid, not the families.
+				List<BankPreviewItem> dense = GearItemSorter.dense(items, gearStats);
+				List<LayoutEntry> denseEntries = entriesForItems(entries, dense);
+				int rows = (denseEntries.size() + GearItemSorter.GRID_COLUMNS - 1)
+					/ GearItemSorter.GRID_COLUMNS;
+				return semanticLayout(dense,
+					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)));
+			}
+
 			GearItemSorter.GearLayout gear = GearItemSorter.plan(items, gearStats);
 			List<BankPreviewItem> planned = new ArrayList<>(items.size());
 			planned.addAll(gear.getSetupRows());

@@ -180,6 +180,14 @@ public final class GearSetSemanticRuleSet
 			set("gear.ancestral", 21018, 21021, 21024),
 			set("gear.eclipse-moon", 29010, 29035, 29000, 29004, 29031, 29007, 29033),
 			set("gear.blood-moon", 29028, 29047, 28997, 29022, 29043, 29025, 29045),
+			// The magic moon set was missing, so its pieces could never claim the
+			// magic column and a lower-tier set kept winning it instead.
+			set("gear.blue-moon", 29019, 29041, 28988, 29013, 29037, 29016, 29039),
+			// Void was not a known family at all, so its pieces were left to the
+			// dense tail and the gloves drifted away from the rest. The three
+			// style helms share one body, legs and hands, so they stay in one
+			// family rather than three: head, body, legs, hands.
+			set("gear.void", 11665, 11664, 11663, 8839, 13072, 8840, 13073, 8842),
 			set("gear.inquisitor", 24419, 24420, 24421),
 			set("gear.torva", 26382, 26384, 26386)));
 

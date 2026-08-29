@@ -294,4 +294,44 @@ public class BankGuideControllerTest
 		assertEquals("Owned: 2 | Missing: 6 | Role-only: 0 | Reserved: 0", controller.getAnalysisText());
 		assertEquals("1. Irit seed \u2014 missing", controller.getAnalysisDetailText().split("\n")[0]);
 	}
+
+	@Test
+	public void switchingOnTheGuideLeavesAssignMode()
+	{
+		controller.setCategoryAssignMode(true);
+
+		controller.toggleGuide();
+
+		assertTrue(controller.isGuideEnabled());
+		assertFalse(controller.isCategoryAssignMode());
+	}
+
+	@Test
+	public void switchingOnAssignModeLeavesTheGuide()
+	{
+		controller.setGuideEnabled(true);
+
+		controller.toggleCategoryAssignMode();
+
+		assertTrue(controller.isCategoryAssignMode());
+		assertFalse(controller.isGuideEnabled());
+	}
+
+	@Test
+	public void switchingAModeOffLeavesTheOtherAlone()
+	{
+		controller.setGuideEnabled(true);
+
+		controller.setGuideEnabled(false);
+
+		assertFalse(controller.isGuideEnabled());
+		assertFalse(controller.isCategoryAssignMode());
+	}
+
+	@Test
+	public void bothModesAreOffByDefaultSoTheBankLooksOrdinary()
+	{
+		assertFalse(controller.isGuideEnabled());
+		assertFalse(controller.isCategoryAssignMode());
+	}
 }
