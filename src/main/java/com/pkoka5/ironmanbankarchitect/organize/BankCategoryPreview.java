@@ -13,7 +13,12 @@ public final class BankCategoryPreview
 	public BankCategoryPreview(BankCategory category, List<BankPreviewItem> items)
 	{
 		this.category = Objects.requireNonNull(category, "category");
-		this.items = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(items, "items")));
+		List<BankPreviewItem> physicalItems = new ArrayList<>();
+		for (BankPreviewItem item : Objects.requireNonNull(items, "items"))
+		{
+			physicalItems.addAll(Objects.requireNonNull(item, "item").physicalBankSlots());
+		}
+		this.items = Collections.unmodifiableList(physicalItems);
 	}
 
 	public BankCategory getCategory()

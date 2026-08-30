@@ -28,6 +28,24 @@ import org.junit.Test;
 public class BankOrganizationPreviewBuilderTest
 {
 	@Test
+	public void separateChargedCopiesRemainSeparatePhysicalBlueprintSlots()
+	{
+		int usedEclipseMoonChestplate = 29031;
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(usedEclipseMoonChestplate, 1, 4),
+			new BankItemSnapshot(usedEclipseMoonChestplate, 1, 19)
+		));
+
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
+
+		long physicalSlots = BankTabPlan.fromPreview(preview).getFlattenedItems().stream()
+			.filter(item -> item.getItemId() == usedEclipseMoonChestplate)
+			.count();
+		assertEquals(2, physicalSlots);
+	}
+
+	@Test
 	public void previewKeepsPresetOrderAndOwnedItemSamples()
 	{
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(

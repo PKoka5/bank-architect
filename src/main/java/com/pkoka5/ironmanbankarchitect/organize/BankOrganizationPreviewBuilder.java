@@ -349,7 +349,7 @@ public final class BankOrganizationPreviewBuilder
 		Objects.requireNonNull(bankItem, "bankItem");
 		Objects.requireNonNull(catalogItem, "catalogItem");
 		return LayoutEntry.of(new BankPreviewItem(catalogItem, bankItem.getQuantity(),
-			bankItem.isPlaceholder()), bankItem.getSlotIndex());
+			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()), bankItem.getSlotIndex());
 	}
 
 	/**

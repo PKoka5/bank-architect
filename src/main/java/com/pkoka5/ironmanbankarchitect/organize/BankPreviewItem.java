@@ -4,6 +4,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -18,10 +19,12 @@ public final class BankPreviewItem
 	private final String subcategory;
 	private final Set<String> tags;
 	private final boolean placeholder;
+	private final List<Integer> physicalSlotQuantities;
 
 	public BankPreviewItem(int itemId, String displayName, int quantity)
 	{
-		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet(), false);
+		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet(), false,
+			Collections.singletonList(quantity));
 	}
 
 	public BankPreviewItem(CatalogItem catalogItem, int quantity)
@@ -32,11 +35,19 @@ public final class BankPreviewItem
 	public BankPreviewItem(CatalogItem catalogItem, int quantity, boolean placeholder)
 	{
 		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
-			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder);
+			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder,
+			Collections.singletonList(quantity));
+	}
+
+	public BankPreviewItem(CatalogItem catalogItem, int quantity, boolean placeholder,
+		List<Integer> physicalSlotQuantities)
+	{
+		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
+			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder, physicalSlotQuantities);
 	}
 
 	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
-		String subcategory, Set<String> tags, boolean placeholder)
+		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities)
 	{
 		if (quantity < 0 || (quantity == 0 && !placeholder))
 		{
@@ -52,6 +63,26 @@ public final class BankPreviewItem
 			? Collections.emptySet()
 			: Collections.unmodifiableSet(new LinkedHashSet<>(tags));
 		this.placeholder = placeholder;
+		this.physicalSlotQuantities = Collections.unmodifiableList(
+			new java.util.ArrayList<>(Objects.requireNonNull(physicalSlotQuantities,
+				"physicalSlotQuantities")));
+		if (this.physicalSlotQuantities.isEmpty())
+		{
+			throw new IllegalArgumentException("physicalSlotQuantities must not be empty");
+		}
+		int physicalQuantity = 0;
+		for (int slotQuantity : this.physicalSlotQuantities)
+		{
+			if (slotQuantity < 0)
+			{
+				throw new IllegalArgumentException("physical slot quantities must not be negative");
+			}
+			physicalQuantity += slotQuantity;
+		}
+		if (physicalQuantity != quantity)
+		{
+			throw new IllegalArgumentException("physical slot quantities must sum to quantity");
+		}
 	}
 
 	public static BankPreviewItem blank()
@@ -97,6 +128,27 @@ public final class BankPreviewItem
 	public boolean isPlaceholder()
 	{
 		return placeholder;
+	}
+
+	int physicalBankSlotCount()
+	{
+		return physicalSlotQuantities.size();
+	}
+
+	/** Expands one logically classified item into its physical bank entries. */
+	List<BankPreviewItem> physicalBankSlots()
+	{
+		if (physicalSlotQuantities.size() == 1)
+		{
+			return Collections.singletonList(this);
+		}
+		List<BankPreviewItem> slots = new java.util.ArrayList<>(physicalSlotQuantities.size());
+		for (int slotQuantity : physicalSlotQuantities)
+		{
+			slots.add(new BankPreviewItem(itemId, displayName, slotQuantity, itemCategory,
+				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity)));
+		}
+		return slots;
 	}
 
 	public String toCompactLabel()
