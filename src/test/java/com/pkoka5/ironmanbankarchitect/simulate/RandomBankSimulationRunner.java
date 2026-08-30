@@ -70,11 +70,7 @@ public final class RandomBankSimulationRunner
 		System.out.println("Report: " + output.toAbsolutePath());
 		System.out.println("Cleanup review: " + cleanupReview);
 
-		boolean hardFailure = results.stream().anyMatch(result ->
-			result.getOutcome() == Outcome.STALLED
-				|| result.getOutcome() == Outcome.NON_TERMINATING
-				|| result.getOutcome() == Outcome.ADVISOR_BLOCKED
-				|| result.getOutcome() == Outcome.COMPLETED && !result.isFinalOrderVerified());
+		boolean hardFailure = results.stream().anyMatch(SimulationOutcomePolicy::isHardFailure);
 		if (hardFailure)
 		{
 			System.out.println("HARD FAILURES FOUND - inspect the report rows above.");

@@ -45,8 +45,7 @@ public class RandomBankSimulatorTest
 							+ " error=" + result.getErrorMessage()
 							+ " itemIds=" + result.getFailedItemIds(),
 						outcome == Outcome.COMPLETED
-							|| outcome == Outcome.UNSUPPORTED_PLAN
-							|| outcome == Outcome.PLAN_BUILD_ERROR);
+							|| outcome == Outcome.UNSUPPORTED_PLAN);
 
 					if (outcome == Outcome.COMPLETED)
 					{
@@ -77,5 +76,15 @@ public class RandomBankSimulatorTest
 		assertEquals(first.getTotalMoves(), second.getTotalMoves());
 		assertEquals(first.getSwapMoves(), second.getSwapMoves());
 		assertEquals(first.getMoveCounts(), second.getMoveCounts());
+	}
+
+	@Test
+	public void planBuildErrorsFailEverySimulationEntryPoint()
+	{
+		SimulationResult failure = SimulationResult.planBuildError(
+			1, Scenario.SHUFFLED_NO_TABS, 1, java.util.Collections.singletonList(557),
+			new IllegalStateException("duplicate lock"));
+
+		assertTrue(SimulationOutcomePolicy.isHardFailure(failure));
 	}
 }
