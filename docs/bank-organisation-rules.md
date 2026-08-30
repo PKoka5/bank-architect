@@ -105,8 +105,11 @@ additional gearset blocks are added.
 
 ## TELE_001 — Compact rune and teleport utility grouping
 
-Runes and teleport utilities (teleport tabs, tablets, staves, jewellery charges) are grouped
-compactly by destination or spell-book utility, favouring density over per-item detail.
+Main begins with its reviewed quick-access tools and rune matrix. Its teleport band then keeps
+reusable devices, charged jewellery families, teleport books, magic tablets, one-use scrolls,
+charge materials, and niche transport-access items in that order. Higher-charge jewellery states
+lead their family. Tablet and scroll identity comes from bundled registry constants where the
+display name alone is ambiguous, such as `Nardah teleport` versus `Varrock teleport`.
 
 ## SKILL_001 — Tool → raw resource → processed resource workflow
 
