@@ -94,14 +94,25 @@ Diagrams and spreadsheets supplied during design are shape examples only. Their 
 subgroups, row order, and coordinates do not become production rules without independent item-ID
 metadata and reviewed evidence.
 
-## GEAR_001 — Complete gearset blocks
+## GEAR_001 — Dynamic combat loadouts
 
-A gearset block lists one full loadout in a fixed role order:
+Combat gear is planned from the equipment the player owns. For each combat style, a heuristic using
+equipment stats, progression tiers, and reviewed utility adjustments forms higher-ranked setups first,
+then repeats for lower tiers and sidegrades. Consecutive blocks containing at least two usable armour
+cores become vertical columns only when those blocks contain enough real entries to fill four rows.
+Otherwise the blocks remain dense. The setup slot order is:
 
-`Helmet → Cape → Amulet → Body → Legs → Gloves → Boots → Weapon`
+`Helmet → Body → Legs → Weapon → Cape → Amulet → Gloves → Boots → Offhand → Ring`
 
-This role order may later expand to include offhand, ring, ammo, and spec weapon slots as
-additional gearset blocks are added.
+Exact-ID rules are limited to mechanic-driven relationships that live equipment stats cannot
+express. Required pieces remain contiguous for Crystal ranged, Moons, Barrows, Void, Justiciar,
+Inquisitor, Obsidian, Swampbark, and Bloodbark. Three or more distinct owned roles of an incomplete
+functional set remain a family without being presented as an activated set. Alternative variants of
+one role count once. Explicit visual or assembly families, including Ghostly, Elite black, Shayzien
+tiers, Void variants, and dwarf cannon parts, remain contiguous from two owned members. A separate
+reviewed utility score raises gear whose combat value comes from a passive, special attack, task
+bonus, or target-specific effect that raw equipment stats cannot measure. Broken, zero-durability,
+and inactive items form a final maintenance block.
 
 ## TELE_001 — Compact rune and teleport utility grouping
 
@@ -173,8 +184,9 @@ adds a Bank Filler, dummy item, or invented empty target to make a visual grid l
 placeholder already present in the player's bank is preserved because it represents that player's
 item slot; it is not the same thing as a Bank Filler.
 
-Vertical set alignment is best-effort. It may use other real owned items as row spillover, but when
-a complete row cannot be built without inventing a cell, the sorter must fall back to a dense order.
+Vertical set alignment is best-effort and considers one consecutive batch of combat blocks at a time.
+It may use real items already inside that batch as row spillover. When the batch cannot fill four rows
+without inventing a cell, the sorter falls back to a dense order.
 
 ## FOOD_001 — ID-based food roles and direct healing
 

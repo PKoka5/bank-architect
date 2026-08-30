@@ -118,25 +118,35 @@ layouts survive as long as the tags stay on one tab. Split them across tabs and
 each side is arranged on its own, which loses the rows rather than breaking
 them — a trade you are free to make.
 
+Combat setup rows are based on the equipment you own, not a fixed list of
+recommended items. The planner uses RuneLite's equipment slots, combat stats,
+progression tiers, and reviewed utility adjustments to put higher-ranked owned
+setups first, then repeats with the remaining gear. This is a general-purpose
+heuristic rather than a best-in-slot calculation. A small reviewed catalog is reserved for relationships that
+stats cannot explain, such as Crystal weapons and armour, Void, Barrows, Moons,
+Justiciar, Inquisitor, Obsidian, Shayzien, Swampbark, and Bloodbark. Broken and inactive
+variants stay in a final maintenance block.
+
 ### Two settings in the layout editor
 
 Both sit under the help text in **Tab Layout**, beside the tabs they affect.
 They are also in the client's plugin settings under Bank Architect, since they
 are stored there.
 
-**Fill part-empty gear rows** and **Fill part-empty Herblore rows** decide what
+**Fill combat loadout rows** and **Fill part-empty Herblore rows** decide what
 happens when a group does not fill a row. A bank tab cannot hold an empty slot,
 so an aligned row only keeps its shape if real items fill it.
 
 They are asked separately because they are the same mechanism but not the same
-trade. You may well want the four combat-style columns held straight while being
-perfectly happy for a short recipe row to stop where it stops.
+trade. You may want complete combat sets followed by compatible accessories while
+being perfectly happy for a short recipe row to stop where it stops.
 
-- **Gear on**: the grid holds its shape, at the cost of the odd unrelated item in
-  a row. **Off**: the gear tab is laid out densely and nothing sits where it does
-  not belong. Sets still hold together as columns, since that is a different
-  rule. Turn it off if you have ever wondered why a pair of gloves is nowhere
-  near the rest of its set.
+- **Gear on**: compatible combat blocks may fill complete rows. Consecutive blocks
+  containing at least two usable armour cores align helmets, bodies, legs, and
+  weapons only when those blocks contain enough real entries to fill four rows.
+  **Off**: exact sets stay together, but short blocks
+  follow one another without row completion or vertical alignment.
+  Broken and inactive equipment stays in the final maintenance block in both modes.
 - **Herblore on**: a part-finished recipe borrows from the rest of the tab so the
   next recipe still starts at the left edge. **Off**: a short row is left short
   and the recipes simply follow each other.

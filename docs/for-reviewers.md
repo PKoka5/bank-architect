@@ -1,7 +1,7 @@
 # Notes for Plugin Hub reviewers
 
 This plugin is larger than most Hub submissions, so this page exists to make the
-one question that matters — *does it automate anything?* — quick to answer.
+one question that matters, *does it automate anything?*, quick to answer.
 Everything below is checkable with `grep`.
 
 ## The short version
@@ -12,25 +12,23 @@ no external process, no file I/O, and no third-party dependency.
 
 ## Only four files touch live client state
 
-Of 128 production source files, exactly four import anything that reads or
-reacts to the running game:
+Exactly four production files import anything that reads or reacts to the
+running game:
 
-| File | Lines | What it does |
-|---|---|---|
-| `bank/BankSnapshotReader.java` | 79 | Reads `InventoryID.BANK` into a plain list of item IDs and quantities. |
-| `IronmanBankArchitectPlugin.java` | ~330 | Plugin lifecycle, and the bank right-click menu entries described below. |
-| `overlay/BankGuideOverlay.java` | ~1380 | Draws the move guidance. Mostly geometry. |
-| `overlay/BankCategoryOverlay.java` | ~250 | Draws a colour per item. Nothing else. |
+| File | What it does |
+|---|---|
+| `bank/BankSnapshotReader.java` | Reads `InventoryID.BANK` into a plain list of item IDs and quantities. |
+| `IronmanBankArchitectPlugin.java` | Plugin lifecycle, and the bank right-click menu entries described below. |
+| `overlay/BankGuideOverlay.java` | Draws the move guidance. Mostly geometry. |
+| `overlay/BankCategoryOverlay.java` | Draws a colour per item. Nothing else. |
 
 ```sh
 grep -rlE 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Menu;)' src/main
 ```
 
-Twelve further files import `net.runelite.api.gameval.ItemID` and nothing else —
-those are compile-time item-ID constants in classification tables, with no
-client access. The remaining 112 files import no RuneLite API at all: they are
-the item catalogue, the layout engine, and the sorters, all pure functions over
-plain data. That is where the line count lives.
+The remaining RuneLite imports are compile-time constants and value types, not
+client access. Most production files import no RuneLite API at all. They are the
+item catalogue, layout engine, and sorters, all pure functions over plain data.
 
 ## Things a reviewer will reasonably want to check
 
@@ -46,8 +44,9 @@ strings in a bundled TSV are absolute HTTPS URLs, so the data manifest cannot
 carry a malformed citation. No connection is ever opened. It is the only
 `java.net` reference in the plugin.
 
-**Bundled data is 1.9 MB.** Eight pinned TSV/text datasets under
-`src/main/resources`, the largest being an item registry of ~32,500 entries.
+**Bundled data is read-only.** Pinned TSV and text datasets under
+`src/main/resources` include the item registry, Wiki category snapshot, sort
+metadata, combat relationships, and utility adjustments.
 They are read with `getResourceAsStream` and are never written, downloaded, or
 refreshed at runtime. Classification is fully offline and deterministic; the
 plugin makes no Wiki or price-API calls.
@@ -73,20 +72,20 @@ common approach is a fixed template, or a set of category rules that decide
 *which tab* an item belongs to and stop there. A template only works if your
 bank resembles the one it was built from; a tab assignment leaves the inside of
 the tab in whatever order the items happened to be. Here the destination is only
-the first step. `organize/layout/` is a 7,100-line placement engine that packs
-each tab from the items you actually own: eight semantic rule sets propose
-blocks — gear sets, rune blocks, potion doses grouped by dose, resource zones by
-skill, tool and outfit sets — and a scored packer chooses a placement that fits
-the tab's real width and item count. Eleven per-category sorters order what is
-left. Nothing is placed that you do not own, and no filler is invented.
+the first step. `organize/layout/` packs each tab from the items you actually own.
+Semantic rules propose rune blocks, potion doses grouped by dose, resource zones
+by skill, and tool or outfit sets. Per-category sorters order what remains.
+Nothing is placed that you do not own, and no blank filler is invented.
 
-**Gear is grouped by combat style and slot, with the best first.** Melee, ranged
-and magic get their own lanes, each slot forms a row, and within a slot the
-order is decided from real equipment stats plus a 309-entry gear tier catalogue
-— so a strength set, a ranged set and a mage set end up as recognisable blocks
-instead of an alphabetical pile. The same stat comparison drives the alch
-review: an item only moves out of combat gear when an owned item beats it
-outright on all fifteen equipment stats.
+**Gear is grouped into owned combat setups, with higher-ranked heuristics first.** The
+combat planner separates catalog relationships, ownership resolution, strength
+ranking, and eight-column placement. This ordering is not a best-in-slot claim. Ordinary melee, ranged, and magic gear is
+ranked from live equipment slots and stats plus the pinned progression catalog.
+A reviewed exact-ID catalog is used only for relationships stats cannot express,
+such as Void activation, Barrows and Moon sets, lifecycle states, and passive or
+special-attack utility. The same stat comparison drives the alch review: an item
+only moves out of combat gear when an owned item beats it outright on all fifteen
+equipment stats.
 
 Both claims are checkable. `docs/research/` holds the dated studies the rules
 were built from, including a review of the most-imported community bank
@@ -113,7 +112,7 @@ The destination-colour overlay only draws and therefore has no such gates.
 ## Verification
 
 ```sh
-./gradlew test                # 858 tests
+./gradlew test
 ./gradlew simulateRandomBanks # 150 generated banks, all reach a complete plan
 ./gradlew aggregateCleanupReview
 ```
