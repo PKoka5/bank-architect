@@ -12,13 +12,13 @@ no external process, no file I/O, and no third-party dependency.
 
 ## Only four files touch live client state
 
-Of 128 production source files, exactly four import anything that reads or
+Of 131 production source files, exactly four import anything that reads or
 reacts to the running game:
 
 | File | Lines | What it does |
 |---|---|---|
 | `bank/BankSnapshotReader.java` | 79 | Reads `InventoryID.BANK` into a plain list of item IDs and quantities. |
-| `IronmanBankArchitectPlugin.java` | ~330 | Plugin lifecycle, and the bank right-click menu entries described below. |
+| `IronmanBankArchitectPlugin.java` | ~540 | Plugin lifecycle, bank analysis adapter, and the bank right-click menu entries described below. |
 | `overlay/BankGuideOverlay.java` | ~1380 | Draws the move guidance. Mostly geometry. |
 | `overlay/BankCategoryOverlay.java` | ~250 | Draws a colour per item. Nothing else. |
 
@@ -28,9 +28,9 @@ grep -rlE 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Me
 
 Twelve further files import `net.runelite.api.gameval.ItemID` and nothing else —
 those are compile-time item-ID constants in classification tables, with no
-client access. The remaining 112 files import no RuneLite API at all: they are
-the item catalogue, the layout engine, and the sorters, all pure functions over
-plain data. That is where the line count lives.
+client access. The remaining 115 files import no RuneLite API at all. They are
+the analysis lifecycle over immutable plain data, the item catalogue, the
+layout engine, and the sorters. That is where the line count lives.
 
 ## Things a reviewer will reasonably want to check
 
@@ -53,15 +53,15 @@ refreshed at runtime. Classification is fully offline and deterministic; the
 plugin makes no Wiki or price-API calls.
 
 **Threading.** Analysis runs on the client's injected
-`ScheduledExecutorService`. The plugin creates no threads of its own. Item
-stats and prices are collected on the client thread first, so the background
-task works only from plain maps.
+`ScheduledExecutorService`. The plugin creates no threads of its own. The bank
+snapshot, item stats, prices, category corrections, layout, and layout options
+are captured on the client thread first, so the background task works only from
+immutable plain-data snapshots and values.
 
 **A separate window.** "Show My Bank" opens a `JDialog` with a read-only
-preview of the planned layout. It is disposed in `shutDown`. A second `JDialog`,
-the tab arranger, lets the player order the destinations; it writes one
-comma-separated list of destination keys to plugin config and re-runs the
-analysis. Both are disposed with the panel.
+preview of the planned layout. It is disposed in `shutDown`. The sidebar's tab
+layout editor lets the player assign and order categories and tags. It stores
+the plan in plugin config and re-runs the analysis. No second dialog exists.
 
 ## Why another bank plugin
 
@@ -113,7 +113,7 @@ The destination-colour overlay only draws and therefore has no such gates.
 ## Verification
 
 ```sh
-./gradlew test                # 858 tests
+./gradlew test                # full unit suite
 ./gradlew simulateRandomBanks # 150 generated banks, all reach a complete plan
 ./gradlew aggregateCleanupReview
 ```

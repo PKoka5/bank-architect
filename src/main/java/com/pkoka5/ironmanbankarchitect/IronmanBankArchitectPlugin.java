@@ -1,19 +1,18 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
+import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysis;
+import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisRequest;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
-import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
@@ -35,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.swing.JLabel;
@@ -103,14 +101,11 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private NavigationButton navigationButton;
 	private IronmanBankArchitectPanel panel;
 	private BankGuideController guideController;
+	private BankAnalysis bankAnalysis;
 	private BankGuideOverlay guideOverlay;
 	private BankCategoryOverlay categoryOverlay;
 	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
 	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
-	// Counted per tag while the blueprint is built, because the layout screen
-	// needs to show what a tab would weigh under an arrangement the player has
-	// not saved yet, and the destinations alone no longer say which tag is which.
-	private final Map<String, Integer> tagItemCounts = new ConcurrentHashMap<>();
 
 	@Override
 	protected void startUp()
@@ -118,6 +113,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
 		categoryOverrides = UserCategoryOverrides.parse(config.categoryOverrides());
 		guideController.publishCategoryOverrideCount(categoryOverrides.size());
+		bankAnalysis = new BankAnalysis(
+			command -> clientThread.invoke(command),
+			analysisExecutor,
+			this::bankAnalysisRequest,
+			guideController::publishBankAnalysis,
+			CompositeItemCatalog.DEFAULT,
+			activePreset());
 		// Both overlays want the free canvas beside the bank; the shared claim
 		// keeps the guidance panel off the destination legend on a small window.
 		BankOverlayReservations reservations = new BankOverlayReservations();
@@ -142,6 +144,12 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
+		if (bankAnalysis != null)
+		{
+			bankAnalysis.close();
+			bankAnalysis = null;
+		}
+
 		if (navigationButton != null)
 		{
 			clientToolbar.removeNavigation(navigationButton);
@@ -166,8 +174,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		}
 
 		// The executor belongs to the client and is shared, so it is never shut
-		// down here. Clearing guideController is what makes a late analysis
-		// task fall through without touching a disposed panel.
+		// down here. Closing bankAnalysis invalidates every queued callback.
 		guideController = null;
 		panel = null;
 		itemIcons.clear();
@@ -336,13 +343,6 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			}
 
 			@Override
-			public int itemCount(String tagKey)
-			{
-				Integer count = tagItemCounts.get(tagKey);
-				return count == null ? 0 : count;
-			}
-
-			@Override
 			public void save(BankLayoutPlan plan)
 			{
 				config.setTabOrder(plan.completedFor(BankPresets.IRONMAN).serialize());
@@ -428,68 +428,26 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	private void analyzeBank()
 	{
-		BankGuideController controller = guideController;
-		if (controller == null)
+		BankAnalysis analysis = bankAnalysis;
+		if (analysis != null)
 		{
-			return;
+			analysis.analyzeBank();
 		}
-
-		controller.publishAnalysisStarted();
-		clientThread.invoke(() -> {
-			Optional<BankSnapshot> snapshot = BankSnapshotReader.readOpenBank(client);
-			if (!snapshot.isPresent())
-			{
-				controller.publishBankClosedAnalysis();
-				return;
-			}
-
-			BankSnapshot bankSnapshot = snapshot.get();
-			// Item stats and prices can only be read on the client thread; collect
-			// them here so the analysis thread works from plain maps.
-			Map<Integer, GearStats> gearStatsById = collectGearStats(bankSnapshot);
-			Map<Integer, Integer> alchValuesById = collectAlchValues(bankSnapshot);
-			try
-			{
-				analysisExecutor.execute(() -> publishBankAnalysis(controller, bankSnapshot, gearStatsById, alchValuesById));
-			}
-			catch (RejectedExecutionException ignored)
-			{
-				// Plugin is shutting down; ignore late analysis requests.
-			}
-		});
 	}
 
-	private void publishBankAnalysis(BankGuideController controller, BankSnapshot bankSnapshot,
-		Map<Integer, GearStats> gearStatsById, Map<Integer, Integer> alchValuesById)
+	/** Captures every fact used by one request while on RuneLite's client thread. */
+	private Optional<BankAnalysisRequest> bankAnalysisRequest()
 	{
-		if (guideController != controller)
+		Optional<BankSnapshot> snapshot = BankSnapshotReader.readOpenBank(client);
+		if (!snapshot.isPresent())
 		{
-			return;
+			return Optional.empty();
 		}
 
-		try
-		{
-			BankLayoutPlan plan = activePlan();
-			BankPreset preset = activePreset();
-			controller.publishCatalogSummary(BankCatalogSummarizer.summarize(bankSnapshot,
-				CompositeItemCatalog.DEFAULT, preset));
-			// Classified per category, then grouped into the plan's destinations
-			// before anything is sorted, so a bundle whose tags share a tab is
-			// still laid out as one block.
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bankSnapshot,
-				CompositeItemCatalog.DEFAULT, preset,
-				itemId -> Optional.ofNullable(gearStatsById.get(itemId)),
-				itemId -> alchValuesById.getOrDefault(itemId, 0),
-				categoryOverrides, plan,
-				activeOptions());
-			tagItemCounts.clear();
-			tagItemCounts.putAll(preview.getTagCounts());
-			controller.publishOrganizationPreview(preview);
-		}
-		catch (RuntimeException ex)
-		{
-			log.error("Bank analysis failed", ex);
-		}
+		BankSnapshot bankSnapshot = snapshot.get();
+		return Optional.of(new BankAnalysisRequest(bankSnapshot,
+			collectGearStats(bankSnapshot), collectAlchValues(bankSnapshot),
+			categoryOverrides.asMap(), activePlan(), activeOptions()));
 	}
 
 	private Map<Integer, Integer> collectAlchValues(BankSnapshot snapshot)

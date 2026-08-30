@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Test;
 
@@ -93,6 +94,20 @@ public class UserCategoryOverridesTest
 		assertTrue(overrides.isEmpty());
 	}
 
+	@Test
+	public void exportedMapIsAnImmutableSnapshot()
+	{
+		UserCategoryOverrides overrides = new UserCategoryOverrides();
+		overrides.put(995, "currency-utilities");
+		Map<Integer, String> snapshot = overrides.asMap();
+
+		overrides.put(4151, "combat-gear");
+
+		assertEquals(1, snapshot.size());
+		assertEquals("currency-utilities", snapshot.get(995));
+		assertUnsupported(() -> snapshot.put(561, "resources"));
+	}
+
 	private static void assertThrows(Runnable action)
 	{
 		try
@@ -104,5 +119,18 @@ public class UserCategoryOverridesTest
 			return;
 		}
 		throw new AssertionError("expected IllegalArgumentException");
+	}
+
+	private static void assertUnsupported(Runnable action)
+	{
+		try
+		{
+			action.run();
+		}
+		catch (UnsupportedOperationException expected)
+		{
+			return;
+		}
+		throw new AssertionError("expected UnsupportedOperationException");
 	}
 }
