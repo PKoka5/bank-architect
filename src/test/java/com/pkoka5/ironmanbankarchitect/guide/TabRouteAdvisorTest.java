@@ -55,7 +55,7 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
-	public void sortingAnchorsTheFirstMismatchedSlotAndReportsTheExactSwapLowerBound()
+	public void sortingAnchorsTheFirstMismatchedSlotAndReportsExactEstimateForUniqueIds()
 	{
 		// Slot 0 holds item 2, so the advised drag starts at the anchor slot 0
 		// and delivers item 2 to its final slot 1.
@@ -64,8 +64,8 @@ public class TabRouteAdvisorTest
 			counts());
 
 		assertMove(result, MoveType.SWAP_SECTION, 2, 0, 1, 0, 1);
-		assertEquals(3, result.getProgress().getMinimumRemainingDrags());
-		assertEquals(3, TabRouteAdvisor.minimumRemainingSwaps(
+		assertEquals(3, result.getProgress().getRemainingDragsEstimate());
+		assertEquals(3, TabRouteAdvisor.estimatedRemainingSwaps(
 			new int[]{2, 3, 1, 5, 4}, items(1, 2, 3, 4, 5)));
 	}
 
@@ -80,7 +80,7 @@ public class TabRouteAdvisorTest
 
 		assertMove(result, MoveType.INSERT_SECTION, 1, 2, 0, 0, 1);
 		assertEquals(2, result.getMove().get().getAnchorItemId());
-		assertEquals(2, result.getProgress().getMinimumRemainingDrags());
+		assertEquals(2, result.getProgress().getRemainingDragsEstimate());
 		assertEquals(RearrangeMode.INSERT, result.getProgress().getMode());
 	}
 
@@ -92,12 +92,12 @@ public class TabRouteAdvisorTest
 			Collections.emptyList());
 
 		Assessment swap = TabRouteAdvisor.assess(bank, plan, counts(), 0, RearrangeMode.SWAP);
-		assertEquals(3, swap.getProgress().getMinimumRemainingDrags());
-		assertEquals(2, swap.getProgress().getMinimumRemainingDragsInOtherMode());
+		assertEquals(3, swap.getProgress().getRemainingDragsEstimate());
+		assertEquals(2, swap.getProgress().getOtherModeDragsEstimate());
 
 		Assessment insert = TabRouteAdvisor.assess(bank, plan, counts(), 0, RearrangeMode.INSERT);
-		assertEquals(2, insert.getProgress().getMinimumRemainingDrags());
-		assertEquals(3, insert.getProgress().getMinimumRemainingDragsInOtherMode());
+		assertEquals(2, insert.getProgress().getRemainingDragsEstimate());
+		assertEquals(3, insert.getProgress().getOtherModeDragsEstimate());
 	}
 
 	@Test
@@ -255,6 +255,53 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
+	public void equalChargedCopiesAreValidInThePhysicalTabPlan()
+	{
+		int usedEclipseMoonChestplate = 29031;
+		Assessment result = TabRouteAdvisor.assess(
+			new int[]{usedEclipseMoonChestplate, usedEclipseMoonChestplate, 9},
+			plan(items(9), items(usedEclipseMoonChestplate, usedEclipseMoonChestplate),
+				Collections.emptyList()),
+			counts(2));
+
+		assertEquals(Status.COMPLETE, result.getStatus());
+	}
+
+	@Test
+	public void equalChargedCopiesCanBeCreatedDistributedAndSorted()
+	{
+		int usedEclipseMoonChestplate = 29031;
+		BankTabPlan plan = plan(items(9),
+			items(usedEclipseMoonChestplate, usedEclipseMoonChestplate, 20),
+			Collections.emptyList());
+
+		assertTerminates(plan,
+			new ModelBank(new int[]{usedEclipseMoonChestplate, 20,
+				usedEclipseMoonChestplate, 9}, counts()), RearrangeMode.SWAP);
+		assertTerminates(plan,
+			new ModelBank(new int[]{usedEclipseMoonChestplate, 20,
+				usedEclipseMoonChestplate, 9}, counts()), RearrangeMode.INSERT);
+	}
+
+	@Test
+	public void sessionAcceptsDistributionWhenEqualCopiesKeepTheSameFlatOrder()
+	{
+		int usedEclipseMoonChestplate = 29031;
+		BankTabPlan plan = plan(items(9),
+			items(usedEclipseMoonChestplate, usedEclipseMoonChestplate),
+			Collections.emptyList());
+		int[] unchangedFlatOrder = {usedEclipseMoonChestplate, usedEclipseMoonChestplate, 9};
+		Session session = new Session();
+
+		Assessment distribution = session.assess(unchangedFlatOrder, plan, counts(1), 100);
+		assertMove(distribution, MoveType.DISTRIBUTE_TO_TAB, usedEclipseMoonChestplate,
+			1, -1, 1, 2);
+
+		Assessment complete = session.assess(unchangedFlatOrder, plan, counts(2), 100);
+		assertEquals(Status.COMPLETE, complete.getStatus());
+	}
+
+	@Test
 	public void allEmptyPhysicalCategoriesLeaveOnlyMainToSort()
 	{
 		Assessment result = TabRouteAdvisor.assess(new int[]{2, 1},
@@ -281,13 +328,13 @@ public class TabRouteAdvisorTest
 	}
 
 	@Test
-	public void duplicateItemsIncludeTheSortedUnionFromPlanAndBank()
+	public void duplicateRecoveryReportsOnlyLiveOccurrencesBeyondThePlan()
 	{
 		Assessment result = TabRouteAdvisor.assess(new int[]{7, 7, 9},
 			plan(items(9), items(4, 4), Collections.emptyList()), counts());
 
 		assertEquals(Status.DUPLICATE_ITEMS, result.getStatus());
-		assertEquals(List.of(4, 7), result.getDuplicateItemIds());
+		assertEquals(List.of(7), result.getDuplicateItemIds());
 	}
 
 	@Test
@@ -348,7 +395,7 @@ public class TabRouteAdvisorTest
 		for (List<Integer> permutation : permutations(Arrays.asList(1, 2, 3, 4)))
 		{
 			int[] actual = permutation.stream().mapToInt(Integer::intValue).toArray();
-			int minimum = TabRouteAdvisor.minimumRemainingSwaps(actual, items(1, 2, 3, 4));
+			int minimum = TabRouteAdvisor.estimatedRemainingSwaps(actual, items(1, 2, 3, 4));
 			int swaps = 0;
 			while (true)
 			{
@@ -431,7 +478,7 @@ public class TabRouteAdvisorTest
 					assertTrue("selected item was not remaining", remaining.remove((Integer) selected));
 					greedy.add(selected);
 				}
-				int greedySwaps = TabRouteAdvisor.minimumRemainingSwaps(
+				int greedySwaps = TabRouteAdvisor.estimatedRemainingSwaps(
 					greedy.stream().mapToInt(Integer::intValue).toArray(), target);
 
 				int optimum = Integer.MAX_VALUE;
@@ -441,7 +488,7 @@ public class TabRouteAdvisorTest
 				{
 					List<Integer> candidate = new ArrayList<>(prefix);
 					candidate.addAll(suffix);
-					optimum = Math.min(optimum, TabRouteAdvisor.minimumRemainingSwaps(
+					optimum = Math.min(optimum, TabRouteAdvisor.estimatedRemainingSwaps(
 						candidate.stream().mapToInt(Integer::intValue).toArray(), target));
 				}
 				assertEquals("non-optimal append for prefix " + prefix, optimum, greedySwaps);

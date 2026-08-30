@@ -11,9 +11,10 @@ package com.pkoka5.ironmanbankarchitect.guide;
  * slot index, shifting everything in between.</li>
  * </ul>
  *
- * Insert needs strictly fewer drags on a shuffled section: the swap lower bound
- * is {@code n - permutation cycles} while the insert lower bound is
- * {@code n - longest increasing subsequence}.
+ * For a fixed occurrence pairing, swap distance is {@code n - permutation cycles}.
+ * Duplicate IDs can admit a shorter pairing, so swap guidance labels this value
+ * as an estimate. The insert lower bound is
+ * {@code n - longest increasing subsequence} for the stable occurrence order.
  */
 public enum RearrangeMode
 {

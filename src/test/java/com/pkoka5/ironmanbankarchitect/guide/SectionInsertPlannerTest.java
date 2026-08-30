@@ -24,6 +24,22 @@ public class SectionInsertPlannerTest
 	}
 
 	@Test
+	public void equalChargedCopiesAreInterchangeableInInsertMode()
+	{
+		int usedEclipseMoonChestplate = 29031;
+		int[] actual = {usedEclipseMoonChestplate, 20, usedEclipseMoonChestplate};
+		List<BankPreviewItem> target = items(
+			usedEclipseMoonChestplate, usedEclipseMoonChestplate, 20);
+
+		assertEquals(1, SectionInsertPlanner.minimumRemainingInserts(actual, 0, target));
+		Step step = SectionInsertPlanner.nextStep(actual, 0, target);
+
+		assertNotNull(step);
+		assertArrayEquals(new int[]{usedEclipseMoonChestplate, usedEclipseMoonChestplate, 20},
+			SectionInsertPlanner.applyInsert(actual, step.getFromSlot(), step.getDropSlot()));
+	}
+
+	@Test
 	public void singleMisplacedItemIsDroppedInFrontOfItsSuccessor()
 	{
 		// 3 sits in front of 1 and 2; dropping it on slot 2 shifts 1 and 2 left.
@@ -110,7 +126,7 @@ public class SectionInsertPlannerTest
 		List<BankPreviewItem> target = items(1, 2, 3, 4, 5, 6, 7, 8);
 
 		assertEquals(3, SectionInsertPlanner.minimumRemainingInserts(actual, 0, target));
-		assertEquals(4, TabRouteAdvisor.minimumRemainingSwaps(actual, target));
+		assertEquals(4, TabRouteAdvisor.estimatedRemainingSwaps(actual, target));
 	}
 
 	@Test

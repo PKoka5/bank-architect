@@ -923,14 +923,14 @@ public final class BankGuideOverlay extends Overlay
 			return text;
 		}
 
-		int remaining = progress.getMinimumRemainingDrags();
+		int remaining = progress.getRemainingDragsEstimate();
 		if (mode == RearrangeMode.INSERT)
 		{
 			return text + " Minimum inserts remaining: " + remaining + ".";
 		}
 
-		text += " Minimum swaps remaining: " + remaining + ".";
-		int inserts = progress.getMinimumRemainingDragsInOtherMode();
+		text += " Estimated swaps remaining: " + remaining + ".";
+		int inserts = progress.getOtherModeDragsEstimate();
 		return inserts >= 0 && inserts < remaining
 			? text + " Insert mode would need " + inserts + "."
 			: text;
@@ -957,8 +957,8 @@ public final class BankGuideOverlay extends Overlay
 			+ assessment.getProgress().getPercent() + "%";
 		if (assessment.getProgress().getPhase() == Phase.SORTING)
 		{
-			progress += (mode == RearrangeMode.INSERT ? "  MIN INSERTS " : "  MIN SWAPS ")
-				+ assessment.getProgress().getMinimumRemainingDrags();
+			progress += (mode == RearrangeMode.INSERT ? "  MIN INSERTS " : "  EST SWAPS ")
+				+ assessment.getProgress().getRemainingDragsEstimate();
 		}
 			switch (move.getType())
 		{

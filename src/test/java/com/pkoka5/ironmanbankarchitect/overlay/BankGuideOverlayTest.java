@@ -267,14 +267,14 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
-	public void planOnlyDuplicateDoesNotMarkAUniqueActualPlaceholderForRelease()
+	public void missingPlannedOccurrenceDoesNotMarkAUniqueActualPlaceholderForRelease()
 	{
 		int[] actualItemIds = {4, 7, 9};
 		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(actualItemIds,
 			BankTabPlan.fromPreview(previewWithItems(4, 4, 9)), new int[9]);
 
-		assertEquals(Status.DUPLICATE_ITEMS, assessment.getStatus());
-		assertEquals(List.of(4), assessment.getDuplicateItemIds());
+		assertEquals(Status.RESCAN_REQUIRED, assessment.getStatus());
+		assertTrue(assessment.getDuplicateItemIds().isEmpty());
 		assertTrue(BankGuideOverlay.duplicateIds(actualItemIds).isEmpty());
 		assertFalse(BankGuideOverlay.isDuplicatePlaceholder(
 			4, true, BankGuideOverlay.duplicateIds(actualItemIds)));
@@ -371,14 +371,14 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
-	public void sortingHudShowsTheExactMinimumRemainingSwapCount()
+	public void sortingHudLabelsTheStableSwapEstimate()
 	{
 		BankOrganizationPreview preview = previewWithItems(10, 20, 30);
 		TabRouteAdvisor.Assessment assessment = TabRouteAdvisor.assess(
 			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9]);
 
 		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.SWAP);
-		assertTrue(hud.contains("MIN SWAPS 2"));
+		assertTrue(hud.contains("EST SWAPS 2"));
 	}
 
 	@Test
@@ -392,7 +392,7 @@ public class BankGuideOverlayTest
 		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.INSERT);
 		assertTrue(hud.contains("MIN INSERTS 1"));
 		assertTrue(hud.contains("MOVE -> DROP"));
-		assertFalse(hud.contains("MIN SWAPS"));
+		assertFalse(hud.contains("EST SWAPS"));
 	}
 
 	@Test
