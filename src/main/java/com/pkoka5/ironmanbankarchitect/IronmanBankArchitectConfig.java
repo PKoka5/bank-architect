@@ -30,11 +30,21 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "fillRows",
-		name = "Fill part-empty rows",
-		description = "A bank tab cannot hold an empty slot, so an aligned row can only keep its shape if real items fill it. On, gear setups and Herblore recipes stay in aligned rows and an occasional unrelated item sits in the row to complete it. Off, nothing is placed where it does not belong and the alignment is dropped instead."
+		keyName = "fillGearRows",
+		name = "Fill part-empty gear rows",
+		description = "A bank tab cannot hold an empty slot, so the four combat-style columns only stay straight if real items fill the rest of each row. On, the grid holds its shape and an occasional unrelated item sits in a row to complete it. Off, the gear tab is laid out densely and nothing sits where it does not belong; sets still hold together."
 	)
-	default boolean fillRows()
+	default boolean fillGearRows()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "fillHerbloreRows",
+		name = "Fill part-empty Herblore rows",
+		description = "On, a part-finished recipe row borrows from the rest of the tab so the next recipe still starts at the left edge. Off, a short row is left short and the recipes simply follow each other."
+	)
+	default boolean fillHerbloreRows()
 	{
 		return true;
 	}
@@ -50,11 +60,18 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "fillRows",
+		keyName = "fillGearRows",
 		name = "",
 		description = ""
 	)
-	void setFillRows(boolean fillRows);
+	void setFillGearRows(boolean fillGearRows);
+
+	@ConfigItem(
+		keyName = "fillHerbloreRows",
+		name = "",
+		description = ""
+	)
+	void setFillHerbloreRows(boolean fillHerbloreRows);
 
 	@ConfigItem(
 		keyName = "alchPile",

@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -21,8 +22,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class BankLayoutOptionsTest
 {
-	private static final BankLayoutOptions NO_FILLERS = new BankLayoutOptions(false, true);
-	private static final BankLayoutOptions NO_ALCH = new BankLayoutOptions(true, false);
+	private static final BankLayoutOptions NO_FILLERS = new BankLayoutOptions(false, false, true);
+	private static final BankLayoutOptions NO_ALCH = new BankLayoutOptions(true, true, false);
 
 	// A part-finished Herblore chain: two herbs and one dose, so a recipe row is
 	// short and would otherwise be padded out to eight columns.
@@ -38,7 +39,8 @@ public class BankLayoutOptionsTest
 	@Test
 	public void fillingRowsIsOnByDefault()
 	{
-		assertTrue(BankLayoutOptions.DEFAULTS.fillRows());
+		assertTrue(BankLayoutOptions.DEFAULTS.fillGearRows());
+		assertTrue(BankLayoutOptions.DEFAULTS.fillHerbloreRows());
 		assertTrue(BankLayoutOptions.DEFAULTS.alchPile());
 	}
 
@@ -54,6 +56,26 @@ public class BankLayoutOptionsTest
 
 		assertEquals(filled.size(), unfilled.size());
 		assertTrue(unfilled.containsAll(filled));
+	}
+
+	/**
+	 * Gear and Herblore ask separately. One switch for both meant a player who
+	 * wanted the combat columns straight had to accept padded recipe rows too.
+	 */
+	@Test
+	public void gearAndHerbloreRowFillingAreIndependent()
+	{
+		BankLayoutOptions gearOnly = new BankLayoutOptions(true, false, true);
+		BankLayoutOptions herbloreOnly = new BankLayoutOptions(false, true, true);
+
+		assertTrue(gearOnly.fillGearRows());
+		assertFalse(gearOnly.fillHerbloreRows());
+		assertFalse(herbloreOnly.fillGearRows());
+		assertTrue(herbloreOnly.fillHerbloreRows());
+
+		// Turning Herblore filling off leaves the gear tab exactly as it was.
+		assertEquals(idsOn(build(HERBLORE_BANK, BankLayoutOptions.DEFAULTS), gearTab()),
+			idsOn(build(HERBLORE_BANK, gearOnly), gearTab()));
 	}
 
 	@Test
@@ -106,6 +128,25 @@ public class BankLayoutOptionsTest
 
 		assertEquals(Arrays.asList("Prayer potion(4)", "Prayer potion(3)", "Prayer potion(2)",
 			"Prayer potion(1)", "Super restore(4)", "Super restore(3)"), names);
+	}
+
+	private static int gearTab()
+	{
+		return BankLayoutPlan.defaultFor(BankPresets.IRONMAN).destinationOf("gear");
+	}
+
+	private static List<Integer> idsOn(BankOrganizationPreview preview, int destination)
+	{
+		List<Integer> ids = new ArrayList<>();
+		for (BankPreviewItem item : preview.getCategories().get(destination).getItems())
+		{
+			if (!item.isBlank())
+			{
+				ids.add(item.getItemId());
+			}
+		}
+
+		return ids;
 	}
 
 	private static List<Integer> herbloreItems(BankLayoutOptions options)

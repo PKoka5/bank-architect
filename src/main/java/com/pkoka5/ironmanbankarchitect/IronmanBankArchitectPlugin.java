@@ -288,7 +288,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	/** The player's layout choices that no plan can state for them. */
 	private BankLayoutOptions activeOptions()
 	{
-		return new BankLayoutOptions(config.fillRows(), config.alchPile());
+		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
+			config.alchPile());
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */
@@ -411,7 +412,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void saveOptions(BankLayoutOptions options)
 			{
-				config.setFillRows(options.fillRows());
+				config.setFillGearRows(options.fillGearRows());
+				config.setFillHerbloreRows(options.fillHerbloreRows());
 				config.setAlchPile(options.alchPile());
 				analyzeBank();
 			}
@@ -479,7 +481,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				itemId -> Optional.ofNullable(gearStatsById.get(itemId)),
 				itemId -> alchValuesById.getOrDefault(itemId, 0),
 				categoryOverrides, plan,
-				new BankLayoutOptions(config.fillRows(), config.alchPile()));
+				activeOptions());
 			tagItemCounts.clear();
 			tagItemCounts.putAll(preview.getTagCounts());
 			controller.publishOrganizationPreview(preview);
