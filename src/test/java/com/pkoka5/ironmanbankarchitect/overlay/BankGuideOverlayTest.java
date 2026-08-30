@@ -98,6 +98,28 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
+	public void sortedSlotsKeepTheirGreenByDefault()
+	{
+		for (BankGuideOverlay.SlotValidationState state : BankGuideOverlay.SlotValidationState.values())
+		{
+			assertTrue(BankGuideOverlay.drawsValidation(state, false));
+		}
+	}
+
+	@Test
+	public void hidingSortedHighlightsDropsOnlyTheGreen()
+	{
+		assertFalse(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.CORRECT, true));
+		assertTrue(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.MISPLACED, true));
+		assertTrue(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.WRONG, true));
+		assertTrue(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.UNKNOWN, true));
+	}
+
+	@Test
 	public void placeholderWidgetIdIsCanonicalizedWithoutCollapsingOrdinaryVariants()
 	{
 		assertEquals(6687, BankGuideOverlay.canonicalItemId(50000, 14401, 6687));

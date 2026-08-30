@@ -30,6 +30,16 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "hideSortedHighlights",
+		name = "Hide the green on sorted items",
+		description = "Once a slot already holds the item the blueprint wants there, leave it uncoloured. A finished bank then looks untouched and only the items that still need attention stay tinted, so you can keep the guide on permanently and a newly banked item stands out on its own. Off, the guide confirms every correct slot in green. Drawing only; misplaced, wrong and unplanned slots keep their colours either way."
+	)
+	default boolean hideSortedHighlights()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "fillGearRows",
 		name = "Fill part-empty gear rows",
 		description = "A bank tab cannot hold an empty slot, so the four combat-style columns only stay straight if real items fill the rest of each row. On, the grid holds its shape and an occasional unrelated item sits in a row to complete it. Off, the gear tab is laid out densely and nothing sits where it does not belong; sets still hold together."
