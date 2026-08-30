@@ -115,6 +115,9 @@ Gathering and processing skills follow a tool-to-output chain, for example:
 - `pickaxe → ore → bar`
 - `axe → logs → planks/fletching outputs`
 
+Ballista frames, limbs, spring, monkey tail, and light or heavy intermediate states form one
+Fletching assembly run. Complete usable ballistae remain combat weapons.
+
 ## CLEAN_001 — External storage recommendations
 
 Some item groups are better suited to dedicated external storage than a bank slot: Seed Vault,
