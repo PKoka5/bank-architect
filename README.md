@@ -124,12 +124,22 @@ Both sit under the help text in **Tab Layout**, beside the tabs they affect.
 They are also in the client's plugin settings under Bank Architect, since they
 are stored there.
 
-**Fill part-empty rows** decides what happens when a group does not fill a row.
-A bank tab cannot hold an empty slot, so an aligned row only keeps its shape if
-real items fill it. On, gear setups and Herblore recipes stay in aligned rows and
-an occasional unrelated item sits in a row to complete it. Off, nothing is placed
-where it does not belong and the alignment is dropped instead. Turn it off if you
-have ever wondered why a pair of gloves is nowhere near the rest of its set.
+**Fill part-empty gear rows** and **Fill part-empty Herblore rows** decide what
+happens when a group does not fill a row. A bank tab cannot hold an empty slot,
+so an aligned row only keeps its shape if real items fill it.
+
+They are asked separately because they are the same mechanism but not the same
+trade. You may well want the four combat-style columns held straight while being
+perfectly happy for a short recipe row to stop where it stops.
+
+- **Gear on**: the grid holds its shape, at the cost of the odd unrelated item in
+  a row. **Off**: the gear tab is laid out densely and nothing sits where it does
+  not belong. Sets still hold together as columns, since that is a different
+  rule. Turn it off if you have ever wondered why a pair of gloves is nowhere
+  near the rest of its set.
+- **Herblore on**: a part-finished recipe borrows from the rest of the tab so the
+  next recipe still starts at the left edge. **Off**: a short row is left short
+  and the recipes simply follow each other.
 
 **Gather outclassed gear for alching** moves equipment you own two strictly
 better versions of, and that is worth alching, to the Slayer & Boss Loot tab.

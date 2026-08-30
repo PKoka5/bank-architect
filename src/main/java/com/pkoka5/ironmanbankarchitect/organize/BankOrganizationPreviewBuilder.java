@@ -512,7 +512,7 @@ public final class BankOrganizationPreviewBuilder
 					// The only layout the plan can talk out of its default shape:
 					// see BankLayoutStyles for why moving the doses changes it.
 					return new BankCategoryPreview(category, herbloreRecipeRows
-						? HerbloreItemSorter.layout(items, options.fillRows())
+						? HerbloreItemSorter.layout(items, options.fillHerbloreRows())
 						: HerbloreItemSorter.layoutByKind(items));
 				default:
 					return new BankCategoryPreview(category,
@@ -523,7 +523,7 @@ public final class BankOrganizationPreviewBuilder
 		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
-			if (!options.fillRows())
+			if (!options.fillGearRows())
 			{
 				// The aligned setup rows are the only thing here that needs padding,
 				// so without filling there is nothing to align and the whole tab is

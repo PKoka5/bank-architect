@@ -691,12 +691,12 @@ public class IronmanBankArchitectPanelTest
 		IronmanBankArchitectPanel panel = panelWith(model);
 		panel.getTabOrderButton().doClick();
 
-		assertTrue(panel.getFillRowsBox().isSelected());
+		assertTrue(panel.getFillGearRowsBox().isSelected());
 		assertTrue(panel.getAlchPileBox().isSelected());
 
-		panel.getFillRowsBox().doClick();
+		panel.getFillGearRowsBox().doClick();
 
-		assertFalse(model.options().fillRows());
+		assertFalse(model.options().fillGearRows());
 		assertTrue("the other option must be left alone", model.options().alchPile());
 		panel.shutdown();
 	}
@@ -705,12 +705,12 @@ public class IronmanBankArchitectPanelTest
 	public void reopeningTheEditorShowsTheStoredOptions()
 	{
 		ProfileLayoutModel model = new ProfileLayoutModel();
-		model.saveOptions(new BankLayoutOptions(false, false));
+		model.saveOptions(new BankLayoutOptions(false, false, false));
 		IronmanBankArchitectPanel panel = panelWith(model);
 
 		panel.getTabOrderButton().doClick();
 
-		assertFalse(panel.getFillRowsBox().isSelected());
+		assertFalse(panel.getFillGearRowsBox().isSelected());
 		assertFalse(panel.getAlchPileBox().isSelected());
 		panel.shutdown();
 	}
