@@ -8,7 +8,6 @@ import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.WikiItemLists;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutEntry;
 import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
-import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.CosmeticSetSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutPlacement;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutRequest;
@@ -442,7 +441,7 @@ public final class BankOrganizationPreviewBuilder
 
 	private static String gearKey(GearStats stats)
 	{
-		return stats.style().ordinal() + ":" + stats.slotRank();
+		return stats.style().sortOrder() + ":" + stats.slotRank();
 	}
 
 	/** One owned combat-gear item, kept per style/slot bucket for comparison. */
@@ -520,36 +519,13 @@ public final class BankOrganizationPreviewBuilder
 			}
 		}
 
-		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
+		/** Keeps mechanic-driven sets and practical combat loadouts physically contiguous. */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
-			if (!options.fillGearRows())
-			{
-				// The aligned setup rows are the only thing here that needs padding,
-				// so without filling there is nothing to align and the whole tab is
-				// laid out as the dense tail. Sets still hold together as columns;
-				// what goes is the four-style grid, not the families.
-				List<BankPreviewItem> dense = GearItemSorter.dense(items, gearStats);
-				List<LayoutEntry> denseEntries = entriesForItems(entries, dense);
-				int rows = (denseEntries.size() + GearItemSorter.GRID_COLUMNS - 1)
-					/ GearItemSorter.GRID_COLUMNS;
-				return semanticLayout(dense,
-					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)));
-			}
-
-			GearItemSorter.GearLayout gear = GearItemSorter.plan(items, gearStats);
-			List<BankPreviewItem> planned = new ArrayList<>(items.size());
-			planned.addAll(gear.getSetupRows());
-
-			List<LayoutEntry> tailEntries = entriesForItems(entries, gear.getTail());
-			int gridStartColumn = planned.size() % GearItemSorter.GRID_COLUMNS;
-			int physicalTailRows = (gridStartColumn + tailEntries.size()
-				+ GearItemSorter.GRID_COLUMNS - 1) / GearItemSorter.GRID_COLUMNS;
-			LayoutRequest tailRequest = GearSetSemanticRuleSet
-				.forEntries(tailEntries, Math.max(1, physicalTailRows))
-				.withGridStartColumn(gridStartColumn);
-			planned.addAll(semanticLayout(gear.getTail(), tailRequest));
-			return planned;
+			// The bank compacts blank cells, so every emitted row contains owned gear.
+			// Exact activation sets are reserved first, and generic rows contain only
+			// compatible style items. Unusable states are kept in a final repair block.
+			return GearItemSorter.layout(items, gearStats, options.fillGearRows());
 		}
 
 		/**

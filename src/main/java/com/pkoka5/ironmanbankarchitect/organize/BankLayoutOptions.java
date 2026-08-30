@@ -10,9 +10,9 @@ package com.pkoka5.ironmanbankarchitect.organize;
  * that.</p>
  *
  * <p>Row filling is asked separately for gear and for Herblore. They are the
- * same mechanism but not the same trade: a player may well want the four combat
- * columns held straight while accepting that a short recipe row simply stops
- * where it stops.</p>
+ * same mechanism but not the same trade: a player may want mechanic-driven
+ * combat sets completed with compatible style gear while accepting that a
+ * short recipe row simply stops where it stops.</p>
  */
 public final class BankLayoutOptions
 {
@@ -30,13 +30,12 @@ public final class BankLayoutOptions
 	}
 
 	/**
-	 * Whether the aligned gear setup rows may be completed with other equipment.
+	 * Whether mechanic-driven gear sets may be completed with compatible equipment.
 	 *
-	 * <p>A bank tab cannot hold an empty slot, so the four combat-style columns
-	 * only stay straight if real items fill the rest of each row. On, the grid
-	 * holds its shape at the price of an occasional stranger in a row. Off, the
-	 * tab is laid out densely and nothing sits anywhere it does not belong; sets
-	 * still hold together as columns, since that is a different rule.</p>
+	 * <p>On, compatible combat blocks may finish rows and align their helmet,
+	 * body, legs, and weapon vertically when real entries can fill the grid. Off,
+	 * an exact set remains contiguous but short blocks follow immediately. Neither
+	 * mode invents empty cells or promotes unusable equipment.</p>
 	 */
 	public boolean fillGearRows()
 	{

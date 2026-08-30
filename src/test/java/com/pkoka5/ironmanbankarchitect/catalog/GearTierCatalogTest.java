@@ -14,12 +14,14 @@ public class GearTierCatalogTest
 	{
 		GearTierCatalog catalog = GearTierCatalog.INSTANCE;
 
-		assertEquals(307, catalog.size());
+		assertEquals(335, catalog.size());
 		assertEquals(OptionalInt.of(5), catalog.tierOf(26382)); // Torva full helm, End
 		assertEquals(OptionalInt.of(4), catalog.tierOf(11832)); // Bandos chestplate, Late
 		assertEquals(OptionalInt.of(3), catalog.tierOf(1275)); // Rune pickaxe, Mid
 		assertEquals(OptionalInt.of(1), catalog.tierOf(1725)); // Amulet of strength, Starter
 		assertEquals(OptionalInt.of(5), catalog.tierOf(28936)); // Sunfire fanatic cuirass, End
+		assertEquals(OptionalInt.of(5), catalog.tierOf(30753)); // Oathplate chest, End
+		assertEquals(OptionalInt.of(4), catalog.tierOf(30076)); // Hueycoatl hide body, Late
 	}
 
 	@Test

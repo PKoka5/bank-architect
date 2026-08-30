@@ -1,0 +1,16 @@
+# schema=2
+# kind	score	keys	reason
+item	800	11864,11865,19639,19641,19643,19645,19647,19649,21264,21266,21888,21890,23073,23075,24370,24444,25898,25900,25904,25906,25910,25912,29816,29818,33066,33068	Slayer helmet task bonuses and protection variants
+loadout	250	void-melee,void-ranged,void-magic	Void utility applies only when the shared core and matching helm activate
+item	700	12926,28689	Charged toxic blowpipe variants
+item	700	12931,13197,13199	Charged serpentine helm variants
+item	700	29577,29589,29591,29594	High-value special and demonbane weapons
+item	650	11773,23595,25264,26770	Imbued berserker ring variants
+item	650	19550,19710,20655,20657,25246,25248,26761,26762	Ring of suffering variants
+item	650	12018,25278,26782	Salve amulet ei variants
+item	650	21776,21780,21784,21791,21793,21795,24232,24233,24234,24248,24249,24250	Imbued god cape variants
+item	700	20714	Charged tome of fire
+item	700	1215,1231,5680,5698	Dragon dagger special-attack variants
+item	650	10588,12017,25250,26763	Salve amulet combat upgrades
+item	700	30634	Twinflame staff passive effect
+item	-300	4734,4934,4935,4936,4937	Situational Karil crossbow when no complete Karil loadout is active

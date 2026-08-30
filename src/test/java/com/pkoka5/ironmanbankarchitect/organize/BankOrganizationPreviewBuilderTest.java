@@ -1186,32 +1186,26 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	@Test
-	public void gearCategoryBuildsEvidenceBackedSetsAsVerticalColumns()
+	public void gearCategoryBuildsMechanicDrivenLoadoutsBeforeMaintenance()
 	{
-		List<Integer> proselyte = Arrays.asList(9672, 9674, 9676);
-		List<Integer> mixedHide = Arrays.asList(29280, 29283, 29286);
-		List<Integer> ids = new ArrayList<>();
-		ids.addAll(proselyte);
-		ids.addAll(mixedHide);
-		for (int index = 0; index < 24; index++)
-		{
-			ids.add(920000 + index);
-		}
+		List<Integer> ids = Arrays.asList(25865, 23971, 23975, 23979, 27374, 24271, 29052);
 		List<CatalogItem> catalogItems = new ArrayList<>();
 		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		String[] names = {"Bow of faerdhinen", "Crystal helm", "Crystal body", "Crystal legs",
+			"Masori assembler", "Neitiznot faceguard", "Eclipse moon tassets (broken)"};
 		for (int index = 0; index < ids.size(); index++)
 		{
-			catalogItems.add(catalogItem(ids.get(index), "Gear " + ids.get(index),
+			catalogItems.add(catalogItem(ids.get(index), names[index],
 				ItemCategory.GEAR, "gear"));
-			snapshots.add(new BankItemSnapshot(ids.get(index), 1, 31 + index * 29));
+			snapshots.add(new BankItemSnapshot(ids.get(index), 1, index));
 		}
 
 		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"combat-gear").getItems());
 
-		assertVerticalFamily(target, proselyte);
-		assertVerticalFamily(target, mixedHide);
+		assertEquals(Arrays.asList(23971, 23975, 23979, 25865, 27374), target.subList(0, 5));
+		assertEquals(Integer.valueOf(29052), target.get(target.size() - 1));
 		assertEquals(new HashSet<>(ids), new HashSet<>(target));
 	}
 
@@ -1242,194 +1236,6 @@ public class BankOrganizationPreviewBuilderTest
 			"clues-cosmetics").getItems());
 
 		assertVerticalFamily(target, cow);
-	}
-
-	@Test
-	public void gearSetRulesNeverRepackPrimaryCombatStyleColumns()
-	{
-		int[][] rows = {
-			{930101, 930102, 930103, 9672, 930105, 930106, 930107, 930108},
-			{930201, 29280, 930203, 9674, 930205, 930206, 930207, 930208},
-			{930301, 29283, 930303, 9676, 930305, 930306, 930307, 930308},
-			{930401, 29286, 930403, 930404, 930405, 930406, 930407, 930408}
-		};
-		String[][] names = {
-			{"Helm of neitiznot", "Archer helm", "Farseer helm", "Proselyte sallet"},
-			{"Bandos chestplate", "Mixed hide top", "Mystic robe top", "Proselyte hauberk"},
-			{"Obsidian platelegs", "Mixed hide legs", "Mystic robe bottom", "Proselyte cuisse"},
-			{"Dragon boots", "Mixed hide boots", "Mystic boots", "Prayer boots"}
-		};
-		GearSlot[] slots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.FEET};
-		List<CatalogItem> catalogItems = new ArrayList<>();
-		List<BankItemSnapshot> snapshots = new ArrayList<>();
-		Map<Integer, GearStats> stats = new HashMap<>();
-		for (int row = 0; row < rows.length; row++)
-		{
-			for (int column = 0; column < rows[row].length; column++)
-			{
-				int itemId = rows[row][column];
-				String name = column < 4 ? names[row][column] : "Spare " + row + " " + column;
-				catalogItems.add(catalogItem(itemId, name, ItemCategory.GEAR, "gear"));
-				snapshots.add(new BankItemSnapshot(itemId, 1, row * 100 + column));
-				int melee = column == 0 || column >= 4 ? 5 : 0;
-				int ranged = column == 1 ? 5 : 0;
-				int magic = column == 2 ? 5 : 0;
-				int prayer = column == 3 ? 5 : 0;
-				stats.put(itemId, new GearStats(slots[row], melee, 0, 0, magic, ranged,
-					melee, ranged, prayer, 100 - column));
-			}
-		}
-
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
-			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
-			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
-
-		for (int row = 0; row < rows.length; row++)
-		{
-			assertEquals("melee/strength column", Integer.valueOf(rows[row][0]), target.get(row * 8));
-			assertEquals("ranged column", Integer.valueOf(rows[row][1]), target.get(row * 8 + 1));
-			assertEquals("magic column", Integer.valueOf(rows[row][2]), target.get(row * 8 + 2));
-			assertEquals("prayer column", Integer.valueOf(rows[row][3]), target.get(row * 8 + 3));
-		}
-		assertEquals(32, new HashSet<>(target).size());
-	}
-
-	@Test
-	public void nonBisMonkAndDharokSetsStayVerticalWithoutEnteringSetupFillers()
-	{
-		List<Integer> monk = Arrays.asList(544, 542);
-		List<Integer> dharok = Arrays.asList(4716, 4718, 4720, 4722);
-		List<CatalogItem> catalogItems = new ArrayList<>();
-		List<BankItemSnapshot> snapshots = new ArrayList<>();
-		Map<Integer, GearStats> stats = new HashMap<>();
-		GearSlot[] slots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.FEET};
-		int sourceSlot = 0;
-
-		for (int row = 0; row < slots.length; row++)
-		{
-			for (int style = 0; style < 4; style++)
-			{
-				int itemId = 935000 + row * 10 + style;
-				catalogItems.add(catalogItem(itemId, "Primary " + row + " " + style,
-					ItemCategory.GEAR, "gear"));
-				snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-				int melee = style == 0 ? 10 : 0;
-				int ranged = style == 1 ? 10 : 0;
-				int magic = style == 2 ? 10 : 0;
-				int prayer = style == 3 ? 10 : 0;
-				stats.put(itemId, new GearStats(slots[row], melee, 0, 0, magic, ranged,
-					melee, ranged, prayer, 2000));
-			}
-		}
-
-		for (int itemId : Arrays.asList(544, 542, 4716, 4720, 4722, 4718))
-		{
-			catalogItems.add(catalogItem(itemId, "Set piece " + itemId,
-				ItemCategory.GEAR, "gear"));
-			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-		}
-		for (int index = 0; index < 42; index++)
-		{
-			int itemId = 936000 + index;
-			catalogItems.add(catalogItem(itemId, "Utility filler " + index,
-				ItemCategory.GEAR, "gear"));
-			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-		}
-
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
-			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
-			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
-
-		for (int row = 0; row < slots.length; row++)
-		{
-			for (int style = 0; style < 4; style++)
-			{
-				assertEquals("primary setup column changed",
-					Integer.valueOf(935000 + row * 10 + style), target.get(row * 8 + style));
-			}
-		}
-		assertVerticalFamily(target, monk);
-		assertVerticalFamily(target, dharok);
-		assertEquals(snapshots.size(), target.size());
-		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
-	}
-
-	@Test
-	public void lunarGlovesStayMagicBisWhileTheRemainingSetFormsOneCompactBlock()
-	{
-		List<CatalogItem> catalogItems = new ArrayList<>();
-		List<BankItemSnapshot> snapshots = new ArrayList<>();
-		Map<Integer, GearStats> stats = new HashMap<>();
-		GearSlot[] wearableSlots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.CAPE,
-			GearSlot.NECK, GearSlot.SHIELD, GearSlot.HANDS, GearSlot.FEET};
-		int sourceSlot = 0;
-
-		for (int row = 0; row < wearableSlots.length; row++)
-		{
-			for (int style = 0; style < 4; style++)
-			{
-				if (row == 6 && style == 2)
-				{
-					continue;
-				}
-				int itemId = 937000 + row * 10 + style;
-				catalogItems.add(catalogItem(itemId, "Primary " + row + " " + style,
-					ItemCategory.GEAR, "gear"));
-				snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-				stats.put(itemId, styleStats(wearableSlots[row], style, 100));
-			}
-		}
-		for (int style = 0; style < 3; style++)
-		{
-			int itemId = 938000 + style;
-			catalogItems.add(catalogItem(itemId, "Primary weapon " + style,
-				ItemCategory.GEAR, "weapon"));
-			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-			stats.put(itemId, styleStats(GearSlot.WEAPON, style, 100));
-		}
-
-		List<Integer> lunar = Arrays.asList(9096, 9101, 9102, 9084, 9097, 9098, 9099, 9100, 9104);
-		for (int itemId : lunar)
-		{
-			catalogItems.add(catalogItem(itemId, "Lunar piece " + itemId,
-				ItemCategory.GEAR, "gear"));
-			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-		}
-		stats.put(9099, styleStats(GearSlot.HANDS, 2, 1000));
-
-		for (int index = 0; index < 79; index++)
-		{
-			int itemId = 939000 + index;
-			catalogItems.add(catalogItem(itemId, "Utility filler " + index,
-				ItemCategory.GEAR, "gear"));
-			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
-		}
-
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
-			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
-			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
-
-		assertEquals("Lunar gloves left the Magic BIS hands cell",
-			Integer.valueOf(9099), target.get(6 * 8 + 2));
-		int first = target.indexOf(9096);
-		assertTrue("missing Lunar remainder", first >= 72);
-		assertEquals(first + 1, target.indexOf(9097));
-		assertEquals(first + 8, target.indexOf(9101));
-		assertEquals(first + 9, target.indexOf(9098));
-		assertEquals(first + 16, target.indexOf(9102));
-		assertEquals(first + 17, target.indexOf(9100));
-		assertEquals(first + 24, target.indexOf(9084));
-		assertEquals(first + 25, target.indexOf(9104));
-		assertEquals(snapshots.size(), target.size());
-		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
-	}
-
-	private static GearStats styleStats(GearSlot slot, int style, int score)
-	{
-		return new GearStats(slot, style == 0 ? score : 0, 0, 0,
-			style == 2 ? score : 0, style == 1 ? score : 0,
-			style == 0 ? score : 0, style == 1 ? score : 0,
-			style == 3 ? score : 0, score);
 	}
 
 	@Test

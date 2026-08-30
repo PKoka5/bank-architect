@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
@@ -84,7 +85,7 @@ public class GearStatsLayoutTest
 	}
 
 	@Test
-	public void buildsAlignedSetColumnsWhenFillerIsAvailable()
+	public void keepsNeutralAccessoriesOutOfCombatStyleLoadouts()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, new GearStats(GearSlot.HEAD, 5, 0, 0, 0, 0, 4, 0, 0, 40));
@@ -104,11 +105,12 @@ public class GearStatsLayoutTest
 
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(items, sourceOf(stats));
 
-		// Head row: melee, ranged, magic, prayer columns, then grouped filler.
+		// Each combat style stays ahead of neutral accessories. Rings no longer
+		// masquerade as melee filler merely because they have no offensive stats.
 		assertEquals(16, laidOut.size());
-		assertEquals("Crown of iron", laidOut.get(0).getDisplayName());
-		assertEquals("Crown of winds", laidOut.get(1).getDisplayName());
-		assertEquals("Crown of stars", laidOut.get(2).getDisplayName());
+		assertEquals("Crown of winds", laidOut.get(0).getDisplayName());
+		assertEquals("Crown of stars", laidOut.get(1).getDisplayName());
+		assertEquals("Crown of iron", laidOut.get(2).getDisplayName());
 		assertEquals("Crown of light", laidOut.get(3).getDisplayName());
 		for (int i = 4; i < 16; i++)
 		{
@@ -140,6 +142,23 @@ public class GearStatsLayoutTest
 
 		GearStats prayerWeapon = new GearStats(GearSlot.WEAPON, 0, 0, 0, 0, 0, 0, 0, 5, 0);
 		assertEquals(8, prayerWeapon.slotRank());
+	}
+
+	@Test
+	public void fullRankingAccountsForMagicDamageAndWeaponSpeed()
+	{
+		GearStats base = new GearStats(GearSlot.WEAPON,
+			0, 0, 0, 20, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 5);
+		GearStats magicDamage = new GearStats(GearSlot.WEAPON,
+			0, 0, 0, 20, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 100, 5);
+		GearStats faster = new GearStats(GearSlot.WEAPON,
+			0, 0, 0, 20, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 4);
+
+		assertTrue(magicDamage.score() > base.score());
+		assertTrue(faster.score() > base.score());
 	}
 
 	@Test

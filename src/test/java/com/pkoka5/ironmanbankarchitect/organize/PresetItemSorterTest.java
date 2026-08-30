@@ -13,7 +13,7 @@ import org.junit.Test;
 public class PresetItemSorterTest
 {
 	@Test
-	public void combatGearSortsWearRowsBeforeWeaponsAndAmmo()
+	public void combatGearBuildsAUsableLoadoutBeforeAmmo()
 	{
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"), Arrays.asList(
 			item(5, "Rune arrow", ItemCategory.GEAR),
@@ -23,7 +23,7 @@ public class PresetItemSorterTest
 			item(4, "Rune boots", ItemCategory.GEAR)
 		));
 
-		assertEquals(Arrays.asList("Neitiznot helm", "Rune boots", "Dragon scimitar", "Mystic robe bottom", "Rune arrow"),
+		assertEquals(Arrays.asList("Neitiznot helm", "Dragon scimitar", "Rune boots", "Mystic robe bottom", "Rune arrow"),
 			names(sorted));
 	}
 

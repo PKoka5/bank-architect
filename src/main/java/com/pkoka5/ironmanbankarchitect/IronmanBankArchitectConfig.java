@@ -41,8 +41,8 @@ public interface IronmanBankArchitectConfig extends Config
 
 	@ConfigItem(
 		keyName = "fillGearRows",
-		name = "Fill part-empty gear rows",
-		description = "A bank tab cannot hold an empty slot, so the four combat-style columns only stay straight if real items fill the rest of each row. On, the grid holds its shape and an occasional unrelated item sits in a row to complete it. Off, the gear tab is laid out densely and nothing sits where it does not belong; sets still hold together."
+		name = "Fill combat loadout rows",
+		description = "On, compatible combat blocks may complete rows. Consecutive blocks with at least two armour cores align helmet, body, legs, and weapon only when those blocks contain enough real entries to fill four rows. Off, exact sets stay together but short blocks are not completed. Broken and inactive gear always stays in the final maintenance block."
 	)
 	default boolean fillGearRows()
 	{

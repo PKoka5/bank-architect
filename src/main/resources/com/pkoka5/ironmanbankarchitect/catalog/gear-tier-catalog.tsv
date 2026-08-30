@@ -158,6 +158,9 @@
 11770	4	Seers ring (i)
 11771	4	Archers ring (i)
 11773	4	Berserker ring (i)
+11826	4	Armadyl helmet
+11828	4	Armadyl chestplate
+11830	4	Armadyl chainskirt
 11832	4	Bandos chestplate
 11834	4	Bandos tassets
 11840	3	Dragon boots
@@ -257,6 +260,9 @@
 24419	5	Inquisitor's great helm
 24420	5	Inquisitor's hauberk
 24421	5	Inquisitor's plateskirt
+24664	5	Twisted ancestral hat
+24666	5	Twisted ancestral robe top
+24668	5	Twisted ancestral robe bottom
 25258	3	Seers ring (i)
 25260	3	Archers ring (i)
 25264	3	Berserker ring (i)
@@ -282,12 +288,18 @@
 26767	3	Seers ring (i)
 26768	3	Archers ring (i)
 26770	3	Berserker ring (i)
+27226	5	Masori mask
+27229	5	Masori body
+27232	5	Masori chaps
 27235	5	Masori mask (f)
 27238	5	Masori body (f)
 27241	5	Masori chaps (f)
 27251	5	Elidinis' ward (f)
 27275	5	Tumeken's shadow
 27277	5	Tumeken's shadow (uncharged)
+28254	5	Sanguine torva full helm
+28256	5	Sanguine torva platebody
+28258	5	Sanguine torva platelegs
 28307	5	Ultor ring
 28310	5	Venator ring
 28313	5	Magus ring
@@ -300,6 +312,12 @@
 28939	5	Sunfire fanatic chausses
 28947	5	Dizana's quiver (uncharged)
 28951	5	Dizana's quiver
+29004	4	Eclipse moon chestplate
+29007	4	Eclipse moon tassets
+29010	4	Eclipse moon helm
+29013	4	Blue moon chestplate
+29016	4	Blue moon tassets
+29019	4	Blue moon helm
 29022	4	Blood moon chestplate
 29025	4	Blood moon tassets
 29028	4	Blood moon helm
@@ -307,3 +325,13 @@
 29283	3	Mixed hide legs
 29286	3	Mixed hide boots
 29289	3	Mixed hide cape
+30073	4	Hueycoatl hide coif
+30076	4	Hueycoatl hide body
+30079	4	Hueycoatl hide chaps
+30082	4	Hueycoatl hide vambraces
+30750	5	Oathplate helm
+30753	5	Oathplate chest
+30756	5	Oathplate legs
+30777	5	Radiant oathplate helm
+30779	5	Radiant oathplate chest
+30781	5	Radiant oathplate legs

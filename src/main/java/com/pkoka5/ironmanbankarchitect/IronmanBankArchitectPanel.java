@@ -230,15 +230,14 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		resetLayoutButton.addActionListener(event ->
 			applyLayoutPlan(BankLayoutPlan.defaultFor(bankLayoutModel.preset())));
 		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
-		// Asked separately, because they are the same mechanism but not the same
-		// trade: a player may want the combat columns held straight and still be
-		// happy for a short recipe row to stop where it stops.
-		fillGearRowsBox = layoutOptionBox("Fill part-empty gear rows",
-			"<html>A bank tab cannot hold an empty slot, so the four combat-style columns "
-				+ "only stay straight if real items fill each row.<br>On: the grid holds its "
-				+ "shape, at the cost of the odd unrelated item in a row.<br>Off: the gear tab "
-				+ "is dense and nothing sits where it does not belong. Sets still hold "
-				+ "together.</html>");
+		// Asked separately because gear rows may use compatible style items while
+		// Herblore rows use recipe neighbours. They are different tradeoffs.
+		fillGearRowsBox = layoutOptionBox("Fill combat loadout rows",
+			"<html>On: compatible combat blocks may complete rows. Consecutive blocks with at least "
+				+ "two armour cores align helmet, body, legs, and weapon only when those blocks contain "
+				+ "enough real entries to fill four rows."
+				+ "<br>Off: exact sets stay together but short blocks are not completed.<br>Broken and inactive "
+				+ "gear always stays in the final maintenance block.</html>");
 		fillHerbloreRowsBox = layoutOptionBox("Fill part-empty Herblore rows",
 			"<html>On: a part-finished recipe borrows from the rest of the tab, so the next "
 				+ "recipe still starts at the left edge.<br>Off: a short row is left short and "

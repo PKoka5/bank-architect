@@ -148,7 +148,7 @@ public final class GearStats
 	{
 		int melee = Math.max(Math.max(stabAttack, slashAttack), crushAttack) + Math.max(0, meleeStrength);
 		int ranged = Math.max(0, rangedAttack) + Math.max(0, rangedStrength);
-		int magic = magicAttack;
+		int magic = Math.max(0, magicAttack) + Math.max(0, magicDamageTenths) / 10;
 		if (melee > 0 && melee >= ranged && melee >= magic)
 		{
 			return GearStyle.MELEE;
@@ -172,9 +172,8 @@ public final class GearStats
 	}
 
 	/**
-	 * Lane slot rank matching GearItemSorter's row order: wearables 0-7,
-	 * weapons 8-10 split by style, ammo 11. Rings rank 12 so jewellery groups
-	 * with the sidegrades after the setup lanes.
+	 * Legacy slot rank retained for scoring and callers outside the loadout planner:
+	 * wearables 0-7, weapons 8-10 split by style, ammo 11, and rings 12.
 	 */
 	public int slotRank()
 	{
@@ -198,7 +197,7 @@ public final class GearStats
 				return 7;
 			case WEAPON:
 				// Prayer has no weapon column; group prayer weapons with melee.
-				return style() == GearStyle.PRAYER ? 8 : 8 + style().ordinal();
+				return style() == GearStyle.PRAYER ? 8 : 8 + style().sortOrder();
 			case AMMO:
 				return 11;
 			case RING:
@@ -218,6 +217,10 @@ public final class GearStats
 			+ Math.max(0, rangedAttack)
 			+ Math.max(0, rangedStrength)
 			+ Math.max(0, magicAttack);
-		return offence * 4 + Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
+		int magicDamage = Math.max(0, magicDamageTenths);
+		int weaponSpeed = slot == GearSlot.WEAPON && attackSpeed > 0
+			? Math.max(0, 10 - attackSpeed) * 10 : 0;
+		return offence * 4 + magicDamage + weaponSpeed
+			+ Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
 	}
 }
