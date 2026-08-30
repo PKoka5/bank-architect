@@ -42,7 +42,7 @@ you are willing to reorganize (or after noting your current arrangement).
    recovers on a later tick; `MANUAL_RECOVERY_REQUIRED` only when structural collapse would be the
    sole continuation.
 4. **Sorting phase.** Follow the anchor-walk swaps in at least one section to completion. Record
-   the shown MIN SWAPS at sort start and confirm the count decreases monotonically per swap.
+   the shown EST SWAPS at sort start and confirm the count decreases monotonically per swap.
 5. **Geometry checks.** While guidance is visible: scroll the item grid, resize the client height,
    close and reopen the bank, and switch between a numbered tab and the All view. Confirm the
    overlay recomputes geometry, keeps arrows only when validated, and renders nothing when safe
@@ -63,7 +63,7 @@ Bank size / tabs before:
 Plan summary (tabs, categories, unknown count):
 Phase transitions observed (RECOVERING/REPAIRING/CREATING/DISTRIBUTING/SORTING/COMPLETE):
 Deviation test result:
-MIN SWAPS at sort start → swaps performed:
+EST SWAPS at sort start → swaps performed:
 Geometry checks (scroll / resize / reopen / tab switch):
 Gate checks (insert / search / tag):
 Result: COMPLETE | stopped (reason)
