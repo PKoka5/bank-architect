@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.2.0'
+version = '0.2.1'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
