@@ -9,7 +9,7 @@ final class CleanupReviewBenchmarkProtocol
 	static final int MIN_ITEMS = 6;
 	static final int MAX_ITEMS = 120;
 	static final String REGISTRY_SHA256 =
-		"449712144c522f622f975c9b7667a9f84c43da57260da40fa428ea2d7515b038";
+		"97331c2f6826461713807b576e6b17a0dc4fd8ffdcc5e6b7ec94f79191ff96bf";
 
 	private CleanupReviewBenchmarkProtocol()
 	{

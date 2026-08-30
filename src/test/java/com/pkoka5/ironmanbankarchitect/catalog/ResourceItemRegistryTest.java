@@ -414,6 +414,39 @@ public class ResourceItemRegistryTest
 		assertSubcategory(4718, "weapon");
 		assertCategory(28810, "Zombie axe", ItemCategory.GEAR);
 		assertSubcategory(28810, "weapon");
+		assertCategory(29577, "Burning claws", ItemCategory.GEAR);
+		assertSubcategory(29577, "weapon");
+	}
+
+	@Test
+	public void dwarfMulticannonPartsShareOneCombatFamily()
+	{
+		for (int itemId : new int[]{6, 8, 10, 12})
+		{
+			assertCategoryOnly(itemId, ItemCategory.GEAR);
+			assertSubcategory(itemId, "cannon-part");
+		}
+	}
+
+	@Test
+	public void shayzienArmourTiersRemainEquipmentDespiteNumericSuffixes()
+	{
+		String[] roles = {"hands", "feet", "head", "legs", "body"};
+		for (int itemId = 13357; itemId <= 13381; itemId++)
+		{
+			assertCategoryOnly(itemId, ItemCategory.GEAR);
+			assertSubcategory(itemId, roles[(itemId - 13357) % roles.length]);
+		}
+	}
+
+	@Test
+	public void everyBallistaAssemblyStageStaysWithFletchingComponents()
+	{
+		for (int itemId : new int[]{19586, 19589, 19592, 19595, 19598, 19601, 19604, 19607, 19610})
+		{
+			assertCategoryOnly(itemId, ItemCategory.SKILLING);
+			assertSubcategory(itemId, "ammo-component");
+		}
 	}
 
 	@Test
@@ -782,6 +815,46 @@ public class ResourceItemRegistryTest
 		assertFalse(CanonicalItemClassificationOverrides.find(51).isPresent());
 		assertFalse(CanonicalItemClassificationOverrides.find(18229).isPresent());
 		assertFalse(CanonicalItemClassificationOverrides.find(18230).isPresent());
+	}
+
+	@Test
+	public void canonicalUnfinishedCrossbowsAreFletchingComponents()
+	{
+		assertAuditFamily(new int[] {9454, 9456, 9457, 9459, 9461, 9463, 9465, 21921},
+			ItemCategory.SKILLING, "ammo-component");
+	}
+
+	@Test
+	public void guildHunterOutfitStaysWithSkillingEquipment()
+	{
+		assertAuditFamily(new int[] {29263, 29265, 29267, 29269},
+			ItemCategory.TOOL, "skilling-equipment");
+	}
+
+	@Test
+	public void combatVambracesAndBarkGauntletsStayWithCombatGear()
+	{
+		assertAuditFamily(new int[] {1063, 1065, 2487, 2489, 2491, 3391, 23261,
+			25392, 25407, 30082}, ItemCategory.GEAR, "hands");
+	}
+
+	@Test
+	public void boxedEquipmentSetsAndUpgradeKitsDoNotMasqueradeAsCombatGear()
+	{
+		assertClassification(12881, "Ahrim's armour set", ItemCategory.UNIQUE,
+			"equipment-container");
+		assertClassification(21049, "Ancestral robes set", ItemCategory.UNIQUE,
+			"equipment-container");
+		assertClassification(30744, "Oathplate armour set", ItemCategory.UNIQUE,
+			"equipment-container");
+		assertClassification(31145, "Torva armour set", ItemCategory.UNIQUE,
+			"equipment-container");
+		assertClassification(31169, "Hueycoatl hide armour set", ItemCategory.UNIQUE,
+			"equipment-container");
+		assertClassification(24670, "Twisted ancestral colour kit", ItemCategory.CLUE,
+			"cosmetic");
+		assertClassification(12798, "Steam staff upgrade kit", ItemCategory.UNIQUE,
+			"equipment-upgrade");
 	}
 
 	@Test

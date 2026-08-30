@@ -108,6 +108,39 @@ final class CanonicalItemClassificationOverrides
 			case 23037: // Boots of stone
 				return feet();
 
+			// Numeric Shayzien tiers are armour levels, not potion doses.
+			// Wiki: https://oldschool.runescape.wiki/w/Shayzien_armour
+			case 13357: // Shayzien gloves (1)
+			case 13362: // Shayzien gloves (2)
+			case 13367: // Shayzien gloves (3)
+			case 13372: // Shayzien gloves (4)
+			case 13377: // Shayzien gloves (5)
+				return hands();
+			case 13358: // Shayzien boots (1)
+			case 13363: // Shayzien boots (2)
+			case 13368: // Shayzien boots (3)
+			case 13373: // Shayzien boots (4)
+			case 13378: // Shayzien boots (5)
+				return feet();
+			case 13359: // Shayzien helm (1)
+			case 13364: // Shayzien helm (2)
+			case 13369: // Shayzien helm (3)
+			case 13374: // Shayzien helm (4)
+			case 13379: // Shayzien helm (5)
+				return head();
+			case 13360: // Shayzien greaves (1)
+			case 13365: // Shayzien greaves (2)
+			case 13370: // Shayzien greaves (3)
+			case 13375: // Shayzien greaves (4)
+			case 13380: // Shayzien greaves (5)
+				return legs();
+			case 13361: // Shayzien platebody (1)
+			case 13366: // Shayzien platebody (2)
+			case 13371: // Shayzien platebody (3)
+			case 13376: // Shayzien platebody (4)
+			case 13381: // Shayzien body (5)
+				return body();
+
 			case 1: // Toolkit
 			case 14: // Railing
 			case 16: // Magic whistle
@@ -465,6 +498,14 @@ final class CanonicalItemClassificationOverrides
 			case 68: // Yew shortbow (u)
 			case 70: // Magic longbow (u)
 			case 72: // Magic shortbow (u)
+			case 9454: // Bronze crossbow (u)
+			case 9456: // Blurite crossbow (u)
+			case 9457: // Iron crossbow (u)
+			case 9459: // Steel crossbow (u)
+			case 9461: // Mithril crossbow (u)
+			case 9463: // Adamant crossbow (u)
+			case 9465: // Runite crossbow (u)
+			case 21921: // Dragon crossbow (u)
 				return skillingAmmoComponent();
 
 			case 5076: // Bird's egg
@@ -2530,6 +2571,8 @@ final class CanonicalItemClassificationOverrides
 			case 19592: // Ballista limbs
 			case 19595: // Incomplete light ballista
 			case 19598: // Incomplete heavy ballista
+			case 19601: // Ballista spring
+			case 19610: // Monkey tail
 				return skillingAmmoComponent();
 
 			// Complete current player-facing prayer-scroll family.
@@ -3299,6 +3342,11 @@ final class CanonicalItemClassificationOverrides
 	private static Optional<ItemClassificationRefiner.Classification> feet()
 	{
 		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "feet"));
+	}
+
+	private static Optional<ItemClassificationRefiner.Classification> hands()
+	{
+		return Optional.of(new ItemClassificationRefiner.Classification(ItemCategory.GEAR, "hands"));
 	}
 
 	private static Optional<ItemClassificationRefiner.Classification> body()

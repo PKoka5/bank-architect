@@ -94,7 +94,10 @@ final class ResourceItemSorter
 		Optional<ItemSortMetadata> metadata = resourceWorkflowMetadata(item);
 		if (metadata.isPresent())
 		{
-			return metadata.get().getFamilyKey().startsWith("metal.") ? METAL : GEM;
+			String family = metadata.get().getFamilyKey();
+			if (family.startsWith("metal.")) return METAL;
+			if (family.startsWith("fletching.")) return AMMO_COMPONENT;
+			return GEM;
 		}
 
 		String name = normalized(item.getDisplayName());
@@ -221,6 +224,7 @@ final class ResourceItemSorter
 		ranks.put("gem.ruby", 60);
 		ranks.put("gem.diamond", 70);
 		ranks.put("gem.dragonstone", 80);
+		ranks.put("fletching.ballista-assembly", 10);
 		return Collections.unmodifiableMap(ranks);
 	}
 

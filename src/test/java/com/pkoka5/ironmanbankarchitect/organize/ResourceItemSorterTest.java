@@ -237,6 +237,30 @@ public class ResourceItemSorterTest
 	}
 
 	@Test
+	public void ballistaComponentsAndIntermediatesStayInOneAssemblyRun()
+	{
+		List<BankPreviewItem> sorted = ResourceItemSorter.sort(Arrays.asList(
+			item(19610, "Monkey tail", "ammo-component"),
+			item(19598, "Incomplete heavy ballista", "ammo-component"),
+			item(52, "Arrow shaft", "ammo-component"),
+			item(19601, "Ballista spring", "ammo-component"),
+			item(19586, "Light frame", "ammo-component"),
+			item(19607, "Unstrung heavy ballista", "ammo-component"),
+			item(19592, "Ballista limbs", "ammo-component"),
+			item(19595, "Incomplete light ballista", "ammo-component"),
+			item(19589, "Heavy frame", "ammo-component"),
+			item(19604, "Unstrung light ballista", "ammo-component"),
+			item(314, "Feather", "ammo-component")
+		));
+
+		assertEquals(Arrays.asList(
+			"Light frame", "Heavy frame", "Ballista limbs", "Ballista spring", "Monkey tail",
+			"Incomplete light ballista", "Unstrung light ballista",
+			"Incomplete heavy ballista", "Unstrung heavy ballista",
+			"Arrow shaft", "Feather"), names(sorted));
+	}
+
+	@Test
 	public void keepsCraftingJewelleryAndBarbarianFishFamiliesTogether()
 	{
 		List<BankPreviewItem> sorted = ResourceItemSorter.sort(Arrays.asList(

@@ -26,9 +26,17 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.CLEANUP, "quest-item");
 		}
-		if (name.contains("ornament kit"))
+		if (name.contains("ornament kit") || name.endsWith(" colour kit"))
 		{
 			return new Classification(ItemCategory.CLUE, "cosmetic");
+		}
+		if (name.endsWith(" upgrade kit"))
+		{
+			return new Classification(ItemCategory.UNIQUE, "equipment-upgrade");
+		}
+		if (name.endsWith(" armour set") || name.endsWith(" robes set"))
+		{
+			return new Classification(ItemCategory.UNIQUE, "equipment-container");
 		}
 		if (isFishTrophy(name))
 		{
@@ -237,6 +245,17 @@ final class ItemClassificationRefiner
 		}
 		if (legacyCategory == ItemCategory.TELEPORT)
 		{
+			if (constant.startsWith("teleportscroll_") || constant.endsWith("_teleport_scroll")
+				|| "ardougnescroll".equals(constant))
+			{
+				return new Classification(ItemCategory.TELEPORT, "teleport-scroll");
+			}
+			if (constant.startsWith("poh_tablet_") || constant.startsWith("nzone_teletab_")
+				|| constant.startsWith("teletab_") || constant.startsWith("tablet_")
+				|| constant.startsWith("lunar_tablet_") || constant.startsWith("fossil_tablet_"))
+			{
+				return new Classification(ItemCategory.TELEPORT, "teleport-tablet");
+			}
 			return new Classification(ItemCategory.TELEPORT, "teleport");
 		}
 		if (isSkillCapeOrSkillingGear(name) || isRaimentsOfTheEye(name))
@@ -437,6 +456,10 @@ final class ItemClassificationRefiner
 		if (containsAny(name, " helmet", "helm", "coif", "hood"))
 		{
 			return new Classification(ItemCategory.GEAR, "head");
+		}
+		if (name.endsWith(" vambraces") || name.endsWith("bark gauntlets"))
+		{
+			return new Classification(ItemCategory.GEAR, "hands");
 		}
 		if (legacyCategory == ItemCategory.GEAR)
 		{
