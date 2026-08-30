@@ -1,12 +1,24 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
+import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 final class TeleportItemSorter
 {
+	private static final Comparator<BankPreviewItem> TELEPORT_ORDER = Comparator
+		.comparingInt(TeleportItemSorter::roleRank)
+		.thenComparingInt(TeleportItemSorter::runeRank)
+		.thenComparingInt(TeleportItemSorter::pouchRank)
+		.thenComparing(TeleportItemSorter::familyName)
+		.thenComparingInt(item -> -charge(item))
+		.thenComparing(item -> normalized(item.getDisplayName()))
+		.thenComparingInt(BankPreviewItem::getItemId);
+
 	private TeleportItemSorter()
 	{
 	}
@@ -14,15 +26,13 @@ final class TeleportItemSorter
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
 	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
-		sorted.sort(Comparator
-			.comparingInt(TeleportItemSorter::roleRank)
-			.thenComparingInt(TeleportItemSorter::runeRank)
-			.thenComparingInt(TeleportItemSorter::pouchRank)
-			.thenComparing(TeleportItemSorter::familyName)
-			.thenComparingInt(item -> -charge(item.getDisplayName()))
-			.thenComparing(item -> normalized(item.getDisplayName()))
-			.thenComparingInt(BankPreviewItem::getItemId));
+		sorted.sort(TELEPORT_ORDER);
 		return sorted;
+	}
+
+	static int compareTeleportItems(BankPreviewItem left, BankPreviewItem right)
+	{
+		return TELEPORT_ORDER.compare(left, right);
 	}
 
 	private static int roleRank(BankPreviewItem item)
@@ -42,20 +52,23 @@ final class TeleportItemSorter
 			if (subcategory.contains("utility")) return 23;
 			return 0;
 		}
-		if (isJewellery(name))
+		if (subcategory.contains("transport-access"))
 		{
-			return 40;
+			return 90;
 		}
-		if (name.contains("teleport to") || name.endsWith(" teleport")
-			|| name.contains("tablet") || name.contains("teletab"))
+		if (subcategory.contains("teleport-charge") || name.contains("crystal teleport seed"))
+		{
+			return 80;
+		}
+		if (isReusableDevice(name))
 		{
 			return 30;
 		}
-		if (name.contains("crystal teleport seed"))
-		{
-			return 35;
-		}
-		return 50;
+		if (isJewellery(item)) return 40;
+		if (subcategory.contains("teleport-container")) return 50;
+		if (isTablet(item)) return 60;
+		if (isScroll(item)) return 70;
+		return 85;
 	}
 
 	private static int runeRank(BankPreviewItem item)
@@ -97,22 +110,31 @@ final class TeleportItemSorter
 			"colossal pouch");
 	}
 
-	private static boolean isJewellery(String name)
+	private static boolean isJewellery(BankPreviewItem item)
 	{
+		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
+		if (metadata.isPresent()) return true;
+		String name = normalized(item.getDisplayName());
 		return containsAny(name, "ring of dueling", "games necklace", "amulet of glory",
 			"skills necklace", "combat bracelet", "burning amulet", "necklace of passage",
-			"digsite pendant", "ring of wealth", "slayer ring");
+			"digsite pendant", "ring of wealth", "slayer ring", "ring of returning",
+			"ring of the elements", "ring of shadows", "camulet", "desert amulet",
+			"giantsoul amulet", "sailors' amulet");
 	}
 
 	private static String familyName(BankPreviewItem item)
 	{
+		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
+		if (metadata.isPresent()) return metadata.get().getFamilyKey();
 		String name = normalized(item.getDisplayName());
-		return isJewellery(name) ? name.replaceFirst("\\s*\\([0-9]+\\)$", "") : "";
+		return name.replaceFirst("\\s*\\([0-9]+\\)$", "");
 	}
 
-	private static int charge(String value)
+	private static int charge(BankPreviewItem item)
 	{
-		String name = normalized(value);
+		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
+		if (metadata.isPresent()) return metadata.get().getVariantValue();
+		String name = normalized(item.getDisplayName());
 		int open = name.lastIndexOf('(');
 		if (open < 0 || !name.endsWith(")"))
 		{
@@ -126,6 +148,45 @@ final class TeleportItemSorter
 		{
 			return -1;
 		}
+	}
+
+	private static Optional<ItemSortMetadata> teleportJewelleryMetadata(BankPreviewItem item)
+	{
+		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+			.filter(metadata -> metadata.getVariantKind() == ItemSortMetadata.VariantKind.CHARGE)
+			.filter(metadata -> metadata.getFamilyKey().startsWith("jewellery."));
+	}
+
+	private static boolean isReusableDevice(String name)
+	{
+		return containsAny(name, "ectophial", "xeric's talisman", "drakan's medallion",
+			"royal seed pod", "enchanted lyre", "pharaoh's sceptre", "chronicle",
+			"kharedst's memoirs", "book of the dead", "teleport crystal",
+			"quetzal whistle", "pendant of ates", "skull sceptre");
+	}
+
+	private static boolean isTablet(BankPreviewItem item)
+	{
+		String subcategory = normalized(item.getSubcategory());
+		String name = normalized(item.getDisplayName());
+		int itemId = item.getItemId();
+		return subcategory.contains("teleport-tablet") || name.contains("tablet")
+			|| name.contains("teletab") || itemId == 8013
+			|| itemId >= 8007 && itemId <= 8013
+			|| itemId >= 11741 && itemId <= 11747
+			|| itemId >= 12775 && itemId <= 12782;
+	}
+
+	private static boolean isScroll(BankPreviewItem item)
+	{
+		String subcategory = normalized(item.getSubcategory());
+		String name = normalized(item.getDisplayName());
+		int itemId = item.getItemId();
+		return subcategory.contains("teleport-scroll") || name.contains("teleport scroll")
+			|| itemId >= 12402 && itemId <= 12411 || itemId == 12642
+			|| itemId == 12938 || itemId == 13249 || itemId == 21802
+			|| itemId == 23387 || itemId == 29684 || itemId == 29782
+			|| itemId == 30040 || itemId == 30775;
 	}
 
 	private static boolean containsAny(String value, String... needles)

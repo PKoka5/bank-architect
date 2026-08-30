@@ -27,7 +27,7 @@ public class TeleportItemSorterTest
 		));
 
 		assertEquals(Arrays.asList("Air rune", "Nature rune", "Pure essence", "Rune pouch",
-			"Teleport to house", "Ring of dueling(8)", "Ring of dueling(2)", "Ectophial"),
+			"Ectophial", "Ring of dueling(8)", "Ring of dueling(2)", "Teleport to house"),
 			names(sorted));
 	}
 
@@ -65,13 +65,35 @@ public class TeleportItemSorterTest
 	{
 		List<BankPreviewItem> sorted = TeleportItemSorter.sort(Arrays.asList(
 			item(1, "Ectophial", ItemCategory.TELEPORT, "teleport"),
-			item(2, "Varrock teleport", ItemCategory.TELEPORT, "teleport"),
-			item(3, "Nardah teleport", ItemCategory.TELEPORT, "teleport"),
+			item(8007, "Varrock teleport", ItemCategory.TELEPORT, "teleport-tablet"),
+			item(12402, "Nardah teleport", ItemCategory.TELEPORT, "teleport-scroll"),
 			item(4, "Ring of dueling(8)", ItemCategory.TELEPORT, "teleport")
 		));
 
-		assertEquals(Arrays.asList("Nardah teleport", "Varrock teleport", "Ring of dueling(8)",
-			"Ectophial"), names(sorted));
+		assertEquals(Arrays.asList("Ectophial", "Ring of dueling(8)", "Varrock teleport",
+			"Nardah teleport"), names(sorted));
+	}
+
+	@Test
+	public void teleportFormsFollowQuickAccessWorkflowAndKeepChargeFamiliesTogether()
+	{
+		List<BankPreviewItem> sorted = TeleportItemSorter.sort(Arrays.asList(
+			item(772, "Dramen staff", ItemCategory.TELEPORT, "transport-access"),
+			item(12402, "Nardah teleport", ItemCategory.TELEPORT, "teleport"),
+			item(8013, "Teleport to house", ItemCategory.TELEPORT, "teleport"),
+			item(21389, "Master scroll book", ItemCategory.TELEPORT, "teleport-container"),
+			item(2564, "Ring of dueling(2)", ItemCategory.TELEPORT, "teleport"),
+			item(2552, "Ring of dueling(8)", ItemCategory.TELEPORT, "teleport"),
+			item(4251, "Ectophial", ItemCategory.TELEPORT, "teleport"),
+			item(13393, "Xeric's talisman", ItemCategory.TELEPORT, "teleport"),
+			item(13391, "Lizardman fang", ItemCategory.TELEPORT, "teleport-charge")
+		));
+
+		assertEquals(Arrays.asList(
+			"Ectophial", "Xeric's talisman",
+			"Ring of dueling(8)", "Ring of dueling(2)",
+			"Master scroll book", "Teleport to house", "Nardah teleport",
+			"Lizardman fang", "Dramen staff"), names(sorted));
 	}
 
 	private static BankPreviewItem item(int id, String name, ItemCategory category, String subcategory)

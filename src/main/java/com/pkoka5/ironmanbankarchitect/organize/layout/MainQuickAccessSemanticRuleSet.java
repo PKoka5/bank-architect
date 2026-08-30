@@ -57,10 +57,12 @@ public final class MainQuickAccessSemanticRuleSet
 		}
 		boolean anchorGraceful = ownedGraceful >= 2
 			&& GRACEFUL_COLUMN + (ownedGraceful - 1) * SemanticRule.MAX_WIDTH < entries.size();
-		int runeTarget = contains(entries, 995) ? RUNE_BLOCK_SECOND_ROW : 0;
+		boolean hasCoins = contains(entries, 995);
+		boolean hasQuickTools = !presentQuickTools(entries).isEmpty();
+		int runeTarget = hasCoins || hasQuickTools ? RUNE_BLOCK_SECOND_ROW : 0;
 		Map<Integer, Integer> runeTargets = runeTargets(entries, runeTarget);
 		Map<Integer, Integer> gracefulTargets = gracefulTargets(entries, anchorGraceful);
-		Map<Integer, Integer> quickToolTargets = quickToolTargets(entries, contains(entries, 995) ? 1 : 0);
+		Map<Integer, Integer> quickToolTargets = quickToolTargets(entries, hasCoins ? 1 : 0);
 
 		List<LayoutEntry> anchored = new ArrayList<>(entries.size());
 		for (LayoutEntry entry : entries)
