@@ -1,7 +1,7 @@
 # Notes for Plugin Hub reviewers
 
 This plugin is larger than most Hub submissions, so this page exists to make the
-one question that matters, *does it automate anything?*, quick to answer.
+one question that matters — *does it automate anything?* — quick to answer.
 Everything below is checkable with `grep`.
 
 ## The short version
@@ -12,23 +12,25 @@ no external process, no file I/O, and no third-party dependency.
 
 ## Only four files touch live client state
 
-Exactly four production files import anything that reads or reacts to the
-running game:
+Of 128 production source files, exactly four import anything that reads or
+reacts to the running game:
 
-| File | What it does |
-|---|---|
-| `bank/BankSnapshotReader.java` | Reads `InventoryID.BANK` into a plain list of item IDs and quantities. |
-| `IronmanBankArchitectPlugin.java` | Plugin lifecycle, and the bank right-click menu entries described below. |
-| `overlay/BankGuideOverlay.java` | Draws the move guidance. Mostly geometry. |
-| `overlay/BankCategoryOverlay.java` | Draws a colour per item. Nothing else. |
+| File | Lines | What it does |
+|---|---|---|
+| `bank/BankSnapshotReader.java` | 79 | Reads `InventoryID.BANK` into a plain list of item IDs and quantities. |
+| `IronmanBankArchitectPlugin.java` | ~330 | Plugin lifecycle, and the bank right-click menu entries described below. |
+| `overlay/BankGuideOverlay.java` | ~1380 | Draws the move guidance. Mostly geometry. |
+| `overlay/BankCategoryOverlay.java` | ~250 | Draws a colour per item. Nothing else. |
 
 ```sh
 grep -rlE 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Menu;)' src/main
 ```
 
-The remaining RuneLite imports are compile-time constants and value types, not
-client access. Most production files import no RuneLite API at all. They are the
-item catalogue, layout engine, and sorters, all pure functions over plain data.
+Twelve further files import `net.runelite.api.gameval.ItemID` and nothing else —
+those are compile-time item-ID constants in classification tables, with no
+client access. The remaining 112 files import no RuneLite API at all: they are
+the item catalogue, the layout engine, and the sorters, all pure functions over
+plain data. That is where the line count lives.
 
 ## Things a reviewer will reasonably want to check
 
@@ -44,9 +46,8 @@ strings in a bundled TSV are absolute HTTPS URLs, so the data manifest cannot
 carry a malformed citation. No connection is ever opened. It is the only
 `java.net` reference in the plugin.
 
-**Bundled data is read-only.** Pinned TSV and text datasets under
-`src/main/resources` include the item registry, Wiki category snapshot, sort
-metadata, combat relationships, and utility adjustments.
+**Bundled data is 1.9 MB.** Eight pinned TSV/text datasets under
+`src/main/resources`, the largest being an item registry of ~32,500 entries.
 They are read with `getResourceAsStream` and are never written, downloaded, or
 refreshed at runtime. Classification is fully offline and deterministic; the
 plugin makes no Wiki or price-API calls.
@@ -112,7 +113,7 @@ The destination-colour overlay only draws and therefore has no such gates.
 ## Verification
 
 ```sh
-./gradlew test
+./gradlew test                # 858 tests
 ./gradlew simulateRandomBanks # 150 generated banks, all reach a complete plan
 ./gradlew aggregateCleanupReview
 ```
