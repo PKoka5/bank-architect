@@ -12,7 +12,7 @@ public class ItemSetCatalogTest
 	@Test
 	public void compiledWorkbookCatalogHasReviewedCoverageWithoutCrossSetDuplicates()
 	{
-		assertDomain("gear", 32, 124);
+		assertDomain("gear", 37, 144);
 		assertDomain("tools", 15, 83);
 		assertDomain("cosmetics", 41, 164);
 	}
