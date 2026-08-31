@@ -44,6 +44,8 @@ public final class BankGuideController
 	private final AtomicReference<String> guideProgressText = new AtomicReference<>(NO_GUIDANCE_PROGRESS_STATUS);
 	private final AtomicInteger guideProgressPercent = new AtomicInteger(-1);
 	private final AtomicBoolean bankOpen = new AtomicBoolean(false);
+	private final AtomicBoolean guideArmedAutomatically = new AtomicBoolean(false);
+	private final AtomicReference<Runnable> bankOpenedListener = new AtomicReference<>();
 	private final AtomicBoolean categoryAssignMode = new AtomicBoolean(false);
 	private final AtomicInteger categoryOverrideCount = new AtomicInteger(0);
 
@@ -82,6 +84,7 @@ public final class BankGuideController
 
 	public void setGuideEnabled(boolean enabled)
 	{
+		guideArmedAutomatically.set(false);
 		state.updateAndGet(current -> current.withGuideEnabled(enabled));
 		if (enabled)
 		{
@@ -91,6 +94,7 @@ public final class BankGuideController
 
 	public void toggleGuide()
 	{
+		guideArmedAutomatically.set(false);
 		boolean enabled = state
 			.updateAndGet(current -> current.withGuideEnabled(!current.isGuideEnabled()))
 			.isGuideEnabled();
@@ -155,7 +159,42 @@ public final class BankGuideController
 
 	public void setBankOpen(boolean open)
 	{
-		bankOpen.set(open);
+		boolean was = bankOpen.getAndSet(open);
+		if (open && !was)
+		{
+			Runnable listener = bankOpenedListener.get();
+			if (listener != null)
+			{
+				listener.run();
+			}
+		}
+	}
+
+	/**
+	 * Runs once each time the bank goes from closed to open. The overlay reports
+	 * the bank state every frame, so the transition is detected here rather than
+	 * by the caller.
+	 */
+	public void setBankOpenedListener(Runnable listener)
+	{
+		bankOpenedListener.set(listener);
+	}
+
+	/**
+	 * Arms the guide the way opening the bank does under the auto-guide setting.
+	 * Guidance armed this way renders quietly: no banners on unsortable views
+	 * and no confirmation on sorted slots. Any manual guide action reverts the
+	 * guide to its usual, fully spoken form.
+	 */
+	public void enableGuideAutomatically()
+	{
+		setGuideEnabled(true);
+		guideArmedAutomatically.set(true);
+	}
+
+	public boolean isGuideArmedAutomatically()
+	{
+		return guideArmedAutomatically.get() && isGuideEnabled();
 	}
 
 	public String getStatusText()

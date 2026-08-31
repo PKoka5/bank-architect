@@ -40,6 +40,16 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "autoGuide",
+		name = "Guide on bank open",
+		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
+	)
+	default boolean autoGuide()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "fillGearRows",
 		name = "Fill part-empty gear rows",
 		description = "A bank tab cannot hold an empty slot, so the four combat-style columns only stay straight if real items fill the rest of each row. On, the grid holds its shape and an occasional unrelated item sits in a row to complete it. Off, the gear tab is laid out densely and nothing sits where it does not belong; sets still hold together."

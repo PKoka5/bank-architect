@@ -122,6 +122,9 @@ public final class BankGuideOverlay extends Overlay
 		{
 			return null;
 		}
+		// Quietly armed guidance never explains why it is not showing; it either
+		// has something to point at or it stays out of the way.
+		boolean quietlyArmed = guideController.isGuideArmedAutomatically();
 
 		Rectangle gridBounds = itemViewportBounds(bankItems.getBounds(),
 			bankItemsContainer == null || bankItemsContainer.isHidden()
@@ -135,14 +138,14 @@ public final class BankGuideOverlay extends Overlay
 		if (currentBankTab != ALL_ITEMS_TAB
 			&& (currentBankTab < 1 || currentBankTab > TabRouteAdvisor.MAX_TABS))
 		{
-			return blocked(graphics, gridBounds,
+			return quietlyArmed ? null : blocked(graphics, gridBounds,
 				"Open the vanilla All items tab for item-order guidance.");
 		}
 		RearrangeMode rearrangeMode = client.getVarbitValue(VarbitID.BANK_INSERTMODE) == SWAP_MODE
 			? RearrangeMode.SWAP : RearrangeMode.INSERT;
 		if (isFilteredBankView())
 		{
-			return blocked(graphics, gridBounds,
+			return quietlyArmed ? null : blocked(graphics, gridBounds,
 				"Clear bank search and bank-tag filters before using item-order guidance.");
 		}
 		// A bank filler occupies a slot but is not a real item, so it leaves a hole that both the
@@ -164,7 +167,7 @@ public final class BankGuideOverlay extends Overlay
 		{
 			if (!viewMatchesLogicalBank(bankSlots, actualItemIds))
 			{
-				return blocked(graphics, gridBounds, viewSyncMessage(false),
+				return quietlyArmed ? null : blocked(graphics, gridBounds, viewSyncMessage(false),
 					guideController.getGuideProgressPercent());
 			}
 		}
@@ -174,7 +177,7 @@ public final class BankGuideOverlay extends Overlay
 			if (sectionRange == null
 				|| !viewMatchesSection(bankSlots, actualItemIds, sectionRange[0], sectionRange[1]))
 			{
-				return blocked(graphics, gridBounds, viewSyncMessage(true),
+				return quietlyArmed ? null : blocked(graphics, gridBounds, viewSyncMessage(true),
 					guideController.getGuideProgressPercent());
 			}
 		}
@@ -264,7 +267,7 @@ public final class BankGuideOverlay extends Overlay
 		if (sectionRange != null && move != null
 			&& !isSectionLocalMove(move, sectionRange[0], sectionRange[1]))
 		{
-			return blocked(graphics, gridBounds,
+			return quietlyArmed ? null : blocked(graphics, gridBounds,
 				"Nothing left to sort in this tab right now.\nOpen the All items tab to continue guidance.",
 				assessment.getProgress().getPercent());
 		}
@@ -307,7 +310,7 @@ public final class BankGuideOverlay extends Overlay
 					}
 					SlotValidationState state = stateFor(plannedItems, plannedSlotByItemId,
 						slot.logicalSlot, slot.itemId);
-					if (!drawsValidation(state, config.hideSortedHighlights()))
+					if (!drawsValidation(state, config.hideSortedHighlights() || quietlyArmed))
 					{
 						continue;
 					}

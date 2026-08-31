@@ -111,6 +111,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	protected void startUp()
 	{
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
+		guideController.setBankOpenedListener(this::onBankOpened);
 		categoryOverrides = UserCategoryOverrides.parse(config.categoryOverrides());
 		guideController.publishCategoryOverrideCount(categoryOverrides.size());
 		bankAnalysis = new BankAnalysis(
@@ -424,6 +425,26 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	IronmanBankArchitectConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(IronmanBankArchitectConfig.class);
+	}
+
+	/**
+	 * Under the auto-guide setting, an opening bank re-analyzes itself and arms
+	 * the guide in its quiet form, so guidance is simply there when wanted and
+	 * invisible when the bank is already in shape.
+	 */
+	private void onBankOpened()
+	{
+		if (!config.autoGuide())
+		{
+			return;
+		}
+		BankGuideController controller = guideController;
+		if (controller == null)
+		{
+			return;
+		}
+		controller.enableGuideAutomatically();
+		analyzeBank();
 	}
 
 	private void analyzeBank()

@@ -35,6 +35,10 @@ tasks.register('run', JavaExec) {
 	mainClass = pluginMainClass
 	enableAssertions = true
 	args '--developer-mode'
+	if (System.getProperty('os.name').toLowerCase().contains('mac'))
+	{
+		jvmArgs '--add-exports', 'java.desktop/com.apple.eawt=ALL-UNNAMED'
+	}
 }
 
 tasks.register('exportEffectiveItemClassifications', JavaExec) {
