@@ -94,7 +94,7 @@ Diagrams and spreadsheets supplied during design are shape examples only. Their 
 subgroups, row order, and coordinates do not become production rules without independent item-ID
 metadata and reviewed evidence.
 
-## GEAR_001 — Dynamic combat loadouts
+## GEAR_001: Dynamic combat loadouts
 
 The planner builds combat loadouts from the gear the player owns. It ranks gear by equipment stats,
 progression tier, and reviewed utility. This produces a useful bank order, not a best-in-slot guide.
