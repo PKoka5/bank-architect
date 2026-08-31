@@ -33,6 +33,53 @@ public class BankGuideControllerTest
 	}
 
 	@Test
+	public void bankOpenedListenerFiresOncePerOpening()
+	{
+		int[] fired = {0};
+		controller.setBankOpenedListener(() -> fired[0]++);
+
+		controller.setBankOpen(true);
+		controller.setBankOpen(true);
+		controller.setBankOpen(true);
+		assertEquals("the overlay polls every frame; only the transition may fire", 1, fired[0]);
+
+		controller.setBankOpen(false);
+		assertEquals(1, fired[0]);
+
+		controller.setBankOpen(true);
+		assertEquals(2, fired[0]);
+	}
+
+	@Test
+	public void automaticArmingIsQuietUntilAManualGuideAction()
+	{
+		assertFalse(controller.isGuideArmedAutomatically());
+
+		controller.enableGuideAutomatically();
+		assertTrue(controller.isGuideEnabled());
+		assertTrue(controller.isGuideArmedAutomatically());
+
+		// A manual action takes the guide back to its usual, fully spoken form.
+		controller.setGuideEnabled(true);
+		assertTrue(controller.isGuideEnabled());
+		assertFalse(controller.isGuideArmedAutomatically());
+
+		controller.enableGuideAutomatically();
+		controller.toggleGuide();
+		assertFalse(controller.isGuideEnabled());
+		assertFalse(controller.isGuideArmedAutomatically());
+	}
+
+	@Test
+	public void automaticArmingClearsAssignModeLikeManualArming()
+	{
+		controller.setCategoryAssignMode(true);
+		controller.enableGuideAutomatically();
+		assertFalse(controller.isCategoryAssignMode());
+		assertTrue(controller.isGuideEnabled());
+	}
+
+	@Test
 	public void availableBlocksMatchPresetOrder()
 	{
 		List<VisualBlock> blocks = controller.getAvailableBlocks();
