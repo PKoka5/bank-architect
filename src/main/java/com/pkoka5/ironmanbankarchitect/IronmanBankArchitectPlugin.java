@@ -299,16 +299,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	/** The player's layout choices that no plan can state for them. */
 	private BankLayoutOptions activeOptions()
 	{
+		// One global choice today, kept as a per-mode map internally so a future
+		// per-category override is a config change rather than a rework.
 		Map<BankCategorySortMode, TabOrder> tabOrders = new EnumMap<>(BankCategorySortMode.class);
-		tabOrders.put(BankCategorySortMode.MAIN, config.utilitiesOrder());
-		tabOrders.put(BankCategorySortMode.TELEPORTS, config.utilitiesOrder());
-		tabOrders.put(BankCategorySortMode.CURRENCY, config.utilitiesOrder());
-		tabOrders.put(BankCategorySortMode.SUPPLIES, config.suppliesOrder());
-		tabOrders.put(BankCategorySortMode.TOOLS, config.toolsOrder());
-		tabOrders.put(BankCategorySortMode.RESOURCES, config.resourcesOrder());
-		tabOrders.put(BankCategorySortMode.FARMING, config.farmingOrder());
-		tabOrders.put(BankCategorySortMode.HERBLORE, config.herbloreOrder());
-		tabOrders.put(BankCategorySortMode.CLUES, config.cluesOrder());
+		for (BankCategorySortMode mode : BankCategorySortMode.values())
+		{
+			tabOrders.put(mode, config.tabLayout());
+		}
 		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
 			config.alchPile(), config.gearOrder(), tabOrders);
 	}

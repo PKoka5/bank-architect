@@ -20,19 +20,25 @@ public interface IronmanBankArchitectConfig extends Config
 	String guidanceSection = "Guidance";
 
 	@ConfigSection(
-		name = "Tab order",
-		description = "How each category lays its items onto its tab. Everything defaults to the packed layout; open this section to choose a linear order per category.",
-		position = 1,
-		closedByDefault = true
+		name = "Layout",
+		description = "How every tab lays its items onto its rows.",
+		position = 1
 	)
-	String tabOrderSection = "Tab order";
+	String layoutSection = "Layout";
 
 	@ConfigSection(
-		name = "Classification",
-		description = "Choices about which tab an item belongs to, rather than where it sits on it.",
+		name = "Combat gear",
+		description = "How the combat gear tab is arranged and curated.",
 		position = 2
 	)
-	String classificationSection = "Classification";
+	String gearSection = "Combat gear";
+
+	@ConfigSection(
+		name = "Herblore",
+		description = "How the Herblore tab is arranged.",
+		position = 3
+	)
+	String herbloreSection = "Herblore";
 
 	@ConfigItem(
 		keyName = "suggestNextMove",
@@ -82,7 +88,7 @@ public interface IronmanBankArchitectConfig extends Config
 
 	@ConfigItem(
 		keyName = "fillGearRows",
-		section = tabOrderSection,
+		section = gearSection,
 		position = 1,
 		name = "Fill part-empty gear rows",
 		description = "A bank tab cannot hold an empty slot, so the four combat-style columns only stay straight if real items fill the rest of each row. On, the grid holds its shape and an occasional unrelated item sits in a row to complete it. Off, the gear tab is laid out densely and nothing sits where it does not belong; sets still hold together."
@@ -94,8 +100,8 @@ public interface IronmanBankArchitectConfig extends Config
 
 	@ConfigItem(
 		keyName = "fillHerbloreRows",
-		section = tabOrderSection,
-		position = 8,
+		section = herbloreSection,
+		position = 0,
 		name = "Fill part-empty Herblore rows",
 		description = "On, a part-finished recipe row borrows from the rest of the tab so the next recipe still starts at the left edge. Off, a short row is left short and the recipes simply follow each other."
 	)
@@ -106,8 +112,8 @@ public interface IronmanBankArchitectConfig extends Config
 
 	@ConfigItem(
 		keyName = "alchPile",
-		section = classificationSection,
-		position = 0,
+		section = gearSection,
+		position = 2,
 		name = "Gather outclassed gear for alching",
 		description = "Move equipment you own two strictly better versions of, and that is worth alching, to the Slayer & Boss Loot tab. Turn this off to keep every piece of gear in the combat gear tab, for example when you deliberately keep a spare set."
 	)
@@ -117,8 +123,20 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "tabLayout",
+		section = layoutSection,
+		position = 0,
+		name = "Tab layout",
+		description = "Packed keeps the sorters' order and nudges neighbours so a set of charge variants never breaks across a row edge. Sorted is the exact order, wrapping like text, so a set may split at the row edge."
+	)
+	default TabOrder tabLayout()
+	{
+		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
 		keyName = "gearOrder",
-		section = tabOrderSection,
+		section = gearSection,
 		position = 0,
 		name = "Combat gear order",
 		description = "How the combat gear tab lays out. Packed grid is the aligned style-column layout. The linear orders run item after item instead: by slot compares across styles (every helmet, then every body), the style orders read each kit as one block, armour head to feet or led by its weapon."
@@ -126,90 +144,6 @@ public interface IronmanBankArchitectConfig extends Config
 	default GearOrder gearOrder()
 	{
 		return GearOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "utilitiesOrder",
-		section = tabOrderSection,
-		position = 2,
-		name = "Runes, teleports & currency order",
-		description = "How tabs holding runes, teleports, ammunition and currency lay out. Packed rows keep charge sets whole and fill every row; a sorted run keeps like items adjacent and simply wraps, so a charge set may break across a row boundary."
-	)
-	default TabOrder utilitiesOrder()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "suppliesOrder",
-		section = tabOrderSection,
-		position = 3,
-		name = "Food & potions order",
-		description = "How the food and potions tab lays out: packed rows, or the sorter's plain run."
-	)
-	default TabOrder suppliesOrder()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "toolsOrder",
-		section = tabOrderSection,
-		position = 4,
-		name = "Tools order",
-		description = "How the skilling tools tab lays out: packed rows, or the sorter's plain run."
-	)
-	default TabOrder toolsOrder()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "resourcesOrder",
-		section = tabOrderSection,
-		position = 5,
-		name = "Resources order",
-		description = "How the resources tab lays out: packed rows, or the sorter's plain run."
-	)
-	default TabOrder resourcesOrder()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "farmingOrder",
-		section = tabOrderSection,
-		position = 6,
-		name = "Farming order",
-		description = "How the farming tab lays out: packed family runs, or the same runs without fillers moved forward to complete rows."
-	)
-	default TabOrder farmingOrder()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "herbloreOrder",
-		section = tabOrderSection,
-		position = 7,
-		name = "Herblore order",
-		description = "How the Herblore tab lays out. A sorted run never pads a short recipe row; packed rows follow the Fill part-empty Herblore rows setting."
-	)
-	default TabOrder herbloreOrder()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
-		keyName = "cluesOrder",
-		section = tabOrderSection,
-		position = 9,
-		name = "Clues & cosmetics order",
-		description = "How the clues and cosmetics tab lays out: packed rows, or the sorter's plain run."
-	)
-	default TabOrder cluesOrder()
-	{
-		return TabOrder.PACKED;
 	}
 
 	@ConfigItem(

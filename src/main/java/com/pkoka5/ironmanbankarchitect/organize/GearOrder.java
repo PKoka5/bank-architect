@@ -12,7 +12,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
  */
 public enum GearOrder
 {
-	PACKED("Packed grid"),
+	PACKED("Style columns"),
 	BY_SLOT("By slot"),
 	BY_STYLE("By style"),
 	BY_STYLE_WEAPON_FIRST("By style, weapon first");
