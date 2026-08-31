@@ -95,8 +95,14 @@ final class GearItemSorter
 			}
 		}
 
+		// Tier decides first; a stronger loose item still outranks a set piece.
+		// Only where the tier is equal does belonging to a family the player
+		// actually owns win the cell, so a full set cannot be decapitated by an
+		// equally tiered stranger that merely sorts earlier by name.
+		Map<Integer, Integer> ownedFamilySizes = GearSetSemanticRuleSet.ownedFamilySizeByItemId(items);
 		Comparator<BankPreviewItem> byTier = Comparator
 			.comparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
+			.thenComparing(item -> -ownedFamilySizes.getOrDefault(item.getItemId(), 0))
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId);
 		for (List<BankPreviewItem> candidates : setCandidates.values())

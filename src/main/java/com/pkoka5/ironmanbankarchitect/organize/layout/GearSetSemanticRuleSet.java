@@ -4,8 +4,10 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -142,6 +144,46 @@ public final class GearSetSemanticRuleSet
 			}
 		}
 		return Collections.unmodifiableSet(familyItems);
+	}
+
+	/**
+	 * How many members of its own family the player owns, per owned family member. An item in no
+	 * eligible family is absent. The gear setup planner uses this to break a tie between equally
+	 * tiered candidates for a primary cell: a piece of a family the player actually holds wins
+	 * over a loose item of the same tier, so owning a set cannot cost you its body row.
+	 */
+	public static Map<Integer, Integer> ownedFamilySizeByItemId(List<BankPreviewItem> items)
+	{
+		Objects.requireNonNull(items, "items");
+		Set<Integer> present = new LinkedHashSet<>();
+		for (BankPreviewItem item : items)
+		{
+			present.add(item.getItemId());
+		}
+
+		Map<Integer, Integer> sizeByItemId = new LinkedHashMap<>();
+		for (SetFact set : SETS)
+		{
+			List<Integer> owned = new ArrayList<>();
+			for (int itemId : set.itemIds)
+			{
+				if (present.contains(itemId))
+				{
+					owned.add(itemId);
+				}
+			}
+			if (owned.size() < 2)
+			{
+				continue;
+			}
+			// An item can sit in more than one family; the largest one it is
+			// actually part of is the one worth keeping whole.
+			for (int itemId : owned)
+			{
+				sizeByItemId.merge(itemId, owned.size(), Math::max);
+			}
+		}
+		return Collections.unmodifiableMap(sizeByItemId);
 	}
 
 	private static List<SetFact> buildSets()

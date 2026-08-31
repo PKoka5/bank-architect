@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
@@ -151,6 +152,65 @@ public class GearStatsLayoutTest
 		assertEquals(GearSlot.AMMO, GearSlot.fromRuneLiteSlot(13));
 		assertNull(GearSlot.fromRuneLiteSlot(6));
 		assertNull(GearSlot.fromRuneLiteSlot(99));
+	}
+
+	/**
+	 * Reported on the 0.3.1 thread: a full Crystal set laid out with the body
+	 * exiled to the bottom of the tab and an Ancient d'hide body in its place.
+	 * Both are tier 4, so the old tie fell through to alphabetical order and
+	 * "ancient" simply sorted before "crystal".
+	 */
+	@Test
+	public void anOwnedSetKeepsItsPrimaryCellAgainstAnEqualTieredStranger()
+	{
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		GearStats rangedBody = new GearStats(GearSlot.BODY, 0, 0, 0, 0, 20, 0, 0, 0, 40);
+		stats.put(23971, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 10, 0, 0, 0, 20));
+		stats.put(23975, rangedBody);
+		stats.put(23979, new GearStats(GearSlot.LEGS, 0, 0, 0, 0, 15, 0, 0, 0, 30));
+		// Identical stats to the crystal body, so only the tie-break can differ.
+		stats.put(12492, rangedBody);
+
+		List<String> laidOut = names(GearItemSorter.layout(Arrays.asList(
+			item(23971, "Crystal helm"),
+			item(23975, "Crystal body"),
+			item(23979, "Crystal legs"),
+			item(12492, "Ancient d'hide body")
+		), sourceOf(stats)));
+
+		assertTrue("crystal body should lead its slot: " + laidOut,
+			laidOut.indexOf("Crystal body") < laidOut.indexOf("Ancient d'hide body"));
+	}
+
+	/** Set cohesion breaks ties only. A genuinely stronger loose item still wins. */
+	@Test
+	public void aStrongerLooseItemStillBeatsAnOwnedSetPiece()
+	{
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(23971, new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 10, 0, 0, 0, 20));
+		stats.put(23975, new GearStats(GearSlot.BODY, 0, 0, 0, 0, 20, 0, 0, 0, 40));
+		stats.put(23979, new GearStats(GearSlot.LEGS, 0, 0, 0, 0, 15, 0, 0, 0, 30));
+		stats.put(12492, new GearStats(GearSlot.BODY, 0, 0, 0, 0, 200, 0, 0, 0, 400));
+
+		List<String> laidOut = names(GearItemSorter.layout(Arrays.asList(
+			item(23971, "Crystal helm"),
+			item(23975, "Crystal body"),
+			item(23979, "Crystal legs"),
+			item(12492, "Ancient d'hide body")
+		), sourceOf(stats)));
+
+		assertTrue("the stronger body should still lead: " + laidOut,
+			laidOut.indexOf("Ancient d'hide body") < laidOut.indexOf("Crystal body"));
+	}
+
+	private static List<String> names(List<BankPreviewItem> items)
+	{
+		List<String> names = new ArrayList<>(items.size());
+		for (BankPreviewItem item : items)
+		{
+			names.add(item.getDisplayName());
+		}
+		return names;
 	}
 
 	private static GearStatsSource sourceOf(Map<Integer, GearStats> stats)
