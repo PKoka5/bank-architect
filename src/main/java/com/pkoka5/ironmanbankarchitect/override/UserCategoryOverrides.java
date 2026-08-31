@@ -64,7 +64,7 @@ public final class UserCategoryOverrides implements CategoryOverrideSource
 	}
 
 	@Override
-	public Optional<String> categoryKeyFor(int itemId)
+	public synchronized Optional<String> categoryKeyFor(int itemId)
 	{
 		return Optional.ofNullable(categoryKeyByItemId.get(itemId));
 	}
@@ -73,7 +73,7 @@ public final class UserCategoryOverrides implements CategoryOverrideSource
 	 * Records a correction. A blank key clears the override for that item, so
 	 * the automatic classification applies again.
 	 */
-	public void put(int itemId, String categoryKey)
+	public synchronized void put(int itemId, String categoryKey)
 	{
 		if (itemId <= 0)
 		{
@@ -92,33 +92,33 @@ public final class UserCategoryOverrides implements CategoryOverrideSource
 		categoryKeyByItemId.put(itemId, trimmed);
 	}
 
-	public void remove(int itemId)
+	public synchronized void remove(int itemId)
 	{
 		categoryKeyByItemId.remove(itemId);
 	}
 
-	public void clear()
+	public synchronized void clear()
 	{
 		categoryKeyByItemId.clear();
 	}
 
-	public int size()
+	public synchronized int size()
 	{
 		return categoryKeyByItemId.size();
 	}
 
-	public boolean isEmpty()
+	public synchronized boolean isEmpty()
 	{
 		return categoryKeyByItemId.isEmpty();
 	}
 
-	public Map<Integer, String> asMap()
+	public synchronized Map<Integer, String> asMap()
 	{
-		return Collections.unmodifiableMap(categoryKeyByItemId);
+		return Collections.unmodifiableMap(new LinkedHashMap<>(categoryKeyByItemId));
 	}
 
 	/** Round-trips through {@link #parse(String)}. */
-	public String serialize()
+	public synchronized String serialize()
 	{
 		StringBuilder serialized = new StringBuilder();
 		for (Map.Entry<Integer, String> entry : categoryKeyByItemId.entrySet())
@@ -136,12 +136,12 @@ public final class UserCategoryOverrides implements CategoryOverrideSource
 	public boolean equals(Object other)
 	{
 		return other instanceof UserCategoryOverrides
-			&& categoryKeyByItemId.equals(((UserCategoryOverrides) other).categoryKeyByItemId);
+			&& asMap().equals(((UserCategoryOverrides) other).asMap());
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(categoryKeyByItemId);
+		return Objects.hash(asMap());
 	}
 }

@@ -35,12 +35,6 @@ interface BankLayoutModel
 		}
 
 		@Override
-		public int itemCount(String categoryKey)
-		{
-			return 0;
-		}
-
-		@Override
 		public void save(BankLayoutPlan plan)
 		{
 		}
@@ -51,13 +45,6 @@ interface BankLayoutModel
 
 	/** Where the player currently has each category placed. */
 	BankLayoutPlan plan();
-
-	/**
-	 * Planned items in a category from the last analysis, or zero when the bank
-	 * has not been scanned. Shown per destination so a player stacking several
-	 * categories on one tab can see it will not fit before they go and drag.
-	 */
-	int itemCount(String categoryKey);
 
 	/** Stores a new plan and rebuilds the blueprint from it. */
 	void save(BankLayoutPlan plan);

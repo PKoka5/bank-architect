@@ -4,17 +4,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
-import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
+import com.pkoka5.ironmanbankarchitect.organize.BankTags;
+import com.pkoka5.ironmanbankarchitect.organize.CategoryOverrideSource;
+import com.pkoka5.ironmanbankarchitect.organize.GearStatsSource;
+import com.pkoka5.ironmanbankarchitect.organize.ItemValueSource;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
@@ -25,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
@@ -56,17 +62,12 @@ public class IronmanBankArchitectPanelTest
 	public void panelRendersCompactBankScanOverviewFromCatalogSummary()
 	{
 		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
-		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(209, 1, 1),
 			new BankItemSnapshot(999999, 1, 2)
-		)), StaticItemCatalog.INSTANCE);
-		controller.publishCatalogSummary(summary);
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(5297, 1, 0),
-			new BankItemSnapshot(209, 1, 1),
-			new BankItemSnapshot(999999, 1, 2)
-		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		));
+		controller.publishBankAnalysis(success(snapshot));
 
 		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
 		panel.getAnalyzeButton().doClick();
@@ -139,8 +140,7 @@ public class IronmanBankArchitectPanelTest
 			new BankItemSnapshot(209, 1, 1),
 			new BankItemSnapshot(999999, 1, 2)
 		));
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot,
-			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		controller.publishBankAnalysis(success(snapshot));
 
 		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
 		panel.getAnalyzeButton().doClick();
@@ -202,8 +202,7 @@ public class IronmanBankArchitectPanelTest
 			new BankItemSnapshot(209, 1, 1),
 			new BankItemSnapshot(999999, 1, 2)
 		));
-		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		controller.publishBankAnalysis(success(snapshot));
 
 		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
 		panel.getAnalyzeButton().doClick();
@@ -223,8 +222,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(new BankItemSnapshot(5297, 1, 0)));
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot,
-			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		controller.publishBankAnalysis(success(snapshot));
 		controller.setBankOpen(true);
 		controller.toggleGuide();
 		controller.publishGuideProgress("Sorting", 42);
@@ -243,6 +241,20 @@ public class IronmanBankArchitectPanelTest
 			new BankGuideController(AllRoundIronmanPreset.create()), () -> {});
 
 		assertFalse(panel.getGuideProgressBar().isVisible());
+		panel.shutdown();
+	}
+
+	@Test
+	public void failedAnalysisReplacesBothOutputsWithTheGenericFailure()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		controller.publishBankAnalysis(BankAnalysisStatus.failed());
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+
+		assertTrue(panel.getCatalogSummaryLabel().getText().contains(BankAnalysisStatus.FAILED_TEXT));
+		assertTrue(panel.getOrganizationPreviewLabel().getText().contains(BankAnalysisStatus.FAILED_TEXT));
+		assertFalse(panel.getShowBankButton().isEnabled());
+
 		panel.shutdown();
 	}
 
@@ -300,6 +312,24 @@ public class IronmanBankArchitectPanelTest
 		return false;
 	}
 
+	private static BankAnalysisStatus success(BankSnapshot snapshot)
+	{
+		return BankAnalysisStatus.success(
+			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE),
+			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+				BankPresets.IRONMAN));
+	}
+
+	private static BankAnalysisStatus successWithCounts(BankSnapshot snapshot)
+	{
+		return BankAnalysisStatus.success(
+			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE),
+			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+				BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
+				CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN),
+				BankLayoutOptions.DEFAULTS));
+	}
+
 	private static List<String> collectLabelText(Container container)
 	{
 		List<String> texts = new ArrayList<>();
@@ -320,6 +350,18 @@ public class IronmanBankArchitectPanelTest
 		}
 
 		return texts;
+	}
+
+	private static String layoutTagText(IronmanBankArchitectPanel panel, String tagName)
+	{
+		for (String text : collectLabelText(panel.getLayoutRows()))
+		{
+			if (text.contains(tagName))
+			{
+				return text;
+			}
+		}
+		throw new AssertionError("missing layout row for " + tagName);
 	}
 
 	private static void layoutTree(Component component)
@@ -353,12 +395,6 @@ public class IronmanBankArchitectPanelTest
 		}
 
 		@Override
-		public int itemCount(String categoryKey)
-		{
-			return 7;
-		}
-
-		@Override
 		public void save(BankLayoutPlan plan)
 		{
 			stored = plan;
@@ -384,6 +420,39 @@ public class IronmanBankArchitectPanelTest
 		panel.getTabOrderButton().doClick();
 
 		assertTrue(panel.isLayoutEditorVisible());
+		panel.shutdown();
+	}
+
+	@Test
+	public void openLayoutEditorRepopulatesCountsWhenAnalysisSucceeds()
+	{
+		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0),
+			new BankItemSnapshot(209, 1, 1),
+			new BankItemSnapshot(999999, 1, 2)
+		));
+		BankAnalysisStatus successfulAnalysis = successWithCounts(snapshot);
+		BankOrganizationPreview preview = successfulAnalysis.organizationPreview().get();
+		Map.Entry<String, Integer> populatedTag = preview.getTagCounts().entrySet().stream()
+			.filter(entry -> entry.getValue() > 0)
+			.findFirst()
+			.orElseThrow(AssertionError::new);
+		String tagName = BankTags.byKey(populatedTag.getKey()).getName();
+		controller.publishBankAnalysis(successfulAnalysis);
+		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+		panel.getTabOrderButton().doClick();
+
+		assertTrue(layoutTagText(panel, tagName).contains(">" + populatedTag.getValue() + " items<"));
+
+		controller.publishBankAnalysis(BankAnalysisStatus.running());
+		panel.getAnalyzeButton().doClick();
+		assertTrue(layoutTagText(panel, tagName).contains(">0 items<"));
+
+		controller.publishBankAnalysis(successfulAnalysis);
+		panel.getAnalyzeButton().doClick();
+		assertTrue(layoutTagText(panel, tagName).contains(">" + populatedTag.getValue() + " items<"));
+
 		panel.shutdown();
 	}
 
@@ -744,12 +813,6 @@ public class IronmanBankArchitectPanelTest
 		public BankLayoutPlan plan()
 		{
 			return working;
-		}
-
-		@Override
-		public int itemCount(String tagKey)
-		{
-			return 0;
 		}
 
 		@Override

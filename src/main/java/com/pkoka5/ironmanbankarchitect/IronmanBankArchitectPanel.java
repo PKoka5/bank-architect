@@ -1,5 +1,6 @@
 package com.pkoka5.ironmanbankarchitect;
 
+import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
@@ -38,6 +39,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +151,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final Timer statusTimer;
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private BankOrganizationPreview renderedDestinations;
+	private BankOrganizationPreview renderedLayoutPreview;
 	private JDialog bankDialog;
 	private JTabbedPane bankTabs;
 	private JButton exportBlueprintButton;
@@ -640,6 +643,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void renderLayoutEditor()
 	{
+		BankOrganizationPreview preview = guideController.bankAnalysisStatus()
+			.organizationPreview()
+			.orElse(null);
+		renderedLayoutPreview = preview;
+		Map<String, Integer> tagCounts = preview == null
+			? Collections.emptyMap() : preview.getTagCounts();
+
 		// Reads back the whole assignment, "Tab 3 - Teleports & Runes", so the
 		// player can confirm what they built without counting cells.
 		// Each tab carries its own heading in the list below, so a summary of the
@@ -655,7 +665,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		layoutRows.removeAll();
 		for (int destination = 0; destination < BankLayoutPlan.DESTINATION_COUNT; destination++)
 		{
-			layoutRows.add(destinationHeader(destination));
+			layoutRows.add(destinationHeader(destination, tagCounts));
 			layoutRows.add(tagChooser(destination));
 			List<String> keys = layoutPlan.getTagKeys(destination);
 			if (keys.isEmpty())
@@ -664,7 +674,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			}
 			for (String key : keys)
 			{
-				layoutRows.add(layoutRow(BankTags.byKey(key), destination));
+				layoutRows.add(layoutRow(BankTags.byKey(key), destination, tagCounts));
 			}
 			layoutRows.add(Box.createVerticalStrut(6));
 		}
@@ -688,7 +698,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 * one line squeezed the buttons off the right edge, which left the player
 	 * looking at a list they could read but not change.
 	 */
-	private JPanel layoutRow(BankTag tag, int destination)
+	private JPanel layoutRow(BankTag tag, int destination, Map<String, Integer> tagCounts)
 	{
 		String key = tag.getKey();
 		List<String> onDestination = layoutPlan.getTagKeys(destination);
@@ -703,8 +713,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			BorderFactory.createEmptyBorder(2, 4, 2, 2)));
 		sizeToSidebar(row, 40);
 
+		int itemCount = tagCounts.getOrDefault(key, 0);
 		JLabel name = new JLabel("<html><body width='" + LAYOUT_NAME_WIDTH + "'>" + tag.getName()
-			+ "<br><font color='#9a9a9a'>" + bankLayoutModel.itemCount(key)
+			+ "<br><font color='#9a9a9a'>" + itemCount
 			+ " items</font></body></html>");
 		name.setFont(FontManager.getRunescapeSmallFont());
 		name.setForeground(Color.WHITE);
@@ -1026,9 +1037,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	}
 
 	/** The tab this group of rows belongs to, with what it will hold. */
-	private JLabel destinationHeader(int destination)
+	private JLabel destinationHeader(int destination, Map<String, Integer> tagCounts)
 	{
-		int items = itemsOnDestination(destination);
+		int items = itemsOnDestination(destination, tagCounts);
 		JLabel header = new JLabel(destinationName(destination)
 			+ (items > 0 ? " - " + items + " items" : ""));
 		header.setFont(FontManager.getRunescapeBoldFont());
@@ -1071,12 +1082,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return names.toString();
 	}
 
-	private int itemsOnDestination(int destinationIndex)
+	private int itemsOnDestination(int destinationIndex, Map<String, Integer> tagCounts)
 	{
 		int total = 0;
 		for (String key : layoutPlan.getTagKeys(destinationIndex))
 		{
-			total += bankLayoutModel.itemCount(key);
+			total += tagCounts.getOrDefault(key, 0);
 		}
 
 		return total;
@@ -1154,7 +1165,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private String plannedItemText()
 	{
-		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		BankOrganizationPreview preview = guideController.organizationPreview();
 		return preview == null ? "" : Integer.toString(preview.getPlannedItemCount());
 	}
 
@@ -1175,11 +1186,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshAnalysis()
 	{
-		catalogSummaryLabel.setText(sidebarHtml(guideController.getCatalogSummaryText()));
-		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
-		organizationPreviewLabel.setText(sidebarHtml(blueprintStatusText(preview)));
+		BankAnalysisStatus analysis = guideController.bankAnalysisStatus();
+		catalogSummaryLabel.setText(sidebarHtml(analysis.catalogSummaryText()));
+		BankOrganizationPreview preview = analysis.organizationPreview().orElse(null);
+		organizationPreviewLabel.setText(sidebarHtml(blueprintStatusText(analysis)));
 		showBankButton.setEnabled(preview != null);
 		refreshDestinations(preview);
+		if (layoutEditor.isVisible() && preview != renderedLayoutPreview)
+		{
+			renderLayoutEditor();
+		}
 		if (bankDialog != null && bankDialog.isVisible())
 		{
 			refreshBankDialog(preview);
@@ -1410,7 +1426,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void showBankDialog()
 	{
-		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		BankOrganizationPreview preview = guideController.organizationPreview();
 		if (preview == null)
 		{
 			return;
@@ -1438,7 +1454,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void copyBlueprintExport()
 	{
-		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		BankOrganizationPreview preview = guideController.organizationPreview();
 		if (preview == null)
 		{
 			return;
@@ -1576,11 +1592,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return label;
 	}
 
-	private static String blueprintStatusText(BankOrganizationPreview preview)
+	private static String blueprintStatusText(BankAnalysisStatus analysis)
 	{
+		BankOrganizationPreview preview = analysis.organizationPreview().orElse(null);
 		if (preview == null)
 		{
-			return "Analyze your bank, then open the blueprint.";
+			return analysis.kind() == BankAnalysisStatus.Kind.RUNNING
+				|| analysis.kind() == BankAnalysisStatus.Kind.FAILED
+				? analysis.organizationPreviewText()
+				: "Analyze your bank, then open the blueprint.";
 		}
 
 		return "Blueprint ready: " + preview.getPlannedItemCount() + " item IDs sorted.";

@@ -82,7 +82,7 @@ public final class BankCategoryOverlay extends Overlay
 			return null;
 		}
 
-		BankOrganizationPreview preview = guideController.getLatestOrganizationPreview();
+		BankOrganizationPreview preview = guideController.organizationPreview();
 		if (preview == null)
 		{
 			return null;

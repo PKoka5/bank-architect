@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
@@ -161,7 +162,7 @@ public class BankGuideControllerTest
 	@Test
 	public void bankClosedAnalysisTextIsPublished()
 	{
-		controller.publishBankClosedAnalysis();
+		controller.publishBankAnalysis(BankAnalysisStatus.bankClosed());
 
 		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
 		assertEquals("", controller.getAnalysisDetailText());
@@ -171,10 +172,12 @@ public class BankGuideControllerTest
 	@Test
 	public void defaultCatalogSummaryTextPromptsAnalysis()
 	{
-		assertEquals("Analyze your bank to see catalog overview.", controller.getCatalogSummaryText());
-		assertEquals(null, controller.getLatestCatalogSummary());
-		assertEquals("Analyze your bank to preview owned-item blueprint.", controller.getOrganizationPreviewText());
-		assertEquals(null, controller.getLatestOrganizationPreview());
+		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals("Analyze your bank to see catalog overview.", analysis.catalogSummaryText());
+		assertEquals(null, analysis.catalogSummary().orElse(null));
+		assertEquals("Analyze your bank to preview owned-item blueprint.",
+			analysis.organizationPreviewText());
+		assertEquals(null, analysis.organizationPreview().orElse(null));
 	}
 
 	@Test
@@ -184,11 +187,16 @@ public class BankGuideControllerTest
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(999999, 1, 1)
 		)), StaticItemCatalog.INSTANCE);
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0),
+			new BankItemSnapshot(999999, 1, 1)
+		));
+		controller.publishBankAnalysis(BankAnalysisStatus.success(summary,
+			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+				BankPresets.IRONMAN)));
 
-		controller.publishCatalogSummary(summary);
-
-		assertEquals(summary, controller.getLatestCatalogSummary());
-		assertEquals(summary.toOverviewText(), controller.getCatalogSummaryText());
+		assertEquals(summary, controller.bankAnalysisStatus().catalogSummary().orElse(null));
+		assertEquals(summary.toOverviewText(), controller.bankAnalysisStatus().catalogSummaryText());
 	}
 
 	@Test
@@ -197,16 +205,16 @@ public class BankGuideControllerTest
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(995, 1, 0)
 		));
-		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		controller.publishBankAnalysis(success(snapshot));
 
-		controller.publishAnalysisStarted();
+		controller.publishBankAnalysis(BankAnalysisStatus.running());
 
-		assertEquals("Analyzing bank snapshot...", controller.getCatalogSummaryText());
-		assertEquals("Analyzing bank snapshot...", controller.getOrganizationPreviewText());
+		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals("Analyzing bank snapshot...", analysis.catalogSummaryText());
+		assertEquals("Analyzing bank snapshot...", analysis.organizationPreviewText());
 		assertEquals("Analyzing bank snapshot...", controller.getGuideProgressText());
-		assertEquals(null, controller.getLatestCatalogSummary());
-		assertEquals(null, controller.getLatestOrganizationPreview());
+		assertEquals(null, analysis.catalogSummary().orElse(null));
+		assertEquals(null, analysis.organizationPreview().orElse(null));
 	}
 
 	@Test
@@ -217,11 +225,17 @@ public class BankGuideControllerTest
 			new BankItemSnapshot(5297, 1, 1)
 		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
 
-		controller.publishOrganizationPreview(preview);
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(995, 1, 0),
+			new BankItemSnapshot(5297, 1, 1)
+		));
+		controller.publishBankAnalysis(BankAnalysisStatus.success(
+			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE), preview));
 
-		assertEquals(preview, controller.getLatestOrganizationPreview());
-		assertEquals(preview.toPreviewText(), controller.getOrganizationPreviewText());
-		assertTrue(controller.getOrganizationPreviewText().contains("Suggested Bank Blueprint"));
+		assertEquals(preview, controller.organizationPreview());
+		assertEquals(preview.toPreviewText(), controller.bankAnalysisStatus().organizationPreviewText());
+		assertTrue(controller.bankAnalysisStatus().organizationPreviewText()
+			.contains("Suggested Bank Blueprint"));
 	}
 
 	@Test
@@ -230,7 +244,11 @@ public class BankGuideControllerTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(995, 1, 0)
 		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
-		controller.publishOrganizationPreview(preview);
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(995, 1, 0)
+		));
+		controller.publishBankAnalysis(BankAnalysisStatus.success(
+			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE), preview));
 		controller.publishGuideProgressText("Currency: 50% item-order progress.");
 
 		assertEquals(BankGuideController.GUIDANCE_BANK_CLOSED_STATUS, controller.getGuideProgressText());
@@ -243,17 +261,37 @@ public class BankGuideControllerTest
 	@Test
 	public void bankClosedAnalysisResetsCatalogSummaryInsteadOfShowingStaleData()
 	{
-		BankCatalogSummary summary = BankCatalogSummarizer.summarize(new BankSnapshot(Arrays.asList(
+		controller.publishBankAnalysis(success(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0)
-		)), StaticItemCatalog.INSTANCE);
-		controller.publishCatalogSummary(summary);
+		))));
 
-		controller.publishBankClosedAnalysis();
+		controller.publishBankAnalysis(BankAnalysisStatus.bankClosed());
 
-		assertEquals("Analyze your bank to see catalog overview.", controller.getCatalogSummaryText());
-		assertEquals(null, controller.getLatestCatalogSummary());
-		assertEquals("Analyze your bank to preview owned-item blueprint.", controller.getOrganizationPreviewText());
-		assertEquals(null, controller.getLatestOrganizationPreview());
+		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals("Analyze your bank to see catalog overview.", analysis.catalogSummaryText());
+		assertEquals(null, analysis.catalogSummary().orElse(null));
+		assertEquals("Analyze your bank to preview owned-item blueprint.",
+			analysis.organizationPreviewText());
+		assertEquals(null, analysis.organizationPreview().orElse(null));
+	}
+
+	@Test
+	public void failedAnalysisClearsEverySuccessfulOutput()
+	{
+		controller.publishBankAnalysis(success(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0)
+		))));
+
+		controller.publishBankAnalysis(BankAnalysisStatus.failed());
+
+		assertEquals(BankAnalysisStatus.Kind.FAILED, controller.bankAnalysisStatus().kind());
+		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals(BankGuideController.ANALYSIS_FAILED_STATUS, analysis.catalogSummaryText());
+		assertEquals(BankGuideController.ANALYSIS_FAILED_STATUS,
+			analysis.organizationPreviewText());
+		assertEquals(BankGuideController.ANALYSIS_FAILED_STATUS, controller.getGuideProgressText());
+		assertEquals(null, analysis.catalogSummary().orElse(null));
+		assertEquals(null, analysis.organizationPreview().orElse(null));
 	}
 
 	@Test
@@ -265,18 +303,19 @@ public class BankGuideControllerTest
 			new BankItemSnapshot(209, 1, 1)
 		));
 		controller.publishMatchResult(BankSlotMatcher.match(controller.getSelectedBlock(), snapshot));
-		controller.publishCatalogSummary(BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE));
-		controller.publishOrganizationPreview(BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN));
+		controller.publishBankAnalysis(success(snapshot));
 
-		controller.publishBankClosedAnalysis();
+		controller.publishBankAnalysis(BankAnalysisStatus.bankClosed());
 
 		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
 		assertEquals("", controller.getAnalysisDetailText());
 		assertEquals(null, controller.getLatestMatchResult());
-		assertEquals("Analyze your bank to see catalog overview.", controller.getCatalogSummaryText());
-		assertEquals(null, controller.getLatestCatalogSummary());
-		assertEquals("Analyze your bank to preview owned-item blueprint.", controller.getOrganizationPreviewText());
-		assertEquals(null, controller.getLatestOrganizationPreview());
+		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals("Analyze your bank to see catalog overview.", analysis.catalogSummaryText());
+		assertEquals(null, analysis.catalogSummary().orElse(null));
+		assertEquals("Analyze your bank to preview owned-item blueprint.",
+			analysis.organizationPreviewText());
+		assertEquals(null, analysis.organizationPreview().orElse(null));
 	}
 
 	@Test
@@ -333,5 +372,13 @@ public class BankGuideControllerTest
 	{
 		assertFalse(controller.isGuideEnabled());
 		assertFalse(controller.isCategoryAssignMode());
+	}
+
+	private static BankAnalysisStatus success(BankSnapshot snapshot)
+	{
+		return BankAnalysisStatus.success(
+			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE),
+			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+				BankPresets.IRONMAN));
 	}
 }
