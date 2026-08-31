@@ -4,168 +4,101 @@ Audit date: 2026-08-30
 
 ## Decision
 
-Combat Gear is organized with two layers:
+The combat tab uses two kinds of information:
 
-1. Live RuneLite equipment stats, progression tiers, and reviewed utility adjustments build
-   general-purpose melee, ranged, magic, and prayer setup heuristics from the items the player owns.
-2. A small exact-ID catalog preserves game relationships that stats cannot reveal, such as a full
-   Void set, Crystal armour weapon compatibility, Barrows set effects, incomplete set families, and
-   equipment whose practical value comes from a passive or special mechanic.
+1. Equipment slots, combat stats, and progression tiers rank ordinary gear the player owns.
+2. A reviewed item catalog keeps together sets and item combinations whose effects cannot be read
+   from stats alone.
 
-The algorithm has no account-specific item rule. New ordinary equipment automatically participates
-through its equipment slot, combat style, and score. A catalog change is needed only when Jagex adds
-or changes a mechanic-driven relationship or lifecycle variant.
+This is a bank layout, not a best-in-slot guide. New ordinary gear joins the layout through its slot
+and stats. The catalog needs an update only when a new item has a set effect, special relationship,
+or unusable state that RuneLite stats do not describe.
 
-## Dynamic setup construction
+## How loadouts are arranged
 
-For each combat style, the planner repeatedly selects higher-ranked remaining items by equipment slot.
-The score combines equipment stats, a pinned progression tier, and reviewed utility adjustments. It is
-useful for consistent bank ordering, but it does not model every activity, attack cycle, or damage
-formula and is not a best-in-slot recommendation. When a setup uses fewer than the bank's eight columns,
-the remaining cells receive compatible high-ranked sidegrades regardless of slot.
+The planner builds melee, ranged, magic, and prayer loadouts from the strongest remaining item in
+each slot. A loadout can contain one head, body, legs, weapon, cape, neck, hands, feet, shield, and
+ring before alternative items are added.
 
-When a consecutive batch contains at least two usable armour cores and enough real entries from those
-blocks to fill four rows, the planner uses a vertical loadout matrix. Each setup keeps its helmet, body,
-legs, and weapon in the same column.
-Different charges or durability states widen that setup's column band by the number of physical bank
-entries they occupy. If the bank cannot form the matrix without gaps, the same dynamic blocks fall back
-to a dense layout. No item family or account inventory is hard-coded into this geometry.
+When enough gear exists to fill every row, the planner lines up helmets, bodies, legs,
+and weapons in columns. Otherwise it uses the same order without empty spaces. Different charge or
+durability variants keep their own bank slots and may widen a column.
 
-This rule works across progression levels. Rune, dragon, Barrows, Bandos, Torva, black dragonhide,
-Crystal, Masori, Mystic, Ahrim's, Virtus, and Ancestral do not need account-specific layout code. Their
-live stats and the reviewed progression catalog determine which owned item leads each slot.
+This works for early and late accounts. Rune, dragon, Bandos, Torva, black dragonhide, Crystal,
+Masori, Mystic, Ahrim's, Virtus, and Ancestral gear all use the same rules.
 
-The old two-body exception has been removed. A primary setup now contains at most one head, body,
-legs, weapon, cape, neck, hands, feet, shield, and ring before any sidegrade is added. The highest-ranked
-generic head, body, and legs candidates are protected from being borrowed as filler for an exact set,
-so a useful progression core remains available for its own setup.
+## Reviewed item relationships
 
-## Mechanic-driven catalog
+The catalog defines 20 loadouts. Required pieces must all be owned before the planner treats the
+set as active. Optional pieces sit beside an active set when owned. Three different roles are enough
+to keep an incomplete set together, but the planner does not claim its set effect is active.
 
-The catalog currently defines 20 loadouts across the relationships below. Required roles activate a
-block only when every role is owned. Optional roles are placed beside the block when owned but do not
-pretend to be required for activation. The same role data also derives incomplete-set families. Three
-distinct owned roles are enough to preserve a functional family, while variants from one role count
-once and two isolated roles remain available
-to the dynamic progression planner. This keeps a three-piece Verac group together without letting a
-Karil's crossbow and one useful armour piece inherit the armour piece's priority.
-
-| Relationship | Encoded rule |
+| Relationship | Rule |
 |---|---|
-| Crystal ranged | Crystal bow or Bow of faerdhinen, plus active Crystal helm, body, and legs. Active colour variants are equivalent. |
-| Blood, Eclipse, Blue Moon | The corresponding weapon plus all three usable armour pieces. |
-| Six Barrows sets | Each brother's weapon, head, body, and legs. Amulet of the damned is an optional synergy. |
-| Melee, ranged, magic Void | The matching helm plus gloves, top, and robe. Regular, elite, ornament, and trouver variants are equivalent where the game treats them as equivalent. |
+| Crystal ranged | Crystal bow or Bow of faerdhinen with an active Crystal helm, body, and legs. Active colour variants count. |
+| Blood, Eclipse, and Blue Moon | The matching weapon with all three usable armour pieces. |
+| Barrows | Each brother's weapon, head, body, and legs. Amulet of the damned is optional. |
+| Void | The matching helm with gloves, top, and robe. Supported regular, elite, ornament, and trouver variants count. |
 | Justiciar | Faceguard, chestguard, and legguards. |
-| Inquisitor | Great helm, hauberk, and plateskirt, with the mace as an optional stronger synergy. |
-| Obsidian | Helmet, platebody, platelegs, and a compatible melee Obsidian weapon. Berserker necklace is optional. |
-| Swampbark | Helm, body, and legs provide the maximum bind extension. Gauntlets and boots are optional family pieces. |
-| Bloodbark | All five pieces are kept together when the full family is owned. Incomplete pieces remain ordinary magic gear. |
-| Serpentine ranged and magic | A charged Serpentine helm is kept with a compatible charged toxic weapon. Uncharged helms cannot activate the relationship. |
+| Inquisitor | Great helm, hauberk, and plateskirt. The mace is optional. |
+| Obsidian | Helmet, platebody, platelegs, and a compatible Obsidian melee weapon. Berserker necklace is optional. |
+| Swampbark | Helm, body, and legs. Gauntlets and boots stay with the family when owned. |
+| Bloodbark | All five pieces. Incomplete pieces remain ordinary magic gear. |
+| Serpentine | A charged helm with a compatible charged toxic ranged or magic weapon. |
 
-Crystal armour buffs both the Crystal bow and Bowfa, so the earlier Bowfa-only rule was incomplete.
-Each armour piece contributes to the bonus. [Crystal equipment](https://oldschool.runescape.wiki/w/Crystal_equipment)
-
-Void requires gloves, top, robe, and one style helm. Elite top and robe add ranged or magic damage but
-share the base set relationship. [Void Knight equipment](https://oldschool.runescape.wiki/w/Void_Knight_equipment)
-
-Justiciar's damage reduction requires the full three-piece set. Inquisitor pieces improve crush, with
-an additional full-set bonus and a stronger interaction with the Inquisitor's mace. Obsidian armour
-requires all three armour pieces and an Obsidian weapon for its set effect; Berserker necklace stacks
-with it. [Justiciar armour](https://oldschool.runescape.wiki/w/Justiciar_armour),
-[Passive effects](https://oldschool.runescape.wiki/w/Passive_effect)
-
-Swampbark's maximum bind extension now requires only helm, body, and legs. Bloodbark instead grants
-healing improvements per piece, so only the complete five-piece family receives a reserved block.
+The main sources for these rules are the OSRS Wiki pages for
+[Crystal equipment](https://oldschool.runescape.wiki/w/Crystal_equipment),
+[Void Knight equipment](https://oldschool.runescape.wiki/w/Void_Knight_equipment),
+[Justiciar armour](https://oldschool.runescape.wiki/w/Justiciar_armour),
 [Swampbark armour](https://oldschool.runescape.wiki/w/Swampbark_armour),
 [Bloodbark armour](https://oldschool.runescape.wiki/w/Bloodbark_armour),
-[Ancient sceptre](https://oldschool.runescape.wiki/w/Ancient_sceptre)
+[Serpentine helm](https://oldschool.runescape.wiki/w/Serpentine_helm), and
+[Moon equipment](https://oldschool.runescape.wiki/w/Moon_equipment).
+The detailed claim record is in [report-source.md](combat-gear-layout-audit/report-source.md).
 
-An Ancient sceptre is an optional Bloodbark synergy; a Sanguinesti staff is deliberately not treated
-as one because Bloodbark does not improve its healing. A charged Serpentine helm can envenom with a
-charged Toxic blowpipe, Trident of the swamp, or Toxic staff of the dead family. These cross-item
-mechanics cannot be derived from equipment stats alone.
-[Serpentine helm](https://oldschool.runescape.wiki/w/Serpentine_helm)
+## Broken and inactive gear
 
-## Lifecycle rules
+Broken, zero-durability, and inactive gear stays at the end of the tab. It cannot complete a
+loadout while banked. The catalog covers known Crystal, Moon, Barrows, Void, damaged Torva, and
+uncharged Serpentine variants. Names containing `broken`, `damaged`, or `inactive` provide a fallback
+for new items.
 
-Broken, zero-durability, and inactive equipment is placed in a final maintenance block. It cannot
-complete a loadout while sitting in the bank. The catalog contains reviewed IDs for Crystal, Moon,
-Barrows, Void, damaged Torva, and uncharged Serpentine states. A normalized name fallback also catches
-new items whose names include `broken`, `damaged`, or `inactive`.
+Moon gear at zero durability must be repaired before it can be equipped again, so a broken banked
+piece cannot start a Moon loadout.
 
-Moon items reaching zero are not re-equipable until repaired. A Moon set effect can remain briefly if
-an already-equipped item breaks, but a banked broken item cannot be used to start that setup.
-[Moon equipment](https://oldschool.runescape.wiki/w/Moon_equipment)
+## Families and priority
 
-## Family and utility layers
+Keeping items together does not automatically raise their priority. This prevents a situational
+weapon from outranking a stronger general loadout simply because it belongs to a set.
 
-Family membership and combat priority are separate facts. A family controls adjacency and member
-order. A utility adjustment controls when an item or completed block appears relative to ordinary
-fallback gear. This prevents family cohesion from turning a situational weapon into a universal
-best-in-slot recommendation.
+Reviewed families include Void helms and torso pieces, Ghostly robes, Elite black armour, each
+Shayzien tier, dwarf cannon parts, and incomplete Crystal, Moon, Barrows, Justiciar, Inquisitor,
+Obsidian, Swampbark, and Bloodbark sets.
 
-Explicit families cover all owned Void helms around the shared core, Ghostly hood, robe pieces,
-cloak, gloves, and boots, Elite black armour, each Shayzien armour tier, and both normal and
-ornamented dwarf cannon parts. Derived families cover incomplete Crystal, Moon, Barrows, Justiciar,
-Inquisitor, Obsidian, Swampbark, and Bloodbark sets.
+Separate utility scores cover items whose value comes from a passive, special attack, task bonus,
+or target-specific effect. Examples include Slayer helmets, Toxic blowpipes, Serpentine helms,
+imbued rings and god capes, Salve upgrades, Tome of fire, Dragon daggers, Burning claws, Emberlight,
+Scorching bow, Purging staff, and Twinflame staff. Karil's crossbow is lowered on its own, but not
+when the full Karil set is active.
 
-The reviewed utility catalog has two scopes. Standalone adjustments raise independently useful gear,
-including Slayer helmet variants, charged Toxic blowpipes and Serpentine helms, imbued rings and god
-capes, Salve upgrades, Tome of fire, Dragon dagger variants, Burning claws, Emberlight, Scorching bow,
-Purging staff, and Twinflame staff. Loadout adjustments apply only after every required role activates,
-which keeps shared Void pieces ordinary until a complete melee, ranged, or magic Void setup exists.
-Karil's crossbow receives a standalone negative adjustment, but that adjustment is suppressed when the
-complete Karil loadout activates. Ordinary equipment still enters dynamically from live slots, stats,
-and progression tiers.
+## Gear left to the general rules
 
-## Checked but deliberately not hard-wired
-
-- Masori assembler is a ranged cape, not a required Crystal or Masori member.
+- Masori assembler is ranged cape gear. It is not required for Crystal or Masori armour.
 - Masori, Torva, Ancestral, Virtus, Oathplate, Hueycoatl hide, Bandos, Armadyl, metal armour,
-  dragonhide, and ordinary robes are stat-driven progression families. They do not need activation
-  recipes. Their reviewed tiers improve the fallback when live stats are unavailable.
-- Virtus has a per-piece Ancient Magicks benefit. It remains dynamic magic gear because no additional
-  item is required to make a piece useful.
-- Shayzien armour is activity-specific protection against lizardman shamans. Its five pieces remain
-  an ordered family, but the family receives no universal combat priority boost. Ancient Warriors'
-  set effects are restricted to PvP activities and likewise do not outrank general combat setups.
-- Target-specific equipment does not activate a fabricated universal loadout. Reviewed items can
-  receive a utility adjustment, but the bank snapshot still does not claim which encounter the
-  player intends to fight.
-- Incomplete activation families never receive a set-effect claim. Three or more distinct owned roles stay
-  adjacent as a family; smaller fragments return to the generic style planner unless an explicit
-  visual or assembly family says otherwise.
+  dragonhide, and ordinary robes use stats and progression tiers. They do not need set recipes.
+- Virtus remains ordinary magic gear because its Ancient Magicks benefit works per piece.
+- Shayzien gear stays together but gets no general priority boost because its protection is specific
+  to lizardman shamans.
+- Ancient Warriors' set effects do not receive general priority because they are PvP-specific.
+- Target-specific items may receive a utility score, but the plugin does not guess the player's next
+  encounter.
 
-## Determinism and extension
+## Guarantees and tests
 
-- Only owned items are emitted. No blank bank cells are invented.
-- Each logical item ID is classified once before physical expansion.
-- Multiple physical entries for one item ID remain multiple cells. Owned entries and real placeholders
-  are preserved independently. Charge and durability
-  variants cannot silently overflow an eight-cell block.
-- Competing recipes that share pieces, such as the three Void styles, are ranked using the strength
-  of compatible gear the player owns. The highest-ranked supported style receives the shared pieces.
-- Ammunition remains a terminal block, grouped by family and tier.
-- The Java sorting interface stays unchanged. Future mechanics may require relationship facts,
-  utility adjustments, lifecycle facts, or a visual-family entry, plus focused regressions for the
-  affected seam.
-
-## Verification contract
-
-Focused regressions cover:
-
-- arbitrary early, middle, and late gear tiers arriving in mixed input order;
-- Bowfa and Crystal bow with base and coloured Crystal armour variants;
-- dynamic Void style selection from the rest of the owned bank;
-- all owned Void helms beside the shared Void core;
-- complete Moon and Barrows activation sets;
-- incomplete three-role Barrows families, same-role variant rejection, and two-role Karil separation;
-- Ghostly, Elite black, and dwarf cannon family cohesion;
-- high-impact utility priority, base versus imbued god capes, and Karil crossbow demotion;
-- broken Moon armour and Barrows zero states in maintenance;
-- no invented blanks, lost items, or duplicated items;
-- vertical helmet, body, legs, and weapon alignment using arbitrary item IDs rather than named sets;
-- placeholder exclusion, damaged Torva, uncharged Serpentine helms, and duplicate physical entries;
-- full catalog key coverage so a deleted or accidentally added mechanic recipe fails a test;
-- ammunition word boundaries so `Barrows` cannot be mistaken for `arrows`.
+- Only owned items appear in the blueprint. The planner never adds blank cells.
+- Repeated physical entries and real placeholders remain separate bank slots.
+- Shared pieces, such as the Void torso, can appear in only one resolved loadout.
+- Ammunition stays together at the end, ordered by family and tier.
+- Tests cover early and late gear, Crystal variants, all Void styles, Moon and Barrows sets,
+  incomplete families, Ghostly and Elite black gear, cannon parts, utility priority, broken gear,
+  repeated entries, vertical alignment, and ammunition word boundaries.

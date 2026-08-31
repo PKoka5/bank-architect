@@ -41,8 +41,8 @@ public interface IronmanBankArchitectConfig extends Config
 
 	@ConfigItem(
 		keyName = "fillGearRows",
-		name = "Fill combat loadout rows",
-		description = "On, compatible combat blocks may complete rows. Consecutive blocks with at least two armour cores align helmet, body, legs, and weapon only when those blocks contain enough real entries to fill four rows. Off, exact sets stay together but short blocks are not completed. Broken and inactive gear always stays in the final maintenance block."
+		name = "Align combat loadouts",
+		description = "Line up helmets, bodies, legs, and weapons when there is enough gear to fill every row. Turn this off for a tighter layout. Sets still stay together, and broken gear stays at the end."
 	)
 	default boolean fillGearRows()
 	{

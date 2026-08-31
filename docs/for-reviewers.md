@@ -73,20 +73,16 @@ common approach is a fixed template, or a set of category rules that decide
 *which tab* an item belongs to and stop there. A template only works if your
 bank resembles the one it was built from; a tab assignment leaves the inside of
 the tab in whatever order the items happened to be. Here the destination is only
-the first step. `organize/layout/` packs each tab from the items you actually own.
-Semantic rules propose rune blocks, potion doses grouped by dose, resource zones
-by skill, and tool or outfit sets. Per-category sorters order what remains.
-Nothing is placed that you do not own, and no blank filler is invented.
+the first step. Each tab is packed from items the player owns. Rules keep rune
+blocks, potion doses, resource groups, tools, and outfits together. Category
+sorters order everything else. The planner never adds blank fillers.
 
-**Gear is grouped into owned combat setups, with higher-ranked heuristics first.** The
-combat planner separates catalog relationships, ownership resolution, strength
-ranking, and eight-column placement. This ordering is not a best-in-slot claim. Ordinary melee, ranged, and magic gear is
-ranked from live equipment slots and stats plus the pinned progression catalog.
-A reviewed exact-ID catalog is used only for relationships stats cannot express,
-such as Void activation, Barrows and Moon sets, lifecycle states, and passive or
-special-attack utility. The same stat comparison drives the alch review: an item
-only moves out of combat gear when an owned item beats it outright on all fifteen
-equipment stats.
+**Combat gear is arranged into owned loadouts.** Ordinary gear is ranked from
+its equipment slot, combat stats, and progression tier. Exact item IDs are used
+only for relationships that stats cannot describe, such as Void, Barrows, and
+Moon set effects. The order is a bank layout, not a best-in-slot claim. The same
+stat comparison drives the alch review, where an item moves only when two owned
+items beat it on all fifteen equipment stats.
 
 Both claims are checkable. `docs/research/` holds the dated studies the rules
 were built from, including a review of the most-imported community bank

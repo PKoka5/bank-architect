@@ -30,12 +30,11 @@ public final class BankLayoutOptions
 	}
 
 	/**
-	 * Whether mechanic-driven gear sets may be completed with compatible equipment.
+	 * Whether compatible gear may complete rows so combat loadouts line up.
 	 *
-	 * <p>On, compatible combat blocks may finish rows and align their helmet,
-	 * body, legs, and weapon vertically when real entries can fill the grid. Off,
-	 * an exact set remains contiguous but short blocks follow immediately. Neither
-	 * mode invents empty cells or promotes unusable equipment.</p>
+	 * <p>On, helmets, bodies, legs, and weapons line up when owned gear can fill
+	 * every row. Off, the layout stays compact. Sets remain together either way,
+	 * and neither mode invents empty cells or promotes unusable gear.</p>
 	 */
 	public boolean fillGearRows()
 	{

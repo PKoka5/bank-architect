@@ -232,12 +232,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
 		// Asked separately because gear rows may use compatible style items while
 		// Herblore rows use recipe neighbours. They are different tradeoffs.
-		fillGearRowsBox = layoutOptionBox("Fill combat loadout rows",
-			"<html>On: compatible combat blocks may complete rows. Consecutive blocks with at least "
-				+ "two armour cores align helmet, body, legs, and weapon only when those blocks contain "
-				+ "enough real entries to fill four rows."
-				+ "<br>Off: exact sets stay together but short blocks are not completed.<br>Broken and inactive "
-				+ "gear always stays in the final maintenance block.</html>");
+		fillGearRowsBox = layoutOptionBox("Align combat loadouts",
+			"<html>On: line up helmets, bodies, legs, and weapons when there is enough gear to fill every row."
+				+ "<br>Off: use a tighter layout. Sets still stay together."
+				+ "<br>Broken and inactive gear always stays at the end.</html>");
 		fillHerbloreRowsBox = layoutOptionBox("Fill part-empty Herblore rows",
 			"<html>On: a part-finished recipe borrows from the rest of the tab, so the next "
 				+ "recipe still starts at the left edge.<br>Off: a short row is left short and "

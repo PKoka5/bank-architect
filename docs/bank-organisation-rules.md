@@ -96,23 +96,19 @@ metadata and reviewed evidence.
 
 ## GEAR_001 — Dynamic combat loadouts
 
-Combat gear is planned from the equipment the player owns. For each combat style, a heuristic using
-equipment stats, progression tiers, and reviewed utility adjustments forms higher-ranked setups first,
-then repeats for lower tiers and sidegrades. Consecutive blocks containing at least two usable armour
-cores become vertical columns only when those blocks contain enough real entries to fill four rows.
-Otherwise the blocks remain dense. The setup slot order is:
+The planner builds combat loadouts from the gear the player owns. It ranks gear by equipment stats,
+progression tier, and reviewed utility. This produces a useful bank order, not a best-in-slot guide.
+When there is enough compatible gear to fill every row, helmets, bodies, legs, and weapons line up in
+columns. Otherwise the same loadouts use a compact layout. The slot order is:
 
 `Helmet → Body → Legs → Weapon → Cape → Amulet → Gloves → Boots → Offhand → Ring`
 
-Exact-ID rules are limited to mechanic-driven relationships that live equipment stats cannot
-express. Required pieces remain contiguous for Crystal ranged, Moons, Barrows, Void, Justiciar,
-Inquisitor, Obsidian, Swampbark, and Bloodbark. Three or more distinct owned roles of an incomplete
-functional set remain a family without being presented as an activated set. Alternative variants of
-one role count once. Explicit visual or assembly families, including Ghostly, Elite black, Shayzien
-tiers, Void variants, and dwarf cannon parts, remain contiguous from two owned members. A separate
-reviewed utility score raises gear whose combat value comes from a passive, special attack, task
-bonus, or target-specific effect that raw equipment stats cannot measure. Broken, zero-durability,
-and inactive items form a final maintenance block.
+Exact item IDs are used only when stats cannot describe a set effect or item relationship. This keeps
+Crystal ranged, Moons, Barrows, Void, Justiciar, Inquisitor, Obsidian, Swampbark, and Bloodbark pieces
+together. Incomplete sets stay together once the player owns at least three different roles. Visual
+families such as Ghostly, Elite black, Shayzien, Void variants, and dwarf cannon parts stay together
+from two pieces. Reviewed utility scores cover useful passives, special attacks, and task bonuses that
+raw stats miss. Broken, zero-durability, and inactive gear stays at the end.
 
 ## TELE_001 — Compact rune and teleport utility grouping
 
@@ -184,9 +180,8 @@ adds a Bank Filler, dummy item, or invented empty target to make a visual grid l
 placeholder already present in the player's bank is preserved because it represents that player's
 item slot; it is not the same thing as a Bank Filler.
 
-Vertical set alignment is best-effort and considers one consecutive batch of combat blocks at a time.
-It may use real items already inside that batch as row spillover. When the batch cannot fill four rows
-without inventing a cell, the sorter falls back to a dense order.
+The planner aligns a group of combat loadouts only when owned items can fill every slot. Otherwise it
+uses the same order without empty spaces.
 
 ## FOOD_001 — ID-based food roles and direct healing
 
