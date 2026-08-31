@@ -251,6 +251,47 @@ public class BankLayoutOptionsTest
 		return last;
 	}
 
+	/**
+	 * The order-preserving packer never seats a family block ahead of earlier
+	 * singles: mining leads the tools tab because the sorter says so, even
+	 * though hammer and saw form a two-item family and the pickaxe stands alone.
+	 */
+	@Test
+	public void packedToolsKeepTheSortersOrder()
+	{
+		BankSnapshot tools = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(2347, 3, 0),   // Hammer
+			new BankItemSnapshot(8794, 1, 1),   // Saw
+			new BankItemSnapshot(1265, 2, 2),   // Bronze pickaxe
+			new BankItemSnapshot(1351, 1, 3),   // Bronze axe
+			new BankItemSnapshot(590, 2, 4),    // Tinderbox
+			new BankItemSnapshot(952, 1, 5))); // Spade
+
+		BankOrganizationPreview preview = build(tools, BankLayoutOptions.DEFAULTS);
+		List<Integer> laidOut = null;
+		for (BankCategoryPreview categoryPreview : preview.getCategories())
+		{
+			List<Integer> ids = new ArrayList<>();
+			for (BankPreviewItem item : categoryPreview.getItems())
+			{
+				if (!item.isBlank())
+				{
+					ids.add(item.getItemId());
+				}
+			}
+			if (ids.contains(2347))
+			{
+				laidOut = ids;
+				break;
+			}
+		}
+
+		assertTrue("pickaxe must share the hammer's tab and precede it",
+			laidOut.contains(1265) && laidOut.indexOf(1265) < laidOut.indexOf(2347));
+		assertTrue("axe must share the hammer's tab and precede it",
+			laidOut.contains(1351) && laidOut.indexOf(1351) < laidOut.indexOf(2347));
+	}
+
 	@Test
 	public void sequentialLayoutNeverLosesAnItem()
 	{

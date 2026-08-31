@@ -19,8 +19,58 @@ public final class SemanticBlockLayoutEngine
 {
 	public LayoutResult plan(LayoutRequest request, List<Integer> stableFallbackItemIds)
 	{
-		return planDetailed(request, stableFallbackItemIds,
-			BoundedLayoutPacker.Limits.production()).getResult();
+		Objects.requireNonNull(request, "request");
+
+		// Reviewed geometries pin exact slots and still go through the bounded
+		// packer, whose search honours locks. Everything else follows the
+		// sorter's order, with families nudged off row edges rather than moved.
+		boolean anchored = false;
+		for (LayoutEntry entry : request.getEntries())
+		{
+			if (entry.hasLockedTarget())
+			{
+				anchored = true;
+				break;
+			}
+		}
+		// Curated two-dimensional geometry - vertical outfit columns, stage
+		// matrices, and matrices with a fixed or evidenced width such as the
+		// diary grid, gear set columns, and ore-above-bar - only the bounded
+		// packer can express. A matrix rule with free width and no evidence is
+		// really a bag of families, and follows the sorter's order like any
+		// one-dimensional run.
+		for (SemanticRule rule : request.getRules())
+		{
+			ShapePrimitive shape = rule.getShapePrimitive();
+			boolean widthShaped = rule.getAllowedWidths().size() < SemanticRule.MAX_WIDTH
+				|| rule.hasWidthEvidence() || rule.hasPreferredWidth();
+			if (shape == ShapePrimitive.VERTICAL_RUN || shape == ShapePrimitive.STAGE_MATRIX
+				|| (shape == ShapePrimitive.ROW_GROUP_MATRIX && widthShaped))
+			{
+				anchored = true;
+				break;
+			}
+		}
+		if (anchored)
+		{
+			return planDetailed(request, stableFallbackItemIds,
+				BoundedLayoutPacker.Limits.production()).getResult();
+		}
+
+		List<LayoutConflict> requestConflicts = LayoutRequestValidator.validate(request);
+		if (!requestConflicts.isEmpty())
+		{
+			return LayoutResult.conflict(requestConflicts);
+		}
+		List<Integer> fallback = validateFallbackOrder(request, stableFallbackItemIds);
+		if (fallback == null)
+		{
+			return LayoutResult.conflict(Collections.singletonList(new LayoutConflict(
+				LayoutConflict.Type.FALLBACK_ORDER_NOT_PERMUTATION,
+				LayoutConflict.NO_ITEM,
+				"stableFallbackItemIds must be an exact unique permutation of all request item IDs")));
+		}
+		return OrderPreservingPacker.pack(request, fallback);
 	}
 
 	static BoundedLayoutPacker.Outcome planDetailed(LayoutRequest request,

@@ -902,8 +902,13 @@ public class BankOrganizationPreviewBuilderTest
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
 
+	/**
+	 * The order-preserving packer never moves a family ahead of earlier items.
+	 * With no single item close behind the run to borrow, the run simply wraps
+	 * the row edge and the sorter's order survives untouched.
+	 */
 	@Test
-	public void supplyCategoryMovesCompleteDoseRunOffAPhysicalRowBoundary()
+	public void supplyCategoryKeepsOrderAndWrapsADoseRunWhenNoNudgeExists()
 	{
 		List<CatalogItem> catalogItems = Arrays.asList(
 			catalogItem(9739, "Renamed combat dose four", ItemCategory.POTION, "potion-dose-4"),
@@ -934,8 +939,7 @@ public class BankOrganizationPreviewBuilderTest
 		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
 		assertEquals(Arrays.asList(2434, 139, 141, 143), fallbackOrder.subList(6, 10));
 
-		List<Integer> expected = Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452, 2446,
-			2428, 9739, 385);
+		List<Integer> expected = fallbackOrder;
 		BankSnapshot snapshot = new BankSnapshot(snapshots);
 		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN,
 			BankPresets.PVM, BankPresets.PVP))
@@ -1680,5 +1684,53 @@ public class BankOrganizationPreviewBuilderTest
 			ids.add(item.getItemId());
 		}
 		return ids;
+	}
+
+	/**
+	 * With singles close behind the run, the packer borrows just enough of
+	 * them to finish the row, so the dose run starts the next row whole and
+	 * nothing else moves.
+	 */
+	@Test
+	public void supplyCategoryNudgesSinglesForwardToKeepADoseRunWhole()
+	{
+		List<CatalogItem> catalogItems = Arrays.asList(
+			catalogItem(9739, "Renamed combat dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(141, "Renamed prayer dose two", ItemCategory.POTION, "potion-dose-2"),
+			catalogItem(12905, "Renamed anti-venom dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2434, "Renamed prayer dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2452, "Renamed antifire dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(143, "Renamed prayer dose one", ItemCategory.POTION, "potion-dose-1"),
+			catalogItem(2428, "Renamed attack dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(385, "Renamed shark", ItemCategory.POTION, "food"),
+			catalogItem(12913, "Renamed anti-venom-plus dose four", ItemCategory.POTION,
+				"potion-dose-4"),
+			catalogItem(139, "Renamed prayer dose three", ItemCategory.POTION, "potion-dose-3"),
+			catalogItem(2446, "Renamed antipoison dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(3024, "Renamed super restore dose four", ItemCategory.POTION,
+				"potion-dose-4"));
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), index + 1,
+				17 + index * 61));
+		}
+		List<BankPreviewItem> fallbackInput = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			fallbackInput.add(new BankPreviewItem(catalogItems.get(index), index + 1));
+		}
+		List<Integer> fallbackOrder = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			2434, 139, 141, 143, 3024, 385);
+		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
+
+		// Two singles behind the run fill the two-column gap; the run then
+		// starts the second row whole.
+		List<Integer> expected = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			3024, 385, 2434, 139, 141, 143);
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
+		assertEquals(expected,
+			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));
 	}
 }
