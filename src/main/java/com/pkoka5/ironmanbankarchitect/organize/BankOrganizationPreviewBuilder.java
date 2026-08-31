@@ -485,9 +485,7 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return new BankCategoryPreview(category, semanticLayout(
-						sequential(BankCategorySortMode.MAIN)
-							? IronmanMainItemSorter.sortSequential(items)
-							: IronmanMainItemSorter.sort(items),
+						IronmanMainItemSorter.sort(items),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:

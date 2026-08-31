@@ -19,40 +19,42 @@ final class IronmanMainItemSorter
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
 	{
-		return sort(items, IronmanMainItemSorter::familyOrder);
-	}
-
-	/**
-	 * The same order, except charged jewellery families sort after plain names
-	 * inside a rank instead of alphabetically among them by their
-	 * {@code jewellery.} family key. Read linearly, that keeps a run of single
-	 * teleport tablets unbroken with the charge sets behind it; the packed
-	 * layout never notices, because its rectangles regroup families anyway.
-	 */
-	static List<BankPreviewItem> sortSequential(List<BankPreviewItem> items)
-	{
-		return sort(items, item -> chargedJewelleryMetadata(item)
-			.map(metadata -> "\uFFFF" + metadata.getFamilyKey())
-			.orElseGet(() -> normalized(item.getDisplayName())));
-	}
-
-	private static List<BankPreviewItem> sort(List<BankPreviewItem> items,
-		java.util.function.Function<BankPreviewItem, String> familyOrder)
-	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator.comparingInt(IronmanMainItemSorter::rank)
-			.thenComparing(familyOrder)
+			.thenComparing(IronmanMainItemSorter::familyOrder)
 			.thenComparingLong(item -> -(long) charge(item))
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
 	}
 
+	/**
+	 * Single items run by name; charged jewellery families follow as a group,
+	 * each family under its base name with charges descending. Positioning a
+	 * family by its internal {@code jewellery.} key put the whole group in the
+	 * middle of the teleport tablets (j falls between Falador and Lumberyard),
+	 * and positioning it by name does the same (so does g) — families after
+	 * singles is the only collation that keeps both runs whole.
+	 */
 	private static String familyOrder(BankPreviewItem item)
 	{
 		Optional<ItemSortMetadata> metadata = chargedJewelleryMetadata(item);
-		if (metadata.isPresent()) return metadata.get().getFamilyKey();
+		if (metadata.isPresent())
+		{
+			// The base name decides where the family sits; the key only breaks
+			// ties between families sharing one base name (standard vs imbued
+			// rings of wealth), so those stay separate runs instead of merging.
+			return "\uFFFF" + baseName(item) + "\u0000" + metadata.get().getFamilyKey();
+		}
 		return normalized(item.getDisplayName());
+	}
+
+	/** The display name without its charge suffix: "Amulet of glory(6)" -> "amulet of glory". */
+	private static String baseName(BankPreviewItem item)
+	{
+		String name = normalized(item.getDisplayName());
+		int open = name.lastIndexOf('(');
+		return open > 0 && name.endsWith(")") ? name.substring(0, open).trim() : name;
 	}
 
 	private static int charge(BankPreviewItem item)

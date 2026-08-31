@@ -28,15 +28,18 @@ Renames (labels only; config keys and enum constants unchanged):
 
 ### F2 — Family collation fix (no option)
 
-Charged families position by **display name**, not by their `jewellery.*` key,
-in every sorter that consults `ItemSortMetadata` family keys for ordering
-(`IronmanMainItemSorter` first; audit the other sorters for the same pattern).
-The key still *groups* the family and orders charges within it; it no longer
-decides where the family sits among its neighbours. This replaces the
-sequential-only `￿` prefix workaround from PR #17's branch.
+Within a rank, single items run by name and charged families follow **after**
+them as a group — positioning a family by its `jewellery.*` key wedged it into
+the tablets (j falls between Falador and Lumberyard), and positioning it by
+display name does the same (so does g). Families order among themselves by base
+display name ("Amulet of glory(6)" → "amulet of glory"), with the family key
+breaking ties so families sharing a base name (standard vs imbued rings of
+wealth) stay separate runs. Charges descend within a family, as before. One
+sort for both modes; the sequential-only workaround from PR #17's branch is
+deleted.
 
-Effect: tablets and the Ectophial run A→Z with glory/games/passage/dueling
-families following their own names — in both Packed and Sorted.
+Effect: tablets and the Ectophial run A→Z, then glory / games necklace /
+passage / dueling as whole families — in both Packed and Sorted.
 
 ### F3 — Order-preserving packing ("Packed" redefined)
 
