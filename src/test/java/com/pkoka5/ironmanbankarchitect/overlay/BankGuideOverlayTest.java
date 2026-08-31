@@ -317,6 +317,20 @@ public class BankGuideOverlayTest
 		assertTrue(tabMessage.contains("New tab"));
 	}
 
+	/**
+	 * A filler leaves a hole that the view-sync check and TabRouteAdvisor both reject, so the
+	 * player used to sit on SYNCING BANK forever with no idea what to do about it.
+	 */
+	@Test
+	public void bankFillersAreNamedWithTheirCountAndTheFixToApply()
+	{
+		String message = BankGuideOverlay.bankFillerMessage(12);
+
+		assertTrue(message.contains("12"));
+		assertTrue(message.contains("Deposit your fillers"));
+		assertFalse(message.contains("SYNCING BANK"));
+	}
+
 	@Test
 	public void transientBankSyncKeepsAVisibleNeutralHudAndProgress()
 	{
