@@ -112,8 +112,8 @@ suppressed. It returns during local sorting and completion.
   closes the open prefix cycle when a partial existing tab already owns that
   item, minimizing the later `n - cycles` swap count;
 - arbitrary target landing positions accepted by membership validation;
-- main sorted before physical buckets, with direct two-cycles first and a stable
-  remaining-swap estimate exposed to the guide; the estimate is exact for unique IDs;
+- main sorted before physical buckets, with direct two-cycles first; the guide
+  shows a swap estimate, which is exact when every item ID is unique;
 - all swaps remain inside one section;
 - empty main/physical categories, malformed counts, duplicates and gaps;
 - transition acknowledgement for distribution, recovery, create, collapse and

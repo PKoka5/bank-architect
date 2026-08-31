@@ -378,7 +378,7 @@ public class BankGuideOverlayTest
 			new int[]{20, 30, 10}, BankTabPlan.fromPreview(preview), new int[9]);
 
 		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.SWAP);
-		assertTrue(hud.contains("EST SWAPS 2"));
+		assertTrue(hud.contains("SWAPS LEFT ~2"));
 	}
 
 	@Test
@@ -390,9 +390,9 @@ public class BankGuideOverlayTest
 			RearrangeMode.INSERT);
 
 		String hud = BankGuideOverlay.tabHudText(assessment, true, RearrangeMode.INSERT);
-		assertTrue(hud.contains("MIN INSERTS 1"));
+		assertTrue(hud.contains("INSERTS LEFT 1"));
 		assertTrue(hud.contains("MOVE -> DROP"));
-		assertFalse(hud.contains("EST SWAPS"));
+		assertFalse(hud.contains("SWAPS LEFT"));
 	}
 
 	@Test

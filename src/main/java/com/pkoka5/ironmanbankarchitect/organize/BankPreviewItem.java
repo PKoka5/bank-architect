@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,7 +65,7 @@ public final class BankPreviewItem
 			: Collections.unmodifiableSet(new LinkedHashSet<>(tags));
 		this.placeholder = placeholder;
 		this.physicalSlotQuantities = Collections.unmodifiableList(
-			new java.util.ArrayList<>(Objects.requireNonNull(physicalSlotQuantities,
+			new ArrayList<>(Objects.requireNonNull(physicalSlotQuantities,
 				"physicalSlotQuantities")));
 		if (this.physicalSlotQuantities.isEmpty())
 		{
@@ -142,7 +143,7 @@ public final class BankPreviewItem
 		{
 			return Collections.singletonList(this);
 		}
-		List<BankPreviewItem> slots = new java.util.ArrayList<>(physicalSlotQuantities.size());
+		List<BankPreviewItem> slots = new ArrayList<>(physicalSlotQuantities.size());
 		for (int slotQuantity : physicalSlotQuantities)
 		{
 			slots.add(new BankPreviewItem(itemId, displayName, slotQuantity, itemCategory,

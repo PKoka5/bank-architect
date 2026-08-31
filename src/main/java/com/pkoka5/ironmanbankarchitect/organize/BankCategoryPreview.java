@@ -13,12 +13,19 @@ public final class BankCategoryPreview
 	public BankCategoryPreview(BankCategory category, List<BankPreviewItem> items)
 	{
 		this.category = Objects.requireNonNull(category, "category");
+		this.items = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(items, "items")));
+	}
+
+	/** Expands logically classified items into the physical bank slots they occupy. */
+	public static BankCategoryPreview fromLogicalItems(BankCategory category,
+		List<BankPreviewItem> logicalItems)
+	{
 		List<BankPreviewItem> physicalItems = new ArrayList<>();
-		for (BankPreviewItem item : Objects.requireNonNull(items, "items"))
+		for (BankPreviewItem item : Objects.requireNonNull(logicalItems, "logicalItems"))
 		{
 			physicalItems.addAll(Objects.requireNonNull(item, "item").physicalBankSlots());
 		}
-		this.items = Collections.unmodifiableList(physicalItems);
+		return new BankCategoryPreview(category, physicalItems);
 	}
 
 	public BankCategory getCategory()

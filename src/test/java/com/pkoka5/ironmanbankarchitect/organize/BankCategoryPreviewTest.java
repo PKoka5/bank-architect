@@ -36,13 +36,27 @@ public class BankCategoryPreviewTest
 	}
 
 	@Test
-	public void expandsMixedPlaceholderAndOwnedOccurrencesWithoutLosingEither()
+	public void constructorPreservesSuppliedItemsWithoutExpansion()
 	{
 		CatalogItem item = new CatalogItem(6687, "Saradomin brew(3)", ItemCategory.POTION,
 			"potion", Collections.emptySet(), null);
 		BankPreviewItem aggregate = new BankPreviewItem(item, 3, false, Arrays.asList(0, 3));
 
 		BankCategoryPreview preview = new BankCategoryPreview(
+			BankPresets.IRONMAN.getCategory("potions-food"), Collections.singletonList(aggregate));
+
+		assertEquals(1, preview.getItems().size());
+		assertEquals(aggregate, preview.getItems().get(0));
+	}
+
+	@Test
+	public void logicalFactoryExpandsMixedPlaceholderAndOwnedOccurrencesWithoutLosingEither()
+	{
+		CatalogItem item = new CatalogItem(6687, "Saradomin brew(3)", ItemCategory.POTION,
+			"potion", Collections.emptySet(), null);
+		BankPreviewItem aggregate = new BankPreviewItem(item, 3, false, Arrays.asList(0, 3));
+
+		BankCategoryPreview preview = BankCategoryPreview.fromLogicalItems(
 			BankPresets.IRONMAN.getCategory("potions-food"), Collections.singletonList(aggregate));
 
 		assertEquals(2, preview.getItems().size());

@@ -484,38 +484,38 @@ public final class BankOrganizationPreviewBuilder
 				switch (category.getSortMode())
 				{
 				case MAIN:
-					return new BankCategoryPreview(category, semanticLayout(
+					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						IronmanMainItemSorter.sort(items), MainQuickAccessSemanticRuleSet.forEntries(entries)));
 				case RESOURCES:
-					return new BankCategoryPreview(category, resourceLayout(items));
+					return BankCategoryPreview.fromLogicalItems(category, resourceLayout(items));
 				case TELEPORTS:
-					return new BankCategoryPreview(category, semanticLayout(
+					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						TeleportItemSorter.sort(items), RuneSemanticRuleSet.forEntries(entries)));
 				case SUPPLIES:
-					return new BankCategoryPreview(category, semanticLayout(
+					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						SupplyItemSorter.sort(items), PotionDoseSemanticRuleSet.forEntries(entries)));
 				case TOOLS:
-					return new BankCategoryPreview(category, semanticLayout(
+					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						ToolItemSorter.sort(items), ToolOutfitSemanticRuleSet.forEntries(entries)));
 				case CURRENCY:
-					return new BankCategoryPreview(category, semanticLayout(
+					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						CurrencyItemSorter.sort(items), AchievementDiarySemanticRuleSet.forEntries(entries)));
 				case FARMING:
-					return new BankCategoryPreview(category, FarmingItemSorter.layout(items, 0));
+					return BankCategoryPreview.fromLogicalItems(category, FarmingItemSorter.layout(items, 0));
 				case GEAR:
-					return new BankCategoryPreview(category, gearLayout(items, gearStats));
+					return BankCategoryPreview.fromLogicalItems(category, gearLayout(items, gearStats));
 				case CLUES:
-					return new BankCategoryPreview(category, semanticLayout(
+					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						PresetItemSorter.sort(category, items, gearStats),
 						CosmeticSetSemanticRuleSet.forEntries(entries)));
 				case HERBLORE:
 					// The only layout the plan can talk out of its default shape:
 					// see BankLayoutStyles for why moving the doses changes it.
-					return new BankCategoryPreview(category, herbloreRecipeRows
+					return BankCategoryPreview.fromLogicalItems(category, herbloreRecipeRows
 						? HerbloreItemSorter.layout(items, options.fillHerbloreRows())
 						: HerbloreItemSorter.layoutByKind(items));
 				default:
-					return new BankCategoryPreview(category,
+					return BankCategoryPreview.fromLogicalItems(category,
 						PresetItemSorter.sort(category, items, gearStats));
 			}
 		}
