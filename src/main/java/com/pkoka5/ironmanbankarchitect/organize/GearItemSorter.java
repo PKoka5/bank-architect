@@ -76,6 +76,33 @@ final class GearItemSorter
 		return remainingSorted(items, new LinkedHashSet<>(), gearStats);
 	}
 
+	/**
+	 * The dense order grouped by combat style: the melee kit reads as one block,
+	 * then ranged, magic, prayer, and finally unstyled gear. Within a block,
+	 * slot order then strongest first. This is the packed grid's style columns
+	 * read top to bottom, for layouts that run linearly instead of in rows.
+	 */
+	static List<BankPreviewItem> denseByStyle(List<BankPreviewItem> items, GearStatsSource gearStats,
+		boolean weaponFirst)
+	{
+		List<BankPreviewItem> sorted = new ArrayList<>(items);
+		sorted.sort(Comparator
+			.comparingInt((BankPreviewItem item) -> styleRankOf(item, gearStats))
+			.thenComparingInt(item -> weaponFirst
+				? weaponFirstSlotRank(item, gearStats) : slotRankOf(item, gearStats))
+			.thenComparingInt(item -> -scoreOf(item, gearStats))
+			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+		return sorted;
+	}
+
+	/** The weapon leads its style block: it is the item that names the kit. */
+	private static int weaponFirstSlotRank(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		int slot = slotRankOf(item, gearStats);
+		return slot >= 8 && slot <= 10 ? -1 : slot;
+	}
+
 	static GearLayout plan(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		Map<String, List<BankPreviewItem>> setCandidates = new LinkedHashMap<>();

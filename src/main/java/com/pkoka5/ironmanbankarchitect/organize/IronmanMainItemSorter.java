@@ -19,9 +19,29 @@ final class IronmanMainItemSorter
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
 	{
+		return sort(items, IronmanMainItemSorter::familyOrder);
+	}
+
+	/**
+	 * The same order, except charged jewellery families sort after plain names
+	 * inside a rank instead of alphabetically among them by their
+	 * {@code jewellery.} family key. Read linearly, that keeps a run of single
+	 * teleport tablets unbroken with the charge sets behind it; the packed
+	 * layout never notices, because its rectangles regroup families anyway.
+	 */
+	static List<BankPreviewItem> sortSequential(List<BankPreviewItem> items)
+	{
+		return sort(items, item -> chargedJewelleryMetadata(item)
+			.map(metadata -> "\uFFFF" + metadata.getFamilyKey())
+			.orElseGet(() -> normalized(item.getDisplayName())));
+	}
+
+	private static List<BankPreviewItem> sort(List<BankPreviewItem> items,
+		java.util.function.Function<BankPreviewItem, String> familyOrder)
+	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator.comparingInt(IronmanMainItemSorter::rank)
-			.thenComparing(IronmanMainItemSorter::familyOrder)
+			.thenComparing(familyOrder)
 			.thenComparingLong(item -> -(long) charge(item))
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
