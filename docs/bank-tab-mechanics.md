@@ -33,8 +33,10 @@ Sources checked in July 2026:
 Both modes are supported. They differ only in how a same-section reorder
 transforms the flat item container:
 
-- **Swap** exchanges the dragged item with the drop slot occupant. Sorting a
-  section of `n` items needs exactly `n - permutation cycles` drags.
+- **Swap** exchanges the dragged item with the drop slot occupant. Once equal-ID
+  copies are paired with target occurrences, sorting a section of `n` items
+  needs `n - permutation cycles` drags. Different valid pairings can produce
+  different counts, so the displayed swap count is an estimate when IDs repeat.
 - **Insert** removes the dragged item and reinserts it at the drop slot index,
   shifting every slot in between by one. Sorting needs exactly
   `n - longest increasing subsequence` drags.
@@ -96,8 +98,9 @@ Internal order does not matter during bucket construction.
 - Require vanilla All items and no active search/tag filter. Either rearrange
   mode is accepted; the sorting phase plans for whichever one is active.
 - Require exactly nine contiguous tab-count inputs.
-- Require dense, unique canonical bank IDs with no fillers or true gaps.
-- Require the live and planned item sets to match exactly.
+- Require dense physical bank entries with no fillers or true gaps. Repeated
+  canonical item IDs remain separate entries.
+- Require the live and planned item-ID multiplicities to match exactly.
 
 ### Phase 1 - recover mistakes, then repair structure
 
@@ -145,8 +148,8 @@ Internal order does not matter during bucket construction.
   each advised swap drags the anchor's occupant to that item's final slot, so
   the displaced item lands back on the anchor. The player keeps picking up
   from one unchanged slot until the cycle closes, then the anchor advances to
-  the next mismatched slot. This reaches the exact lower bound
-  `n - permutation cycles` without hopping between interleaved cycles.
+  the next mismatched slot. For the chosen equal-copy pairing, this uses
+  `n - permutation cycles` drags without hopping between interleaved cycles.
 
 ### Completion and termination
 
@@ -163,23 +166,25 @@ The route terminates because each action decreases a finite measure:
 
 ## Transition acknowledgement
 
-- Collapse: same unique item set; lower counts/content preserved; target and
-  higher counts become zero; main landing order ignored.
+- Collapse: same item-ID multiplicities; lower counts/content preserved;
+  target and higher counts become zero; main landing order ignored.
 - Create: earlier buckets preserved; new count is one; anchor is the new
   bucket's sole member; main loses only the anchor.
 - Distribution: target count rises by one; target membership gains only the
   advised item; other buckets are unchanged; main loses only that item.
 - Tab-to-tab recovery: source count falls by one, target count rises by one,
-  source loses only the item, target gains only it and all other sets remain.
+  source loses one occurrence, target gains one and all other multiplicities
+  remain.
 - Return-to-Main recovery: source count falls by one, source loses only the
-  item, Main gains only it and all other tab sets remain.
+  item, Main gains one occurrence and all other tab multiplicities remain.
 - Local swap: counts unchanged and the exact two advised slots exchange.
 
 If independently sampled varbits and container IDs briefly disagree, guidance
 shows no new action until the same unexpected snapshot remains stable across a
 later RuneLite game tick. A different
-manual action is reassessed only when exact item-set and tab-count deltas prove
-one non-destructive drag; a foreign item then becomes a local recovery step.
+manual action is reassessed only when exact item-multiplicity and tab-count
+deltas prove one non-destructive drag; a foreign item then becomes a local
+recovery step.
 An unexpected tab removal or state that would require structural collapse is
 paused as `MANUAL_RECOVERY_REQUIRED`.
 
@@ -201,7 +206,8 @@ Use disposable items and record pre/post IDs, section sets and counts:
 4. Perform one Swap inside main and one inside a physical tab; confirm counts
    stay unchanged and only the selected slots exchange.
 5. With at least two disposable items in the source tab, move one foreign item
-   to another existing tab and confirm exact source/target set and count deltas.
+   to another existing tab and confirm exact source/target multiplicity and
+   count deltas.
 6. With at least two disposable items in the source tab, drop one item on the
    infinity/All target and confirm it leaves that tab and joins Main while all
    other tabs remain unchanged.

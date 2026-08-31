@@ -77,9 +77,9 @@ final class ItemOccurrenceMatcher
 	}
 
 	/**
-	 * Matches the first current occurrence to the first target occurrence, and
-	 * so on. This preserves equal-copy order and gives insert mode the longest
-	 * subsequence that can stay in place.
+	 * Assigns equal-ID copies so that insert mode can keep a longest common
+	 * subsequence in place. Remaining copies are paired in order after those
+	 * optimal matches have been reserved.
 	 */
 	static int[] orderedTargetOffsets(int[] actualItemIds, int sectionStart,
 		List<BankPreviewItem> targetItems)
@@ -90,16 +90,69 @@ final class ItemOccurrenceMatcher
 			return null;
 		}
 
-		Map<Integer, ArrayDeque<Integer>> targetsByItemId = new HashMap<>();
-		for (int offset = 0; offset < size; offset++)
+		int[][] commonSuffixLengths = new int[size + 1][size + 1];
+		for (int current = size - 1; current >= 0; current--)
 		{
-			targetsByItemId.computeIfAbsent(targetItems.get(offset).getItemId(),
-				ignored -> new ArrayDeque<>()).addLast(offset);
+			for (int target = size - 1; target >= 0; target--)
+			{
+				if (actualItemIds[sectionStart + current] == targetItems.get(target).getItemId())
+				{
+					commonSuffixLengths[current][target] =
+						commonSuffixLengths[current + 1][target + 1] + 1;
+				}
+				else
+				{
+					commonSuffixLengths[current][target] = Math.max(
+						commonSuffixLengths[current + 1][target],
+						commonSuffixLengths[current][target + 1]);
+				}
+			}
 		}
 
 		int[] targetOffsets = new int[size];
+		boolean[] assignedCurrent = new boolean[size];
+		boolean[] assignedTarget = new boolean[size];
+		int current = 0;
+		int target = 0;
+		while (current < size && target < size)
+		{
+			if (actualItemIds[sectionStart + current] == targetItems.get(target).getItemId()
+				&& commonSuffixLengths[current][target]
+					== commonSuffixLengths[current + 1][target + 1] + 1)
+			{
+				targetOffsets[current] = target;
+				assignedCurrent[current] = true;
+				assignedTarget[target] = true;
+				current++;
+				target++;
+			}
+			else if (commonSuffixLengths[current + 1][target]
+				>= commonSuffixLengths[current][target + 1])
+			{
+				current++;
+			}
+			else
+			{
+				target++;
+			}
+		}
+
+		Map<Integer, ArrayDeque<Integer>> targetsByItemId = new HashMap<>();
 		for (int offset = 0; offset < size; offset++)
 		{
+			if (!assignedTarget[offset])
+			{
+				targetsByItemId.computeIfAbsent(targetItems.get(offset).getItemId(),
+					ignored -> new ArrayDeque<>()).addLast(offset);
+			}
+		}
+
+		for (int offset = 0; offset < size; offset++)
+		{
+			if (assignedCurrent[offset])
+			{
+				continue;
+			}
 			ArrayDeque<Integer> targets = targetsByItemId.get(actualItemIds[sectionStart + offset]);
 			if (targets == null || targets.isEmpty())
 			{

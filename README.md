@@ -244,8 +244,8 @@ The generated blueprint, with the Main section and the tabs your layout produced
 ![Bank blueprint dialog](docs/screenshots/bank-blueprint.png)
 
 The sorting phase inside a planned tab: green for slots already right, and one
-highlighted MOVE/DROP pair at a time with the exact progress remaining (in Swap
-mode the same grid highlights a FROM/TO swap instead):
+highlighted MOVE/DROP pair at a time with the remaining insert count (in Swap
+mode the same grid highlights a FROM/TO swap and an estimated count instead):
 
 ![Sorting guidance inside a planned tab](docs/screenshots/bank-guide-sorting.png)
 

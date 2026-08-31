@@ -40,6 +40,46 @@ public class SectionInsertPlannerTest
 	}
 
 	@Test
+	public void interleavedRepeatedCopiesNeedOnlyOneInsert()
+	{
+		int[] actual = {1, 2, 1, 2};
+		List<BankPreviewItem> target = items(2, 1, 2, 1);
+
+		assertEquals(1, SectionInsertPlanner.minimumRemainingInserts(actual, 0, target));
+		Step step = SectionInsertPlanner.nextStep(actual, 0, target);
+
+		assertNotNull(step);
+		assertArrayEquals(new int[]{2, 1, 2, 1},
+			SectionInsertPlanner.applyInsert(actual, step.getFromSlot(), step.getDropSlot()));
+	}
+
+	@Test
+	public void everyRepeatedPermutationTerminatesInTheMinimumNumberOfDrags()
+	{
+		List<BankPreviewItem> target = items(1, 1, 2, 2);
+		for (List<Integer> permutation : permutations(Arrays.asList(1, 1, 2, 2)))
+		{
+			int[] actual = toArray(permutation);
+			int expected = bruteForceMinimumInserts(actual, target);
+			assertEquals(expected,
+				SectionInsertPlanner.minimumRemainingInserts(actual, 0, target));
+
+			int drags = 0;
+			Step step;
+			while ((step = SectionInsertPlanner.nextStep(actual, 0, target)) != null)
+			{
+				actual = SectionInsertPlanner.applyInsert(actual, step.getFromSlot(),
+					step.getDropSlot());
+				drags++;
+				assertTrue("guidance must terminate", drags <= actual.length);
+			}
+
+			assertArrayEquals(new int[]{1, 1, 2, 2}, actual);
+			assertEquals(expected, drags);
+		}
+	}
+
+	@Test
 	public void singleMisplacedItemIsDroppedInFrontOfItsSuccessor()
 	{
 		// 3 sits in front of 1 and 2; dropping it on slot 2 shifts 1 and 2 left.
@@ -151,45 +191,37 @@ public class SectionInsertPlannerTest
 			SectionInsertPlanner.applyInsert(new int[]{1, 2, 3}, 1, 1));
 	}
 
-	/** Independent lower bound: section size minus the longest increasing run kept in place. */
+	/** Independent lower bound: section size minus the longest common subsequence. */
 	private static int bruteForceMinimumInserts(int[] actualItemIds, List<BankPreviewItem> target)
 	{
 		int size = actualItemIds.length;
 		int best = 0;
 		for (int mask = 0; mask < 1 << size; mask++)
 		{
-			int previous = -1;
+			int targetOffset = 0;
 			int kept = 0;
-			boolean increasing = true;
-			for (int position = 0; position < size && increasing; position++)
+			boolean common = true;
+			for (int position = 0; position < size && common; position++)
 			{
 				if ((mask & 1 << position) == 0)
 				{
 					continue;
 				}
-				int targetOffset = offsetOf(target, actualItemIds[position]);
-				increasing = targetOffset > previous;
-				previous = targetOffset;
+				while (targetOffset < target.size()
+					&& target.get(targetOffset).getItemId() != actualItemIds[position])
+				{
+					targetOffset++;
+				}
+				common = targetOffset < target.size();
+				targetOffset++;
 				kept++;
 			}
-			if (increasing && kept > best)
+			if (common && kept > best)
 			{
 				best = kept;
 			}
 		}
 		return size - best;
-	}
-
-	private static int offsetOf(List<BankPreviewItem> target, int itemId)
-	{
-		for (int offset = 0; offset < target.size(); offset++)
-		{
-			if (target.get(offset).getItemId() == itemId)
-			{
-				return offset;
-			}
-		}
-		throw new IllegalArgumentException("unknown item " + itemId);
 	}
 
 	private static List<BankPreviewItem> items(int... itemIds)
