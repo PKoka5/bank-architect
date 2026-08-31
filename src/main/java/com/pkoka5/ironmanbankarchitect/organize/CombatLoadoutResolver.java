@@ -19,10 +19,10 @@ final class CombatLoadoutResolver
 	static Relationships resolve(Map<Integer, BankPreviewItem> available,
 		GearStatsSource gearStats)
 	{
-		return resolve(new OwnedCombatGearIndex(new ArrayList<>(available.values()), gearStats));
+		return resolve(new CombatGearIndex(new ArrayList<>(available.values()), gearStats));
 	}
 
-	static Relationships resolve(OwnedCombatGearIndex gear)
+	static Relationships resolve(CombatGearIndex gear)
 	{
 		List<Loadout> loadouts = new ArrayList<>();
 		for (CombatGearFacts.LoadoutFact fact : CombatGearFacts.loadouts())
@@ -34,6 +34,11 @@ final class CombatLoadoutResolver
 			}
 		}
 
+		return new Relationships(loadouts, families(gear));
+	}
+
+	static List<Family> families(CombatGearIndex gear)
+	{
 		List<Family> families = new ArrayList<>();
 		for (CombatGearFacts.FamilyFact fact : CombatGearFacts.families())
 		{
@@ -43,11 +48,11 @@ final class CombatLoadoutResolver
 				families.add(family);
 			}
 		}
-		return new Relationships(loadouts, families);
+		return families;
 	}
 
 	private static Loadout loadout(CombatGearFacts.LoadoutFact fact,
-		OwnedCombatGearIndex gear)
+		CombatGearIndex gear)
 	{
 		List<BankPreviewItem> items = new ArrayList<>();
 		Map<Integer, Integer> orderByItemId = new LinkedHashMap<>();

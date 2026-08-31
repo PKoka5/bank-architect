@@ -183,6 +183,9 @@ item slot; it is not the same thing as a Bank Filler.
 The planner aligns a group of combat loadouts only when owned items can fill every slot. Otherwise it
 uses the same order without empty spaces.
 
+Existing bank placeholders count as real layout slots. They can keep an inactive equipment family
+together and help preserve aligned rows, but they do not activate set effects or add combat priority.
+
 ## FOOD_001 — ID-based food roles and direct healing
 
 Known food is classified and sorted from a local, pinned OSRS Wiki fact table keyed by canonical

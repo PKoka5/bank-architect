@@ -48,23 +48,34 @@ final class GearItemSorter
 		boolean fillLoadoutRows)
 	{
 		List<BankPreviewItem> ready = new ArrayList<>();
+		List<BankPreviewItem> placeholders = new ArrayList<>();
 		List<BankPreviewItem> maintenance = new ArrayList<>();
 		for (BankPreviewItem item : items)
 		{
-			(item.isPlaceholder() || CombatGearRanking.unusable(item) ? maintenance : ready).add(item);
+			if (item.isPlaceholder() && !CombatGearRanking.unusable(item))
+			{
+				placeholders.add(item);
+			}
+			else
+			{
+				(CombatGearRanking.unusable(item) ? maintenance : ready).add(item);
+			}
 		}
 
-		OwnedCombatGearIndex gear = new OwnedCombatGearIndex(ready, gearStats);
+		CombatGearIndex ownedGear = new CombatGearIndex(ready, gearStats);
+		List<BankPreviewItem> layoutItems = new ArrayList<>(ready);
+		layoutItems.addAll(placeholders);
+		CombatGearIndex layoutGear = new CombatGearIndex(layoutItems, gearStats);
 		CombatLoadoutResolver.Relationships relationships =
-			CombatLoadoutResolver.resolve(gear);
+			CombatLoadoutResolver.resolve(ownedGear);
 		List<CombatLoadoutResolver.Loadout> candidates =
 			new ArrayList<>(relationships.loadouts());
 		List<CombatLoadoutResolver.Family> families =
-			new ArrayList<>(relationships.families());
+			new ArrayList<>(CombatLoadoutResolver.families(layoutGear));
 		families.sort(Comparator
 			.comparingInt(CombatLoadoutResolver.Family::matchedRoles).reversed()
 			.thenComparing(Comparator.comparingInt(
-				(CombatLoadoutResolver.Family family) -> familyStrength(family, gear)).reversed())
+				(CombatLoadoutResolver.Family family) -> familyStrength(family, layoutGear)).reversed())
 			.thenComparing(CombatLoadoutResolver.Family::key));
 		Set<Integer> familyItemIds = new LinkedHashSet<>();
 		for (CombatLoadoutResolver.Family family : families)
@@ -79,7 +90,7 @@ final class GearItemSorter
 		}
 		candidates.sort(Comparator
 			.comparingInt((CombatLoadoutResolver.Loadout loadout) ->
-				-loadoutValue(loadout, gear, candidateItemIds))
+				-loadoutValue(loadout, ownedGear, candidateItemIds))
 			.thenComparing(CombatLoadoutResolver.Loadout::key));
 
 		List<CombatLoadoutResolver.Loadout> exactLoadouts = new ArrayList<>();
@@ -102,7 +113,7 @@ final class GearItemSorter
 		Set<Integer> reservedFamilyItemIds = new LinkedHashSet<>(exactItemIds);
 		reservedFamilyItemIds.addAll(familyItemIds);
 		Set<Integer> protectedGenericCoreItemIds = primaryGenericCoreItemIds(
-			gear, reservedFamilyItemIds);
+			ownedGear, reservedFamilyItemIds);
 		Set<Integer> complementExclusions = new LinkedHashSet<>(exactItemIds);
 		complementExclusions.addAll(familyItemIds);
 		complementExclusions.addAll(protectedGenericCoreItemIds);
@@ -142,13 +153,13 @@ final class GearItemSorter
 
 			int complementCount = fillLoadoutRows ? GRID_COLUMNS - emittedCells : 0;
 			List<BankPreviewItem> complements = complementaryGear(ready, loadout.style(),
-				complementCount, usedItemIds, complementExclusions, gear);
+				complementCount, usedItemIds, complementExclusions, ownedGear);
 			for (BankPreviewItem complement : complements)
 			{
 				usedItemIds.add(complement.getItemId());
 				blockItems.add(complement);
 			}
-			loadoutBlocks.add(new CombatGearGridLayout.Block(loadout.key(), loadout.style(), blockItems, gear,
+			loadoutBlocks.add(new CombatGearGridLayout.Block(loadout.key(), loadout.style(), blockItems, layoutGear,
 				loadout.itemIds(), CombatGearUtilityCatalog.INSTANCE.loadoutScore(loadout.key())));
 		}
 
@@ -169,7 +180,7 @@ final class GearItemSorter
 			if (family.roleCount(familyItems) >= family.minimumRoles())
 			{
 				loadoutBlocks.add(new CombatGearGridLayout.Block(
-					"family-" + family.key(), family.style(), familyItems, gear));
+					"family-" + family.key(), family.style(), familyItems, layoutGear));
 			}
 			else
 			{
@@ -186,47 +197,47 @@ final class GearItemSorter
 		for (GearStyle style : CombatGearRanking.LOADOUT_STYLES)
 		{
 			List<BankPreviewItem> utilityItems = remainingUtilityItems(
-				gear, style, usedItemIds);
+				ownedGear, style, usedItemIds);
 			int sequence = 0;
 			while (!utilityItems.isEmpty())
 			{
-				List<BankPreviewItem> row = practicalLoadout(utilityItems, gear);
+				List<BankPreviewItem> row = practicalLoadout(utilityItems, ownedGear);
 				for (BankPreviewItem item : row)
 				{
 					usedItemIds.add(item.getItemId());
 					utilityItems.remove(item);
 				}
 				loadoutBlocks.add(new CombatGearGridLayout.Block(
-					"utility-" + style + "-" + sequence++, style, row, gear));
+					"utility-" + style + "-" + sequence++, style, row, layoutGear));
 			}
 		}
 
 		for (GearStyle style : CombatGearRanking.LOADOUT_STYLES)
 		{
-			List<BankPreviewItem> styleItems = remainingStyleItems(gear, style, usedItemIds);
+			List<BankPreviewItem> styleItems = remainingStyleItems(ownedGear, style, usedItemIds);
 			int sequence = 0;
 			while (!styleItems.isEmpty())
 			{
-				List<BankPreviewItem> row = practicalLoadout(styleItems, gear);
+				List<BankPreviewItem> row = practicalLoadout(styleItems, ownedGear);
 				for (BankPreviewItem item : row)
 				{
 					usedItemIds.add(item.getItemId());
 					styleItems.remove(item);
 				}
 				loadoutBlocks.add(new CombatGearGridLayout.Block(
-					"generic-" + style + "-" + sequence++, style, row, gear));
+					"generic-" + style + "-" + sequence++, style, row, layoutGear));
 			}
 		}
 
 		for (BankPreviewItem item : ready)
 		{
 			if (!usedItemIds.contains(item.getItemId())
-				&& gear.slot(item) != 10
-				&& gear.utilityScore(item) < 0)
+				&& ownedGear.slot(item) != 10
+				&& ownedGear.utilityScore(item) < 0)
 			{
 				usedItemIds.add(item.getItemId());
 				loadoutBlocks.add(new CombatGearGridLayout.Block("situational-" + item.getItemId(),
-					gear.style(item), Collections.singletonList(item), gear));
+					ownedGear.style(item), Collections.singletonList(item), layoutGear));
 			}
 		}
 
@@ -235,12 +246,12 @@ final class GearItemSorter
 			.thenComparing(CombatGearGridLayout.Block::style)
 			.thenComparing(CombatGearGridLayout.Block::key));
 		List<BankPreviewItem> planned = new ArrayList<>();
-		planned.addAll(CombatGearGridLayout.layout(loadoutBlocks, gear, fillLoadoutRows));
+		planned.addAll(CombatGearGridLayout.layout(loadoutBlocks, layoutGear, fillLoadoutRows));
 
 		List<BankPreviewItem> ammunition = new ArrayList<>();
 		for (BankPreviewItem item : ready)
 		{
-			if (!usedItemIds.contains(item.getItemId()) && gear.slot(item) == 10)
+			if (!usedItemIds.contains(item.getItemId()) && ownedGear.slot(item) == 10)
 			{
 				ammunition.add(item);
 			}
@@ -248,10 +259,17 @@ final class GearItemSorter
 		ammunition.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> CombatGearRanking.ammunitionFamily(item))
 			.thenComparingInt(CombatGearRanking::ammunitionTier)
-			.thenComparing((BankPreviewItem item) -> -gear.score(item))
+			.thenComparing((BankPreviewItem item) -> -ownedGear.score(item))
 			.thenComparing(item -> CombatGearRanking.normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		planned.addAll(ammunition);
+		for (BankPreviewItem placeholder : placeholders)
+		{
+			if (!usedItemIds.contains(placeholder.getItemId()))
+			{
+				maintenance.add(placeholder);
+			}
+		}
 
 		maintenance.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> CombatGearRanking.slot(item, gearStats))
@@ -263,7 +281,7 @@ final class GearItemSorter
 
 	private static List<BankPreviewItem> complementaryGear(List<BankPreviewItem> items, GearStyle style,
 		int cellBudget, Set<Integer> usedItemIds, Set<Integer> excludedItemIds,
-		OwnedCombatGearIndex gear)
+		CombatGearIndex gear)
 	{
 		if (cellBudget <= 0 || style == GearStyle.OTHER)
 		{
@@ -301,7 +319,7 @@ final class GearItemSorter
 		return selected;
 	}
 
-	private static Set<Integer> primaryGenericCoreItemIds(OwnedCombatGearIndex gear,
+	private static Set<Integer> primaryGenericCoreItemIds(CombatGearIndex gear,
 		Set<Integer> exactItemIds)
 	{
 		Set<Integer> protectedIds = new LinkedHashSet<>();
@@ -332,7 +350,7 @@ final class GearItemSorter
 		return protectedIds;
 	}
 
-	private static List<BankPreviewItem> remainingStyleItems(OwnedCombatGearIndex gear, GearStyle style,
+	private static List<BankPreviewItem> remainingStyleItems(CombatGearIndex gear, GearStyle style,
 		Set<Integer> usedItemIds)
 	{
 		List<BankPreviewItem> result = new ArrayList<>();
@@ -349,7 +367,7 @@ final class GearItemSorter
 		return result;
 	}
 
-	private static List<BankPreviewItem> remainingUtilityItems(OwnedCombatGearIndex gear, GearStyle style,
+	private static List<BankPreviewItem> remainingUtilityItems(CombatGearIndex gear, GearStyle style,
 		Set<Integer> usedItemIds)
 	{
 		List<BankPreviewItem> result = new ArrayList<>();
@@ -367,7 +385,7 @@ final class GearItemSorter
 	}
 
 	private static List<BankPreviewItem> practicalLoadout(List<BankPreviewItem> candidates,
-		OwnedCombatGearIndex gear)
+		CombatGearIndex gear)
 	{
 		List<BankPreviewItem> sorted = new ArrayList<>(candidates);
 		sorted.sort(Comparator
@@ -423,7 +441,7 @@ final class GearItemSorter
 	}
 
 	private static int loadoutValue(CombatLoadoutResolver.Loadout loadout,
-		OwnedCombatGearIndex gear, Set<Integer> candidateItemIds)
+		CombatGearIndex gear, Set<Integer> candidateItemIds)
 	{
 		int total = 0;
 		int count = 0;
@@ -456,7 +474,7 @@ final class GearItemSorter
 	}
 
 	private static int familyStrength(CombatLoadoutResolver.Family family,
-		OwnedCombatGearIndex gear)
+		CombatGearIndex gear)
 	{
 		int total = 0;
 		int peak = 0;

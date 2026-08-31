@@ -17,14 +17,14 @@ final class CombatGearGridLayout
 	{
 	}
 
-	static List<BankPreviewItem> layout(List<Block> blocks, OwnedCombatGearIndex gear,
+	static List<BankPreviewItem> layout(List<Block> blocks, CombatGearIndex gear,
 		boolean alignLoadouts)
 	{
 		return alignLoadouts ? alignedItems(blocks, gear) : denseItems(blocks);
 	}
 
 	private static List<BankPreviewItem> alignedItems(List<Block> blocks,
-		OwnedCombatGearIndex gear)
+		CombatGearIndex gear)
 	{
 		List<BankPreviewItem> result = new ArrayList<>();
 		int start = 0;
@@ -93,7 +93,7 @@ final class CombatGearGridLayout
 	}
 
 	private static List<BankPreviewItem> alignedBatch(List<Block> blocks,
-		OwnedCombatGearIndex gear)
+		CombatGearIndex gear)
 	{
 		List<BankPreviewItem> allItems = new ArrayList<>();
 		Set<Integer> coreItemIds = new LinkedHashSet<>();
@@ -196,10 +196,8 @@ final class CombatGearGridLayout
 		}
 
 		List<BankPreviewItem> ordered = new ArrayList<>(candidates);
-		ordered.sort(Comparator
-			.comparingInt((BankPreviewItem item) -> preferredItemIds.contains(item.getItemId()) ? 0 : 1)
-			.thenComparingInt(BankPreviewItem::physicalBankSlotCount)
-			.thenComparingInt(BankPreviewItem::getItemId));
+		ordered.sort(Comparator.comparingInt(
+			(BankPreviewItem item) -> preferredItemIds.contains(item.getItemId()) ? 0 : 1));
 		List<List<BankPreviewItem>> byCells = new ArrayList<>(requiredCells + 1);
 		for (int cells = 0; cells <= requiredCells; cells++)
 		{
@@ -239,12 +237,12 @@ final class CombatGearGridLayout
 		private final List<BankPreviewItem> items;
 		private final int strength;
 
-		Block(String key, GearStyle style, List<BankPreviewItem> items, OwnedCombatGearIndex gear)
+		Block(String key, GearStyle style, List<BankPreviewItem> items, CombatGearIndex gear)
 		{
 			this(key, style, items, gear, Collections.emptySet(), 0);
 		}
 
-		Block(String key, GearStyle style, List<BankPreviewItem> items, OwnedCombatGearIndex gear,
+		Block(String key, GearStyle style, List<BankPreviewItem> items, CombatGearIndex gear,
 			Set<Integer> activeItemIds, int loadoutUtility)
 		{
 			this.key = key;
@@ -278,7 +276,7 @@ final class CombatGearGridLayout
 			return key;
 		}
 
-		private boolean isArmourColumn(OwnedCombatGearIndex gear)
+		private boolean isArmourColumn(CombatGearIndex gear)
 		{
 			int armourSlots = 0;
 			for (int slot = 0; slot <= 2; slot++)
@@ -291,7 +289,7 @@ final class CombatGearGridLayout
 			return armourSlots >= 2;
 		}
 
-		private int coreBandWidth(OwnedCombatGearIndex gear)
+		private int coreBandWidth(CombatGearIndex gear)
 		{
 			int width = 1;
 			for (int slot : ALIGNED_CORE_SLOTS)
@@ -305,7 +303,7 @@ final class CombatGearGridLayout
 			return width;
 		}
 
-		private BankPreviewItem coreItem(int slot, OwnedCombatGearIndex gear)
+		private BankPreviewItem coreItem(int slot, CombatGearIndex gear)
 		{
 			for (BankPreviewItem item : items)
 			{

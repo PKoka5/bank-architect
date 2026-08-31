@@ -7,26 +7,29 @@ import java.util.List;
 import java.util.Map;
 
 /** Immutable item lookup and ranking facts for one combat-layout planning pass. */
-final class OwnedCombatGearIndex
+final class CombatGearIndex
 {
 	private final List<BankPreviewItem> items;
 	private final Map<Integer, BankPreviewItem> itemById;
 	private final Map<Integer, ItemFacts> factsByItemId;
 
-	OwnedCombatGearIndex(List<BankPreviewItem> items, GearStatsSource gearStats)
+	CombatGearIndex(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		List<BankPreviewItem> ownedItems = new ArrayList<>(items);
 		Map<Integer, BankPreviewItem> byId = new LinkedHashMap<>();
 		Map<Integer, ItemFacts> facts = new LinkedHashMap<>();
 		for (BankPreviewItem item : ownedItems)
 		{
+			int score = item.isPlaceholder() ? 0 : CombatGearRanking.score(item, gearStats);
+			int activeScore = item.isPlaceholder()
+				? 0 : CombatGearRanking.score(item, gearStats, true);
+			int utilityScore = item.isPlaceholder()
+				? 0 : CombatGearUtilityCatalog.INSTANCE.itemScore(item.getItemId());
 			byId.put(item.getItemId(), item);
 			facts.put(item.getItemId(), new ItemFacts(
 				CombatGearRanking.style(item, gearStats),
 				CombatGearRanking.slot(item, gearStats),
-				CombatGearRanking.score(item, gearStats),
-				CombatGearRanking.score(item, gearStats, true),
-				CombatGearUtilityCatalog.INSTANCE.itemScore(item.getItemId())));
+				score, activeScore, utilityScore));
 		}
 		this.items = Collections.unmodifiableList(ownedItems);
 		this.itemById = Collections.unmodifiableMap(byId);

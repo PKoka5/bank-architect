@@ -95,8 +95,9 @@ when the full Karil set is active.
 
 ## Guarantees and tests
 
-- Only owned items appear in the blueprint. The planner never adds blank cells.
-- Repeated physical entries and real placeholders remain separate bank slots.
+- Only entries already in the bank appear in the blueprint. The planner never adds blank cells.
+- Repeated physical entries and real placeholders remain separate bank slots. Placeholders can keep
+  an inactive family together and fill an aligned row, but they never activate a set or add score.
 - Shared pieces, such as the Void torso, can appear in only one resolved loadout.
 - Ammunition stays together at the end, ordered by family and tier.
 - Tests cover early and late gear, Crystal variants, all Void styles, Moon and Barrows sets,

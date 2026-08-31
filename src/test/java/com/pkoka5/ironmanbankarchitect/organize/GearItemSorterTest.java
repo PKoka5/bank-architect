@@ -308,6 +308,88 @@ public class GearItemSorterTest
 	}
 
 	@Test
+	public void alignsCrystalVerticallyWhenCombatLoadoutsFillTheRows()
+	{
+		List<BankPreviewItem> crystal = Arrays.asList(
+			item(23971, "Crystal helm"), item(23975, "Crystal body"),
+			item(23979, "Crystal legs"), item(25865, "Bow of faerdhinen"));
+		List<BankPreviewItem> accessories = new ArrayList<>();
+		List<BankPreviewItem> allItems = new ArrayList<>(crystal);
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		for (BankPreviewItem crystalItem : crystal)
+		{
+			stats.put(crystalItem.getItemId(), combatStats(crystalItem.getItemId()).get());
+		}
+		int[] accessoryIds = {27374, 11773, 19710, 29591};
+		String[] accessoryNames = {
+			"Masori assembler", "Berserker ring (i)",
+			"Ring of suffering (i)", "Scorching bow"
+		};
+		GearSlot[] accessorySlots = {
+			GearSlot.CAPE, GearSlot.RING, GearSlot.RING, GearSlot.WEAPON
+		};
+		for (int index = 0; index < accessorySlots.length; index++)
+		{
+			int itemId = accessoryIds[index];
+			BankPreviewItem accessory = item(itemId, accessoryNames[index]);
+			accessories.add(accessory);
+			allItems.add(accessory);
+			stats.put(itemId, rangedStats(accessorySlots[index], 20));
+		}
+
+		List<CombatGearGridLayout.Block> blocks = new ArrayList<>();
+		CombatGearIndex gear;
+		List<List<BankPreviewItem>> genericLoadouts = new ArrayList<>();
+		GearSlot[] slots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.WEAPON,
+			GearSlot.CAPE, GearSlot.NECK, GearSlot.HANDS, GearSlot.FEET};
+		for (int loadout = 0; loadout < 3; loadout++)
+		{
+			List<BankPreviewItem> items = new ArrayList<>();
+			for (int slot = 0; slot < slots.length; slot++)
+			{
+				int itemId = 70100 + loadout * 10 + slot;
+				String name = "Ranged loadout " + loadout + " item " + slot;
+				if (loadout == 0 && slot >= 4)
+				{
+					int[] replacedIds = {10499, 2412, 2413, 2414};
+					String[] replacedNames = {
+						"Ava's accumulator", "Saradomin cape", "Guthix cape", "Zamorak cape"
+					};
+					itemId = replacedIds[slot - 4];
+					name = replacedNames[slot - 4];
+				}
+				BankPreviewItem item = item(itemId, name);
+				items.add(item);
+				allItems.add(item);
+				stats.put(itemId, rangedStats(slots[slot], 10 - loadout));
+			}
+			genericLoadouts.add(items);
+		}
+		gear = new CombatGearIndex(allItems,
+			itemId -> Optional.ofNullable(stats.get(itemId)));
+		List<BankPreviewItem> crystalLoadout = new ArrayList<>(crystal);
+		crystalLoadout.addAll(accessories);
+		blocks.add(new CombatGearGridLayout.Block(
+			"crystal", GearStyle.RANGED, crystalLoadout, gear));
+		for (int index = 0; index < genericLoadouts.size(); index++)
+		{
+			blocks.add(new CombatGearGridLayout.Block(
+				"generic-" + index, GearStyle.RANGED, genericLoadouts.get(index), gear));
+		}
+
+		List<BankPreviewItem> laidOut = CombatGearGridLayout.layout(blocks, gear, true);
+
+		assertEquals("Crystal helm", laidOut.get(0).getDisplayName());
+		assertEquals(accessoryNames[0], laidOut.get(4).getDisplayName());
+		assertEquals(accessoryNames[1], laidOut.get(5).getDisplayName());
+		assertEquals(accessoryNames[2], laidOut.get(6).getDisplayName());
+		assertEquals(accessoryNames[3], laidOut.get(7).getDisplayName());
+		assertEquals("Crystal body", laidOut.get(8).getDisplayName());
+		assertEquals("Crystal legs", laidOut.get(16).getDisplayName());
+		assertEquals("Bow of faerdhinen", laidOut.get(24).getDisplayName());
+	}
+
+	@Test
 	public void choosesTheVoidHelmThatMatchesTheStrongestOwnedStyle()
 	{
 		List<BankPreviewItem> input = Arrays.asList(
@@ -671,17 +753,47 @@ public class GearItemSorterTest
 	@Test
 	public void placeholdersCannotCompleteMechanicLoadouts()
 	{
-		List<BankPreviewItem> laidOut = GearItemSorter.layout(Arrays.asList(
+		List<BankPreviewItem> input = Arrays.asList(
 			item(25865, "Bow of faerdhinen"),
 			placeholder(23971, "Crystal helm"),
 			item(23975, "Crystal body"),
 			item(23979, "Crystal legs"),
 			item(1163, "Rune full helm")
-		), GearItemSorterTest::combatStats);
+		);
+		List<BankPreviewItem> owned = input.stream()
+			.filter(item -> !item.isPlaceholder())
+			.collect(Collectors.toList());
+		CombatLoadoutResolver.Relationships relationships = CombatLoadoutResolver.resolve(
+			new CombatGearIndex(owned, GearItemSorterTest::combatStats));
+		List<BankPreviewItem> laidOut = GearItemSorter.layout(
+			input, GearItemSorterTest::combatStats);
 
-		assertFalse(names(laidOut.subList(0, 4)).equals(Arrays.asList(
-			"Bow of faerdhinen", "Crystal helm", "Crystal body", "Crystal legs")));
-		assertEquals("Crystal helm", laidOut.get(laidOut.size() - 1).getDisplayName());
+		assertFalse(relationships.loadouts().stream()
+			.anyMatch(loadout -> "crystal-bowfa".equals(loadout.key())));
+		assertContiguousIds(laidOut, Arrays.asList(23971, 23975, 23979, 25865));
+	}
+
+	@Test
+	public void placeholdersKeepAnInactiveBarrowsFamilyTogetherWithoutRaisingItsPriority()
+	{
+		List<BankPreviewItem> laidOut = GearItemSorter.layout(Arrays.asList(
+			item(25865, "Bow of faerdhinen"),
+			item(23971, "Crystal helm"),
+			item(23975, "Crystal body"),
+			item(23979, "Crystal legs"),
+			item(27374, "Masori assembler"),
+			item(4716, "Dharok's helm"),
+			placeholder(4718, "Dharok's greataxe"),
+			placeholder(4720, "Dharok's platebody"),
+			placeholder(4722, "Dharok's platelegs"),
+			item(24271, "Neitiznot faceguard"),
+			item(10551, "Fighter torso"),
+			item(4151, "Abyssal whip"),
+			item(6570, "Fire cape")
+		), GearItemSorterTest::combatStats, false);
+
+		assertEquals("Crystal helm", laidOut.get(0).getDisplayName());
+		assertContiguousIds(laidOut, Arrays.asList(4716, 4720, 4722, 4718));
 	}
 
 	@Test
