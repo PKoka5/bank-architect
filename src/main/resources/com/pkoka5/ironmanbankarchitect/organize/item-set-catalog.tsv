@@ -210,6 +210,10 @@ gear	gear.crystal	Crystal	7	23979
 gear	gear.dagon-hai	Dagon'hai	0	24288
 gear	gear.dagon-hai	Dagon'hai	5	24291
 gear	gear.dagon-hai	Dagon'hai	7	24294
+gear	gear.dharok-s	Dharok's	0	4716
+gear	gear.dharok-s	Dharok's	4	4718
+gear	gear.dharok-s	Dharok's	5	4720
+gear	gear.dharok-s	Dharok's	7	4722
 gear	gear.dragon-armour	Dragon Armour	0	11335
 gear	gear.dragon-armour	Dragon Armour	5	21892
 gear	gear.dragon-armour	Dragon Armour	6	21895
@@ -228,6 +232,10 @@ gear	gear.ghostly-robes	Ghostly Robes	5	6107
 gear	gear.ghostly-robes	Ghostly Robes	7	6108
 gear	gear.ghostly-robes	Ghostly Robes	8	6110
 gear	gear.ghostly-robes	Ghostly Robes	9	6106
+gear	gear.guthan-s	Guthan's	0	4724
+gear	gear.guthan-s	Guthan's	4	4726
+gear	gear.guthan-s	Guthan's	5	4728
+gear	gear.guthan-s	Guthan's	7	4730
 gear	gear.initiate	Initiate	0	5574
 gear	gear.initiate	Initiate	5	5575
 gear	gear.initiate	Initiate	7	5576
@@ -242,6 +250,10 @@ gear	gear.iron-armour	Iron Armour	7	1081
 gear	gear.justiciar	Justiciar	0	22326
 gear	gear.justiciar	Justiciar	5	22327
 gear	gear.justiciar	Justiciar	7	22328
+gear	gear.karil-s	Karil's	0	4732
+gear	gear.karil-s	Karil's	4	4734
+gear	gear.karil-s	Karil's	5	4736
+gear	gear.karil-s	Karil's	7	4738
 gear	gear.lunar-equipment	Lunar Equipment	0	9096
 gear	gear.lunar-equipment	Lunar Equipment	1	9101
 gear	gear.lunar-equipment	Lunar Equipment	2	9102
@@ -281,9 +293,17 @@ gear	gear.steel-armour	Steel Armour	5	1119
 gear	gear.steel-armour	Steel Armour	6	1193
 gear	gear.steel-armour	Steel Armour	7	1069
 gear	gear.steel-armour	Steel Armour	7	1083
+gear	gear.torag-s	Torag's	0	4745
+gear	gear.torag-s	Torag's	4	4747
+gear	gear.torag-s	Torag's	5	4749
+gear	gear.torag-s	Torag's	7	4751
 gear	gear.torva	Torva	0	26382
 gear	gear.torva	Torva	5	26384
 gear	gear.torva	Torva	7	26386
+gear	gear.verac-s	Verac's	0	4753
+gear	gear.verac-s	Verac's	4	4755
+gear	gear.verac-s	Verac's	5	4757
+gear	gear.verac-s	Verac's	7	4759
 gear	gear.virtus	Virtus	0	26241
 gear	gear.virtus	Virtus	5	26243
 gear	gear.virtus	Virtus	7	26245

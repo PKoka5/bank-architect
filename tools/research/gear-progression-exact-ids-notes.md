@@ -2,7 +2,7 @@
 
 Research date: 2026-07-17. This is offline/development research for Bank Architect; it is not runtime plugin data and makes no production classification change.
 
-The merged TSV contains 338 rows and 307 unique canonical item IDs: 81 melee rows, 112 ranged rows, 80 magic rows, 5 dedicated hybrid-utility rows, 15 prayer rows, and 45 tool-state rows. The 107 Gemini concepts expand to 136 exact item-state targets because generic families such as blessed dragonhide, god capes, imbued rings, and charged/uncharged equipment have multiple canonical IDs.
+The merged TSV contains 356 rows and 325 unique canonical item IDs: 93 melee rows, 115 ranged rows, 83 magic rows, 5 dedicated hybrid-utility rows, 15 prayer rows, and 45 tool-state rows. The 107 Gemini concepts expand to 136 exact item-state targets because generic families such as blessed dragonhide, god capes, imbued rings, and charged/uncharged equipment have multiple canonical IDs.
 
 ## Schema and stage model
 
@@ -33,7 +33,7 @@ All pre-merge stages 1-4 were shifted to 2-5 without changing their original mea
 - The no-duplicate rule is applied to the practical key `style + itemId + stage`. Cross-style reuse already existed in the research model (for example, Amulet of glory) and remains intentional.
 - Gemini placed Barrows gloves under Hybrid/Utility while the primary report already had the same exact item at Mid melee. To avoid duplicating the same item/stage, the existing Mid row remains under melee and is marked `source=beide`. The dedicated `hybrid-utility` rows are Brimstone ring, Slayer helmet (i), Lightbearer, Rada's blessing 4, and Elysian spirit shield; all six Gemini Hybrid/Utility concepts are nevertheless represented.
 
-Current source counts are: 170 `rapport`, 32 `aangevuld`, 104 `beide`, and 32 `gemini-namenlijst` rows. The 15 Prayer-progression rows were explicitly requested in the follow-up prompt and therefore use `source=rapport`.
+Current source counts are: 170 `rapport`, 50 `aangevuld`, 104 `beide`, and 32 `gemini-namenlijst` rows. The 15 Prayer-progression rows were explicitly requested in the follow-up prompt and therefore use `source=rapport`.
 
 Useful aggregate progression sources: [Melee armour](https://oldschool.runescape.wiki/w/Armour%2FMelee_armour), [Ranged armour](https://oldschool.runescape.wiki/w/Armour/Ranged_armour), [Magic armour](https://oldschool.runescape.wiki/w/Armour/Magic_armour), [Ranged gear progression](https://oldschool.runescape.wiki/w/Guide%3ARanged_Gear_Progression).
 
@@ -124,3 +124,22 @@ Revision-pinned sources: [Prayer items](https://oldschool.runescape.wiki/w/Praye
 - The phrase “locked/normal crystal armor” was interpreted as the actual inactive/active bank states. No separate player-bankable item named “locked crystal armour” exists in the canonical registry.
 - The reports did not define whether a style-stage must contain exactly one item per slot or every valid alternative. The TSV records every explicitly named alternative and uses carry-forward rows only where a useful slot would otherwise be absent.
 - The earlier twelve combat style/stage combinations covered ten practical equipment slots. Adding Starter, Hybrid/Utility and the deliberately sparse Prayer style makes the dataset a progression inventory rather than a promise that every style-stage contains all ten slots.
+
+## Peer-set completion pass, 2026-08-31
+
+Added 18 rows. The original pass picked one representative armour set per style and stage, so
+sibling sets from the same source were left untiered. Untiered gear falls back to the name
+heuristics in `GearItemSorter`, and none of these names match a heuristic keyword, so the sibling
+sets scored 0 while their tiered peers scored 800. In the gear tab that split families of the same
+origin far apart, which is what a player reported for the Perilous Moons armour: Blood moon was
+tiered and the Eclipse and Blue sets were not.
+
+- Perilous Moons: added the Eclipse (ranged) and Blue (magic) head/body/legs rows next to the
+  existing Blood moon (melee) rows, all at stage 4.
+- Barrows: added Dharok's, Guthan's, Torag's and Verac's head/body/legs rows at stage 4, next to
+  the existing Karil's (ranged) and Ahrim's (magic) rows.
+
+All 18 IDs are repairable base forms verified against the generated item registry, and all use
+`source=aangevuld` because they complete a family the primary report named only partially. The
+degraded `100/75/50/25` states are still covered by the tier catalog's name fallback, as they
+already were for Karil's and Ahrim's.
