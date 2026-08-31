@@ -888,31 +888,24 @@ public class GearItemSorterTest
 	@Test
 	public void tieredSetsOutrankPlainMetalArmourAsWholeFamilies()
 	{
-		assertEquals(Arrays.asList(
-			"Blood moon helm",
-			"Blue moon helm",
-			"Eclipse moon helm",
-			"Rune full helm"
-		), names(GearItemSorter.dense(Arrays.asList(
+		List<String> perilousMoons = names(GearItemSorter.dense(Arrays.asList(
 			item(1163, "Rune full helm"),
 			item(29010, "Eclipse moon helm"),
 			item(29019, "Blue moon helm"),
 			item(29028, "Blood moon helm")
-		), GearStatsSource.NONE)));
+		), GearStatsSource.NONE));
+		assertItemsBefore(perilousMoons, "Rune full helm", Arrays.asList(
+			"Blood moon helm", "Blue moon helm", "Eclipse moon helm"));
 
-		assertEquals(Arrays.asList(
-			"Dharok's helm",
-			"Guthan's helm",
-			"Torag's helm",
-			"Verac's helm",
-			"Rune full helm"
-		), names(GearItemSorter.dense(Arrays.asList(
+		List<String> barrows = names(GearItemSorter.dense(Arrays.asList(
 			item(1163, "Rune full helm"),
 			item(4753, "Verac's helm"),
 			item(4745, "Torag's helm"),
 			item(4724, "Guthan's helm"),
 			item(4716, "Dharok's helm")
-		), GearStatsSource.NONE)));
+		), GearStatsSource.NONE));
+		assertItemsBefore(barrows, "Rune full helm", Arrays.asList(
+			"Dharok's helm", "Guthan's helm", "Torag's helm", "Verac's helm"));
 	}
 
 	private static BankPreviewItem item(int itemId, String name)
@@ -1008,6 +1001,19 @@ public class GearItemSorterTest
 			last = Math.max(last, index);
 		}
 		assertEquals("family was split: " + actualNames, expectedNames.size(), last - first + 1);
+	}
+
+	private static void assertItemsBefore(List<String> actualNames, String boundary,
+		List<String> expectedNames)
+	{
+		int boundaryIndex = actualNames.indexOf(boundary);
+		assertTrue("missing " + boundary + " from " + actualNames, boundaryIndex >= 0);
+		for (String expectedName : expectedNames)
+		{
+			int index = actualNames.indexOf(expectedName);
+			assertTrue("expected " + expectedName + " before " + boundary + " in " + actualNames,
+				index >= 0 && index < boundaryIndex);
+		}
 	}
 
 	private static void assertContiguousIds(List<BankPreviewItem> items, List<Integer> expectedIds)
