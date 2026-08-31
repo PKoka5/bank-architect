@@ -19,8 +19,15 @@ final class IronmanMainItemSorter
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
 	{
+		return sort(items, RuneOrder.ALPHABETICAL);
+	}
+
+	static List<BankPreviewItem> sort(List<BankPreviewItem> items, RuneOrder runeOrder)
+	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator.comparingInt(IronmanMainItemSorter::rank)
+			.thenComparingInt(item -> runeOrder == RuneOrder.ELEMENTAL
+				? elementalRank(item) : 0)
 			.thenComparing(IronmanMainItemSorter::familyOrder)
 			.thenComparingLong(item -> -(long) charge(item))
 			.thenComparing(item -> normalized(item.getDisplayName()))
@@ -69,6 +76,29 @@ final class IronmanMainItemSorter
 		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
 			.filter(metadata -> metadata.getVariantKind() == ItemSortMetadata.VariantKind.CHARGE)
 			.filter(metadata -> metadata.getFamilyKey().startsWith("jewellery."));
+	}
+
+	/**
+	 * The canonical rune sequence players know from spellbooks and shops.
+	 * Anything unrecognized - essence, unusual runes - follows alphabetically.
+	 */
+	private static int elementalRank(BankPreviewItem item)
+	{
+		if (item.getItemCategory() != ItemCategory.RUNE)
+		{
+			return 0;
+		}
+		String name = normalized(item.getDisplayName());
+		String[] order = {"air", "water", "earth", "fire", "mind", "body", "cosmic", "chaos",
+			"nature", "law", "death", "blood", "soul", "astral", "wrath"};
+		for (int index = 0; index < order.length; index++)
+		{
+			if (name.equals(order[index] + " rune"))
+			{
+				return index;
+			}
+		}
+		return order.length + 1;
 	}
 
 	private static int rank(BankPreviewItem item)

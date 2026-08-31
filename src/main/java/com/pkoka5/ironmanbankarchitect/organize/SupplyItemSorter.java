@@ -21,9 +21,16 @@ final class SupplyItemSorter
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items, ItemSortMetadataCatalog metadataCatalog)
 	{
+		return sort(items, metadataCatalog, PotionDoseOrder.GRAB_AREA);
+	}
+
+	static List<BankPreviewItem> sort(List<BankPreviewItem> items,
+		ItemSortMetadataCatalog metadataCatalog, PotionDoseOrder doseOrder)
+	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
-			.comparingInt((BankPreviewItem item) -> roleRank(item, metadataCatalog))
+			.comparingInt((BankPreviewItem item) -> doseOrder == PotionDoseOrder.BY_FAMILY
+				? byFamilyRoleRank(item, metadataCatalog) : roleRank(item, metadataCatalog))
 			.thenComparingInt(item -> doseMetadataRank(item, metadataCatalog))
 			.thenComparingInt(item -> foodMetadataRank(item, metadataCatalog))
 			.thenComparingInt(item -> -immediateHealMax(item, metadataCatalog))
@@ -35,6 +42,21 @@ final class SupplyItemSorter
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
+	}
+
+	/**
+	 * Under the by-family order every dose counts as its potion, so the
+	 * family keys further down the comparator run each potion 4 to 1 in one
+	 * place instead of trailing the partials as a to-decant pile.
+	 */
+	private static int byFamilyRoleRank(BankPreviewItem item, ItemSortMetadataCatalog metadataCatalog)
+	{
+		String subcategory = normalized(item.getSubcategory());
+		if (subcategory.startsWith("potion-dose-") || subcategory.startsWith("dose-"))
+		{
+			return 0;
+		}
+		return roleRank(item, metadataCatalog);
 	}
 
 	private static int roleRank(BankPreviewItem item, ItemSortMetadataCatalog metadataCatalog)

@@ -1,6 +1,8 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.pkoka5.ironmanbankarchitect.organize.GearOrder;
+import com.pkoka5.ironmanbankarchitect.organize.PotionDoseOrder;
+import com.pkoka5.ironmanbankarchitect.organize.RuneOrder;
 import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -34,11 +36,25 @@ public interface IronmanBankArchitectConfig extends Config
 	String gearSection = "Combat gear";
 
 	@ConfigSection(
-		name = "Herblore",
-		description = "How the Herblore tab is arranged.",
+		name = "Food & potions",
+		description = "How the supplies tab is arranged.",
 		position = 3
 	)
+	String suppliesSection = "Food & potions";
+
+	@ConfigSection(
+		name = "Herblore",
+		description = "How the Herblore tab is arranged.",
+		position = 4
+	)
 	String herbloreSection = "Herblore";
+
+	@ConfigSection(
+		name = "Runes",
+		description = "How runes order among themselves.",
+		position = 5
+	)
+	String runesSection = "Runes";
 
 	@ConfigItem(
 		keyName = "suggestNextMove",
@@ -144,6 +160,30 @@ public interface IronmanBankArchitectConfig extends Config
 	default GearOrder gearOrder()
 	{
 		return GearOrder.PACKED;
+	}
+
+	@ConfigItem(
+		keyName = "potionDoses",
+		section = suppliesSection,
+		position = 0,
+		name = "Potion doses",
+		description = "Grab area keeps full potions at the front with part doses trailing behind the food as the to-decant pile. By family runs each potion 4 to 1 in one place."
+	)
+	default PotionDoseOrder potionDoses()
+	{
+		return PotionDoseOrder.GRAB_AREA;
+	}
+
+	@ConfigItem(
+		keyName = "runeOrder",
+		section = runesSection,
+		position = 0,
+		name = "Rune order",
+		description = "Alphabetical, or the canonical elemental sequence: air, water, earth, fire, then mind, body, cosmic, chaos, nature, law, death, blood, soul, astral, wrath."
+	)
+	default RuneOrder runeOrder()
+	{
+		return RuneOrder.ALPHABETICAL;
 	}
 
 	@ConfigItem(

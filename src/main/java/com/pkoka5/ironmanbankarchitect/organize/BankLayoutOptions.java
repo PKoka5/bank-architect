@@ -29,6 +29,8 @@ public final class BankLayoutOptions
 	private final boolean alchPile;
 	private final GearOrder gearOrder;
 	private final Map<BankCategorySortMode, TabOrder> tabOrders;
+	private final PotionDoseOrder potionDoses;
+	private final RuneOrder runeOrder;
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
 	{
@@ -39,6 +41,14 @@ public final class BankLayoutOptions
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
 		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders)
 	{
+		this(fillGearRows, fillHerbloreRows, alchPile, gearOrder, tabOrders,
+			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL);
+	}
+
+	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
+		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders,
+		PotionDoseOrder potionDoses, RuneOrder runeOrder)
+	{
 		this.fillGearRows = fillGearRows;
 		this.fillHerbloreRows = fillHerbloreRows;
 		this.alchPile = alchPile;
@@ -46,6 +56,8 @@ public final class BankLayoutOptions
 		this.tabOrders = tabOrders.isEmpty()
 			? Collections.emptyMap()
 			: Collections.unmodifiableMap(new EnumMap<>(tabOrders));
+		this.potionDoses = Objects.requireNonNull(potionDoses, "potionDoses");
+		this.runeOrder = Objects.requireNonNull(runeOrder, "runeOrder");
 	}
 
 	/**
@@ -101,5 +113,17 @@ public final class BankLayoutOptions
 	public TabOrder orderFor(BankCategorySortMode mode)
 	{
 		return tabOrders.getOrDefault(mode, TabOrder.PACKED);
+	}
+
+	/** Where part doses sit on the supplies tab. */
+	public PotionDoseOrder potionDoses()
+	{
+		return potionDoses;
+	}
+
+	/** How runes order among themselves. */
+	public RuneOrder runeOrder()
+	{
+		return runeOrder;
 	}
 }

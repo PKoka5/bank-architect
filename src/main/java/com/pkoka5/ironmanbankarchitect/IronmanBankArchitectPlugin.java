@@ -307,7 +307,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			tabOrders.put(mode, config.tabLayout());
 		}
 		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
-			config.alchPile(), config.gearOrder(), tabOrders);
+			config.alchPile(), config.gearOrder(), tabOrders,
+			config.potionDoses(), config.runeOrder());
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */

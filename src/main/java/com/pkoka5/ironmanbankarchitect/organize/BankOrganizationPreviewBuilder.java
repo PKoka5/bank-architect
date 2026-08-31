@@ -485,7 +485,7 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return new BankCategoryPreview(category, semanticLayout(
-						IronmanMainItemSorter.sort(items),
+						IronmanMainItemSorter.sort(items, options.runeOrder()),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
@@ -496,7 +496,10 @@ public final class BankOrganizationPreviewBuilder
 						sequential(BankCategorySortMode.TELEPORTS)));
 				case SUPPLIES:
 					return new BankCategoryPreview(category, semanticLayout(
-						SupplyItemSorter.sort(items), PotionDoseSemanticRuleSet.forEntries(entries),
+						SupplyItemSorter.sort(items,
+							com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
+							options.potionDoses()),
+						PotionDoseSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.SUPPLIES)));
 				case TOOLS:
 					return new BankCategoryPreview(category, semanticLayout(

@@ -155,6 +155,8 @@ public class BankLayoutOptionsTest
 		}
 		assertEquals(TabOrder.SEQUENTIAL, SEQUENTIAL.orderFor(BankCategorySortMode.MAIN));
 		assertEquals(GearOrder.BY_STYLE_WEAPON_FIRST, SEQUENTIAL.gearOrder());
+		assertEquals(PotionDoseOrder.GRAB_AREA, BankLayoutOptions.DEFAULTS.potionDoses());
+		assertEquals(RuneOrder.ALPHABETICAL, BankLayoutOptions.DEFAULTS.runeOrder());
 	}
 
 	/**
@@ -357,6 +359,61 @@ public class BankLayoutOptionsTest
 		}
 
 		return count;
+	}
+
+	/**
+	 * By family, every dose counts as its potion: each family runs 4 to 1 in
+	 * one place instead of the partials trailing as a to-decant pile.
+	 */
+	@Test
+	public void byFamilyRunsEachPotionsDosesTogether()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			potionDose(2434, "Prayer potion(4)", 4), potionDose(139, "Prayer potion(3)", 3),
+			potionDose(141, "Prayer potion(2)", 2), potionDose(143, "Prayer potion(1)", 1),
+			potionDose(3024, "Super restore(4)", 4), potionDose(3026, "Super restore(3)", 3),
+			potion(385, "Shark"));
+
+		List<String> names = new ArrayList<>();
+		for (BankPreviewItem item : SupplyItemSorter.sort(items,
+			com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
+			PotionDoseOrder.BY_FAMILY))
+		{
+			names.add(item.getDisplayName());
+		}
+
+		assertEquals(Arrays.asList("Prayer potion(4)", "Prayer potion(3)", "Prayer potion(2)",
+			"Prayer potion(1)", "Super restore(4)", "Super restore(3)", "Shark"), names);
+	}
+
+	/** The canonical spellbook sequence, with unknowns following alphabetically. */
+	@Test
+	public void elementalRuneOrderFollowsTheCanonicalSequence()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			rune(559, "Body rune"), rune(554, "Fire rune"), rune(556, "Air rune"),
+			rune(1436, "Rune essence"), rune(555, "Water rune"), rune(557, "Earth rune"));
+
+		List<String> names = new ArrayList<>();
+		for (BankPreviewItem item : IronmanMainItemSorter.sort(items, RuneOrder.ELEMENTAL))
+		{
+			names.add(item.getDisplayName());
+		}
+
+		assertEquals(Arrays.asList("Air rune", "Water rune", "Earth rune", "Fire rune",
+			"Body rune", "Rune essence"), names);
+	}
+
+	private static BankPreviewItem potionDose(int id, String name, int dose)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.POTION,
+			"potion-dose-" + dose, Collections.emptySet(), null), 1);
+	}
+
+	private static BankPreviewItem rune(int id, String name)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.RUNE,
+			"rune", Collections.emptySet(), null), 1);
 	}
 
 	private static BankPreviewItem potion(int id, String name)
