@@ -159,8 +159,8 @@ itemId	expectedTabKey
 1521	resources
 1523	skilling-tools
 1526	herblore
-1528	storage-cleanup
-1532	storage-cleanup
+1528	herblore
+1532	herblore
 1539	resources
 1540	combat-gear
 1580	skilling-tools
@@ -472,7 +472,7 @@ itemId	expectedTabKey
 8880	combat-gear
 8882	combat-gear
 8907	storage-cleanup
-9013	storage-cleanup
+9013	currency-utilities
 9065	skilling-tools
 9075	currency-utilities
 9083	skilling-tools
@@ -692,7 +692,7 @@ itemId	expectedTabKey
 26219	storage-cleanup
 26763	combat-gear
 26770	combat-gear
-28134	resources
+28134	currency-utilities
 28136	skilling-tools
 28142	skilling-tools
 28577	skilling-tools

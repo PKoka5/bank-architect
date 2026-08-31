@@ -46,7 +46,7 @@ strings in a bundled TSV are absolute HTTPS URLs, so the data manifest cannot
 carry a malformed citation. No connection is ever opened. It is the only
 `java.net` reference in the plugin.
 
-**Bundled data is 1.9 MB.** Seven pinned TSV/text datasets under
+**Bundled data is 1.9 MB.** Eight pinned TSV/text datasets under
 `src/main/resources`, the largest being an item registry of ~32,500 entries.
 They are read with `getResourceAsStream` and are never written, downloaded, or
 refreshed at runtime. Classification is fully offline and deterministic; the

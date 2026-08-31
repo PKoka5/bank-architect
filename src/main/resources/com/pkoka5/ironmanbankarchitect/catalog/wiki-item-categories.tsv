@@ -1,0 +1,2481 @@
+﻿# Item category membership from the Old School RuneScape Wiki
+# (oldschool.runescape.wiki, CC BY-NC-SA 3.0), retrieved 2026-08-30 via
+# https://oldschool.runescape.wiki/api.php?action=bucket on bucket infobox_item.
+# Regenerate with tools/fetch-wiki-item-categories.ps1. Columns: item id, item name,
+# comma-separated wiki categories.
+4	Ammo mould	Tools
+16	Magic whistle	Teleportation items
+91	Guam potion (unf)	Potions,Herblore
+93	Marrentill potion (unf)	Potions,Herblore
+95	Tarromin potion (unf)	Potions,Herblore
+97	Harralander potion (unf)	Potions,Herblore
+99	Ranarr potion (unf)	Potions,Herblore
+101	Irit potion (unf)	Potions,Herblore
+103	Avantoe potion (unf)	Potions,Herblore
+105	Kwuarm potion (unf)	Potions,Herblore
+107	Cadantine potion (unf)	Potions,Herblore
+109	Dwarf weed potion (unf)	Potions,Herblore
+111	Torstol potion (unf)	Potions,Herblore
+113	Strength potion(4)	Potions,Herblore
+115	Strength potion(3)	Potions,Herblore
+117	Strength potion(2)	Potions,Herblore
+119	Strength potion(1)	Potions,Herblore
+121	Attack potion(3)	Potions,Herblore
+123	Attack potion(2)	Potions,Herblore
+125	Attack potion(1)	Potions,Herblore
+127	Restore potion(3)	Potions,Herblore
+129	Restore potion(2)	Potions,Herblore
+131	Restore potion(1)	Potions,Herblore
+133	Defence potion(3)	Potions,Herblore
+135	Defence potion(2)	Potions,Herblore
+137	Defence potion(1)	Potions,Herblore
+139	Prayer potion(3)	Potions,Herblore
+141	Prayer potion(2)	Potions,Herblore
+143	Prayer potion(1)	Potions,Herblore
+145	Super attack(3)	Potions,Herblore
+147	Super attack(2)	Potions,Herblore
+149	Super attack(1)	Potions,Herblore
+151	Fishing potion(3)	Potions,Herblore
+153	Fishing potion(2)	Potions,Herblore
+155	Fishing potion(1)	Potions,Herblore
+157	Super strength(3)	Potions,Herblore
+159	Super strength(2)	Potions,Herblore
+161	Super strength(1)	Potions,Herblore
+163	Super defence(3)	Potions,Herblore
+165	Super defence(2)	Potions,Herblore
+167	Super defence(1)	Potions,Herblore
+169	Ranging potion(3)	Potions,Herblore
+171	Ranging potion(2)	Potions,Herblore
+173	Ranging potion(1)	Potions,Herblore
+175	Antipoison(3)	Potions,Herblore
+177	Antipoison(2)	Potions,Herblore
+179	Antipoison(1)	Potions,Herblore
+181	Superantipoison(3)	Potions,Herblore
+183	Superantipoison(2)	Potions,Herblore
+185	Superantipoison(1)	Potions,Herblore
+187	Weapon poison	Potions,Herblore
+189	Zamorak brew(3)	Potions,Herblore
+191	Zamorak brew(2)	Potions,Herblore
+193	Zamorak brew(1)	Potions,Herblore
+195	Potion	Potions,Herblore
+199	Grimy guam leaf	Herbs
+201	Grimy marrentill	Herbs
+203	Grimy tarromin	Herbs
+205	Grimy harralander	Herbs
+207	Grimy ranarr weed	Herbs
+209	Grimy irit leaf	Herbs
+211	Grimy avantoe	Herbs
+213	Grimy kwuarm	Herbs
+215	Grimy cadantine	Herbs
+217	Grimy dwarf weed	Herbs
+219	Grimy torstol	Herbs
+233	Pestle and mortar	Herblore,Tools
+249	Guam leaf	Herbs,Herblore
+251	Marrentill	Herbs,Herblore
+253	Tarromin	Herbs,Herblore
+255	Harralander	Herbs,Herblore
+257	Ranarr weed	Herbs,Herblore
+259	Irit leaf	Herbs,Herblore
+261	Avantoe	Herbs,Herblore
+263	Kwuarm	Herbs,Herblore
+265	Cadantine	Herbs,Herblore
+267	Dwarf weed	Herbs,Herblore
+269	Torstol	Herbs,Herblore
+299	Mithril seeds	Seeds
+301	Lobster pot	Tools
+303	Small fishing net	Tools
+305	Big fishing net	Tools
+307	Fishing rod	Tools
+309	Fly fishing rod	Tools
+311	Harpoon	Tools
+313	Fishing bait	Tools
+314	Feather	Tools
+411	Oyster pearl	Gems
+413	Oyster pearls	Gems
+436	Copper ore	Ores
+438	Tin ore	Ores
+440	Iron ore	Ores
+442	Silver ore	Ores
+444	Gold ore	Ores
+447	Mithril ore	Ores
+449	Adamantite ore	Ores
+451	Runite ore	Ores
+453	Coal	Ores
+466	Pickaxe handle	Tools
+468	Broken pickaxe	Tools
+470	Broken pickaxe	Tools
+472	Broken pickaxe	Tools
+474	Broken pickaxe	Tools
+476	Broken pickaxe	Tools
+478	Broken pickaxe	Tools
+480	Bronze pick head	Tools
+482	Iron pick head	Tools
+484	Steel pick head	Tools
+486	Mithril pick head	Tools
+488	Adamant pick head	Tools
+490	Rune pick head	Tools
+492	Axe handle	Tools
+494	Broken axe	Tools
+496	Broken axe	Tools
+498	Broken axe	Tools
+500	Broken axe	Tools
+502	Broken axe	Tools
+504	Broken axe	Tools
+506	Broken axe	Tools
+508	Bronze axe head	Tools
+510	Iron axe head	Tools
+512	Steel axe head	Tools
+514	Black axe head	Tools
+516	Mithril axe head	Tools
+518	Adamant axe head	Tools
+520	Rune axe head	Tools
+526	Bones	Bones
+528	Burnt bones	Bones
+530	Bat bones	Bones
+532	Big bones	Bones
+534	Babydragon bones	Bones
+536	Dragon bones	Bones
+554	Fire rune	Runes
+555	Water rune	Runes
+556	Air rune	Runes
+557	Earth rune	Runes
+558	Mind rune	Runes
+559	Body rune	Runes
+560	Death rune	Runes
+561	Nature rune	Runes
+562	Chaos rune	Runes
+563	Law rune	Runes
+564	Cosmic rune	Runes
+565	Blood rune	Runes
+566	Soul rune	Runes
+590	Tinderbox	Tools
+602	Lens mould	Tools
+619	Paramaya ticket	Currency
+668	Blurite ore	Ores
+676	Trowel	Tools
+705	Mixed chemicals	Herblore
+706	Mixed chemicals	Herblore
+707	Chemical compound	Herblore
+732	Holy water	Potions,Herblore
+737	Snakeweed mixture	Potions,Herblore
+738	Ardrigal mixture	Potions,Herblore
+739	Bravery potion	Potions,Herblore
+756	Cadava potion	Potions,Herblore
+775	Cooking gauntlets	Skilling equipment
+776	Goldsmith gauntlets	Skilling equipment
+946	Knife	Tools
+952	Spade	Tools
+954	Rope	Tools
+975	Machete	Tools
+981	Disk of Returning	Teleportation items
+995	Coins	Currency
+1265	Bronze pickaxe	Tools
+1267	Iron pickaxe	Tools
+1269	Steel pickaxe	Tools
+1271	Adamant pickaxe	Tools
+1273	Mithril pickaxe	Tools
+1275	Rune pickaxe	Tools
+1349	Iron axe	Tools
+1351	Bronze axe	Tools
+1353	Steel axe	Tools
+1355	Mithril axe	Tools
+1357	Adamant axe	Tools
+1359	Rune axe	Tools
+1361	Black axe	Tools
+1464	Archery ticket	Currency
+1511	Logs	Logs
+1513	Magic logs	Logs
+1515	Yew logs	Logs
+1517	Maple logs	Logs
+1519	Willow logs	Logs
+1521	Oak logs	Logs
+1525	Grimy snake weed	Herbs
+1526	Snake weed	Herbs,Herblore
+1527	Grimy ardrigal	Herbs
+1528	Ardrigal	Herbs,Herblore
+1529	Grimy sito foil	Herbs
+1530	Sito foil	Herbs,Herblore
+1531	Grimy volencia moss	Herbs
+1532	Volencia moss	Herbs,Herblore
+1533	Grimy rogue's purse	Herbs
+1534	Rogue's purse	Herbs,Herblore
+1573	Doogle leaves	Herbs
+1580	Ice gloves	Skilling equipment
+1582	Blamish oil	Potions,Herblore
+1585	Oily fishing rod	Tools
+1592	Ring mould	Tools
+1594	Unholy mould	Tools
+1595	Amulet mould	Tools
+1597	Necklace mould	Tools
+1599	Holy mould	Tools
+1601	Diamond	Gems
+1603	Ruby	Gems
+1605	Emerald	Gems
+1607	Sapphire	Gems
+1609	Opal	Gems
+1611	Jade	Gems
+1613	Red topaz	Gems
+1615	Dragonstone	Gems
+1617	Uncut diamond	Gems
+1619	Uncut ruby	Gems
+1621	Uncut emerald	Gems
+1623	Uncut sapphire	Gems
+1625	Uncut opal	Gems
+1627	Uncut jade	Gems
+1629	Uncut red topaz	Gems
+1631	Uncut dragonstone	Gems
+1633	Crushed gem	Gems
+1704	Amulet of glory	Teleportation items,Skilling equipment
+1706	Amulet of glory(1)	Teleportation items,Skilling equipment
+1708	Amulet of glory(2)	Teleportation items,Skilling equipment
+1710	Amulet of glory(3)	Teleportation items,Skilling equipment
+1712	Amulet of glory(4)	Teleportation items,Skilling equipment
+1733	Needle	Tools
+1735	Shears	Tools
+1741	Leather	Leather
+1743	Hard leather	Leather
+1745	Green dragon leather	Leather
+1755	Chisel	Tools
+1785	Glassblowing pipe	Tools
+2162	King worm	Tools
+2347	Hammer	Tools
+2349	Bronze bar	Metal bars
+2351	Iron bar	Metal bars
+2353	Steel bar	Metal bars
+2355	Silver bar	Metal bars
+2357	Gold bar	Metal bars
+2359	Mithril bar	Metal bars
+2361	Adamantite bar	Metal bars
+2363	Runite bar	Metal bars
+2365	'perfect' gold bar	Metal bars
+2389	Vial	Potions,Herblore
+2390	Vial	Potions,Herblore
+2394	Potion	Potions,Herblore
+2395	Magic ogre potion	Potions,Herblore
+2428	Attack potion(4)	Potions,Herblore
+2430	Restore potion(4)	Potions,Herblore
+2432	Defence potion(4)	Potions,Herblore
+2434	Prayer potion(4)	Potions,Herblore
+2436	Super attack(4)	Potions,Herblore
+2438	Fishing potion(4)	Potions,Herblore
+2440	Super strength(4)	Potions,Herblore
+2442	Super defence(4)	Potions,Herblore
+2444	Ranging potion(4)	Potions,Herblore
+2446	Antipoison(4)	Potions,Herblore
+2448	Superantipoison(4)	Potions,Herblore
+2450	Zamorak brew(4)	Potions,Herblore
+2452	Antifire potion(4)	Potions,Herblore
+2454	Antifire potion(3)	Potions,Herblore
+2456	Antifire potion(2)	Potions,Herblore
+2458	Antifire potion(1)	Potions,Herblore
+2481	Lantadyme	Herbs,Herblore
+2483	Lantadyme potion (unf)	Potions,Herblore
+2485	Grimy lantadyme	Herbs
+2505	Blue dragon leather	Leather
+2507	Red dragon leather	Leather
+2509	Black dragon leather	Leather
+2511	Logs	Logs
+2552	Ring of dueling(8)	Teleportation items
+2554	Ring of dueling(7)	Teleportation items
+2556	Ring of dueling(6)	Teleportation items
+2558	Ring of dueling(5)	Teleportation items
+2560	Ring of dueling(4)	Teleportation items
+2562	Ring of dueling(3)	Teleportation items
+2564	Ring of dueling(2)	Teleportation items
+2566	Ring of dueling(1)	Teleportation items
+2570	Ring of life	Teleportation items
+2572	Ring of wealth	Teleportation items
+2677	Clue scroll (easy)	Clue scrolls
+2678	Clue scroll (easy)	Clue scrolls
+2679	Clue scroll (easy)	Clue scrolls
+2680	Clue scroll (easy)	Clue scrolls
+2681	Clue scroll (easy)	Clue scrolls
+2682	Clue scroll (easy)	Clue scrolls
+2683	Clue scroll (easy)	Clue scrolls
+2684	Clue scroll (easy)	Clue scrolls
+2685	Clue scroll (easy)	Clue scrolls
+2686	Clue scroll (easy)	Clue scrolls
+2687	Clue scroll (easy)	Clue scrolls
+2688	Clue scroll (easy)	Clue scrolls
+2689	Clue scroll (easy)	Clue scrolls
+2690	Clue scroll (easy)	Clue scrolls
+2691	Clue scroll (easy)	Clue scrolls
+2692	Clue scroll (easy)	Clue scrolls
+2693	Clue scroll (easy)	Clue scrolls
+2694	Clue scroll (easy)	Clue scrolls
+2695	Clue scroll (easy)	Clue scrolls
+2696	Clue scroll (easy)	Clue scrolls
+2697	Clue scroll (easy)	Clue scrolls
+2698	Clue scroll (easy)	Clue scrolls
+2699	Clue scroll (easy)	Clue scrolls
+2700	Clue scroll (easy)	Clue scrolls
+2701	Clue scroll (easy)	Clue scrolls
+2702	Clue scroll (easy)	Clue scrolls
+2703	Clue scroll (easy)	Clue scrolls
+2704	Clue scroll (easy)	Clue scrolls
+2705	Clue scroll (easy)	Clue scrolls
+2706	Clue scroll (easy)	Clue scrolls
+2707	Clue scroll (easy)	Clue scrolls
+2708	Clue scroll (easy)	Clue scrolls
+2709	Clue scroll (easy)	Clue scrolls
+2710	Clue scroll (easy)	Clue scrolls
+2711	Clue scroll (easy)	Clue scrolls
+2712	Clue scroll (easy)	Clue scrolls
+2713	Clue scroll (easy)	Clue scrolls
+2716	Clue scroll (easy)	Clue scrolls
+2719	Clue scroll (easy)	Clue scrolls
+2722	Clue scroll (hard)	Clue scrolls
+2723	Clue scroll (hard)	Clue scrolls
+2725	Clue scroll (hard)	Clue scrolls
+2727	Clue scroll (hard)	Clue scrolls
+2729	Clue scroll (hard)	Clue scrolls
+2731	Clue scroll (hard)	Clue scrolls
+2733	Clue scroll (hard)	Clue scrolls
+2735	Clue scroll (hard)	Clue scrolls
+2737	Clue scroll (hard)	Clue scrolls
+2739	Clue scroll (hard)	Clue scrolls
+2741	Clue scroll (hard)	Clue scrolls
+2743	Clue scroll (hard)	Clue scrolls
+2745	Clue scroll (hard)	Clue scrolls
+2747	Clue scroll (hard)	Clue scrolls
+2773	Clue scroll (hard)	Clue scrolls
+2774	Clue scroll (hard)	Clue scrolls
+2776	Clue scroll (hard)	Clue scrolls
+2778	Clue scroll (hard)	Clue scrolls
+2780	Clue scroll (hard)	Clue scrolls
+2782	Clue scroll (hard)	Clue scrolls
+2783	Clue scroll (hard)	Clue scrolls
+2785	Clue scroll (hard)	Clue scrolls
+2786	Clue scroll (hard)	Clue scrolls
+2788	Clue scroll (hard)	Clue scrolls
+2790	Clue scroll (hard)	Clue scrolls
+2792	Clue scroll (hard)	Clue scrolls
+2793	Clue scroll (hard)	Clue scrolls
+2794	Clue scroll (hard)	Clue scrolls
+2796	Clue scroll (hard)	Clue scrolls
+2797	Clue scroll (hard)	Clue scrolls
+2799	Clue scroll (hard)	Clue scrolls
+2801	Clue scroll (medium)	Clue scrolls
+2803	Clue scroll (medium)	Clue scrolls
+2805	Clue scroll (medium)	Clue scrolls
+2807	Clue scroll (medium)	Clue scrolls
+2809	Clue scroll (medium)	Clue scrolls
+2811	Clue scroll (medium)	Clue scrolls
+2813	Clue scroll (medium)	Clue scrolls
+2815	Clue scroll (medium)	Clue scrolls
+2817	Clue scroll (medium)	Clue scrolls
+2819	Clue scroll (medium)	Clue scrolls
+2821	Clue scroll (medium)	Clue scrolls
+2823	Clue scroll (medium)	Clue scrolls
+2825	Clue scroll (medium)	Clue scrolls
+2827	Clue scroll (medium)	Clue scrolls
+2829	Clue scroll (medium)	Clue scrolls
+2831	Clue scroll (medium)	Clue scrolls
+2833	Clue scroll (medium)	Clue scrolls
+2835	Clue scroll (medium)	Clue scrolls
+2837	Clue scroll (medium)	Clue scrolls
+2839	Clue scroll (medium)	Clue scrolls
+2841	Clue scroll (medium)	Clue scrolls
+2843	Clue scroll (medium)	Clue scrolls
+2845	Clue scroll (medium)	Clue scrolls
+2847	Clue scroll (medium)	Clue scrolls
+2848	Clue scroll (medium)	Clue scrolls
+2849	Clue scroll (medium)	Clue scrolls
+2851	Clue scroll (medium)	Clue scrolls
+2853	Clue scroll (medium)	Clue scrolls
+2855	Clue scroll (medium)	Clue scrolls
+2856	Clue scroll (medium)	Clue scrolls
+2857	Clue scroll (medium)	Clue scrolls
+2858	Clue scroll (medium)	Clue scrolls
+2859	Wolf bones	Bones
+2862	Achey tree logs	Logs
+2893	Elemental metal	Metal bars
+2976	Sickle mould	Tools
+2998	Toadflax	Herbs,Herblore
+3000	Snapdragon	Herbs,Herblore
+3002	Toadflax potion (unf)	Potions,Herblore
+3004	Snapdragon potion (unf)	Potions,Herblore
+3008	Energy potion(4)	Potions,Herblore
+3010	Energy potion(3)	Potions,Herblore
+3012	Energy potion(2)	Potions,Herblore
+3014	Energy potion(1)	Potions,Herblore
+3016	Super energy(4)	Potions,Herblore
+3018	Super energy(3)	Potions,Herblore
+3020	Super energy(2)	Potions,Herblore
+3022	Super energy(1)	Potions,Herblore
+3024	Super restore(4)	Potions,Herblore
+3026	Super restore(3)	Potions,Herblore
+3028	Super restore(2)	Potions,Herblore
+3030	Super restore(1)	Potions,Herblore
+3032	Agility potion(4)	Potions,Herblore
+3034	Agility potion(3)	Potions,Herblore
+3036	Agility potion(2)	Potions,Herblore
+3038	Agility potion(1)	Potions,Herblore
+3040	Magic potion(4)	Potions,Herblore
+3042	Magic potion(3)	Potions,Herblore
+3044	Magic potion(2)	Potions,Herblore
+3046	Magic potion(1)	Potions,Herblore
+3049	Grimy toadflax	Herbs
+3051	Grimy snapdragon	Herbs
+3123	Shaikahan bones	Bones
+3125	Jogre bones	Bones
+3127	Burnt jogre bones	Bones
+3128	Pasty jogre bones	Bones
+3129	Pasty jogre bones	Bones
+3130	Marinated j' bones	Bones
+3131	Pasty jogre bones	Bones
+3132	Pasty jogre bones	Bones
+3133	Marinated j' bones	Bones
+3157	Karambwan vessel	Tools
+3159	Karambwan vessel	Tools
+3179	Small ninja monkey bones	Bones
+3180	Medium ninja monkey bones	Bones
+3181	Gorilla bones	Bones
+3182	Bearded gorilla bones	Bones
+3183	Monkey bones	Bones
+3185	Small zombie monkey bones	Bones
+3186	Large zombie monkey bones	Bones
+3187	Bones	Bones
+3239	Bark	Logs
+3261	Goutweed	Herbs
+3265	Troll potion	Potions,Herblore
+3406	Unfinished potion	Potions,Herblore
+3408	Serum 207 (4)	Potions,Herblore
+3410	Serum 207 (3)	Potions,Herblore
+3412	Serum 207 (2)	Potions,Herblore
+3414	Serum 207 (1)	Potions,Herblore
+3416	Serum 208 (4)	Potions,Herblore
+3417	Serum 208 (3)	Potions,Herblore
+3418	Serum 208 (2)	Potions,Herblore
+3419	Serum 208 (1)	Potions,Herblore
+3422	Olive oil(4)	Potions,Herblore
+3424	Olive oil(3)	Potions,Herblore
+3426	Olive oil(2)	Potions,Herblore
+3428	Olive oil(1)	Potions,Herblore
+3430	Sacred oil(4)	Potions,Herblore
+3432	Sacred oil(3)	Potions,Herblore
+3434	Sacred oil(2)	Potions,Herblore
+3436	Sacred oil(1)	Potions,Herblore
+3438	Pyre logs	Logs
+3440	Oak pyre logs	Logs
+3442	Willow pyre logs	Logs
+3444	Maple pyre logs	Logs
+3446	Yew pyre logs	Logs
+3448	Magic pyre logs	Logs
+3490	Clue scroll (easy)	Clue scrolls
+3491	Clue scroll (easy)	Clue scrolls
+3492	Clue scroll (easy)	Clue scrolls
+3493	Clue scroll (easy)	Clue scrolls
+3494	Clue scroll (easy)	Clue scrolls
+3495	Clue scroll (easy)	Clue scrolls
+3496	Clue scroll (easy)	Clue scrolls
+3497	Clue scroll (easy)	Clue scrolls
+3498	Clue scroll (easy)	Clue scrolls
+3499	Clue scroll (easy)	Clue scrolls
+3500	Clue scroll (easy)	Clue scrolls
+3501	Clue scroll (easy)	Clue scrolls
+3502	Clue scroll (easy)	Clue scrolls
+3503	Clue scroll (easy)	Clue scrolls
+3504	Clue scroll (easy)	Clue scrolls
+3505	Clue scroll (easy)	Clue scrolls
+3506	Clue scroll (easy)	Clue scrolls
+3507	Clue scroll (easy)	Clue scrolls
+3508	Clue scroll (easy)	Clue scrolls
+3509	Clue scroll (easy)	Clue scrolls
+3510	Clue scroll (easy)	Clue scrolls
+3512	Clue scroll (easy)	Clue scrolls
+3513	Clue scroll (easy)	Clue scrolls
+3514	Clue scroll (easy)	Clue scrolls
+3515	Clue scroll (easy)	Clue scrolls
+3516	Clue scroll (easy)	Clue scrolls
+3518	Clue scroll (easy)	Clue scrolls
+3520	Clue scroll (hard)	Clue scrolls
+3522	Clue scroll (hard)	Clue scrolls
+3524	Clue scroll (hard)	Clue scrolls
+3525	Clue scroll (hard)	Clue scrolls
+3526	Clue scroll (hard)	Clue scrolls
+3528	Clue scroll (hard)	Clue scrolls
+3530	Clue scroll (hard)	Clue scrolls
+3532	Clue scroll (hard)	Clue scrolls
+3534	Clue scroll (hard)	Clue scrolls
+3536	Clue scroll (hard)	Clue scrolls
+3538	Clue scroll (hard)	Clue scrolls
+3540	Clue scroll (hard)	Clue scrolls
+3542	Clue scroll (hard)	Clue scrolls
+3544	Clue scroll (hard)	Clue scrolls
+3546	Clue scroll (hard)	Clue scrolls
+3548	Clue scroll (hard)	Clue scrolls
+3552	Clue scroll (hard)	Clue scrolls
+3554	Clue scroll (hard)	Clue scrolls
+3556	Clue scroll (hard)	Clue scrolls
+3558	Clue scroll (hard)	Clue scrolls
+3560	Clue scroll (hard)	Clue scrolls
+3562	Clue scroll (hard)	Clue scrolls
+3564	Clue scroll (hard)	Clue scrolls
+3566	Clue scroll (hard)	Clue scrolls
+3568	Clue scroll (hard)	Clue scrolls
+3570	Clue scroll (hard)	Clue scrolls
+3572	Clue scroll (hard)	Clue scrolls
+3573	Clue scroll (hard)	Clue scrolls
+3574	Clue scroll (hard)	Clue scrolls
+3575	Clue scroll (hard)	Clue scrolls
+3577	Clue scroll (hard)	Clue scrolls
+3579	Clue scroll (hard)	Clue scrolls
+3580	Clue scroll (hard)	Clue scrolls
+3582	Clue scroll (medium)	Clue scrolls
+3584	Clue scroll (medium)	Clue scrolls
+3586	Clue scroll (medium)	Clue scrolls
+3588	Clue scroll (medium)	Clue scrolls
+3590	Clue scroll (medium)	Clue scrolls
+3592	Clue scroll (medium)	Clue scrolls
+3594	Clue scroll (medium)	Clue scrolls
+3596	Clue scroll (medium)	Clue scrolls
+3598	Clue scroll (medium)	Clue scrolls
+3599	Clue scroll (medium)	Clue scrolls
+3601	Clue scroll (medium)	Clue scrolls
+3602	Clue scroll (medium)	Clue scrolls
+3604	Clue scroll (medium)	Clue scrolls
+3605	Clue scroll (medium)	Clue scrolls
+3607	Clue scroll (medium)	Clue scrolls
+3609	Clue scroll (medium)	Clue scrolls
+3610	Clue scroll (medium)	Clue scrolls
+3611	Clue scroll (medium)	Clue scrolls
+3612	Clue scroll (medium)	Clue scrolls
+3613	Clue scroll (medium)	Clue scrolls
+3614	Clue scroll (medium)	Clue scrolls
+3615	Clue scroll (medium)	Clue scrolls
+3616	Clue scroll (medium)	Clue scrolls
+3617	Clue scroll (medium)	Clue scrolls
+3618	Clue scroll (medium)	Clue scrolls
+3690	Enchanted lyre	Teleportation items
+3691	Enchanted lyre(1)	Teleportation items
+3853	Games necklace(8)	Teleportation items
+3855	Games necklace(7)	Teleportation items
+3857	Games necklace(6)	Teleportation items
+3859	Games necklace(5)	Teleportation items
+3861	Games necklace(4)	Teleportation items
+3863	Games necklace(3)	Teleportation items
+3865	Games necklace(2)	Teleportation items
+3867	Games necklace(1)	Teleportation items
+4001	Hardy gout tuber	Seeds
+4007	Enchanted bar	Metal bars
+4020	M'amulet mould	Tools
+4035	10th squad sigil	Teleportation items
+4045	Explosive potion	Potions,Herblore
+4067	Castle wars ticket	Currency
+4155	Enchanted gem	Gems
+4200	Conductor mould	Tools
+4251	Ectophial	Teleportation items
+4252	Ectophial	Teleportation items
+4255	Bonemeal	Bones
+4256	Bat bonemeal	Bones
+4257	Big bonemeal	Bones
+4258	Burnt bonemeal	Bones
+4259	Burnt jogre bonemeal	Bones
+4260	Baby dragon bonemeal	Bones
+4261	Dragon bonemeal	Bones
+4262	Wolf bonemeal	Bones
+4263	Small ninja bonemeal	Bones
+4264	Medium ninja bonemeal	Bones
+4265	Gorilla bonemeal	Bones
+4266	Bearded gorilla bonemeal	Bones
+4267	Monkey bonemeal	Bones
+4268	Small zombie monkey bonemeal	Bones
+4269	Large zombie monkey bonemeal	Bones
+4270	Skeleton bonemeal	Bones
+4271	Jogre bonemeal	Bones
+4278	Ecto-token	Currency
+4417	Guthix rest(4)	Potions,Herblore
+4419	Guthix rest(3)	Potions,Herblore
+4421	Guthix rest(2)	Potions,Herblore
+4423	Guthix rest(1)	Potions,Herblore
+4445	Red mahogany log	Logs
+4464	Herb tea mix	Herblore
+4466	Herb tea mix	Herblore
+4468	Herb tea mix	Herblore
+4470	Herb tea mix	Herblore
+4472	Herb tea mix	Herblore
+4474	Herb tea mix	Herblore
+4476	Herb tea mix	Herblore
+4478	Herb tea mix	Herblore
+4480	Herb tea mix	Herblore
+4482	Herb tea mix	Herblore
+4486	White pearl seed	Seeds
+4670	Blood diamond	Gems
+4671	Ice diamond	Gems
+4672	Smoke diamond	Gems
+4673	Shadow diamond	Gems
+4694	Steam rune	Runes
+4695	Mist rune	Runes
+4696	Dust rune	Runes
+4697	Smoke rune	Runes
+4698	Mud rune	Runes
+4699	Lava rune	Runes
+4808	Black prism	Gems
+4812	Zogre bones	Bones
+4830	Fayrg bones	Bones
+4832	Raurg bones	Bones
+4834	Ourg bones	Bones
+4836	Strange potion	Potions,Herblore
+4840	Unfinished potion	Potions,Herblore
+4842	Relicym's balm(4)	Potions,Herblore
+4844	Relicym's balm(3)	Potions,Herblore
+4846	Relicym's balm(2)	Potions,Herblore
+4848	Relicym's balm(1)	Potions,Herblore
+4852	Zogre bonemeal	Bones
+4853	Fayrg bonemeal	Bones
+4854	Raurg bonemeal	Bones
+4855	Ourg bonemeal	Bones
+5096	Marigold seed	Seeds
+5097	Rosemary seed	Seeds
+5098	Nasturtium seed	Seeds
+5099	Woad seed	Seeds
+5100	Limpwurt seed	Seeds
+5101	Redberry seed	Seeds
+5102	Cadavaberry seed	Seeds
+5103	Dwellberry seed	Seeds
+5104	Jangerberry seed	Seeds
+5105	Whiteberry seed	Seeds
+5106	Poison ivy seed	Seeds
+5280	Cactus seed	Seeds
+5281	Belladonna seed	Seeds
+5282	Mushroom spore	Seeds
+5283	Apple tree seed	Seeds
+5284	Banana tree seed	Seeds
+5285	Orange tree seed	Seeds
+5286	Curry tree seed	Seeds
+5287	Pineapple seed	Seeds
+5288	Papaya tree seed	Seeds
+5289	Palm tree seed	Seeds
+5290	Calquat tree seed	Seeds
+5291	Guam seed	Seeds
+5292	Marrentill seed	Seeds
+5293	Tarromin seed	Seeds
+5294	Harralander seed	Seeds
+5295	Ranarr seed	Seeds
+5296	Toadflax seed	Seeds
+5297	Irit seed	Seeds
+5298	Avantoe seed	Seeds
+5299	Kwuarm seed	Seeds
+5300	Snapdragon seed	Seeds
+5301	Cadantine seed	Seeds
+5302	Lantadyme seed	Seeds
+5303	Dwarf weed seed	Seeds
+5304	Torstol seed	Seeds
+5305	Barley seed	Seeds
+5306	Jute seed	Seeds
+5307	Hammerstone seed	Seeds
+5308	Asgarnian seed	Seeds
+5309	Yanillian seed	Seeds
+5310	Krandorian seed	Seeds
+5311	Wildblood seed	Seeds
+5312	Acorn	Seeds
+5313	Willow seed	Seeds
+5314	Maple seed	Seeds
+5315	Yew seed	Seeds
+5316	Magic seed	Seeds
+5317	Spirit seed	Seeds
+5318	Potato seed	Seeds
+5319	Onion seed	Seeds
+5320	Sweetcorn seed	Seeds
+5321	Watermelon seed	Seeds
+5322	Tomato seed	Seeds
+5323	Strawberry seed	Seeds
+5324	Cabbage seed	Seeds
+5325	Gardening trowel	Tools
+5329	Secateurs	Tools
+5341	Rake	Tools
+5343	Seed dibber	Seeds,Tools
+5370	Oak sapling	Saplings
+5371	Willow sapling	Saplings
+5372	Maple sapling	Saplings
+5373	Yew sapling	Saplings
+5374	Magic sapling	Saplings
+5375	Spirit sapling	Saplings
+5496	Apple sapling	Saplings
+5497	Banana sapling	Saplings
+5498	Orange sapling	Saplings
+5499	Curry sapling	Saplings
+5500	Pineapple sapling	Saplings
+5501	Papaya sapling	Saplings
+5502	Palm sapling	Saplings
+5503	Calquat sapling	Saplings
+5523	Tiara mould	Tools
+5553	Rogue top	Skilling equipment
+5554	Rogue mask	Skilling equipment
+5555	Rogue trousers	Skilling equipment
+5556	Rogue gloves	Skilling equipment
+5557	Rogue boots	Skilling equipment
+5561	Mystic jewel	Gems
+5615	Shaikahan bonemeal	Bones
+5935	Coconut milk	Potions,Herblore
+5936	Weapon poison+ (unf)	Potions,Herblore
+5937	Weapon poison(+)	Potions,Herblore
+5939	Weapon poison++ (unf)	Potions,Herblore
+5940	Weapon poison(++)	Potions,Herblore
+5942	Antidote+ (unf)	Potions,Herblore
+5943	Antidote+(4)	Potions,Herblore
+5945	Antidote+(3)	Potions,Herblore
+5947	Antidote+(2)	Potions,Herblore
+5949	Antidote+(1)	Potions,Herblore
+5951	Antidote++ (unf)	Potions,Herblore
+5952	Antidote++(4)	Potions,Herblore
+5954	Antidote++(3)	Potions,Herblore
+5956	Antidote++(2)	Potions,Herblore
+5958	Antidote++(1)	Potions,Herblore
+6099	Teleport crystal (4)	Teleportation items
+6100	Teleport crystal (3)	Teleportation items
+6101	Teleport crystal (2)	Teleportation items
+6102	Teleport crystal (1)	Teleportation items
+6103	Crystal teleport seed	Teleportation items
+6112	Kelda seed	Seeds
+6125	Enchanted lyre(2)	Teleportation items
+6126	Enchanted lyre(3)	Teleportation items
+6127	Enchanted lyre(4)	Teleportation items
+6183	Frog token	Currency
+6211	Teak pyre logs	Logs
+6213	Mahogany pyre logs	Logs
+6289	Snakeskin	Leather
+6306	Trading sticks	Currency
+6311	Gout tuber	Herbs,Seeds
+6313	Opal machete	Tools
+6315	Jade machete	Tools
+6317	Red topaz machete	Tools
+6332	Mahogany logs	Logs
+6333	Teak logs	Logs
+6453	White rose seed	Seeds
+6454	Red rose seed	Seeds
+6455	Pink rose seed	Seeds
+6456	Vine seed	Seeds
+6457	Delphinium seed	Seeds
+6458	Orchid seed	Seeds
+6459	Orchid seed	Seeds
+6460	Snowdrop seed	Seeds
+6464	White tree sapling	Saplings
+6470	Compost potion(4)	Potions,Herblore
+6472	Compost potion(3)	Potions,Herblore
+6474	Compost potion(2)	Potions,Herblore
+6476	Compost potion(1)	Potions,Herblore
+6529	Tokkul	Currency
+6571	Uncut onyx	Gems
+6573	Onyx	Gems
+6673	Fishbowl and net	Tools
+6685	Saradomin brew(4)	Potions,Herblore
+6687	Saradomin brew(3)	Potions,Herblore
+6689	Saradomin brew(2)	Potions,Herblore
+6691	Saradomin brew(1)	Potions,Herblore
+6707	Camulet	Teleportation items
+6710	Blindweed seed	Seeds
+6728	Dagannoth-king bonemeal	Bones
+6729	Dagannoth bones	Bones
+6739	Dragon axe	Tools
+6741	Broken axe	Tools
+6743	Dragon axe head	Tools
+6747	Demonic sigil mould	Tools
+6766	Cat antipoison	Potions,Herblore
+6770	Directions	Teleportation items
+6810	Wyvern bonemeal	Bones
+6812	Wyvern bones	Bones
+6971	Sandstone (1kg)	Ores
+6973	Sandstone (2kg)	Ores
+6975	Sandstone (5kg)	Ores
+6977	Sandstone (10kg)	Ores
+6979	Granite (500g)	Ores
+6981	Granite (2kg)	Ores
+6983	Granite (5kg)	Ores
+7001	Camel mould (p)	Tools
+7236	Clue scroll (easy)	Clue scrolls
+7238	Clue scroll (easy)	Clue scrolls
+7239	Clue scroll (hard)	Clue scrolls
+7241	Clue scroll (hard)	Clue scrolls
+7243	Clue scroll (hard)	Clue scrolls
+7245	Clue scroll (hard)	Clue scrolls
+7247	Clue scroll (hard)	Clue scrolls
+7248	Clue scroll (hard)	Clue scrolls
+7249	Clue scroll (hard)	Clue scrolls
+7250	Clue scroll (hard)	Clue scrolls
+7251	Clue scroll (hard)	Clue scrolls
+7252	Clue scroll (hard)	Clue scrolls
+7253	Clue scroll (hard)	Clue scrolls
+7254	Clue scroll (hard)	Clue scrolls
+7255	Clue scroll (hard)	Clue scrolls
+7256	Clue scroll (hard)	Clue scrolls
+7258	Clue scroll (hard)	Clue scrolls
+7260	Clue scroll (hard)	Clue scrolls
+7262	Clue scroll (hard)	Clue scrolls
+7264	Clue scroll (hard)	Clue scrolls
+7266	Clue scroll (hard)	Clue scrolls
+7268	Clue scroll (hard)	Clue scrolls
+7270	Clue scroll (hard)	Clue scrolls
+7272	Clue scroll (hard)	Clue scrolls
+7274	Clue scroll (medium)	Clue scrolls
+7276	Clue scroll (medium)	Clue scrolls
+7278	Clue scroll (medium)	Clue scrolls
+7280	Clue scroll (medium)	Clue scrolls
+7282	Clue scroll (medium)	Clue scrolls
+7284	Clue scroll (medium)	Clue scrolls
+7286	Clue scroll (medium)	Clue scrolls
+7288	Clue scroll (medium)	Clue scrolls
+7290	Clue scroll (medium)	Clue scrolls
+7292	Clue scroll (medium)	Clue scrolls
+7294	Clue scroll (medium)	Clue scrolls
+7296	Clue scroll (medium)	Clue scrolls
+7298	Clue scroll (medium)	Clue scrolls
+7300	Clue scroll (medium)	Clue scrolls
+7301	Clue scroll (medium)	Clue scrolls
+7303	Clue scroll (medium)	Clue scrolls
+7304	Clue scroll (medium)	Clue scrolls
+7305	Clue scroll (medium)	Clue scrolls
+7307	Clue scroll (medium)	Clue scrolls
+7309	Clue scroll (medium)	Clue scrolls
+7311	Clue scroll (medium)	Clue scrolls
+7313	Clue scroll (medium)	Clue scrolls
+7315	Clue scroll (medium)	Clue scrolls
+7317	Clue scroll (medium)	Clue scrolls
+7404	Red logs	Logs
+7405	Green logs	Logs
+7406	Blue logs	Logs
+7409	Magic secateurs	Tools
+7649	Rod mould	Tools
+7652	Guthix balance (unf)	Potions,Herblore
+7654	Guthix balance (unf)	Potions,Herblore
+7656	Guthix balance (unf)	Potions,Herblore
+7658	Guthix balance (unf)	Potions,Herblore
+7660	Guthix balance(4)	Potions,Herblore
+7662	Guthix balance(3)	Potions,Herblore
+7664	Guthix balance(2)	Potions,Herblore
+7666	Guthix balance(1)	Potions,Herblore
+7952	Axe handle	Tools
+8007	Varrock teleport	Teleportation items
+8008	Lumbridge teleport	Teleportation items
+8009	Falador teleport	Teleportation items
+8010	Camelot teleport	Teleportation items
+8011	Ardougne teleport	Teleportation items
+8012	Watchtower teleport	Teleportation items
+8013	Teleport to house	Teleportation items
+8794	Saw	Tools
+8851	Warrior guild token	Currency
+8934	Scrapey tree logs	Logs
+8940	Rum	Teleportation items
+8941	Rum	Teleportation items
+8951	Pieces of eight	Currency
+9013	Skull sceptre	Teleportation items
+9019	Magic essence (unf)	Potions,Herblore
+9021	Magic essence(4)	Potions,Herblore
+9022	Magic essence(3)	Potions,Herblore
+9023	Magic essence(2)	Potions,Herblore
+9024	Magic essence(1)	Potions,Herblore
+9067	Dream log	Logs
+9075	Astral rune	Runes
+9077	Lunar bar	Metal bars
+9081	Suqah leather	Leather
+9086	Vial of water	Herblore
+9087	Waking sleep vial	Herblore
+9088	Guam vial	Herblore
+9089	Marr vial	Herblore
+9090	Guam-marr vial	Herblore
+9434	Bolt mould	Tools
+9467	Blurite bar	Metal bars
+9469	Grand seed pod	Teleportation items
+9474	Reward token	Currency
+9625	Crystal saw	Tools
+9632	Daeyalt ore	Ores
+9727	Primed bar	Metal bars
+9728	Primed mind bar	Metal bars
+9739	Combat potion(4)	Potions,Herblore
+9741	Combat potion(3)	Potions,Herblore
+9743	Combat potion(2)	Potions,Herblore
+9745	Combat potion(1)	Potions,Herblore
+9750	Strength cape	Teleportation items
+9751	Strength cape(t)	Teleportation items
+9753	Defence cape	Teleportation items
+9754	Defence cape(t)	Teleportation items
+9765	Runecraft cape	Skilling equipment
+9766	Runecraft cape(t)	Skilling equipment
+9771	Agility cape	Skilling equipment
+9772	Agility cape(t)	Skilling equipment
+9774	Herblore cape	Skilling equipment
+9775	Herblore cape(t)	Skilling equipment
+9777	Thieving cape	Skilling equipment
+9778	Thieving cape(t)	Skilling equipment
+9780	Crafting cape	Teleportation items
+9781	Crafting cape(t)	Teleportation items
+9789	Construct. cape	Teleportation items
+9790	Construct. cape(t)	Teleportation items
+9792	Mining cape	Skilling equipment
+9793	Mining cape(t)	Skilling equipment
+9795	Smithing cape	Skilling equipment
+9796	Smithing cape(t)	Skilling equipment
+9798	Fishing cape	Teleportation items
+9799	Fishing cape(t)	Teleportation items
+9801	Cooking cape	Skilling equipment
+9802	Cooking cape(t)	Skilling equipment
+9807	Woodcutting cape	Skilling equipment
+9808	Woodcut. cape(t)	Skilling equipment
+9810	Farming cape	Teleportation items,Skilling equipment
+9811	Farming cape(t)	Teleportation items,Skilling equipment
+9813	Quest point cape	Teleportation items
+9932	Auguste's sapling	Saplings
+9948	Hunter cape	Teleportation items
+9949	Hunter cape(t)	Teleportation items
+9998	Hunter potion(4)	Potions,Herblore
+10000	Hunter potion(3)	Potions,Herblore
+10002	Hunter potion(2)	Potions,Herblore
+10004	Hunter potion(1)	Potions,Herblore
+10006	Bird snare	Tools
+10008	Box trap	Tools
+10010	Butterfly net	Tools
+10016	Snowy knight	Potions
+10025	Magic box	Tools
+10029	Teasing stick	Tools
+10031	Rabbit snare	Tools
+10075	Gloves of silence	Skilling equipment
+10129	Barb-tail harpoon	Tools
+10142	Guam tar	Herblore
+10143	Marrentill tar	Herblore
+10144	Tarromin tar	Herblore
+10145	Harralander tar	Herblore
+10150	Noose wand	Tools
+10180	Clue scroll (easy)	Clue scrolls
+10182	Clue scroll (easy)	Clue scrolls
+10184	Clue scroll (easy)	Clue scrolls
+10186	Clue scroll (easy)	Clue scrolls
+10188	Clue scroll (easy)	Clue scrolls
+10190	Clue scroll (easy)	Clue scrolls
+10192	Clue scroll (easy)	Clue scrolls
+10194	Clue scroll (easy)	Clue scrolls
+10196	Clue scroll (easy)	Clue scrolls
+10198	Clue scroll (easy)	Clue scrolls
+10200	Clue scroll (easy)	Clue scrolls
+10202	Clue scroll (easy)	Clue scrolls
+10204	Clue scroll (easy)	Clue scrolls
+10206	Clue scroll (easy)	Clue scrolls
+10208	Clue scroll (easy)	Clue scrolls
+10210	Clue scroll (easy)	Clue scrolls
+10212	Clue scroll (easy)	Clue scrolls
+10214	Clue scroll (easy)	Clue scrolls
+10216	Clue scroll (easy)	Clue scrolls
+10218	Clue scroll (easy)	Clue scrolls
+10220	Clue scroll (easy)	Clue scrolls
+10222	Clue scroll (easy)	Clue scrolls
+10224	Clue scroll (easy)	Clue scrolls
+10226	Clue scroll (easy)	Clue scrolls
+10228	Clue scroll (easy)	Clue scrolls
+10230	Clue scroll (easy)	Clue scrolls
+10232	Clue scroll (easy)	Clue scrolls
+10234	Clue scroll (hard)	Clue scrolls
+10236	Clue scroll (hard)	Clue scrolls
+10238	Clue scroll (hard)	Clue scrolls
+10240	Clue scroll (hard)	Clue scrolls
+10242	Clue scroll (hard)	Clue scrolls
+10244	Clue scroll (hard)	Clue scrolls
+10246	Clue scroll (hard)	Clue scrolls
+10248	Clue scroll (hard)	Clue scrolls
+10250	Clue scroll (hard)	Clue scrolls
+10252	Clue scroll (hard)	Clue scrolls
+10254	Clue scroll (medium)	Clue scrolls
+10256	Clue scroll (medium)	Clue scrolls
+10258	Clue scroll (medium)	Clue scrolls
+10260	Clue scroll (medium)	Clue scrolls
+10262	Clue scroll (medium)	Clue scrolls
+10264	Clue scroll (medium)	Clue scrolls
+10266	Clue scroll (medium)	Clue scrolls
+10268	Clue scroll (medium)	Clue scrolls
+10270	Clue scroll (medium)	Clue scrolls
+10272	Clue scroll (medium)	Clue scrolls
+10274	Clue scroll (medium)	Clue scrolls
+10276	Clue scroll (medium)	Clue scrolls
+10278	Clue scroll (medium)	Clue scrolls
+10328	White logs	Logs
+10329	Purple logs	Logs
+10354	Amulet of glory (t4)	Teleportation items
+10356	Amulet of glory (t3)	Teleportation items
+10358	Amulet of glory (t2)	Teleportation items
+10360	Amulet of glory (t1)	Teleportation items
+10362	Amulet of glory (t)	Teleportation items
+10491	Blessed axe	Tools
+10808	Arctic pyre logs	Logs
+10810	Arctic pine logs	Logs
+10812	Split log	Logs
+10909	Mixture - step 1(4)	Potions,Herblore
+10911	Mixture - step 1(3)	Potions,Herblore
+10913	Mixture - step 1(2)	Potions,Herblore
+10915	Mixture - step 1(1)	Potions,Herblore
+10917	Mixture - step 2(4)	Potions,Herblore
+10919	Mixture - step 2(3)	Potions,Herblore
+10921	Mixture - step 2(2)	Potions,Herblore
+10923	Mixture - step 2(1)	Potions,Herblore
+10925	Sanfew serum(4)	Potions,Herblore
+10927	Sanfew serum(3)	Potions,Herblore
+10929	Sanfew serum(2)	Potions,Herblore
+10931	Sanfew serum(1)	Potions,Herblore
+10933	Lumberjack boots	Skilling equipment
+10939	Lumberjack top	Skilling equipment
+10940	Lumberjack legs	Skilling equipment
+10941	Lumberjack hat	Skilling equipment
+10972	Dorgesh-kaan sphere	Teleportation items
+10976	Long bone	Bones
+10977	Curved bone	Bones
+11024	Rabbit mould	Tools
+11035	Windswept logs	Logs
+11060	Goblin village sphere	Teleportation items
+11065	Bracelet mould	Tools
+11105	Skills necklace(4)	Teleportation items
+11107	Skills necklace(3)	Teleportation items
+11109	Skills necklace(2)	Teleportation items
+11111	Skills necklace(1)	Teleportation items
+11113	Skills necklace	Teleportation items
+11118	Combat bracelet(4)	Teleportation items
+11120	Combat bracelet(3)	Teleportation items
+11122	Combat bracelet(2)	Teleportation items
+11124	Combat bracelet(1)	Teleportation items
+11126	Combat bracelet	Teleportation items
+11140	Karamja gloves 3	Teleportation items
+11151	Dream vial (empty)	Herblore
+11152	Dream vial (water)	Herblore
+11153	Dream vial (herb)	Herblore
+11154	Dream potion	Herblore
+11190	Digsite pendant (1)	Teleportation items
+11191	Digsite pendant (2)	Teleportation items
+11192	Digsite pendant (3)	Teleportation items
+11193	Digsite pendant (4)	Teleportation items
+11194	Digsite pendant (5)	Teleportation items
+11204	Shrink-me-quick	Potions,Herblore
+11259	Magic butterfly net	Tools
+11262	Imp repellent	Herblore
+11323	Barbarian rod	Tools
+11334	Fish offcuts	Tools
+11429	Attack mix(2)	Potions,Herblore
+11431	Attack mix(1)	Potions,Herblore
+11433	Antipoison mix(2)	Potions,Herblore
+11435	Antipoison mix(1)	Potions,Herblore
+11437	Relicym's mix(2)	Potions,Herblore
+11439	Relicym's mix(1)	Potions,Herblore
+11441	Strength mix(1)	Potions,Herblore
+11443	Strength mix(2)	Potions,Herblore
+11445	Combat mix(2)	Potions,Herblore
+11447	Combat mix(1)	Potions,Herblore
+11449	Restore mix(2)	Potions,Herblore
+11451	Restore mix(1)	Potions,Herblore
+11453	Energy mix(2)	Potions,Herblore
+11455	Energy mix(1)	Potions,Herblore
+11457	Defence mix(2)	Potions,Herblore
+11459	Defence mix(1)	Potions,Herblore
+11461	Agility mix(2)	Potions,Herblore
+11463	Agility mix(1)	Potions,Herblore
+11465	Prayer mix(2)	Potions,Herblore
+11467	Prayer mix(1)	Potions,Herblore
+11469	Superattack mix(2)	Potions,Herblore
+11471	Superattack mix(1)	Potions,Herblore
+11473	Anti-poison supermix(2)	Potions,Herblore
+11475	Anti-poison supermix(1)	Potions,Herblore
+11477	Fishing mix(2)	Potions,Herblore
+11479	Fishing mix(1)	Potions,Herblore
+11481	Super energy mix(2)	Potions,Herblore
+11483	Super energy mix(1)	Potions,Herblore
+11485	Super str. mix(2)	Potions,Herblore
+11487	Super str. mix(1)	Potions,Herblore
+11489	Magic essence mix(2)	Potions,Herblore
+11491	Magic essence mix(1)	Potions,Herblore
+11493	Super restore mix(2)	Potions,Herblore
+11495	Super restore mix(1)	Potions,Herblore
+11497	Super def. mix(2)	Potions,Herblore
+11499	Super def. mix(1)	Potions,Herblore
+11501	Antidote+ mix(2)	Potions,Herblore
+11503	Antidote+ mix(1)	Potions,Herblore
+11505	Antifire mix(2)	Potions,Herblore
+11507	Antifire mix(1)	Potions,Herblore
+11509	Ranging mix(2)	Potions,Herblore
+11511	Ranging mix(1)	Potions,Herblore
+11513	Magic mix(2)	Potions,Herblore
+11515	Magic mix(1)	Potions,Herblore
+11517	Hunting mix(2)	Potions,Herblore
+11519	Hunting mix(1)	Potions,Herblore
+11521	Zamorak mix(2)	Potions,Herblore
+11523	Zamorak mix(1)	Potions,Herblore
+11722	Super ranging (4)	Potions,Herblore
+11723	Super ranging (3)	Potions,Herblore
+11724	Super ranging (2)	Potions,Herblore
+11725	Super ranging (1)	Potions,Herblore
+11726	Super magic potion (4)	Potions,Herblore
+11727	Super magic potion (3)	Potions,Herblore
+11728	Super magic potion (2)	Potions,Herblore
+11729	Super magic potion (1)	Potions,Herblore
+11730	Overload (4)	Potions,Herblore
+11731	Overload (3)	Potions,Herblore
+11732	Overload (2)	Potions,Herblore
+11733	Overload (1)	Potions,Herblore
+11734	Absorption (4)	Potions,Herblore
+11735	Absorption (3)	Potions,Herblore
+11736	Absorption (2)	Potions,Herblore
+11737	Absorption (1)	Potions,Herblore
+11738	Herb box	Herblore
+11739	Open herb box	Herblore
+11741	Rimmington teleport	Teleportation items
+11742	Taverley teleport	Teleportation items
+11743	Pollnivneach teleport	Teleportation items
+11744	Rellekka teleport	Teleportation items
+11745	Brimhaven teleport	Teleportation items
+11746	Yanille teleport	Teleportation items
+11747	Trollheim teleport	Teleportation items
+11849	Mark of Grace	Currency
+11850	Graceful hood	Skilling equipment
+11851	Graceful hood	Skilling equipment
+11852	Graceful cape	Skilling equipment
+11853	Graceful cape	Skilling equipment
+11854	Graceful top	Skilling equipment
+11855	Graceful top	Skilling equipment
+11856	Graceful legs	Skilling equipment
+11857	Graceful legs	Skilling equipment
+11858	Graceful gloves	Skilling equipment
+11859	Graceful gloves	Skilling equipment
+11860	Graceful boots	Skilling equipment
+11861	Graceful boots	Skilling equipment
+11866	Slayer ring (8)	Teleportation items
+11867	Slayer ring (7)	Teleportation items
+11868	Slayer ring (6)	Teleportation items
+11869	Slayer ring (5)	Teleportation items
+11870	Slayer ring (4)	Teleportation items
+11871	Slayer ring (3)	Teleportation items
+11872	Slayer ring (2)	Teleportation items
+11873	Slayer ring (1)	Teleportation items
+11920	Dragon pickaxe	Tools
+11922	Lava dragon bonemeal	Bones
+11923	Broken pickaxe	Tools
+11940	Dark fishing bait	Tools
+11943	Lava dragon bones	Bones
+11951	Extended antifire(4)	Potions,Herblore
+11953	Extended antifire(3)	Potions,Herblore
+11955	Extended antifire(2)	Potions,Herblore
+11957	Extended antifire(1)	Potions,Herblore
+11960	Extended antifire mix(2)	Potions,Herblore
+11962	Extended antifire mix(1)	Potions,Herblore
+11964	Amulet of glory (t6)	Teleportation items
+11966	Amulet of glory (t5)	Teleportation items
+11968	Skills necklace(6)	Teleportation items
+11970	Skills necklace(5)	Teleportation items
+11972	Combat bracelet(6)	Teleportation items
+11974	Combat bracelet(5)	Teleportation items
+11976	Amulet of glory(5)	Teleportation items,Skilling equipment
+11978	Amulet of glory(6)	Teleportation items,Skilling equipment
+11980	Ring of wealth (5)	Teleportation items
+11982	Ring of wealth (4)	Teleportation items
+11984	Ring of wealth (3)	Teleportation items
+11986	Ring of wealth (2)	Teleportation items
+11988	Ring of wealth (1)	Teleportation items
+12012	Golden nugget	Currency
+12013	Prospector helmet	Skilling equipment
+12014	Prospector jacket	Skilling equipment
+12015	Prospector legs	Skilling equipment
+12016	Prospector boots	Skilling equipment
+12021	Clue scroll (medium)	Clue scrolls
+12023	Clue scroll (medium)	Clue scrolls
+12025	Clue scroll (medium)	Clue scrolls
+12027	Clue scroll (medium)	Clue scrolls
+12029	Clue scroll (medium)	Clue scrolls
+12031	Clue scroll (medium)	Clue scrolls
+12033	Clue scroll (medium)	Clue scrolls
+12035	Clue scroll (medium)	Clue scrolls
+12037	Clue scroll (medium)	Clue scrolls
+12039	Clue scroll (medium)	Clue scrolls
+12041	Clue scroll (medium)	Clue scrolls
+12043	Clue scroll (medium)	Clue scrolls
+12045	Clue scroll (medium)	Clue scrolls
+12047	Clue scroll (medium)	Clue scrolls
+12049	Clue scroll (medium)	Clue scrolls
+12051	Clue scroll (medium)	Clue scrolls
+12053	Clue scroll (medium)	Clue scrolls
+12055	Clue scroll (medium)	Clue scrolls
+12057	Clue scroll (medium)	Clue scrolls
+12059	Clue scroll (medium)	Clue scrolls
+12061	Clue scroll (medium)	Clue scrolls
+12063	Clue scroll (medium)	Clue scrolls
+12065	Clue scroll (medium)	Clue scrolls
+12067	Clue scroll (medium)	Clue scrolls
+12069	Clue scroll (medium)	Clue scrolls
+12071	Clue scroll (medium)	Clue scrolls
+12073	Clue scroll (elite)	Clue scrolls
+12074	Clue scroll (elite)	Clue scrolls
+12075	Clue scroll (elite)	Clue scrolls
+12076	Clue scroll (elite)	Clue scrolls
+12077	Clue scroll (elite)	Clue scrolls
+12078	Clue scroll (elite)	Clue scrolls
+12079	Clue scroll (elite)	Clue scrolls
+12080	Clue scroll (elite)	Clue scrolls
+12081	Clue scroll (elite)	Clue scrolls
+12082	Clue scroll (elite)	Clue scrolls
+12083	Clue scroll (elite)	Clue scrolls
+12085	Clue scroll (elite)	Clue scrolls
+12086	Clue scroll (elite)	Clue scrolls
+12087	Clue scroll (elite)	Clue scrolls
+12088	Clue scroll (elite)	Clue scrolls
+12089	Clue scroll (elite)	Clue scrolls
+12090	Clue scroll (elite)	Clue scrolls
+12091	Clue scroll (elite)	Clue scrolls
+12092	Clue scroll (elite)	Clue scrolls
+12093	Clue scroll (elite)	Clue scrolls
+12094	Clue scroll (elite)	Clue scrolls
+12095	Clue scroll (elite)	Clue scrolls
+12096	Clue scroll (elite)	Clue scrolls
+12097	Clue scroll (elite)	Clue scrolls
+12098	Clue scroll (elite)	Clue scrolls
+12099	Clue scroll (elite)	Clue scrolls
+12100	Clue scroll (elite)	Clue scrolls
+12101	Clue scroll (elite)	Clue scrolls
+12102	Clue scroll (elite)	Clue scrolls
+12103	Clue scroll (elite)	Clue scrolls
+12104	Clue scroll (elite)	Clue scrolls
+12105	Clue scroll (elite)	Clue scrolls
+12106	Clue scroll (elite)	Clue scrolls
+12107	Clue scroll (elite)	Clue scrolls
+12108	Clue scroll (elite)	Clue scrolls
+12109	Clue scroll (elite)	Clue scrolls
+12110	Clue scroll (elite)	Clue scrolls
+12111	Clue scroll (elite)	Clue scrolls
+12127	Clue scroll (elite)	Clue scrolls
+12130	Clue scroll (elite)	Clue scrolls
+12132	Clue scroll (elite)	Clue scrolls
+12133	Clue scroll (elite)	Clue scrolls
+12134	Clue scroll (elite)	Clue scrolls
+12135	Clue scroll (elite)	Clue scrolls
+12136	Clue scroll (elite)	Clue scrolls
+12137	Clue scroll (elite)	Clue scrolls
+12138	Clue scroll (elite)	Clue scrolls
+12140	Clue scroll (elite)	Clue scrolls
+12141	Clue scroll (elite)	Clue scrolls
+12142	Clue scroll (elite)	Clue scrolls
+12143	Clue scroll (elite)	Clue scrolls
+12144	Clue scroll (elite)	Clue scrolls
+12145	Clue scroll (elite)	Clue scrolls
+12146	Clue scroll (elite)	Clue scrolls
+12147	Clue scroll (elite)	Clue scrolls
+12148	Clue scroll (elite)	Clue scrolls
+12149	Clue scroll (elite)	Clue scrolls
+12150	Clue scroll (elite)	Clue scrolls
+12151	Clue scroll (elite)	Clue scrolls
+12152	Clue scroll (elite)	Clue scrolls
+12153	Clue scroll (elite)	Clue scrolls
+12154	Clue scroll (elite)	Clue scrolls
+12155	Clue scroll (elite)	Clue scrolls
+12156	Clue scroll (elite)	Clue scrolls
+12157	Clue scroll (elite)	Clue scrolls
+12158	Clue scroll (elite)	Clue scrolls
+12159	Clue scroll (elite)	Clue scrolls
+12162	Clue scroll (easy)	Clue scrolls
+12164	Clue scroll (easy)	Clue scrolls
+12166	Clue scroll (easy)	Clue scrolls
+12167	Clue scroll (easy)	Clue scrolls
+12168	Clue scroll (easy)	Clue scrolls
+12169	Clue scroll (easy)	Clue scrolls
+12170	Clue scroll (easy)	Clue scrolls
+12172	Clue scroll (easy)	Clue scrolls
+12173	Clue scroll (easy)	Clue scrolls
+12174	Clue scroll (easy)	Clue scrolls
+12175	Clue scroll (easy)	Clue scrolls
+12176	Clue scroll (easy)	Clue scrolls
+12177	Clue scroll (easy)	Clue scrolls
+12178	Clue scroll (easy)	Clue scrolls
+12179	Clue scroll (easy)	Clue scrolls
+12181	Clue scroll (easy)	Clue scrolls
+12182	Clue scroll (easy)	Clue scrolls
+12183	Clue scroll (easy)	Clue scrolls
+12184	Clue scroll (easy)	Clue scrolls
+12185	Clue scroll (easy)	Clue scrolls
+12186	Clue scroll (easy)	Clue scrolls
+12187	Clue scroll (easy)	Clue scrolls
+12188	Clue scroll (easy)	Clue scrolls
+12189	Clue scroll (easy)	Clue scrolls
+12190	Clue scroll (easy)	Clue scrolls
+12191	Clue scroll (easy)	Clue scrolls
+12192	Clue scroll (easy)	Clue scrolls
+12297	Black pickaxe	Tools
+12402	Nardah teleport	Teleportation items
+12403	Digsite teleport	Teleportation items
+12404	Feldip hills teleport	Teleportation items
+12405	Lunar isle teleport	Teleportation items
+12406	Mort'ton teleport	Teleportation items
+12407	Pest control teleport	Teleportation items
+12408	Piscatoris teleport	Teleportation items
+12409	Tai bwo wannai teleport	Teleportation items
+12410	Iorwerth camp teleport	Teleportation items
+12411	Mos le'harmless teleport	Teleportation items
+12542	Clue scroll (hard)	Clue scrolls
+12544	Clue scroll (hard)	Clue scrolls
+12546	Clue scroll (hard)	Clue scrolls
+12548	Clue scroll (hard)	Clue scrolls
+12550	Clue scroll (hard)	Clue scrolls
+12552	Clue scroll (hard)	Clue scrolls
+12554	Clue scroll (hard)	Clue scrolls
+12556	Clue scroll (hard)	Clue scrolls
+12558	Clue scroll (hard)	Clue scrolls
+12560	Clue scroll (hard)	Clue scrolls
+12562	Clue scroll (hard)	Clue scrolls
+12564	Clue scroll (hard)	Clue scrolls
+12566	Clue scroll (hard)	Clue scrolls
+12568	Clue scroll (hard)	Clue scrolls
+12570	Clue scroll (hard)	Clue scrolls
+12572	Clue scroll (hard)	Clue scrolls
+12574	Clue scroll (hard)	Clue scrolls
+12576	Clue scroll (hard)	Clue scrolls
+12578	Clue scroll (hard)	Clue scrolls
+12581	Clue scroll (hard)	Clue scrolls
+12584	Clue scroll (hard)	Clue scrolls
+12587	Clue scroll (hard)	Clue scrolls
+12590	Clue scroll (hard)	Clue scrolls
+12592	Black pick head	Tools
+12594	Broken pickaxe	Tools
+12625	Stamina potion(4)	Potions,Herblore
+12627	Stamina potion(3)	Potions,Herblore
+12629	Stamina potion(2)	Potions,Herblore
+12631	Stamina potion(1)	Potions,Herblore
+12633	Stamina mix(2)	Potions,Herblore
+12635	Stamina mix(1)	Potions,Herblore
+12642	Lumberyard teleport	Teleportation items
+12695	Super combat potion(4)	Potions,Herblore
+12697	Super combat potion(3)	Potions,Herblore
+12699	Super combat potion(2)	Potions,Herblore
+12701	Super combat potion(1)	Potions,Herblore
+12775	Annakarl teleport	Teleportation items
+12776	Carrallanger teleport	Teleportation items
+12777	Dareeyak teleport	Teleportation items
+12778	Ghorrock teleport	Teleportation items
+12779	Kharyrll teleport	Teleportation items
+12780	Lassar teleport	Teleportation items
+12781	Paddewwa teleport	Teleportation items
+12782	Senntisten teleport	Teleportation items
+12785	Ring of wealth (i)	Teleportation items
+12797	Dragon pickaxe	Tools
+12844	Voice potion	Potions,Herblore
+12905	Anti-venom(4)	Potions,Herblore
+12907	Anti-venom(3)	Potions,Herblore
+12909	Anti-venom(2)	Potions,Herblore
+12911	Anti-venom(1)	Potions,Herblore
+12913	Anti-venom+(4)	Potions,Herblore
+12915	Anti-venom+(3)	Potions,Herblore
+12917	Anti-venom+(2)	Potions,Herblore
+12919	Anti-venom+(1)	Potions,Herblore
+12938	Zul-andra teleport	Teleportation items
+13068	Quest point cape (t)	Teleportation items
+13069	Achievement diary cape (t)	Teleportation items
+13079	Enchanted lyre(5)	Teleportation items
+13102	Teleport crystal (5)	Teleportation items
+13103	Karamja gloves 4	Teleportation items
+13104	Varrock armour 1	Skilling equipment
+13105	Varrock armour 2	Skilling equipment
+13106	Varrock armour 3	Skilling equipment
+13107	Varrock armour 4	Skilling equipment
+13110	Wilderness sword 3	Teleportation items
+13111	Wilderness sword 4	Teleportation items
+13112	Morytania legs 1	Teleportation items
+13113	Morytania legs 2	Teleportation items
+13114	Morytania legs 3	Teleportation items
+13115	Morytania legs 4	Teleportation items
+13121	Ardougne cloak 1	Teleportation items
+13122	Ardougne cloak 2	Teleportation items
+13123	Ardougne cloak 3	Teleportation items
+13124	Ardougne cloak 4	Teleportation items
+13126	Explorer's ring 2	Teleportation items
+13127	Explorer's ring 3	Teleportation items
+13128	Explorer's ring 4	Teleportation items
+13129	Fremennik sea boots 1	Teleportation items
+13130	Fremennik sea boots 2	Teleportation items
+13131	Fremennik sea boots 3	Teleportation items
+13132	Fremennik sea boots 4	Teleportation items
+13134	Desert amulet 2	Teleportation items
+13135	Desert amulet 3	Teleportation items
+13136	Desert amulet 4	Teleportation items
+13139	Kandarin headgear 3	Teleportation items
+13140	Kandarin headgear 4	Teleportation items
+13143	Western banner 3	Teleportation items
+13144	Western banner 4	Teleportation items
+13204	Platinum token	Currency
+13221	Music cape	Teleportation items
+13222	Music cape(t)	Teleportation items
+13241	Infernal axe	Tools
+13242	Infernal axe (uncharged)	Tools
+13243	Infernal pickaxe	Tools
+13244	Infernal pickaxe (uncharged)	Tools
+13249	Key master teleport	Teleportation items
+13258	Angler hat	Skilling equipment
+13259	Angler top	Skilling equipment
+13260	Angler waders	Skilling equipment
+13261	Angler boots	Skilling equipment
+13280	Max cape	Teleportation items
+13307	Blood money	Currency
+13340	Agility cape	Skilling equipment
+13341	Agility cape(t)	Skilling equipment
+13342	Max cape	Teleportation items
+13354	Lovakite bar	Metal bars
+13355	Juniper logs	Logs
+13356	Lovakite ore	Ores
+13392	Xeric's talisman (inert)	Teleportation items
+13393	Xeric's talisman	Teleportation items
+13423	Golovanova seed	Seeds
+13424	Bologano seed	Seeds
+13425	Logavano seed	Seeds
+13431	Sandworms	Tools
+13575	Blasted ore	Ores
+13579	Graceful hood	Skilling equipment
+13580	Graceful hood	Skilling equipment
+13581	Graceful cape	Skilling equipment
+13582	Graceful cape	Skilling equipment
+13583	Graceful top	Skilling equipment
+13584	Graceful top	Skilling equipment
+13585	Graceful legs	Skilling equipment
+13586	Graceful legs	Skilling equipment
+13587	Graceful gloves	Skilling equipment
+13588	Graceful gloves	Skilling equipment
+13589	Graceful boots	Skilling equipment
+13590	Graceful boots	Skilling equipment
+13591	Graceful hood	Skilling equipment
+13592	Graceful hood	Skilling equipment
+13593	Graceful cape	Skilling equipment
+13594	Graceful cape	Skilling equipment
+13595	Graceful top	Skilling equipment
+13596	Graceful top	Skilling equipment
+13597	Graceful legs	Skilling equipment
+13598	Graceful legs	Skilling equipment
+13599	Graceful gloves	Skilling equipment
+13600	Graceful gloves	Skilling equipment
+13601	Graceful boots	Skilling equipment
+13602	Graceful boots	Skilling equipment
+13603	Graceful hood	Skilling equipment
+13604	Graceful hood	Skilling equipment
+13605	Graceful cape	Skilling equipment
+13606	Graceful cape	Skilling equipment
+13607	Graceful top	Skilling equipment
+13608	Graceful top	Skilling equipment
+13609	Graceful legs	Skilling equipment
+13610	Graceful legs	Skilling equipment
+13611	Graceful gloves	Skilling equipment
+13612	Graceful gloves	Skilling equipment
+13613	Graceful boots	Skilling equipment
+13614	Graceful boots	Skilling equipment
+13615	Graceful hood	Skilling equipment
+13616	Graceful hood	Skilling equipment
+13617	Graceful cape	Skilling equipment
+13618	Graceful cape	Skilling equipment
+13619	Graceful top	Skilling equipment
+13620	Graceful top	Skilling equipment
+13621	Graceful legs	Skilling equipment
+13622	Graceful legs	Skilling equipment
+13623	Graceful gloves	Skilling equipment
+13624	Graceful gloves	Skilling equipment
+13625	Graceful boots	Skilling equipment
+13626	Graceful boots	Skilling equipment
+13627	Graceful hood	Skilling equipment
+13628	Graceful hood	Skilling equipment
+13629	Graceful cape	Skilling equipment
+13630	Graceful cape	Skilling equipment
+13631	Graceful top	Skilling equipment
+13632	Graceful top	Skilling equipment
+13633	Graceful legs	Skilling equipment
+13634	Graceful legs	Skilling equipment
+13635	Graceful gloves	Skilling equipment
+13636	Graceful gloves	Skilling equipment
+13637	Graceful boots	Skilling equipment
+13638	Graceful boots	Skilling equipment
+13640	Farmer's boro trousers	Skilling equipment
+13641	Farmer's boro trousers	Skilling equipment
+13642	Farmer's jacket	Skilling equipment
+13643	Farmer's shirt	Skilling equipment
+13644	Farmer's boots	Skilling equipment
+13645	Farmer's boots	Skilling equipment
+13646	Farmer's strawhat	Skilling equipment
+13647	Farmer's strawhat	Skilling equipment
+13657	Grape seed	Seeds
+13660	Chronicle	Teleportation items
+13666	Deadman teleport tablet	Teleportation items
+13667	Graceful hood	Skilling equipment
+13668	Graceful hood	Skilling equipment
+13669	Graceful cape	Skilling equipment
+13670	Graceful cape	Skilling equipment
+13671	Graceful top	Skilling equipment
+13672	Graceful top	Skilling equipment
+13673	Graceful legs	Skilling equipment
+13674	Graceful legs	Skilling equipment
+13675	Graceful gloves	Skilling equipment
+13676	Graceful gloves	Skilling equipment
+13677	Graceful boots	Skilling equipment
+13678	Graceful boots	Skilling equipment
+13680	Cabbage rune	Runes
+19476	Achievement diary cape	Teleportation items
+19493	Zenyte	Gems
+19496	Uncut zenyte	Gems
+19529	Zenyte shard	Gems
+19560	Charged onyx	Gems
+19562	Deconstructed onyx	Gems
+19564	Royal seed pod	Teleportation items
+19613	Arceuus library teleport	Teleportation items
+19615	Draynor manor teleport	Teleportation items
+19617	Mind altar teleport	Teleportation items
+19619	Salve graveyard teleport	Teleportation items
+19621	Fenkenstrain's castle teleport	Teleportation items
+19623	West ardougne teleport	Teleportation items
+19625	Harmony island teleport	Teleportation items
+19627	Cemetery teleport	Teleportation items
+19629	Barrows teleport	Teleportation items
+19631	Ape atoll teleport	Teleportation items
+19651	Hosidius teleport	Teleportation items
+19669	Redwood logs	Logs
+19672	Redwood pyre logs	Logs
+19707	Amulet of eternal glory	Teleportation items
+19734	Clue scroll (medium)	Clue scrolls
+19736	Clue scroll (medium)	Clue scrolls
+19738	Clue scroll (medium)	Clue scrolls
+19740	Clue scroll (medium)	Clue scrolls
+19742	Clue scroll (medium)	Clue scrolls
+19744	Clue scroll (medium)	Clue scrolls
+19746	Clue scroll (medium)	Clue scrolls
+19748	Clue scroll (medium)	Clue scrolls
+19750	Clue scroll (medium)	Clue scrolls
+19752	Clue scroll (medium)	Clue scrolls
+19754	Clue scroll (medium)	Clue scrolls
+19756	Clue scroll (medium)	Clue scrolls
+19758	Clue scroll (medium)	Clue scrolls
+19760	Clue scroll (medium)	Clue scrolls
+19762	Clue scroll (medium)	Clue scrolls
+19764	Clue scroll (medium)	Clue scrolls
+19766	Clue scroll (medium)	Clue scrolls
+19768	Clue scroll (medium)	Clue scrolls
+19770	Clue scroll (medium)	Clue scrolls
+19772	Clue scroll (medium)	Clue scrolls
+19774	Clue scroll (medium)	Clue scrolls
+19776	Clue scroll (medium)	Clue scrolls
+19778	Clue scroll (medium)	Clue scrolls
+19780	Clue scroll (medium)	Clue scrolls
+19782	Clue scroll (elite)	Clue scrolls
+19783	Clue scroll (elite)	Clue scrolls
+19784	Clue scroll (elite)	Clue scrolls
+19785	Clue scroll (elite)	Clue scrolls
+19786	Clue scroll (elite)	Clue scrolls
+19787	Clue scroll (elite)	Clue scrolls
+19788	Clue scroll (elite)	Clue scrolls
+19789	Clue scroll (elite)	Clue scrolls
+19790	Clue scroll (elite)	Clue scrolls
+19791	Clue scroll (elite)	Clue scrolls
+19792	Clue scroll (elite)	Clue scrolls
+19793	Clue scroll (elite)	Clue scrolls
+19794	Clue scroll (elite)	Clue scrolls
+19795	Clue scroll (elite)	Clue scrolls
+19796	Clue scroll (elite)	Clue scrolls
+19797	Clue scroll (elite)	Clue scrolls
+19798	Clue scroll (elite)	Clue scrolls
+19799	Clue scroll (elite)	Clue scrolls
+19800	Clue scroll (elite)	Clue scrolls
+19801	Clue scroll (elite)	Clue scrolls
+19802	Clue scroll (elite)	Clue scrolls
+19803	Clue scroll (elite)	Clue scrolls
+19804	Clue scroll (elite)	Clue scrolls
+19805	Clue scroll (elite)	Clue scrolls
+19806	Clue scroll (elite)	Clue scrolls
+19807	Clue scroll (elite)	Clue scrolls
+19808	Clue scroll (elite)	Clue scrolls
+19809	Clue scroll (elite)	Clue scrolls
+19810	Clue scroll (elite)	Clue scrolls
+19811	Clue scroll (elite)	Clue scrolls
+19813	Clue scroll (elite)	Clue scrolls
+19814	Clue scroll (easy)	Clue scrolls
+19816	Clue scroll (easy)	Clue scrolls
+19817	Clue scroll (easy)	Clue scrolls
+19818	Clue scroll (easy)	Clue scrolls
+19819	Clue scroll (easy)	Clue scrolls
+19820	Clue scroll (easy)	Clue scrolls
+19821	Clue scroll (easy)	Clue scrolls
+19822	Clue scroll (easy)	Clue scrolls
+19823	Clue scroll (easy)	Clue scrolls
+19824	Clue scroll (easy)	Clue scrolls
+19825	Clue scroll (easy)	Clue scrolls
+19826	Clue scroll (easy)	Clue scrolls
+19828	Clue scroll (easy)	Clue scrolls
+19829	Clue scroll (easy)	Clue scrolls
+19830	Clue scroll (easy)	Clue scrolls
+19831	Clue scroll (easy)	Clue scrolls
+19833	Clue scroll (easy)	Clue scrolls
+19835	Clue scroll (master)	Clue scrolls
+19840	Clue scroll (hard)	Clue scrolls
+19842	Clue scroll (hard)	Clue scrolls
+19844	Clue scroll (hard)	Clue scrolls
+19846	Clue scroll (hard)	Clue scrolls
+19848	Clue scroll (hard)	Clue scrolls
+19850	Clue scroll (hard)	Clue scrolls
+19852	Clue scroll (hard)	Clue scrolls
+19853	Clue scroll (hard)	Clue scrolls
+19854	Clue scroll (hard)	Clue scrolls
+19856	Clue scroll (hard)	Clue scrolls
+19857	Clue scroll (hard)	Clue scrolls
+19858	Clue scroll (hard)	Clue scrolls
+19860	Clue scroll (hard)	Clue scrolls
+19862	Clue scroll (hard)	Clue scrolls
+19864	Clue scroll (hard)	Clue scrolls
+19866	Clue scroll (hard)	Clue scrolls
+19868	Clue scroll (hard)	Clue scrolls
+19870	Clue scroll (hard)	Clue scrolls
+19872	Clue scroll (hard)	Clue scrolls
+19874	Clue scroll (hard)	Clue scrolls
+19876	Clue scroll (hard)	Clue scrolls
+19878	Clue scroll (hard)	Clue scrolls
+19880	Clue scroll (hard)	Clue scrolls
+19882	Clue scroll (hard)	Clue scrolls
+19884	Clue scroll (hard)	Clue scrolls
+19886	Clue scroll (hard)	Clue scrolls
+19888	Clue scroll (hard)	Clue scrolls
+19890	Clue scroll (hard)	Clue scrolls
+19892	Clue scroll (hard)	Clue scrolls
+19894	Clue scroll (hard)	Clue scrolls
+19896	Clue scroll (hard)	Clue scrolls
+19898	Clue scroll (hard)	Clue scrolls
+19900	Clue scroll (hard)	Clue scrolls
+19902	Clue scroll (hard)	Clue scrolls
+19904	Clue scroll (hard)	Clue scrolls
+19906	Clue scroll (hard)	Clue scrolls
+19908	Clue scroll (hard)	Clue scrolls
+19910	Clue scroll (hard)	Clue scrolls
+20011	3rd Age axe	Tools
+20014	3rd Age pickaxe	Tools
+20527	Survival token	Currency
+20695	Bruma root	Logs
+20697	Rejuvenation potion (unf)	Potions,Herblore
+20698	Bruma herb	Herbs
+20699	Rejuvenation potion (4)	Potions,Herblore
+20700	Rejuvenation potion (3)	Potions,Herblore
+20701	Rejuvenation potion (2)	Potions,Herblore
+20702	Rejuvenation potion (1)	Potions,Herblore
+20704	Pyromancer garb	Skilling equipment
+20706	Pyromancer robe	Skilling equipment
+20708	Pyromancer hood	Skilling equipment
+20710	Pyromancer boots	Skilling equipment
+20760	Ardougne max cape	Teleportation items
+20786	Ring of wealth (i5)	Teleportation items
+20787	Ring of wealth (i4)	Teleportation items
+20788	Ring of wealth (i3)	Teleportation items
+20789	Ring of wealth (i2)	Teleportation items
+20790	Ring of wealth (i1)	Teleportation items
+20901	Grimy noxifer	Herbs
+20902	Noxifer	Herbs,Herblore
+20903	Noxifer seed	Seeds
+20904	Grimy golpar	Herbs
+20905	Golpar	Herbs,Herblore
+20906	Golpar seed	Seeds
+20908	Buchu leaf	Herbs,Herblore
+20909	Buchu seed	Seeds
+20913	Elder (-)(1)	Potions,Herblore
+20914	Elder (-)(2)	Potions,Herblore
+20915	Elder (-)(3)	Potions,Herblore
+20916	Elder (-)(4)	Potions,Herblore
+20917	Elder potion (1)	Potions,Herblore
+20918	Elder potion (2)	Potions,Herblore
+20919	Elder potion (3)	Potions,Herblore
+20920	Elder potion (4)	Potions,Herblore
+20921	Elder (+)(1)	Potions,Herblore
+20922	Elder (+)(2)	Potions,Herblore
+20923	Elder (+)(3)	Potions,Herblore
+20924	Elder (+)(4)	Potions,Herblore
+20925	Twisted (-)(1)	Potions,Herblore
+20926	Twisted (-)(2)	Potions,Herblore
+20927	Twisted (-)(3)	Potions,Herblore
+20928	Twisted (-)(4)	Potions,Herblore
+20929	Twisted potion (1)	Potions,Herblore
+20930	Twisted potion (2)	Potions,Herblore
+20931	Twisted potion (3)	Potions,Herblore
+20932	Twisted potion (4)	Potions,Herblore
+20933	Twisted (+)(1)	Potions,Herblore
+20934	Twisted (+)(2)	Potions,Herblore
+20935	Twisted (+)(3)	Potions,Herblore
+20936	Twisted (+)(4)	Potions,Herblore
+20937	Kodai (-)(1)	Potions,Herblore
+20938	Kodai (-)(2)	Potions,Herblore
+20939	Kodai (-)(3)	Potions,Herblore
+20940	Kodai (-)(4)	Potions,Herblore
+20941	Kodai potion (1)	Potions,Herblore
+20942	Kodai potion (2)	Potions,Herblore
+20943	Kodai potion (3)	Potions,Herblore
+20944	Kodai potion (4)	Potions,Herblore
+20945	Kodai (+)(1)	Potions,Herblore
+20946	Kodai (+)(2)	Potions,Herblore
+20947	Kodai (+)(3)	Potions,Herblore
+20948	Kodai (+)(4)	Potions,Herblore
+20949	Revitalisation (-)(1)	Potions,Herblore
+20950	Revitalisation (-)(2)	Potions,Herblore
+20951	Revitalisation (-)(3)	Potions,Herblore
+20952	Revitalisation (-)(4)	Potions,Herblore
+20953	Revitalisation potion (1)	Potions,Herblore
+20954	Revitalisation potion (2)	Potions,Herblore
+20955	Revitalisation potion (3)	Potions,Herblore
+20956	Revitalisation potion (4)	Potions,Herblore
+20957	Revitalisation (+)(1)	Potions,Herblore
+20958	Revitalisation (+)(2)	Potions,Herblore
+20959	Revitalisation (+)(3)	Potions,Herblore
+20960	Revitalisation (+)(4)	Potions,Herblore
+20961	Prayer enhance (-)(1)	Potions,Herblore
+20962	Prayer enhance (-)(2)	Potions,Herblore
+20963	Prayer enhance (-)(3)	Potions,Herblore
+20964	Prayer enhance (-)(4)	Potions,Herblore
+20965	Prayer enhance (1)	Potions,Herblore
+20966	Prayer enhance (2)	Potions,Herblore
+20967	Prayer enhance (3)	Potions,Herblore
+20968	Prayer enhance (4)	Potions,Herblore
+20969	Prayer enhance (+)(1)	Potions,Herblore
+20970	Prayer enhance (+)(2)	Potions,Herblore
+20971	Prayer enhance (+)(3)	Potions,Herblore
+20972	Prayer enhance (+)(4)	Potions,Herblore
+20973	Xeric's aid (-)(1)	Potions,Herblore
+20974	Xeric's aid (-)(2)	Potions,Herblore
+20975	Xeric's aid (-)(3)	Potions,Herblore
+20976	Xeric's aid (-)(4)	Potions,Herblore
+20977	Xeric's aid (1)	Potions,Herblore
+20978	Xeric's aid (2)	Potions,Herblore
+20979	Xeric's aid (3)	Potions,Herblore
+20980	Xeric's aid (4)	Potions,Herblore
+20981	Xeric's aid (+)(1)	Potions,Herblore
+20982	Xeric's aid (+)(2)	Potions,Herblore
+20983	Xeric's aid (+)(3)	Potions,Herblore
+20984	Xeric's aid (+)(4)	Potions,Herblore
+20985	Overload (-)(1)	Potions,Herblore
+20986	Overload (-)(2)	Potions,Herblore
+20987	Overload (-)(3)	Potions,Herblore
+20988	Overload (-)(4)	Potions,Herblore
+20989	Overload (1)	Potions,Herblore
+20990	Overload (2)	Potions,Herblore
+20991	Overload (3)	Potions,Herblore
+20992	Overload (4)	Potions,Herblore
+20993	Overload (+)(1)	Potions,Herblore
+20994	Overload (+)(2)	Potions,Herblore
+20995	Overload (+)(3)	Potions,Herblore
+20996	Overload (+)(4)	Potions,Herblore
+21028	Dragon harpoon	Tools
+21031	Infernal harpoon	Tools
+21033	Infernal harpoon (uncharged)	Tools
+21061	Graceful hood	Skilling equipment
+21063	Graceful hood	Skilling equipment
+21064	Graceful cape	Skilling equipment
+21066	Graceful cape	Skilling equipment
+21067	Graceful top	Skilling equipment
+21069	Graceful top	Skilling equipment
+21070	Graceful legs	Skilling equipment
+21072	Graceful legs	Skilling equipment
+21073	Graceful gloves	Skilling equipment
+21075	Graceful gloves	Skilling equipment
+21076	Graceful boots	Skilling equipment
+21078	Graceful boots	Skilling equipment
+21129	Ring of returning(5)	Teleportation items
+21132	Ring of returning(4)	Teleportation items
+21134	Ring of returning(3)	Teleportation items
+21136	Ring of returning(2)	Teleportation items
+21138	Ring of returning(1)	Teleportation items
+21146	Necklace of passage(5)	Teleportation items
+21149	Necklace of passage(4)	Teleportation items
+21151	Necklace of passage(3)	Teleportation items
+21153	Necklace of passage(2)	Teleportation items
+21155	Necklace of passage(1)	Teleportation items
+21166	Burning amulet(5)	Teleportation items
+21169	Burning amulet(4)	Teleportation items
+21171	Burning amulet(3)	Teleportation items
+21173	Burning amulet(2)	Teleportation items
+21175	Burning amulet(1)	Teleportation items
+21252	Egg mould	Tools
+21268	Slayer ring (eternal)	Teleportation items
+21270	Eternal gem	Gems
+21276	Skull sceptre (i)	Teleportation items
+21341	Unidentified minerals	Currency
+21343	Mining gloves	Skilling equipment
+21345	Superior mining gloves	Skilling equipment
+21347	Amethyst	Gems
+21387	Master scroll book (empty)	Teleportation items
+21389	Master scroll book	Teleportation items
+21392	Expert mining gloves	Skilling equipment
+21477	Teak sapling	Saplings
+21480	Mahogany sapling	Saplings
+21486	Teak seed	Seeds
+21488	Mahogany seed	Seeds
+21490	Seaweed spore	Seeds
+21524	Clue scroll (elite)	Clue scrolls
+21525	Clue scroll (elite)	Clue scrolls
+21526	Clue scroll (hard)	Clue scrolls
+21527	Clue scroll (hard)	Clue scrolls
+21531	Potion of sealegs	Potions,Herblore
+21541	Volcanic mine teleport	Teleportation items
+21547	Small enriched bone	Bones
+21549	Medium enriched bone	Bones
+21551	Large enriched bone	Bones
+21553	Rare enriched bone	Bones
+21555	Numulite	Currency
+21652	Drift net	Tools
+21656	Mermaid's tear	Currency
+21711	Murky potion	Potions,Herblore
+21712	Spectral potion	Potions,Herblore
+21716	Carved gem	Gems
+21760	Kharedst's memoirs	Teleportation items
+21802	Revenant cave teleport	Teleportation items
+21863	Wise old man's teleport tablet	Teleportation items
+21869	Logs and kindling	Logs
+21880	Wrath rune	Runes
+21978	Super antifire potion(4)	Potions,Herblore
+21981	Super antifire potion(3)	Potions,Herblore
+21984	Super antifire potion(2)	Potions,Herblore
+21987	Super antifire potion(1)	Potions,Herblore
+21994	Super antifire mix(2)	Potions,Herblore
+21997	Super antifire mix(1)	Potions,Herblore
+22000	Clue scroll (elite)	Clue scrolls
+22001	Clue scroll (easy)	Clue scrolls
+22096	Revitalisation potion	Potions,Herblore
+22114	Mythical cape	Teleportation items
+22116	Superior dragon bonemeal	Bones
+22124	Superior dragon bones	Bones
+22207	Glistening tear	Currency
+22209	Extended super antifire(4)	Potions,Herblore
+22212	Extended super antifire(3)	Potions,Herblore
+22215	Extended super antifire(2)	Potions,Herblore
+22218	Extended super antifire(1)	Potions,Herblore
+22221	Extended super antifire mix(2)	Potions,Herblore
+22224	Extended super antifire mix(1)	Potions,Herblore
+22400	Drakan's medallion	Teleportation items
+22402	Mysterious herb	Herbs
+22406	Unfinished blood potion	Potions,Herblore
+22407	Blood potion	Potions,Herblore
+22408	Unfinished potion	Potions,Herblore
+22409	Potion	Potions,Herblore
+22443	Cadantine blood potion (unf)	Potions,Herblore
+22449	Battlemage potion(4)	Potions,Herblore
+22452	Battlemage potion(3)	Potions,Herblore
+22455	Battlemage potion(2)	Potions,Herblore
+22458	Battlemage potion(1)	Potions,Herblore
+22461	Bastion potion(4)	Potions,Herblore
+22464	Bastion potion(3)	Potions,Herblore
+22467	Bastion potion(2)	Potions,Herblore
+22470	Bastion potion(1)	Potions,Herblore
+22599	Icy basalt	Teleportation items
+22601	Stony basalt	Teleportation items
+22754	Wyrm bonemeal	Bones
+22756	Drake bonemeal	Bones
+22758	Hydra bonemeal	Bones
+22780	Wyrm bones	Bones
+22783	Drake bones	Bones
+22786	Hydra bones	Bones
+22820	Molch pearl	Currency
+22842	Pearl barbarian rod	Tools
+22844	Pearl fly fishing rod	Tools
+22846	Pearl fishing rod	Tools
+22856	Celastrus sapling	Saplings
+22859	Redwood sapling	Saplings
+22866	Dragonfruit sapling	Saplings
+22869	Celastrus seed	Seeds
+22871	Redwood tree seed	Seeds
+22873	Potato cactus seed	Seeds
+22875	Hespori seed	Seeds
+22877	Dragonfruit tree seed	Seeds
+22879	Snape grass seed	Seeds
+22881	Attas seed	Seeds
+22883	Iasor seed	Seeds
+22885	Kronos seed	Seeds
+22887	White lily seed	Seeds
+22941	Rada's blessing 1	Teleportation items,Tools
+22943	Rada's blessing 2	Teleportation items,Tools
+22945	Rada's blessing 3	Teleportation items,Tools
+22947	Rada's blessing 4	Teleportation items,Tools
+22949	Battlefront teleport	Teleportation items
+22983	Hydra leather	Leather
+22999	Bottled dragonbreath (unpowered)	Potions,Herblore
+23002	Bottled dragonbreath	Potions,Herblore
+23045	Clue scroll (hard)	Clue scrolls
+23046	Clue scroll (medium)	Clue scrolls
+23122	Oily pearl fishing rod	Tools
+23131	Clue scroll (medium)	Clue scrolls
+23133	Clue scroll (medium)	Clue scrolls
+23135	Clue scroll (medium)	Clue scrolls
+23136	Clue scroll (medium)	Clue scrolls
+23137	Clue scroll (medium)	Clue scrolls
+23138	Clue scroll (medium)	Clue scrolls
+23139	Clue scroll (medium)	Clue scrolls
+23140	Clue scroll (medium)	Clue scrolls
+23141	Clue scroll (medium)	Clue scrolls
+23142	Clue scroll (medium)	Clue scrolls
+23143	Clue scroll (medium)	Clue scrolls
+23144	Clue scroll (elite)	Clue scrolls
+23145	Clue scroll (elite)	Clue scrolls
+23146	Clue scroll (elite)	Clue scrolls
+23147	Clue scroll (elite)	Clue scrolls
+23148	Clue scroll (elite)	Clue scrolls
+23149	Clue scroll (easy)	Clue scrolls
+23150	Clue scroll (easy)	Clue scrolls
+23151	Clue scroll (easy)	Clue scrolls
+23152	Clue scroll (easy)	Clue scrolls
+23153	Clue scroll (easy)	Clue scrolls
+23154	Clue scroll (easy)	Clue scrolls
+23155	Clue scroll (easy)	Clue scrolls
+23156	Clue scroll (easy)	Clue scrolls
+23157	Clue scroll (easy)	Clue scrolls
+23158	Clue scroll (easy)	Clue scrolls
+23159	Clue scroll (easy)	Clue scrolls
+23160	Clue scroll (easy)	Clue scrolls
+23161	Clue scroll (easy)	Clue scrolls
+23162	Clue scroll (easy)	Clue scrolls
+23163	Clue scroll (easy)	Clue scrolls
+23164	Clue scroll (easy)	Clue scrolls
+23165	Clue scroll (easy)	Clue scrolls
+23166	Clue scroll (easy)	Clue scrolls
+23167	Clue scroll (hard)	Clue scrolls
+23168	Clue scroll (hard)	Clue scrolls
+23169	Clue scroll (hard)	Clue scrolls
+23170	Clue scroll (hard)	Clue scrolls
+23172	Clue scroll (hard)	Clue scrolls
+23174	Clue scroll (hard)	Clue scrolls
+23175	Clue scroll (hard)	Clue scrolls
+23176	Clue scroll (hard)	Clue scrolls
+23177	Clue scroll (hard)	Clue scrolls
+23178	Clue scroll (hard)	Clue scrolls
+23179	Clue scroll (hard)	Clue scrolls
+23180	Clue scroll (hard)	Clue scrolls
+23181	Clue scroll (hard)	Clue scrolls
+23182	Clue scroll (beginner)	Clue scrolls
+23276	Gilded pickaxe	Tools
+23279	Gilded axe	Tools
+23387	Watson teleport	Teleportation items
+23458	Enchanted lyre(i)	Teleportation items
+23659	Crystal sapling	Saplings
+23661	Crystal acorn	Seeds
+23673	Crystal axe	Tools
+23675	Crystal axe (inactive)	Tools
+23677	Dragon pickaxe (or)	Tools
+23680	Crystal pickaxe	Tools
+23682	Crystal pickaxe (inactive)	Tools
+23685	Divine super combat potion(4)	Potions,Herblore
+23688	Divine super combat potion(3)	Potions,Herblore
+23691	Divine super combat potion(2)	Potions,Herblore
+23694	Divine super combat potion(1)	Potions,Herblore
+23697	Divine super attack potion(4)	Potions,Herblore
+23700	Divine super attack potion(3)	Potions,Herblore
+23703	Divine super attack potion(2)	Potions,Herblore
+23706	Divine super attack potion(1)	Potions,Herblore
+23709	Divine super strength potion(4)	Potions,Herblore
+23712	Divine super strength potion(3)	Potions,Herblore
+23715	Divine super strength potion(2)	Potions,Herblore
+23718	Divine super strength potion(1)	Potions,Herblore
+23721	Divine super defence potion(4)	Potions,Herblore
+23724	Divine super defence potion(3)	Potions,Herblore
+23727	Divine super defence potion(2)	Potions,Herblore
+23730	Divine super defence potion(1)	Potions,Herblore
+23733	Divine ranging potion(4)	Potions,Herblore
+23736	Divine ranging potion(3)	Potions,Herblore
+23739	Divine ranging potion(2)	Potions,Herblore
+23742	Divine ranging potion(1)	Potions,Herblore
+23745	Divine magic potion(4)	Potions,Herblore
+23748	Divine magic potion(3)	Potions,Herblore
+23751	Divine magic potion(2)	Potions,Herblore
+23754	Divine magic potion(1)	Potions,Herblore
+23762	Crystal harpoon	Tools
+23764	Crystal harpoon (inactive)	Tools
+23770	Clue scroll (elite)	Clue scrolls
+23798	Elder cadantine	Herbs
+23800	Elder cadantine potion (unf)	Potions,Herblore
+23806	Inversion potion	Potions,Herblore
+23818	Explosive potion	Potions,Herblore
+23821	Corrupted axe	Tools
+23822	Corrupted pickaxe	Tools
+23823	Corrupted harpoon	Tools
+23862	Crystal axe	Tools
+23863	Crystal pickaxe	Tools
+23864	Crystal harpoon	Tools
+23865	Pestle and mortar	Tools
+23881	Grym potion (unf)	Potions,Herblore
+23882	Egniol potion (1)	Potions,Herblore
+23883	Egniol potion (2)	Potions,Herblore
+23884	Egniol potion (3)	Potions,Herblore
+23885	Egniol potion (4)	Potions,Herblore
+23946	Eternal teleport crystal	Teleportation items
+23953	Crystal tool seed	Tools
+24251	Wilderness crabs teleport	Teleportation items
+24253	Clue scroll (elite)	Clue scrolls
+24336	Target teleport	Teleportation items
+24441	Scaperune teleport	Teleportation items
+24493	Clue scroll (hard)	Clue scrolls
+24598	Blighted super restore(4)	Potions,Herblore
+24601	Blighted super restore(3)	Potions,Herblore
+24603	Blighted super restore(2)	Potions,Herblore
+24605	Blighted super restore(1)	Potions,Herblore
+24623	Divine battlemage potion(4)	Potions,Herblore
+24626	Divine battlemage potion(3)	Potions,Herblore
+24629	Divine battlemage potion(2)	Potions,Herblore
+24632	Divine battlemage potion(1)	Potions,Herblore
+24635	Divine bastion potion(4)	Potions,Herblore
+24638	Divine bastion potion(3)	Potions,Herblore
+24641	Divine bastion potion(2)	Potions,Herblore
+24644	Divine bastion potion(1)	Potions,Herblore
+24650	Logs	Logs
+24691	Blisterwood logs	Logs
+24709	Hallowed crystal shard	Teleportation items
+24711	Hallowed mark	Currency
+24743	Graceful hood	Skilling equipment
+24745	Graceful hood	Skilling equipment
+24746	Graceful cape	Skilling equipment
+24748	Graceful cape	Skilling equipment
+24749	Graceful top	Skilling equipment
+24751	Graceful top	Skilling equipment
+24752	Graceful legs	Skilling equipment
+24754	Graceful legs	Skilling equipment
+24755	Graceful gloves	Skilling equipment
+24757	Graceful gloves	Skilling equipment
+24758	Graceful boots	Skilling equipment
+24760	Graceful boots	Skilling equipment
+24773	Clue scroll (elite)	Clue scrolls
+24855	Mythical max cape	Teleportation items
+24872	Carpenter's helmet	Skilling equipment
+24874	Carpenter's shirt	Skilling equipment
+24876	Carpenter's trousers	Skilling equipment
+24878	Carpenter's boots	Skilling equipment
+24880	Amy's saw	Tools
+24938	Waxwood log	Logs
+24949	Moonclan teleport	Teleportation items
+24951	Ourania teleport	Teleportation items
+24953	Waterbirth teleport	Teleportation items
+24955	Barbarian teleport	Teleportation items
+24957	Khazard teleport	Teleportation items
+24959	Fishing guild teleport	Teleportation items
+24961	Catherby teleport	Teleportation items
+24963	Ice plateau teleport	Teleportation items
+25059	Infernal harpoon (or)	Tools
+25063	Infernal pickaxe (or)	Tools
+25066	Infernal axe (or)	Tools
+25069	Graceful hood	Skilling equipment
+25071	Graceful hood	Skilling equipment
+25072	Graceful cape	Skilling equipment
+25074	Graceful cape	Skilling equipment
+25075	Graceful top	Skilling equipment
+25077	Graceful top	Skilling equipment
+25078	Graceful legs	Skilling equipment
+25080	Graceful legs	Skilling equipment
+25081	Graceful gloves	Skilling equipment
+25083	Graceful gloves	Skilling equipment
+25084	Graceful boots	Skilling equipment
+25086	Graceful boots	Skilling equipment
+25110	Echo axe	Tools
+25112	Echo pickaxe	Tools
+25114	Echo harpoon	Tools
+25159	Castlewars brew(4)	Potions,Herblore
+25160	Castlewars brew(3)	Potions,Herblore
+25161	Castlewars brew(2)	Potions,Herblore
+25162	Castlewars brew(1)	Potions,Herblore
+25199	Bones	Bones
+25203	Potion of power(4)	Potions,Herblore
+25204	Potion of power(3)	Potions,Herblore
+25205	Potion of power(2)	Potions,Herblore
+25206	Potion of power(1)	Potions,Herblore
+25367	Infernal harpoon (uncharged)	Tools
+25369	Infernal pickaxe (uncharged)	Tools
+25371	Infernal axe (uncharged)	Tools
+25373	Dragon harpoon (or)	Tools
+25376	Dragon pickaxe (or)	Tools
+25378	Dragon axe (or)	Tools
+25422	Bleached bones	Bones
+25434	Zealot's robe top	Skilling equipment
+25436	Zealot's robe bottom	Skilling equipment
+25438	Zealot's helm	Skilling equipment
+25440	Zealot's boots	Skilling equipment
+25498	Clue scroll (elite)	Clue scrolls
+25499	Clue scroll (elite)	Clue scrolls
+25527	Stardust	Currency
+25539	Celestial ring (uncharged)	Skilling equipment
+25541	Celestial ring	Skilling equipment
+25543	Celestial signet (uncharged)	Skilling equipment
+25545	Celestial signet	Skilling equipment
+25549	Golden prospector helmet	Skilling equipment
+25551	Golden prospector jacket	Skilling equipment
+25553	Golden prospector legs	Skilling equipment
+25555	Golden prospector boots	Skilling equipment
+25582	Fish barrel	Skilling equipment
+25584	Open fish barrel	Skilling equipment
+25585	Fish sack barrel	Skilling equipment
+25587	Open fish sack barrel	Skilling equipment
+25588	Spirit flakes	Currency,Tools
+25592	Spirit angler headband	Skilling equipment
+25594	Spirit angler top	Skilling equipment
+25596	Spirit angler waders	Skilling equipment
+25598	Spirit angler boots	Skilling equipment
+25633	Imcando hammer (broken)	Tools
+25644	Imcando hammer	Tools
+25676	Barronite shards	Currency
+25754	Antipoison (-)(1)	Potions,Herblore
+25755	Antipoison (-)(2)	Potions,Herblore
+25756	Antipoison (-)(3)	Potions,Herblore
+25757	Antipoison (-)(4)	Potions,Herblore
+25758	Antipoison potion (1)	Potions,Herblore
+25759	Antipoison potion (2)	Potions,Herblore
+25760	Antipoison potion (3)	Potions,Herblore
+25761	Antipoison potion (4)	Potions,Herblore
+25762	Antipoison (+)(1)	Potions,Herblore
+25763	Antipoison (+)(2)	Potions,Herblore
+25764	Antipoison (+)(3)	Potions,Herblore
+25765	Antipoison (+)(4)	Potions,Herblore
+25783	Clue scroll (medium)	Clue scrolls
+25784	Clue scroll (medium)	Clue scrolls
+25786	Clue scroll (elite)	Clue scrolls
+25787	Clue scroll (elite)	Clue scrolls
+25788	Clue scroll (easy)	Clue scrolls
+25789	Clue scroll (easy)	Clue scrolls
+25790	Clue scroll (hard)	Clue scrolls
+25791	Clue scroll (hard)	Clue scrolls
+25792	Clue scroll (hard)	Clue scrolls
+25812	Sulphur potion	Potions,Herblore
+25813	Shielding potion	Potions,Herblore
+25818	Book of the Dead	Teleportation items
+25926	Ghommal's hilt 1	Teleportation items
+25928	Ghommal's hilt 2	Teleportation items
+25930	Ghommal's hilt 3	Teleportation items
+25932	Ghommal's hilt 4	Teleportation items
+25934	Ghommal's hilt 5	Teleportation items
+25936	Ghommal's hilt 6	Teleportation items
+26150	Combat potion(4)	Potions,Herblore
+26151	Combat potion(3)	Potions,Herblore
+26152	Combat potion(2)	Potions,Herblore
+26153	Combat potion(1)	Potions,Herblore
+26340	Ancient brew(4)	Potions,Herblore
+26342	Ancient brew(3)	Potions,Herblore
+26344	Ancient brew(2)	Potions,Herblore
+26346	Ancient brew(1)	Potions,Herblore
+26350	Ancient mix(2)	Potions,Herblore
+26353	Ancient mix(1)	Potions,Herblore
+26566	Clue scroll (hard)	Clue scrolls
+26577	Plain of Mud sphere	Teleportation items
+26581	Goblin potion(4)	Potions,Herblore
+26583	Goblin potion(3)	Potions,Herblore
+26585	Goblin potion(2)	Potions,Herblore
+26587	Goblin potion(1)	Potions,Herblore
+26598	Desert bait	Tools
+26792	Abyssal pearls	Currency
+26815	Ring of the elements	Teleportation items
+26818	Ring of the elements	Teleportation items
+26850	Hat of the Eye	Skilling equipment
+26852	Robe top of the Eye	Skilling equipment
+26854	Robe bottoms of the Eye	Skilling equipment
+26856	Boots of the Eye	Skilling equipment
+26858	Hat of the Eye (red)	Skilling equipment
+26860	Robe top of the Eye (red)	Skilling equipment
+26862	Robe bottoms of the Eye (red)	Skilling equipment
+26864	Hat of the Eye (green)	Skilling equipment
+26866	Robe top of the Eye (green)	Skilling equipment
+26868	Robe bottoms of the Eye (green)	Skilling equipment
+26870	Hat of the Eye (blue)	Skilling equipment
+26872	Robe top of the Eye (blue)	Skilling equipment
+26874	Robe bottoms of the Eye (blue)	Skilling equipment
+26914	Amulet of the Eye	Teleportation items
+26943	Clue scroll (elite)	Clue scrolls
+26944	Clue scroll (elite)	Clue scrolls
+26945	Pharaoh's sceptre (uncharged)	Teleportation items
+26948	Pharaoh's sceptre	Teleportation items
+26950	Pharaoh's sceptre	Teleportation items
+26952	Scarab mould	Tools
+26990	Amulet of the Eye	Teleportation items
+26992	Amulet of the Eye	Teleportation items
+26994	Amulet of the Eye	Teleportation items
+27012	Double ammo mould	Tools
+27023	Smiths tunic	Skilling equipment
+27025	Smiths trousers	Skilling equipment
+27027	Smiths boots	Skilling equipment
+27029	Smiths gloves	Skilling equipment
+27031	Smiths gloves (i)	Skilling equipment
+27202	Menaphite remedy(4)	Potions,Herblore
+27205	Menaphite remedy(3)	Potions,Herblore
+27208	Menaphite remedy(2)	Potions,Herblore
+27211	Menaphite remedy(1)	Potions,Herblore
+27550	Ghommal's avernic defender 5	Teleportation items
+27551	Ghommal's avernic defender 5 (l)	Teleportation items
+27552	Ghommal's avernic defender 6	Teleportation items
+27553	Ghommal's avernic defender 6 (l)	Teleportation items
+27629	Forgotten brew(4)	Potions,Herblore
+27632	Forgotten brew(3)	Potions,Herblore
+27635	Forgotten brew(2)	Potions,Herblore
+27638	Forgotten brew(1)	Potions,Herblore
+28134	Anima-infused bark	Currency
+28169	Forestry top	Skilling equipment
+28171	Forestry legs	Skilling equipment
+28173	Forestry hat	Skilling equipment
+28175	Forestry boots	Skilling equipment
+28196	Bronze felling axe	Tools
+28199	Iron felling axe	Tools
+28202	Steel felling axe	Tools
+28205	Black felling axe	Tools
+28208	Mithril felling axe	Tools
+28211	Adamant felling axe	Tools
+28214	Rune felling axe	Tools
+28217	Dragon felling axe	Tools
+28220	Crystal felling axe	Tools
+28223	Crystal felling axe (inactive)	Tools
+28226	3rd Age felling axe	Tools
+28327	Ring of shadows	Teleportation items
+28329	Ring of shadows (uncharged)	Teleportation items
+28351	Arder-musca poison	Herblore
+28384	Korbal herb	Herbs
+28386	Unfinished serum	Herblore
+28387	Unfinished serum	Herblore
+28388	Strangler serum	Potions,Herblore
+28630	Twitcher's gloves	Skilling equipment
+28790	Kourend castle teleport	Teleportation items
+28824	Civitas illa fortis teleport	Teleportation items
+28837	Irit tar	Herblore
+28890	Sunlight moth	Potions
+28893	Moonlight moth	Potions
+28899	Wyrmling bones	Bones
+28907	Clue scroll (medium)	Clue scrolls
+28908	Clue scroll (medium)	Clue scrolls
+28909	Clue scroll (medium)	Clue scrolls
+28910	Clue scroll (elite)	Clue scrolls
+28911	Clue scroll (elite)	Clue scrolls
+28912	Clue scroll (elite)	Clue scrolls
+28913	Clue scroll (easy)	Clue scrolls
+28914	Clue scroll (easy)	Clue scrolls
+28915	Clue scroll (hard)	Clue scrolls
+28916	Clue scroll (hard)	Clue scrolls
+28918	Clue scroll (hard)	Clue scrolls
+28929	Sunfire rune	Runes
+28984	Baby dragon bonemeal	Bones
+29080	Moonlight potion(4)	Herblore
+29081	Moonlight potion(3)	Herblore
+29082	Moonlight potion(2)	Herblore
+29083	Moonlight potion(1)	Herblore
+29090	Calcified moth	Teleportation items
+29180	Sapphire glacialis mix (2)	Potions
+29183	Snowy knight mix (2)	Potions
+29186	Ruby harvest mix (2)	Potions
+29189	Black warlock mix (2)	Potions
+29192	Sunlight moth mix (2)	Potions
+29195	Moonlight moth mix (2)	Potions
+29198	Sapphire glacialis mix (1)	Potions
+29201	Snowy knight mix (1)	Potions
+29204	Ruby harvest mix (1)	Potions
+29207	Black warlock mix (1)	Potions
+29210	Sunlight moth mix (1)	Potions
+29213	Moonlight moth mix (1)	Potions
+29263	Guild hunter headwear	Skilling equipment
+29265	Guild hunter top	Skilling equipment
+29267	Guild hunter legs	Skilling equipment
+29269	Guild hunter boots	Skilling equipment
+29271	Basic quetzal whistle	Teleportation items
+29273	Enhanced quetzal whistle	Teleportation items
+29275	Perfected quetzal whistle	Teleportation items
+29344	Blessed bones	Bones
+29346	Blessed bat bones	Bones
+29348	Blessed big bones	Bones
+29350	Blessed zogre bones	Bones
+29352	Blessed babydragon bones	Bones
+29354	Blessed babywyrm bones	Bones
+29356	Blessed dragon bones	Bones
+29358	Blessed lava dragon bones	Bones
+29360	Blessed wyvern bones	Bones
+29362	Blessed superior dragon bones	Bones
+29364	Blessed wyrm bones	Bones
+29366	Blessed drake bones	Bones
+29368	Blessed hydra bones	Bones
+29370	Blessed fayrg bones	Bones
+29372	Blessed raurg bones	Bones
+29374	Blessed ourg bones	Bones
+29376	Dagannoth bones	Bones
+29378	Sun-kissed bones	Bones
+29458	Adamant seeds	Seeds
+29472	Prospector helmet	Skilling equipment
+29474	Prospector jacket	Skilling equipment
+29476	Prospector legs	Skilling equipment
+29478	Prospector boots	Skilling equipment
+29480	Agility arena ticket	Currency
+29482	Brimhaven voucher	Currency
+29530	Enriched snapdragon	Herbs
+29531	Super truth serum	Herblore
+29538	Enriched snapdragon seed	Seeds
+29631	Blighted overload (4)	Herblore
+29634	Blighted overload (3)	Herblore
+29637	Blighted overload (2)	Herblore
+29640	Blighted overload (1)	Herblore
+29684	Guthixian temple teleport	Teleportation items
+29774	Amy's saw (off-hand)	Tools
+29775	Imcando hammer (off-hand)	Tools
+29782	Spider cave teleport	Teleportation items
+29824	Extended anti-venom+(4)	Potions,Herblore
+29827	Extended anti-venom+(3)	Potions,Herblore
+29830	Extended anti-venom+(2)	Potions,Herblore
+29833	Extended anti-venom+(1)	Potions,Herblore
+29853	Clue scroll (easy)	Clue scrolls
+29854	Clue scroll (easy)	Clue scrolls
+29855	Clue scroll (elite)	Clue scrolls
+29856	Clue scroll (elite)	Clue scrolls
+29857	Clue scroll (medium)	Clue scrolls
+29858	Clue scroll (medium)	Clue scrolls
+29859	Clue scroll (hard)	Clue scrolls
+29892	Pendant of Ates (inert)	Teleportation items
+29893	Pendant of Ates	Teleportation items
+29920	Costume needle	Tools
+29974	Prescription goggles	Skilling equipment
+29976	Prescription goggles	Skilling equipment
+29988	Alchemist's amulet	Skilling equipment
+29990	Alchemist's amulet	Skilling equipment
+30005	Mox paste	Herblore
+30007	Aga paste	Herblore
+30009	Lye paste	Herblore
+30011	Mammoth-might mix	Herblore
+30012	Mystic mana amalgam	Herblore
+30013	Marley's moonlight	Herblore
+30014	Alco-augmentator	Herblore
+30015	Aqualux amalgam	Herblore
+30016	Azure aura mix	Herblore
+30017	Liplack liquor	Herblore
+30018	Anti-leech lotion	Herblore
+30019	Megalite liquid	Herblore
+30020	Mixalot	Herblore
+30021	Mammoth-might mix	Herblore
+30022	Mystic mana amalgam	Herblore
+30023	Marley's moonlight	Herblore
+30024	Alco-augmentator	Herblore
+30025	Aqualux amalgam	Herblore
+30026	Azure aura mix	Herblore
+30027	Liplack liquor	Herblore
+30028	Anti-leech lotion	Herblore
+30029	Megalite liquid	Herblore
+30030	Mixalot	Herblore
+30038	Termites	Currency
+30040	Colossal wyrm teleport scroll	Teleportation items
+30045	Graceful hood	Skilling equipment
+30047	Graceful hood	Skilling equipment
+30048	Graceful cape	Skilling equipment
+30050	Graceful cape	Skilling equipment
+30051	Graceful top	Skilling equipment
+30053	Graceful top	Skilling equipment
+30054	Graceful legs	Skilling equipment
+30056	Graceful legs	Skilling equipment
+30057	Graceful gloves	Skilling equipment
+30059	Graceful gloves	Skilling equipment
+30060	Graceful boots	Skilling equipment
+30062	Graceful boots	Skilling equipment
+30088	Huasca seed	Seeds
+30094	Grimy huasca	Herbs
+30097	Huasca	Herbs,Herblore
+30100	Huasca potion (unf)	Potions,Herblore
+30125	Prayer regeneration potion(4)	Potions,Herblore
+30128	Prayer regeneration potion(3)	Potions,Herblore
+30131	Prayer regeneration potion(2)	Potions,Herblore
+30134	Prayer regeneration potion(1)	Potions,Herblore
+30137	Goading potion(4)	Potions,Herblore
+30140	Goading potion(3)	Potions,Herblore
+30143	Goading potion(2)	Potions,Herblore
+30146	Goading potion(1)	Potions,Herblore
+30149	Aldarin teleport	Teleportation items
+30342	Infernal harpoon (or)	Tools
+30343	Infernal harpoon (uncharged)	Tools
+30345	Infernal pickaxe (or)	Tools
+30346	Infernal pickaxe (uncharged)	Tools
+30347	Infernal axe (or)	Tools
+30348	Infernal axe (uncharged)	Tools
+30349	Dragon harpoon (or)	Tools
+30351	Dragon pickaxe (or)	Tools
+30352	Dragon axe (or)	Tools
+30637	Giantsoul amulet (uncharged)	Teleportation items
+30638	Giantsoul amulet	Teleportation items
+30773	Diabolic worms	Tools
+30775	Chasm teleport scroll	Teleportation items
+30843	Aether rune	Runes
+30875	Surge potion(4)	Potions,Herblore
+30878	Surge potion(3)	Potions,Herblore
+30881	Surge potion(2)	Potions,Herblore
+30884	Surge potion(1)	Potions,Herblore
+30900	Shark lure	Tools
+30928	Clue scroll (easy)	Clue scrolls
+30929	Clue scroll (hard)	Clue scrolls
+30931	Clue scroll (hard)	Clue scrolls
+30932	Clue scroll (elite)	Clue scrolls
+30933	Clue scroll (medium)	Clue scrolls
+30935	Clue scroll (medium)	Clue scrolls
+30973	Alan's bones	Bones
+31043	Fletching knife	Tools
+31099	Mokhaiotl waystone	Teleportation items
+31241	Horn of Plenty	Skilling equipment
+31243	Horn of Plenty (empty)	Skilling equipment
+31264	Blessed strykewyrm bones	Bones
+31266	Blessed frost dragon bones	Bones
+31268	Clue scroll (easy)	Clue scrolls
+31269	Clue scroll (elite)	Clue scrolls
+31270	Clue scroll (elite)	Clue scrolls
+31271	Clue scroll (elite)	Clue scrolls
+31272	Clue scroll (hard)	Clue scrolls
+31273	Clue scroll (hard)	Clue scrolls
+31274	Clue scroll (medium)	Clue scrolls
+31275	Clue scroll (medium)	Clue scrolls
+31333	Strykewyrm bonemeal	Bones
+31335	Frost dragon bonemeal	Bones
+31383	Camphor pyre logs	Logs
+31386	Ironwood pyre logs	Logs
+31389	Rosewood pyre logs	Logs
+31441	Summon boat	Teleportation items
+31443	Teleport to boat	Teleportation items
+31502	Camphor sapling	Saplings
+31505	Ironwood sapling	Saplings
+31508	Rosewood sapling	Saplings
+31511	Elkhorn frag	Seeds
+31513	Pillar frag	Seeds
+31515	Umbral frag	Seeds
+31541	Flax seed	Seeds
+31543	Hemp seed	Seeds
+31545	Cotton seed	Seeds
+31547	Camphor seed	Seeds
+31549	Ironwood seed	Seeds
+31551	Rosewood seed	Seeds
+31587	Haemostatic poultice	Potions,Herblore
+31590	Haemostatic dressing (4)	Potions,Herblore
+31593	Haemostatic dressing (3)	Potions,Herblore
+31596	Haemostatic dressing (2)	Potions,Herblore
+31599	Haemostatic dressing (1)	Potions,Herblore
+31602	Super fishing potion(4)	Potions,Herblore
+31605	Super fishing potion(3)	Potions,Herblore
+31608	Super fishing potion(2)	Potions,Herblore
+31611	Super fishing potion(1)	Potions,Herblore
+31614	Extreme energy potion(4)	Potions,Herblore
+31617	Extreme energy potion(3)	Potions,Herblore
+31620	Extreme energy potion(2)	Potions,Herblore
+31623	Extreme energy potion(1)	Potions,Herblore
+31626	Super hunter potion(4)	Potions,Herblore
+31629	Super hunter potion(3)	Potions,Herblore
+31632	Super hunter potion(2)	Potions,Herblore
+31635	Super hunter potion(1)	Potions,Herblore
+31638	Extended stamina potion(4)	Potions,Herblore
+31641	Extended stamina potion(3)	Potions,Herblore
+31644	Extended stamina potion(2)	Potions,Herblore
+31647	Extended stamina potion(1)	Potions,Herblore
+31650	Armadyl brew(4)	Potions,Herblore
+31653	Armadyl brew(3)	Potions,Herblore
+31656	Armadyl brew(2)	Potions,Herblore
+31659	Armadyl brew(1)	Potions,Herblore
+31662	Elkhorn potion (unf)	Potions,Herblore
+31665	Pillar potion (unf)	Potions,Herblore
+31668	Umbral potion (unf)	Potions,Herblore
+31712	Anti-odour salt	Herblore
+31716	Lead ore	Ores
+31719	Nickel ore	Ores
+31726	Strykewyrm bones	Bones
+31729	Frost dragon bones	Bones
+31865	Daddy's special water's special water	Potions,Herblore
+32307	Fine fish offcuts	Tools
+32398	Sailors' amulet (inert)	Teleportation items
+32399	Sailors' amulet	Teleportation items
+32889	Lead bar	Metal bars
+32892	Cupronickel bar	Metal bars
+32902	Jatoba logs	Logs
+32904	Camphor logs	Logs
+32907	Ironwood logs	Logs
+32910	Rosewood logs	Logs
+33103	Cowbell amulet	Teleportation items
+33104	Cowbell amulet	Teleportation items
+33120	Perfected quetzal whistle(i)	Teleportation items
+33607	Sap-treated logs	Logs
+33609	Sap-treated magic logs	Logs
+33611	Sap-treated yew logs	Logs
+33613	Sap-treated maple logs	Logs
+33615	Sap-treated willow logs	Logs
+33617	Sap-treated oak logs	Logs
+33619	Sap-treated redwood logs	Logs
+33655	Makeshift spear	Tools
+33811	Rancid slimy potion (4)	Potions,Herblore
+33812	Rancid slimy potion (3)	Potions,Herblore
+33813	Rancid slimy potion (2)	Potions,Herblore
+33814	Rancid slimy potion (1)	Potions,Herblore
+33815	Rank frothy potion (4)	Potions,Herblore
+33816	Rank frothy potion (3)	Potions,Herblore
+33817	Rank frothy potion (2)	Potions,Herblore
+33818	Rank frothy potion (1)	Potions,Herblore
+34024	Jeweller's chisel	Tools
+34033	Ardeaglais teleport	Teleportation items

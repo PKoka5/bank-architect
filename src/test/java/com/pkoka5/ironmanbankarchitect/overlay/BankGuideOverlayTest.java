@@ -98,6 +98,28 @@ public class BankGuideOverlayTest
 	}
 
 	@Test
+	public void sortedSlotsKeepTheirGreenByDefault()
+	{
+		for (BankGuideOverlay.SlotValidationState state : BankGuideOverlay.SlotValidationState.values())
+		{
+			assertTrue(BankGuideOverlay.drawsValidation(state, false));
+		}
+	}
+
+	@Test
+	public void hidingSortedHighlightsDropsOnlyTheGreen()
+	{
+		assertFalse(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.CORRECT, true));
+		assertTrue(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.MISPLACED, true));
+		assertTrue(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.WRONG, true));
+		assertTrue(BankGuideOverlay.drawsValidation(
+			BankGuideOverlay.SlotValidationState.UNKNOWN, true));
+	}
+
+	@Test
 	public void placeholderWidgetIdIsCanonicalizedWithoutCollapsingOrdinaryVariants()
 	{
 		assertEquals(6687, BankGuideOverlay.canonicalItemId(50000, 14401, 6687));
@@ -293,6 +315,20 @@ public class BankGuideOverlayTest
 		assertTrue(mainMessage.contains("infinity (All items)"));
 		assertFalse(mainMessage.contains("New tab"));
 		assertTrue(tabMessage.contains("New tab"));
+	}
+
+	/**
+	 * A filler leaves a hole that the view-sync check and TabRouteAdvisor both reject, so the
+	 * player used to sit on SYNCING BANK forever with no idea what to do about it.
+	 */
+	@Test
+	public void bankFillersAreNamedWithTheirCountAndTheFixToApply()
+	{
+		String message = BankGuideOverlay.bankFillerMessage(12);
+
+		assertTrue(message.contains("12"));
+		assertTrue(message.contains("Clear all item fillers"));
+		assertFalse(message.contains("SYNCING BANK"));
 	}
 
 	@Test

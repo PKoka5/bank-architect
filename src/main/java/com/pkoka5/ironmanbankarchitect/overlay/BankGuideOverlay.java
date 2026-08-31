@@ -145,6 +145,13 @@ public final class BankGuideOverlay extends Overlay
 			return blocked(graphics, gridBounds,
 				"Clear bank search and bank-tag filters before using item-order guidance.");
 		}
+		// A bank filler occupies a slot but is not a real item, so it leaves a hole that both the
+		// view-sync check and TabRouteAdvisor.validateItems refuse. Say so instead of syncing forever.
+		int bankFillerCount = countBankFillers();
+		if (bankFillerCount > 0)
+		{
+			return blocked(graphics, gridBounds, bankFillerMessage(bankFillerCount));
+		}
 		int[] tabCounts = readBankTabCounts();
 
 		refreshPlanCache(preview);
@@ -277,7 +284,10 @@ public final class BankGuideOverlay extends Overlay
 		Map<Integer, Integer> plannedSlotByItemId = cachedPlannedSlotByItemId;
 		// A complete blueprint keeps drawing, all green: the player asked to see
 		// the finished result confirmed rather than have the colours vanish, and
-		// switches the guide off by hand once they have looked at it.
+		// switches the guide off by hand once they have looked at it. Hiding the
+		// green on sorted items turns that confirmation off instead, for players
+		// who would rather leave the guide on and only ever see what is still out
+		// of place.
 		boolean showFinalValidation = assessment.getProgress().getPhase() == Phase.SORTING
 			|| assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE;
 
@@ -297,6 +307,10 @@ public final class BankGuideOverlay extends Overlay
 					}
 					SlotValidationState state = stateFor(plannedItems, plannedSlotByItemId,
 						slot.logicalSlot, slot.itemId);
+					if (!drawsValidation(state, config.hideSortedHighlights()))
+					{
+						continue;
+					}
 					bankGraphics.setColor(fillFor(state));
 					bankGraphics.fill(slot.bounds);
 					bankGraphics.setColor(borderFor(state));
@@ -513,6 +527,29 @@ public final class BankGuideOverlay extends Overlay
 		cachedPlannedItems = cachedTabPlan.getFlattenedItems();
 		cachedPlannedSlotByItemId = plannedSlotByItemId(cachedPlannedItems);
 		tabRouteSession.reset();
+	}
+
+	/**
+	 * Bank fillers hold a slot without being a real item. Every stage downstream treats that slot
+	 * as a hole, so the guide can only run once they are deposited.
+	 */
+	private int countBankFillers()
+	{
+		ItemContainer bank = client.getItemContainer(InventoryID.BANK);
+		if (bank == null)
+		{
+			return 0;
+		}
+
+		int fillers = 0;
+		for (Item item : bank.getItems())
+		{
+			if (item != null && item.getId() == ItemID.BANK_FILLER)
+			{
+				fillers++;
+			}
+		}
+		return fillers;
 	}
 
 	private int[] readCanonicalBankItemIds(Map<Integer, Integer> canonicalItemIds)
@@ -748,6 +785,13 @@ public final class BankGuideOverlay extends Overlay
 			default:
 				return "No safe manual move is available.\nRun Analyze My Bank again.";
 		}
+	}
+
+	static String bankFillerMessage(int fillerCount)
+	{
+		return "BANK FILLERS FOUND (" + fillerCount + ")\n"
+			+ "Item-order guidance needs a bank without gaps.\n"
+			+ "Clear all item fillers, then Analyze My Bank again.";
 	}
 
 	static String viewSyncMessage(boolean numberedTab)
@@ -1350,6 +1394,17 @@ public final class BankGuideOverlay extends Overlay
 			end--;
 		}
 		return text.substring(0, end) + suffix;
+	}
+
+	/**
+	 * Green on an already-correct slot is confirmation, not a task. A player who
+	 * has finished a bank can switch that confirmation off, so only the slots
+	 * that still need attention stay coloured and a single newly banked item
+	 * shows up on its own.
+	 */
+	static boolean drawsValidation(SlotValidationState state, boolean hideSortedHighlights)
+	{
+		return !hideSortedHighlights || state != SlotValidationState.CORRECT;
 	}
 
 	static Color fillFor(SlotValidationState state)

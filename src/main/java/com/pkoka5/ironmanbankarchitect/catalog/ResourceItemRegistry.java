@@ -112,6 +112,18 @@ public final class ResourceItemRegistry implements ItemCatalog
 					subcategory = "quest-item";
 				}
 				ItemCategory category = classification.getCategory();
+				Optional<ItemClassificationRefiner.Classification> wikiClassification =
+					WikiItemCategories.INSTANCE.overrideFor(itemId, category);
+				if (wikiClassification.isPresent())
+				{
+					// Wiki category membership is a recorded fact about the item, so it
+					// settles the tab where the name-shaped rules above only guessed.
+					// Where both already agree, the refiner keeps its finer subcategory:
+					// it is what separates herb seeds from the rest of the seeds and
+					// partial potion doses from whole potions.
+					category = wikiClassification.get().getCategory();
+					subcategory = wikiClassification.get().getSubcategory();
+				}
 				Optional<ItemClassificationRefiner.Classification> canonicalOverride =
 					CanonicalItemClassificationOverrides.find(itemId);
 				if (canonicalOverride.isPresent())
