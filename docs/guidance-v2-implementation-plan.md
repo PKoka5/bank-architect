@@ -17,8 +17,8 @@ calculates one recommendation and draws source/target guidance.
 
 ## Pure advisor phases
 
-`TabRouteAdvisor.assess(int[], BankTabPlan, int[])` validates unique canonical
-IDs and exactly nine contiguous count inputs, then emits one of:
+`TabRouteAdvisor.assess(int[], BankTabPlan, int[])` validates canonical item-ID
+multiplicities and exactly nine contiguous count inputs, then emits one of:
 
 - `COLLAPSE_TAB` for the highest dirty or surplus physical bucket;
 - `DRAG_TO_NEW_TAB` for the next required bucket anchor from main;
