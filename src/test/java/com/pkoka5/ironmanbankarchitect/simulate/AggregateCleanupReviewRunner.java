@@ -52,7 +52,7 @@ public final class AggregateCleanupReviewRunner
 			for (SimulationResult result : seedResults)
 			{
 				outcomes.merge(result.getOutcome(), 1, Integer::sum);
-				hardFailure |= isHardFailure(result);
+				hardFailure |= SimulationOutcomePolicy.isHardFailure(result);
 			}
 		}
 
@@ -88,14 +88,6 @@ public final class AggregateCleanupReviewRunner
 			}
 		}
 		return results;
-	}
-
-	private static boolean isHardFailure(SimulationResult result)
-	{
-		return result.getOutcome() == Outcome.STALLED
-			|| result.getOutcome() == Outcome.NON_TERMINATING
-			|| result.getOutcome() == Outcome.ADVISOR_BLOCKED
-			|| result.getOutcome() == Outcome.COMPLETED && !result.isFinalOrderVerified();
 	}
 
 	private static void writeMetadata(Path output, String registrySha256,
