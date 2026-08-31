@@ -327,7 +327,7 @@ public class BankGuideOverlayTest
 		String message = BankGuideOverlay.bankFillerMessage(12);
 
 		assertTrue(message.contains("12"));
-		assertTrue(message.contains("Deposit your fillers"));
+		assertTrue(message.contains("Clear all item fillers"));
 		assertFalse(message.contains("SYNCING BANK"));
 	}
 

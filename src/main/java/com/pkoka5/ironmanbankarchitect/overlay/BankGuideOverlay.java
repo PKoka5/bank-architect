@@ -791,7 +791,7 @@ public final class BankGuideOverlay extends Overlay
 	{
 		return "BANK FILLERS FOUND (" + fillerCount + ")\n"
 			+ "Item-order guidance needs a bank without gaps.\n"
-			+ "Deposit your fillers, then Analyze My Bank again.";
+			+ "Clear all item fillers, then Analyze My Bank again.";
 	}
 
 	static String viewSyncMessage(boolean numberedTab)
