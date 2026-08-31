@@ -87,18 +87,21 @@ Runes category gains one dropdown: **"Rune order"** —
 A section per category, but only where a category has a real decision:
 
 - **Guidance** — existing overlay/hint items.
-- **Layout** — one global **Tab layout: Packed / Sorted** dropdown (default
-  Packed). Packed = order-preserving with sets kept whole at row edges (F3);
-  Sorted = exact order, sets may wrap. The per-category Packed/Sorted dropdowns
-  from the absorbed branch are dropped from the config surface (the per-mode
-  map stays internal, filled uniformly, so a future per-category override is a
-  config change only).
+- **Tab layout dropdowns exist only where Packed and Sorted genuinely
+  differ** — where a category has curated geometry to keep or give up: the
+  runes/teleports/currency tabs (four-wide rune block, diary grid), the
+  resources tab (raw above processed), and the clues & cosmetics tab (outfit
+  columns). Everywhere else the two modes are a nudge apart, so no option is
+  offered and packed stands. Gear's own four-way order is its version of this
+  choice.
 - **Combat gear** — order (**Style columns / By slot / By style / By style,
   weapon first**), *Fill part-empty gear rows*, *Gather outclassed gear for
   alching* (moved here from the abstract Classification section).
 - **Food & potions** — **Potion doses: Grab area / By family** (F5).
 - **Herblore** — *Fill part-empty Herblore rows*.
-- **Runes** — **Rune order: Alphabetical / Elemental** (F6).
+- **Runes, teleports & currency** — **Tab layout** and **Rune order:
+  Alphabetical / Elemental** (F6).
+- **Resources** / **Clues & cosmetics** — **Tab layout** each.
 
 Nothing else — F2/F3/F4 are corrections, not options. Categories without a
 section have no decisions to make.

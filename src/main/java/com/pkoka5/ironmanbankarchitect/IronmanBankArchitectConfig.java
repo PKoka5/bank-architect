@@ -22,39 +22,46 @@ public interface IronmanBankArchitectConfig extends Config
 	String guidanceSection = "Guidance";
 
 	@ConfigSection(
-		name = "Layout",
-		description = "How every tab lays its items onto its rows.",
-		position = 1
-	)
-	String layoutSection = "Layout";
-
-	@ConfigSection(
 		name = "Combat gear",
 		description = "How the combat gear tab is arranged and curated.",
-		position = 2
+		position = 1
 	)
 	String gearSection = "Combat gear";
 
 	@ConfigSection(
 		name = "Food & potions",
 		description = "How the supplies tab is arranged.",
-		position = 3
+		position = 2
 	)
 	String suppliesSection = "Food & potions";
 
 	@ConfigSection(
 		name = "Herblore",
 		description = "How the Herblore tab is arranged.",
-		position = 4
+		position = 3
 	)
 	String herbloreSection = "Herblore";
 
 	@ConfigSection(
-		name = "Runes",
-		description = "How runes order among themselves.",
+		name = "Runes, teleports & currency",
+		description = "How the utility tabs are arranged.",
+		position = 4
+	)
+	String utilitiesSection = "Runes, teleports & currency";
+
+	@ConfigSection(
+		name = "Resources",
+		description = "How the resources tab is arranged.",
 		position = 5
 	)
-	String runesSection = "Runes";
+	String resourcesSection = "Resources";
+
+	@ConfigSection(
+		name = "Clues & cosmetics",
+		description = "How the clues and cosmetics tab is arranged.",
+		position = 6
+	)
+	String cluesSection = "Clues & cosmetics";
 
 	@ConfigItem(
 		keyName = "suggestNextMove",
@@ -139,18 +146,6 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "tabLayout",
-		section = layoutSection,
-		position = 0,
-		name = "Tab layout",
-		description = "Packed keeps the sorters' order and nudges neighbours so a set of charge variants never breaks across a row edge. Sorted is the exact order, wrapping like text, so a set may split at the row edge."
-	)
-	default TabOrder tabLayout()
-	{
-		return TabOrder.PACKED;
-	}
-
-	@ConfigItem(
 		keyName = "gearOrder",
 		section = gearSection,
 		position = 0,
@@ -175,9 +170,45 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "runeOrder",
-		section = runesSection,
+		keyName = "utilitiesLayout",
+		section = utilitiesSection,
 		position = 0,
+		name = "Tab layout",
+		description = "Packed keeps the curated geometry: the four-wide rune block and the achievement diary grid. Sorted runs every item in the sorter's order, wrapping like text."
+	)
+	default TabOrder utilitiesLayout()
+	{
+		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
+		keyName = "resourcesLayout",
+		section = resourcesSection,
+		position = 0,
+		name = "Tab layout",
+		description = "Packed keeps the curated geometry: raw materials aligned above their processed forms. Sorted runs every item in the sorter's order, wrapping like text."
+	)
+	default TabOrder resourcesLayout()
+	{
+		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
+		keyName = "cluesLayout",
+		section = cluesSection,
+		position = 0,
+		name = "Tab layout",
+		description = "Packed keeps the curated geometry: cosmetic outfits as vertical columns. Sorted runs every item in the sorter's order, wrapping like text."
+	)
+	default TabOrder cluesLayout()
+	{
+		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
+		keyName = "runeOrder",
+		section = utilitiesSection,
+		position = 1,
 		name = "Rune order",
 		description = "Alphabetical, or the canonical elemental sequence: air, water, earth, fire, then mind, body, cosmic, chaos, nature, law, death, blood, soul, astral, wrath."
 	)
