@@ -2044,11 +2044,25 @@ final class CanonicalItemClassificationOverrides
 			case 24735:
 				return equipmentUpgrade();
 
+			// The one Xerician piece without base stats; the robe classifies as
+			// gear, and a set never splits across tabs.
+			// Wiki: https://oldschool.runescape.wiki/w/Xerician_top?oldid=15187772
+			case 13387:
+				return gear();
+
 			// Wearable/re-obtainable costumes with no combat role.
 			// Wiki: https://oldschool.runescape.wiki/w/Black_desert_robe?oldid=15185624
 			case 6752:
-			// Wiki: https://oldschool.runescape.wiki/w/Builder's_boots?oldid=15226469
-			case 10865:
+			// The other half of the black desert set classifies with the robe
+			// above; a set never splits across tabs.
+			// Wiki: https://oldschool.runescape.wiki/w/Black_desert_shirt?oldid=15185626
+			case 6750:
+			// Zero-stat costume family; the ripped state is directly repairable
+			// into the costume-room-storable repaired trousers.
+			// Wiki: https://oldschool.runescape.wiki/w/Ripped_mourner_trousers?oldid=15238152
+			// Wiki: https://oldschool.runescape.wiki/w/Mourner_trousers?oldid=15238157
+			case 6066:
+			case 6067:
 			// Wiki: https://oldschool.runescape.wiki/w/Eagle_cape?oldid=15185043
 			case 10171:
 			// Wiki: https://oldschool.runescape.wiki/w/Emissary_hood?oldid=15192738
@@ -2083,6 +2097,10 @@ final class CanonicalItemClassificationOverrides
 			// Wiki: https://oldschool.runescape.wiki/w/Black_knight_helm?oldid=15187005
 			case 11048:
 			case 9717:
+			// The one Builder's outfit piece with stats; the shirt, trousers and
+			// hard hat classify here already, and a set never splits across tabs.
+			// Wiki: https://oldschool.runescape.wiki/w/Builder's_boots?oldid=15226469
+			case 10865:
 			case 11678:
 			// Wiki: https://oldschool.runescape.wiki/w/Bloody_knife?oldid=15190246
 			// Wiki: https://oldschool.runescape.wiki/w/Bolt_cutters?oldid=15254416
@@ -2264,14 +2282,6 @@ final class CanonicalItemClassificationOverrides
 			case 1845:
 			case 1846:
 				return skillingUtility();
-
-			// Zero-stat costume family; the ripped state is directly repairable
-			// into the costume-room-storable repaired trousers.
-			// Wiki: https://oldschool.runescape.wiki/w/Ripped_mourner_trousers?oldid=15238152
-			// Wiki: https://oldschool.runescape.wiki/w/Mourner_trousers?oldid=15238157
-			case 6066:
-			case 6067:
-				return clueCosmetic();
 
 			// The Star amulet unlocks the cave during the quest. Afterwards the
 			// cave is permanently entered by pushing the easternmost memorial;

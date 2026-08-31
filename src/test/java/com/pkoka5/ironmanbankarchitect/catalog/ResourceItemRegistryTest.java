@@ -1555,7 +1555,9 @@ public class ResourceItemRegistryTest
 		assertAuditFamily(new int[] {24735}, ItemCategory.UNIQUE, "equipment-upgrade");
 
 		assertAuditFamily(new int[] {6752}, ItemCategory.CLUE, "cosmetic");
-		assertAuditFamily(new int[] {10865}, ItemCategory.CLUE, "cosmetic");
+		// The boots classify with the rest of the Builder's outfit; a set
+		// never splits across tabs.
+		assertAuditFamily(new int[] {10865}, ItemCategory.CLEANUP, "quest-item");
 		assertAuditFamily(new int[] {10171}, ItemCategory.CLUE, "cosmetic");
 		assertAuditFamily(new int[] {29868, 29870, 29872}, ItemCategory.CLUE, "cosmetic");
 		assertAuditFamily(new int[] {773}, ItemCategory.CLUE, "cosmetic");
