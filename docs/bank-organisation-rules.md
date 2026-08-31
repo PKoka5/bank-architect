@@ -105,11 +105,10 @@ additional gearset blocks are added.
 
 ## TELE_001 — Compact rune and teleport utility grouping
 
-Main begins with its reviewed quick-access tools and rune matrix. Its teleport band then keeps
-reusable devices, charged jewellery families, teleport books, magic tablets, one-use scrolls,
-charge materials, and niche transport-access items in that order. Higher-charge jewellery states
-lead their family. Tablet and scroll identity comes from bundled registry constants where the
-display name alone is ambiguous, such as `Nardah teleport` versus `Varrock teleport`.
+Main starts with quick-access tools, followed by runes and teleports. Teleports are ordered as
+reusable items, charged jewellery, books, tablets, scrolls, charge items, then transport-only items.
+Jewellery stays with its family, with the highest charge first. Registry IDs distinguish items whose
+names are not enough, such as `Nardah teleport` and `Varrock teleport`.
 
 ## SKILL_001 — Tool → raw resource → processed resource workflow
 
@@ -118,8 +117,8 @@ Gathering and processing skills follow a tool-to-output chain, for example:
 - `pickaxe → ore → bar`
 - `axe → logs → planks/fletching outputs`
 
-Ballista frames, limbs, spring, monkey tail, and light or heavy intermediate states form one
-Fletching assembly run. Complete usable ballistae remain combat weapons.
+Ballista parts stay together in assembly order: frames, limbs, spring, monkey tail, then light and
+heavy intermediates. Finished ballistae stay with combat gear.
 
 ## CLEAN_001 — External storage recommendations
 
