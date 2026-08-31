@@ -8,7 +8,9 @@ import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,6 +26,17 @@ public class BankLayoutOptionsTest
 {
 	private static final BankLayoutOptions NO_FILLERS = new BankLayoutOptions(false, false, true);
 	private static final BankLayoutOptions NO_ALCH = new BankLayoutOptions(true, true, false);
+	private static final BankLayoutOptions SEQUENTIAL = sequentialEverywhere();
+
+	private static BankLayoutOptions sequentialEverywhere()
+	{
+		Map<BankCategorySortMode, TabOrder> orders = new EnumMap<>(BankCategorySortMode.class);
+		for (BankCategorySortMode mode : BankCategorySortMode.values())
+		{
+			orders.put(mode, TabOrder.SEQUENTIAL);
+		}
+		return new BankLayoutOptions(true, true, true, GearOrder.BY_STYLE_WEAPON_FIRST, orders);
+	}
 
 	// A part-finished Herblore chain: two herbs and one dose, so a recipe row is
 	// short and would otherwise be padded out to eight columns.
@@ -128,6 +141,121 @@ public class BankLayoutOptionsTest
 
 		assertEquals(Arrays.asList("Prayer potion(4)", "Prayer potion(3)", "Prayer potion(2)",
 			"Prayer potion(1)", "Super restore(4)", "Super restore(3)"), names);
+	}
+
+	@Test
+	public void orderingDefaultsToPacked()
+	{
+		assertEquals(GearOrder.PACKED, BankLayoutOptions.DEFAULTS.gearOrder());
+		for (BankCategorySortMode mode : BankCategorySortMode.values())
+		{
+			assertEquals(TabOrder.PACKED, BankLayoutOptions.DEFAULTS.orderFor(mode));
+			assertEquals(TabOrder.PACKED,
+				new BankLayoutOptions(true, true, true).orderFor(mode));
+		}
+		assertEquals(TabOrder.SEQUENTIAL, SEQUENTIAL.orderFor(BankCategorySortMode.MAIN));
+		assertEquals(GearOrder.BY_STYLE_WEAPON_FIRST, SEQUENTIAL.gearOrder());
+	}
+
+	/**
+	 * The point of the switch: seven single teleport tablets and two four-strong
+	 * charge families cannot all stay contiguous in an eight-wide grid, and the
+	 * packed layout sacrifices the tablets. Sequential keeps the sorter's order,
+	 * so the tablets run unbroken.
+	 */
+	@Test
+	public void sequentialLayoutKeepsSortedNeighboursTogether()
+	{
+		BankSnapshot teleports = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(8011, 85, 0),   // Ardougne teleport
+			new BankItemSnapshot(8010, 94, 1),   // Camelot teleport
+			new BankItemSnapshot(19615, 49, 2),  // Draynor manor teleport
+			new BankItemSnapshot(8009, 79, 3),   // Falador teleport
+			new BankItemSnapshot(12642, 7, 4),   // Lumberyard teleport
+			new BankItemSnapshot(8013, 94, 5),   // Teleport to house
+			new BankItemSnapshot(8007, 54, 6),   // Varrock teleport
+			new BankItemSnapshot(11978, 11, 7),  // Amulet of glory(6)
+			new BankItemSnapshot(11976, 1, 8),   // Amulet of glory(5)
+			new BankItemSnapshot(1706, 1, 9),    // Amulet of glory(1)
+			new BankItemSnapshot(1704, 1, 10),   // Amulet of glory
+			new BankItemSnapshot(3853, 1, 11),   // Games necklace(8)
+			new BankItemSnapshot(3855, 4, 12),   // Games necklace(7)
+			new BankItemSnapshot(3857, 2, 13),   // Games necklace(6)
+			new BankItemSnapshot(3859, 1, 14))); // Games necklace(5)
+		List<Integer> tablets = Arrays.asList(8011, 8010, 19615, 8009, 12642, 8013, 8007);
+
+		int teleportTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.destinationOf("teleports");
+		List<Integer> laidOut = idsOn(build(teleports, SEQUENTIAL), teleportTab);
+
+		assertEquals(15, laidOut.size());
+		int first = laidOut.size(), last = -1;
+		for (int index = 0; index < laidOut.size(); index++)
+		{
+			if (tablets.contains(laidOut.get(index)))
+			{
+				first = Math.min(first, index);
+				last = Math.max(last, index);
+			}
+		}
+		assertEquals("tablets must form one unbroken run",
+			tablets.size() - 1, last - first);
+	}
+
+	/**
+	 * Sequential gear reads the packed grid's style columns as blocks: the whole
+	 * melee kit, then ranged, then magic, instead of every helmet then every
+	 * body across styles.
+	 */
+	@Test
+	public void sequentialGearGroupsByCombatStyle()
+	{
+		BankSnapshot gear = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1163, 1, 0),   // Rune full helm (melee)
+			new BankItemSnapshot(841, 1, 1),    // Shortbow (ranged)
+			new BankItemSnapshot(1381, 1, 2),   // Staff of air (magic)
+			new BankItemSnapshot(1127, 1, 3),   // Rune platebody (melee)
+			new BankItemSnapshot(1129, 1, 4),   // Leather body (ranged)
+			new BankItemSnapshot(13389, 1, 5))); // Xerician robe (magic)
+
+		List<Integer> laidOut = idsOn(build(gear, SEQUENTIAL), gearTab());
+
+		assertEquals(6, laidOut.size());
+		assertTrue("melee block first", lastOf(laidOut, 1163, 1127) < firstOf(laidOut, 841, 1129));
+		assertTrue("weapon leads its block", laidOut.indexOf(841) < laidOut.indexOf(1129));
+		assertTrue("weapon leads its block", laidOut.indexOf(1381) < laidOut.indexOf(13389));
+		assertTrue("ranged before magic", lastOf(laidOut, 841, 1129) < firstOf(laidOut, 1381, 13389));
+	}
+
+	private static int firstOf(List<Integer> ids, int... members)
+	{
+		int first = ids.size();
+		for (int member : members)
+		{
+			int index = ids.indexOf(member);
+			if (index >= 0)
+			{
+				first = Math.min(first, index);
+			}
+		}
+		return first;
+	}
+
+	private static int lastOf(List<Integer> ids, int... members)
+	{
+		int last = -1;
+		for (int member : members)
+		{
+			last = Math.max(last, ids.indexOf(member));
+		}
+		return last;
+	}
+
+	@Test
+	public void sequentialLayoutNeverLosesAnItem()
+	{
+		assertEquals(countItems(build(HERBLORE_BANK, BankLayoutOptions.DEFAULTS)),
+			countItems(build(HERBLORE_BANK, SEQUENTIAL)));
 	}
 
 	private static int gearTab()

@@ -9,6 +9,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategorySortMode;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
@@ -20,6 +21,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.BankTag;
 import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
+import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
 import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
@@ -30,6 +32,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -288,8 +291,18 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	/** The player's layout choices that no plan can state for them. */
 	private BankLayoutOptions activeOptions()
 	{
+		Map<BankCategorySortMode, TabOrder> tabOrders = new EnumMap<>(BankCategorySortMode.class);
+		tabOrders.put(BankCategorySortMode.MAIN, config.utilitiesOrder());
+		tabOrders.put(BankCategorySortMode.TELEPORTS, config.utilitiesOrder());
+		tabOrders.put(BankCategorySortMode.CURRENCY, config.utilitiesOrder());
+		tabOrders.put(BankCategorySortMode.SUPPLIES, config.suppliesOrder());
+		tabOrders.put(BankCategorySortMode.TOOLS, config.toolsOrder());
+		tabOrders.put(BankCategorySortMode.RESOURCES, config.resourcesOrder());
+		tabOrders.put(BankCategorySortMode.FARMING, config.farmingOrder());
+		tabOrders.put(BankCategorySortMode.HERBLORE, config.herbloreOrder());
+		tabOrders.put(BankCategorySortMode.CLUES, config.cluesOrder());
 		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
-			config.alchPile());
+			config.alchPile(), config.gearOrder(), tabOrders);
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */

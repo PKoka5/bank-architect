@@ -1,5 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * The layout choices that are a matter of taste rather than of placement.
  *
@@ -11,8 +16,9 @@ package com.pkoka5.ironmanbankarchitect.organize;
  *
  * <p>Row filling is asked separately for gear and for Herblore. They are the
  * same mechanism but not the same trade: a player may well want the four combat
- * columns held straight while accepting that a short recipe row simply stops
- * where it stops.</p>
+ * columns straight while accepting that a short recipe row simply stops where
+ * it stops. Tab order is asked per category for the same reason: preferring
+ * the gear grid says nothing about how the teleports should read.</p>
  */
 public final class BankLayoutOptions
 {
@@ -21,12 +27,25 @@ public final class BankLayoutOptions
 	private final boolean fillGearRows;
 	private final boolean fillHerbloreRows;
 	private final boolean alchPile;
+	private final GearOrder gearOrder;
+	private final Map<BankCategorySortMode, TabOrder> tabOrders;
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
+	{
+		this(fillGearRows, fillHerbloreRows, alchPile, GearOrder.PACKED,
+			Collections.emptyMap());
+	}
+
+	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
+		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders)
 	{
 		this.fillGearRows = fillGearRows;
 		this.fillHerbloreRows = fillHerbloreRows;
 		this.alchPile = alchPile;
+		this.gearOrder = Objects.requireNonNull(gearOrder, "gearOrder");
+		this.tabOrders = tabOrders.isEmpty()
+			? Collections.emptyMap()
+			: Collections.unmodifiableMap(new EnumMap<>(tabOrders));
 	}
 
 	/**
@@ -36,7 +55,8 @@ public final class BankLayoutOptions
 	 * only stay straight if real items fill the rest of each row. On, the grid
 	 * holds its shape at the price of an occasional stranger in a row. Off, the
 	 * tab is laid out densely and nothing sits anywhere it does not belong; sets
-	 * still hold together as columns, since that is a different rule.</p>
+	 * still hold together as columns, since that is a different rule. Only
+	 * consulted while the gear order is the packed grid.</p>
 	 */
 	public boolean fillGearRows()
 	{
@@ -48,7 +68,8 @@ public final class BankLayoutOptions
 	 *
 	 * <p>On, a part-finished recipe borrows from the rest of the tab so the next
 	 * recipe still starts at the left edge. Off, a short row is left short and
-	 * the recipes simply follow each other.</p>
+	 * the recipes simply follow each other. A sequential Herblore order implies
+	 * off, since padding is a row concern.</p>
 	 */
 	public boolean fillHerbloreRows()
 	{
@@ -65,5 +86,20 @@ public final class BankLayoutOptions
 	public boolean alchPile()
 	{
 		return alchPile;
+	}
+
+	/** How the combat gear tab lays out; the packed grid unless chosen otherwise. */
+	public GearOrder gearOrder()
+	{
+		return gearOrder;
+	}
+
+	/**
+	 * How a category lays its tab out; {@link TabOrder#PACKED} unless the
+	 * player chose otherwise for that category.
+	 */
+	public TabOrder orderFor(BankCategorySortMode mode)
+	{
+		return tabOrders.getOrDefault(mode, TabOrder.PACKED);
 	}
 }
