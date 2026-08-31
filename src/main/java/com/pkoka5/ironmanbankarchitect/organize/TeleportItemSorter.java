@@ -169,24 +169,15 @@ final class TeleportItemSorter
 	{
 		String subcategory = normalized(item.getSubcategory());
 		String name = normalized(item.getDisplayName());
-		int itemId = item.getItemId();
 		return subcategory.contains("teleport-tablet") || name.contains("tablet")
-			|| name.contains("teletab") || itemId == 8013
-			|| itemId >= 8007 && itemId <= 8013
-			|| itemId >= 11741 && itemId <= 11747
-			|| itemId >= 12775 && itemId <= 12782;
+			|| name.contains("teletab");
 	}
 
 	private static boolean isScroll(BankPreviewItem item)
 	{
 		String subcategory = normalized(item.getSubcategory());
 		String name = normalized(item.getDisplayName());
-		int itemId = item.getItemId();
-		return subcategory.contains("teleport-scroll") || name.contains("teleport scroll")
-			|| itemId >= 12402 && itemId <= 12411 || itemId == 12642
-			|| itemId == 12938 || itemId == 13249 || itemId == 21802
-			|| itemId == 23387 || itemId == 29684 || itemId == 29782
-			|| itemId == 30040 || itemId == 30775;
+		return subcategory.contains("teleport-scroll") || name.contains("teleport scroll");
 	}
 
 	private static boolean containsAny(String value, String... needles)

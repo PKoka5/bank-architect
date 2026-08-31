@@ -26,17 +26,9 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.CLEANUP, "quest-item");
 		}
-		if (name.contains("ornament kit") || name.endsWith(" colour kit"))
+		if (name.contains("ornament kit"))
 		{
 			return new Classification(ItemCategory.CLUE, "cosmetic");
-		}
-		if (name.endsWith(" upgrade kit"))
-		{
-			return new Classification(ItemCategory.UNIQUE, "equipment-upgrade");
-		}
-		if (name.endsWith(" armour set") || name.endsWith(" robes set"))
-		{
-			return new Classification(ItemCategory.UNIQUE, "equipment-container");
 		}
 		if (isFishTrophy(name))
 		{
@@ -456,10 +448,6 @@ final class ItemClassificationRefiner
 		if (containsAny(name, " helmet", "helm", "coif", "hood"))
 		{
 			return new Classification(ItemCategory.GEAR, "head");
-		}
-		if (name.endsWith(" vambraces") || name.endsWith("bark gauntlets"))
-		{
-			return new Classification(ItemCategory.GEAR, "hands");
 		}
 		if (legacyCategory == ItemCategory.GEAR)
 		{

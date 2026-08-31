@@ -386,6 +386,8 @@ final class CanonicalItemClassificationOverrides
 			case 4286: // Bucket of slime
 				return skillingPrayerResource();
 
+			case 21129: // Ring of returning(5)
+			case 21132: // Ring of returning(4)
 			case 21134: // Ring of returning(3)
 			case 21136: // Ring of returning(2)
 			case 21138: // Ring of returning(1)

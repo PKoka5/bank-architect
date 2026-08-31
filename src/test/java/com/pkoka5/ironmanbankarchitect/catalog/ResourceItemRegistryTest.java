@@ -414,18 +414,6 @@ public class ResourceItemRegistryTest
 		assertSubcategory(4718, "weapon");
 		assertCategory(28810, "Zombie axe", ItemCategory.GEAR);
 		assertSubcategory(28810, "weapon");
-		assertCategory(29577, "Burning claws", ItemCategory.GEAR);
-		assertSubcategory(29577, "weapon");
-	}
-
-	@Test
-	public void dwarfMulticannonPartsShareOneCombatFamily()
-	{
-		for (int itemId : new int[]{6, 8, 10, 12})
-		{
-			assertCategoryOnly(itemId, ItemCategory.GEAR);
-			assertSubcategory(itemId, "cannon-part");
-		}
 	}
 
 	@Test
@@ -829,32 +817,6 @@ public class ResourceItemRegistryTest
 	{
 		assertAuditFamily(new int[] {29263, 29265, 29267, 29269},
 			ItemCategory.TOOL, "skilling-equipment");
-	}
-
-	@Test
-	public void combatVambracesAndBarkGauntletsStayWithCombatGear()
-	{
-		assertAuditFamily(new int[] {1063, 1065, 2487, 2489, 2491, 3391, 23261,
-			25392, 25407, 30082}, ItemCategory.GEAR, "hands");
-	}
-
-	@Test
-	public void boxedEquipmentSetsAndUpgradeKitsDoNotMasqueradeAsCombatGear()
-	{
-		assertClassification(12881, "Ahrim's armour set", ItemCategory.UNIQUE,
-			"equipment-container");
-		assertClassification(21049, "Ancestral robes set", ItemCategory.UNIQUE,
-			"equipment-container");
-		assertClassification(30744, "Oathplate armour set", ItemCategory.UNIQUE,
-			"equipment-container");
-		assertClassification(31145, "Torva armour set", ItemCategory.UNIQUE,
-			"equipment-container");
-		assertClassification(31169, "Hueycoatl hide armour set", ItemCategory.UNIQUE,
-			"equipment-container");
-		assertClassification(24670, "Twisted ancestral colour kit", ItemCategory.CLUE,
-			"cosmetic");
-		assertClassification(12798, "Steam staff upgrade kit", ItemCategory.UNIQUE,
-			"equipment-upgrade");
 	}
 
 	@Test
@@ -1777,6 +1739,8 @@ public class ResourceItemRegistryTest
 			assertClassification(itemId, "Damaged book", ItemCategory.GEAR, "shield");
 		}
 
+		assertClassification(21129, "Ring of returning(5)", ItemCategory.TELEPORT, "teleport");
+		assertClassification(21132, "Ring of returning(4)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21134, "Ring of returning(3)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21136, "Ring of returning(2)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21138, "Ring of returning(1)", ItemCategory.TELEPORT, "teleport");

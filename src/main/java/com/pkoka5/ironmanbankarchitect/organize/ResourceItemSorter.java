@@ -96,7 +96,7 @@ final class ResourceItemSorter
 		{
 			String family = metadata.get().getFamilyKey();
 			if (family.startsWith("metal.")) return METAL;
-			if (family.startsWith("fletching.")) return AMMO_COMPONENT;
+			if (family.equals("fletching.ballista-assembly")) return AMMO_COMPONENT;
 			return GEM;
 		}
 

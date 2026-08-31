@@ -107,8 +107,12 @@ additional gearset blocks are added.
 
 Main starts with quick-access tools, followed by runes and teleports. Teleports are ordered as
 reusable items, charged jewellery, books, tablets, scrolls, charge items, then transport-only items.
-Jewellery stays with its family, with the highest charge first. Registry IDs distinguish items whose
-names are not enough, such as `Nardah teleport` and `Varrock teleport`.
+Jewellery stays with its family, with the highest charge first. Registry constants distinguish
+teleport forms whose names are not enough, such as `Nardah teleport` and `Varrock teleport`.
+
+Quick tools keep the first row when coins are absent. When enough real entries exist to support a
+second row, runes start there so the two runs do not compete for the same slots. Sparse Main
+sections stay dense instead of reserving empty targets.
 
 ## SKILL_001 — Tool → raw resource → processed resource workflow
 
@@ -117,8 +121,8 @@ Gathering and processing skills follow a tool-to-output chain, for example:
 - `pickaxe → ore → bar`
 - `axe → logs → planks/fletching outputs`
 
-Ballista parts stay together in assembly order: frames, limbs, spring, monkey tail, then light and
-heavy intermediates. Finished ballistae stay with combat gear.
+Ballista parts stay together with shared components first: frames, limbs, spring, and monkey tail,
+followed by light and heavy intermediates. Finished ballistae stay with combat gear.
 
 ## CLEAN_001 — External storage recommendations
 

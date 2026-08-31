@@ -22,7 +22,7 @@ public class TeleportItemSorterTest
 			item(4, "Air rune", ItemCategory.RUNE, "rune"),
 			item(5, "Ring of dueling(8)", ItemCategory.TELEPORT, "teleport"),
 			item(6, "Rune pouch", ItemCategory.RUNE, "rune-container"),
-			item(7, "Teleport to house", ItemCategory.TELEPORT, "teleport"),
+			item(7, "Teleport to house", ItemCategory.TELEPORT, "teleport-tablet"),
 			item(8, "Ectophial", ItemCategory.TELEPORT, "teleport")
 		));
 
@@ -79,8 +79,8 @@ public class TeleportItemSorterTest
 	{
 		List<BankPreviewItem> sorted = TeleportItemSorter.sort(Arrays.asList(
 			item(772, "Dramen staff", ItemCategory.TELEPORT, "transport-access"),
-			item(12402, "Nardah teleport", ItemCategory.TELEPORT, "teleport"),
-			item(8013, "Teleport to house", ItemCategory.TELEPORT, "teleport"),
+			item(12402, "Nardah teleport", ItemCategory.TELEPORT, "teleport-scroll"),
+			item(8013, "Teleport to house", ItemCategory.TELEPORT, "teleport-tablet"),
 			item(21389, "Master scroll book", ItemCategory.TELEPORT, "teleport-container"),
 			item(2564, "Ring of dueling(2)", ItemCategory.TELEPORT, "teleport"),
 			item(2552, "Ring of dueling(8)", ItemCategory.TELEPORT, "teleport"),

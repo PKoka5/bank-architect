@@ -139,7 +139,7 @@ public class MainQuickAccessSemanticRuleSetTest
 	}
 
 	@Test
-	public void runesAndQuickToolsUseDifferentRowsWhenCoinsAreAbsent()
+	public void runesUseSecondRowWithoutCoinsWhenMainHasEnoughEntries()
 	{
 		List<LayoutEntry> entries = new ArrayList<>();
 		entries.add(entry(557, "Earth rune", ItemCategory.RUNE, "rune"));
@@ -159,6 +159,24 @@ public class MainQuickAccessSemanticRuleSetTest
 		assertEquals(0, targetFor(result, 11920));
 		assertEquals(1, targetFor(result, 2347));
 		assertEquals(8, targetFor(result, 557));
+	}
+
+	@Test
+	public void sparseMainStaysDenseWhenASecondRowCannotBeFormed()
+	{
+		List<LayoutEntry> entries = Arrays.asList(
+			entry(557, "Earth rune", ItemCategory.RUNE, "rune"),
+			entry(11920, "Dragon pickaxe", ItemCategory.TOOL, "tool"),
+			entry(2347, "Hammer", ItemCategory.TOOL, "tool"));
+
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(
+			MainQuickAccessSemanticRuleSet.forEntries(entries),
+			entries.stream().map(entry -> entry.getItem().getItemId()).collect(Collectors.toList()));
+
+		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertEquals(0, targetFor(result, 11920));
+		assertEquals(1, targetFor(result, 2347));
+		assertEquals(2, targetFor(result, 557));
 	}
 
 	private static LayoutResult planMainWith(List<Integer> tail)

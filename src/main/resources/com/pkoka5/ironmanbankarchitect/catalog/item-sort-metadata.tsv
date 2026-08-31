@@ -325,8 +325,8 @@
 9427	fletching.crossbow-limbs	WORKFLOW_STAGE	4	NONE	NONE	0	0	0	NONE	osrs-wiki-fletching-15122007
 9429	fletching.crossbow-limbs	WORKFLOW_STAGE	5	NONE	NONE	0	0	0	NONE	osrs-wiki-fletching-15122007
 9431	fletching.crossbow-limbs	WORKFLOW_STAGE	6	NONE	NONE	0	0	0	NONE	osrs-wiki-fletching-15122007
-# Light and heavy ballista share components. The sequence follows the assembly workflow,
-# while complete usable ballistae remain combat weapons outside this resource family.
+# Light and heavy ballista share components. Shared components come first, followed by
+# light and heavy intermediates. Complete usable ballistae remain combat weapons.
 19586	fletching.ballista-assembly	WORKFLOW_STAGE	0	NONE	NONE	0	0	0	NONE	osrs-wiki-fletching-15122007
 19589	fletching.ballista-assembly	WORKFLOW_STAGE	1	NONE	NONE	0	0	0	NONE	osrs-wiki-fletching-15122007
 19592	fletching.ballista-assembly	WORKFLOW_STAGE	2	NONE	NONE	0	0	0	NONE	osrs-wiki-fletching-15122007
