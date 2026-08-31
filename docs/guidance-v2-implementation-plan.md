@@ -42,15 +42,15 @@ and verifies the next bank state before advancing:
 
 - collapse accepts server-defined main order but preserves lower buckets;
 - create requires the advised singleton bucket;
-- distribution validates count and set membership, not landing position;
-- tab-to-tab and tab-to-Main recovery validate exact source/destination set and
-  count deltas while ignoring landing order;
+- distribution validates count and item-ID multiplicities, not landing position;
+- tab-to-tab and tab-to-Main recovery validate exact source/destination
+  item-ID multiplicity and count deltas while ignoring landing order;
 - section swap requires the exact two-slot exchange.
 
 An unexpected state is held without arrows until the same snapshot survives a
 later RuneLite game tick, then reassessed through the non-destructive route. A
-different manual action is accepted only when its item sets and tab-count
-deltas prove one safe drag; a foreign item then becomes a local recovery
+different manual action is accepted only when its item-ID multiplicities and
+tab-count deltas prove one safe drag; a foreign item then becomes a local recovery
 action. Half-updated snapshots and unexpected tab removal are rejected. If the
 only available continuation would be structural collapse, the session returns
 `MANUAL_RECOVERY_REQUIRED`. The pinned state
