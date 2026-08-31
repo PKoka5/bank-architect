@@ -44,6 +44,12 @@ public final class SemanticBlockLayoutEngine
 			ShapePrimitive shape = rule.getShapePrimitive();
 			boolean widthShaped = rule.getAllowedWidths().size() < SemanticRule.MAX_WIDTH
 				|| rule.hasWidthEvidence() || rule.hasPreferredWidth();
+			// A rule that names a single present item has no geometry to keep;
+			// one runecrafting talisman must not drag a whole tools tab here.
+			if (rule.getMemberItemIds().size() < 2)
+			{
+				continue;
+			}
 			if (shape == ShapePrimitive.VERTICAL_RUN || shape == ShapePrimitive.STAGE_MATRIX
 				|| (shape == ShapePrimitive.ROW_GROUP_MATRIX && widthShaped))
 			{

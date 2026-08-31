@@ -47,6 +47,12 @@ public final class BankOrganizationPreviewBuilder
 	{
 	}
 
+	private static String normalizedSubcategory(CatalogItem item)
+	{
+		String subcategory = item.getSubcategory();
+		return subcategory == null ? "" : subcategory.trim().toLowerCase();
+	}
+
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset)
 	{
 		return build(snapshot, catalog, preset, GearStatsSource.NONE, ItemValueSource.NONE);
@@ -147,6 +153,16 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory("currency-utilities");
 			}
+			// By family, a part dose counts as its potion: it classifies with
+			// the full potions rather than as Herblore's to-decant pile, so
+			// each potion runs 4 to 1 in one place.
+			boolean partDoseAsPotion = options.potionDoses() == PotionDoseOrder.BY_FAMILY
+				&& normalizedSubcategory(catalogItem).startsWith("potion-dose-")
+				&& !normalizedSubcategory(catalogItem).equals("potion-dose-4");
+			if (partDoseAsPotion)
+			{
+				category = preset.getCategory("potions-food");
+			}
 			if (options.alchPile() && !bankItem.isPlaceholder()
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
 				gearStats, itemValues, ownedGearByKey))
@@ -187,6 +203,7 @@ public final class BankOrganizationPreviewBuilder
 				// category on one tab share a bucket, which is what keeps a
 				// bundle's layout intact while its parts stay together.
 				BankTag tag = pinnedTag != null ? pinnedTag
+					: partDoseAsPotion ? BankTags.byKey("potions")
 					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
 				if (!bankItem.isPlaceholder())
 				{

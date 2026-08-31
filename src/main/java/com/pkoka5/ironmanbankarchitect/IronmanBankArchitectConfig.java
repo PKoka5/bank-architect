@@ -50,16 +50,23 @@ public interface IronmanBankArchitectConfig extends Config
 	String utilitiesSection = "Runes, teleports & currency";
 
 	@ConfigSection(
+		name = "Tools",
+		description = "How the skilling tools tab is arranged.",
+		position = 5
+	)
+	String toolsSection = "Tools";
+
+	@ConfigSection(
 		name = "Resources",
 		description = "How the resources tab is arranged.",
-		position = 5
+		position = 6
 	)
 	String resourcesSection = "Resources";
 
 	@ConfigSection(
 		name = "Clues & cosmetics",
 		description = "How the clues and cosmetics tab is arranged.",
-		position = 6
+		position = 7
 	)
 	String cluesSection = "Clues & cosmetics";
 
@@ -177,6 +184,18 @@ public interface IronmanBankArchitectConfig extends Config
 		description = "Packed keeps the curated geometry: the four-wide rune block and the achievement diary grid. Sorted runs every item in the sorter's order, wrapping like text."
 	)
 	default TabOrder utilitiesLayout()
+	{
+		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
+		keyName = "toolsLayout",
+		section = toolsSection,
+		position = 0,
+		name = "Tab layout",
+		description = "Packed keeps the curated geometry: empty containers as columns above their filled forms. Sorted runs every tool in skill order, wrapping like text."
+	)
+	default TabOrder toolsLayout()
 	{
 		return TabOrder.PACKED;
 	}

@@ -307,6 +307,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		tabOrders.put(BankCategorySortMode.MAIN, config.utilitiesLayout());
 		tabOrders.put(BankCategorySortMode.TELEPORTS, config.utilitiesLayout());
 		tabOrders.put(BankCategorySortMode.CURRENCY, config.utilitiesLayout());
+		tabOrders.put(BankCategorySortMode.TOOLS, config.toolsLayout());
 		tabOrders.put(BankCategorySortMode.RESOURCES, config.resourcesLayout());
 		tabOrders.put(BankCategorySortMode.CLUES, config.cluesLayout());
 		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),

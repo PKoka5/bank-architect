@@ -267,6 +267,10 @@ public class BankLayoutOptionsTest
 			new BankItemSnapshot(1265, 2, 2),   // Bronze pickaxe
 			new BankItemSnapshot(1351, 1, 3),   // Bronze axe
 			new BankItemSnapshot(590, 2, 4),    // Tinderbox
+			// One talisman brings a single-member rune rule with it; a rule
+			// naming one present item must not drag the tab to the geometry
+			// packer.
+			new BankItemSnapshot(1438, 1, 6),   // Air talisman
 			new BankItemSnapshot(952, 1, 5))); // Spade
 
 		BankOrganizationPreview preview = build(tools, BankLayoutOptions.DEFAULTS);
@@ -365,6 +369,35 @@ public class BankLayoutOptionsTest
 	 * By family, every dose counts as its potion: each family runs 4 to 1 in
 	 * one place instead of the partials trailing as a to-decant pile.
 	 */
+	/**
+	 * Part doses live on the Herblore part-doses tag, a different bucket from
+	 * the potions, so no sorter alone can unite a family. By family they count
+	 * as their potion at classification time and land in the potions bucket.
+	 */
+	@Test
+	public void byFamilyUnitesDoseFamiliesAcrossTheBucketBoundary()
+	{
+		BankSnapshot bank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(12625, 38, 0),  // Stamina potion(4)
+			new BankItemSnapshot(385, 184, 1),   // Shark
+			new BankItemSnapshot(12627, 1, 2),   // Stamina potion(3)
+			new BankItemSnapshot(12629, 1, 3),   // Stamina potion(2)
+			new BankItemSnapshot(12631, 1, 4))); // Stamina potion(1)
+
+		BankLayoutOptions byFamily = new BankLayoutOptions(true, true, true,
+			GearOrder.PACKED, new EnumMap<>(BankCategorySortMode.class),
+			PotionDoseOrder.BY_FAMILY, RuneOrder.ALPHABETICAL);
+		int suppliesTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.destinationOf("potions");
+
+		List<Integer> laidOut = idsOn(build(bank, byFamily), suppliesTab);
+		assertEquals(Arrays.asList(12625, 12627, 12629, 12631, 385), laidOut);
+
+		// The default keeps the partials on their own tag.
+		List<Integer> grabArea = idsOn(build(bank, BankLayoutOptions.DEFAULTS), suppliesTab);
+		assertEquals(Arrays.asList(12625, 385), grabArea);
+	}
+
 	@Test
 	public void byFamilyRunsEachPotionsDosesTogether()
 	{
