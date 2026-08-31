@@ -145,6 +145,13 @@ public final class BankGuideOverlay extends Overlay
 			return blocked(graphics, gridBounds,
 				"Clear bank search and bank-tag filters before using item-order guidance.");
 		}
+		// A bank filler occupies a slot but is not a real item, so it leaves a hole that both the
+		// view-sync check and TabRouteAdvisor.validateItems refuse. Say so instead of syncing forever.
+		int bankFillerCount = countBankFillers();
+		if (bankFillerCount > 0)
+		{
+			return blocked(graphics, gridBounds, bankFillerMessage(bankFillerCount));
+		}
 		int[] tabCounts = readBankTabCounts();
 
 		refreshPlanCache(preview);
@@ -522,6 +529,29 @@ public final class BankGuideOverlay extends Overlay
 		tabRouteSession.reset();
 	}
 
+	/**
+	 * Bank fillers hold a slot without being a real item. Every stage downstream treats that slot
+	 * as a hole, so the guide can only run once they are deposited.
+	 */
+	private int countBankFillers()
+	{
+		ItemContainer bank = client.getItemContainer(InventoryID.BANK);
+		if (bank == null)
+		{
+			return 0;
+		}
+
+		int fillers = 0;
+		for (Item item : bank.getItems())
+		{
+			if (item != null && item.getId() == ItemID.BANK_FILLER)
+			{
+				fillers++;
+			}
+		}
+		return fillers;
+	}
+
 	private int[] readCanonicalBankItemIds(Map<Integer, Integer> canonicalItemIds)
 	{
 		ItemContainer bank = client.getItemContainer(InventoryID.BANK);
@@ -755,6 +785,13 @@ public final class BankGuideOverlay extends Overlay
 			default:
 				return "No safe manual move is available.\nRun Analyze My Bank again.";
 		}
+	}
+
+	static String bankFillerMessage(int fillerCount)
+	{
+		return "BANK FILLERS FOUND (" + fillerCount + ")\n"
+			+ "Item-order guidance needs a bank without gaps.\n"
+			+ "Clear all item fillers, then Analyze My Bank again.";
 	}
 
 	static String viewSyncMessage(boolean numberedTab)

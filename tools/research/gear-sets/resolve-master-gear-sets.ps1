@@ -374,7 +374,34 @@ $supplementalRows = @(
 	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.black-desert"; CatalogSetName = "Black Desert Outfit"; SlotRank = 5; ItemId = 6750 },
 	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.black-desert"; CatalogSetName = "Black Desert Outfit"; SlotRank = 7; ItemId = 6752 },
 	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.plague-outfit"; CatalogSetName = "Plague Outfit"; SlotRank = 5; ItemId = 284 },
-	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.plague-outfit"; CatalogSetName = "Plague Outfit"; SlotRank = 7; ItemId = 285 }
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.plague-outfit"; CatalogSetName = "Plague Outfit"; SlotRank = 7; ItemId = 285 },
+
+	# Barrows brothers missing from the workbook, which listed only Ahrim's.
+	# Dharok: https://oldschool.runescape.wiki/w/Dharok_the_Wretched%27s_equipment?oldid=15236529
+	# Guthan: https://oldschool.runescape.wiki/w/Guthan_the_Infested%27s_equipment?oldid=15240643
+	# Karil: https://oldschool.runescape.wiki/w/Karil_the_Tainted%27s_equipment?oldid=15109820
+	# Torag: https://oldschool.runescape.wiki/w/Torag_the_Corrupted%27s_equipment?oldid=15316808
+	# Verac: https://oldschool.runescape.wiki/w/Verac_the_Defiled%27s_equipment?oldid=15279294
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.dharok-s"; CatalogSetName = "Dharok's"; SlotRank = 0; ItemId = 4716 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.dharok-s"; CatalogSetName = "Dharok's"; SlotRank = 4; ItemId = 4718 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.dharok-s"; CatalogSetName = "Dharok's"; SlotRank = 5; ItemId = 4720 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.dharok-s"; CatalogSetName = "Dharok's"; SlotRank = 7; ItemId = 4722 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.guthan-s"; CatalogSetName = "Guthan's"; SlotRank = 0; ItemId = 4724 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.guthan-s"; CatalogSetName = "Guthan's"; SlotRank = 4; ItemId = 4726 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.guthan-s"; CatalogSetName = "Guthan's"; SlotRank = 5; ItemId = 4728 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.guthan-s"; CatalogSetName = "Guthan's"; SlotRank = 7; ItemId = 4730 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.karil-s"; CatalogSetName = "Karil's"; SlotRank = 0; ItemId = 4732 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.karil-s"; CatalogSetName = "Karil's"; SlotRank = 4; ItemId = 4734 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.karil-s"; CatalogSetName = "Karil's"; SlotRank = 5; ItemId = 4736 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.karil-s"; CatalogSetName = "Karil's"; SlotRank = 7; ItemId = 4738 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.torag-s"; CatalogSetName = "Torag's"; SlotRank = 0; ItemId = 4745 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.torag-s"; CatalogSetName = "Torag's"; SlotRank = 4; ItemId = 4747 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.torag-s"; CatalogSetName = "Torag's"; SlotRank = 5; ItemId = 4749 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.torag-s"; CatalogSetName = "Torag's"; SlotRank = 7; ItemId = 4751 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.verac-s"; CatalogSetName = "Verac's"; SlotRank = 0; ItemId = 4753 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.verac-s"; CatalogSetName = "Verac's"; SlotRank = 4; ItemId = 4755 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.verac-s"; CatalogSetName = "Verac's"; SlotRank = 5; ItemId = 4757 },
+	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.verac-s"; CatalogSetName = "Verac's"; SlotRank = 7; ItemId = 4759 }
 )
 $catalogRows = @($catalogRows + $supplementalRows |
 	Sort-Object Domain, SetKey, SlotRank, ItemId |

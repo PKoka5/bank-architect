@@ -14,7 +14,7 @@ public class GearTierCatalogTest
 	{
 		GearTierCatalog catalog = GearTierCatalog.INSTANCE;
 
-		assertEquals(307, catalog.size());
+		assertEquals(325, catalog.size());
 		assertEquals(OptionalInt.of(5), catalog.tierOf(26382)); // Torva full helm, End
 		assertEquals(OptionalInt.of(4), catalog.tierOf(11832)); // Bandos chestplate, Late
 		assertEquals(OptionalInt.of(3), catalog.tierOf(1275)); // Rune pickaxe, Mid
@@ -57,6 +57,40 @@ public class GearTierCatalogTest
 			{
 				assertTrue("tier out of range for itemId " + itemId, tier.getAsInt() >= 1 && tier.getAsInt() <= 5);
 			}
+		}
+	}
+
+	/**
+	 * A set whose siblings are tiered but which is itself untiered falls back to the name
+	 * heuristics, scores nothing, and drifts to the far end of the gear tab away from its
+	 * family. Perilous Moons and Barrows must therefore be tiered as whole groups.
+	 */
+	@Test
+	public void peerSetsOfTheSameSourceAreTieredAsAWholeGroup()
+	{
+		int[] perilousMoons = {
+			29028, 29022, 29025, // Blood moon helm, chestplate, tassets
+			29010, 29004, 29007, // Eclipse moon helm, chestplate, tassets
+			29019, 29013, 29016, // Blue moon helm, chestplate, tassets
+		};
+		int[] barrows = {
+			4716, 4720, 4722, // Dharok's helm, platebody, platelegs
+			4724, 4728, 4730, // Guthan's helm, platebody, chainskirt
+			4732, 4736, 4738, // Karil's coif, leathertop, leatherskirt
+			4708, 4712, 4714, // Ahrim's hood, robetop, robeskirt
+			4745, 4749, 4751, // Torag's helm, platebody, platelegs
+			4753, 4757, 4759, // Verac's helm, brassard, plateskirt
+		};
+
+		for (int itemId : perilousMoons)
+		{
+			assertEquals("Perilous Moons " + itemId,
+				OptionalInt.of(4), GearTierCatalog.INSTANCE.tierOf(itemId));
+		}
+		for (int itemId : barrows)
+		{
+			assertEquals("Barrows " + itemId,
+				OptionalInt.of(4), GearTierCatalog.INSTANCE.tierOf(itemId));
 		}
 	}
 }

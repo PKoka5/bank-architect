@@ -103,9 +103,21 @@
 4708	4	Ahrim's hood
 4712	4	Ahrim's robetop
 4714	4	Ahrim's robeskirt
+4716	4	Dharok's helm
+4720	4	Dharok's platebody
+4722	4	Dharok's platelegs
+4724	4	Guthan's helm
+4728	4	Guthan's platebody
+4730	4	Guthan's chainskirt
 4732	4	Karil's coif
 4736	4	Karil's leathertop
 4738	4	Karil's leatherskirt
+4745	4	Torag's helm
+4749	4	Torag's platebody
+4751	4	Torag's platelegs
+4753	4	Verac's helm
+4757	4	Verac's brassard
+4759	4	Verac's plateskirt
 5574	3	Initiate sallet
 5575	3	Initiate hauberk
 5576	3	Initiate cuisse
@@ -300,6 +312,12 @@
 28939	5	Sunfire fanatic chausses
 28947	5	Dizana's quiver (uncharged)
 28951	5	Dizana's quiver
+29004	4	Eclipse moon chestplate
+29007	4	Eclipse moon tassets
+29010	4	Eclipse moon helm
+29013	4	Blue moon chestplate
+29016	4	Blue moon tassets
+29019	4	Blue moon helm
 29022	4	Blood moon chestplate
 29025	4	Blood moon tassets
 29028	4	Blood moon helm

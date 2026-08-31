@@ -409,6 +409,41 @@ public class GearItemSorterTest
 		assertTrue("Late tier must outrank a lower curated tier", bandosScore > runeScore);
 	}
 
+	/**
+	 * Blood moon was the only Perilous Moons set with a curated tier and the Barrows melee brothers
+	 * had none at all, so their untiered siblings scored below plain metal armour and drifted to the
+	 * far end of the gear tab, away from the rest of their family.
+	 */
+	@Test
+	public void tieredSetsOutrankPlainMetalArmourAsWholeFamilies()
+	{
+		assertEquals(Arrays.asList(
+			"Blood moon helm",
+			"Blue moon helm",
+			"Eclipse moon helm",
+			"Rune full helm"
+		), names(GearItemSorter.dense(Arrays.asList(
+			item(1163, "Rune full helm"),
+			item(29010, "Eclipse moon helm"),
+			item(29019, "Blue moon helm"),
+			item(29028, "Blood moon helm")
+		), GearStatsSource.NONE)));
+
+		assertEquals(Arrays.asList(
+			"Dharok's helm",
+			"Guthan's helm",
+			"Torag's helm",
+			"Verac's helm",
+			"Rune full helm"
+		), names(GearItemSorter.dense(Arrays.asList(
+			item(1163, "Rune full helm"),
+			item(4753, "Verac's helm"),
+			item(4745, "Torag's helm"),
+			item(4724, "Guthan's helm"),
+			item(4716, "Dharok's helm")
+		), GearStatsSource.NONE)));
+	}
+
 	private static BankPreviewItem item(int itemId, String name)
 	{
 		return new BankPreviewItem(new CatalogItem(itemId, name, ItemCategory.GEAR,
