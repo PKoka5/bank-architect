@@ -35,7 +35,8 @@ public class BankLayoutOptionsTest
 		{
 			orders.put(mode, TabOrder.SEQUENTIAL);
 		}
-		return new BankLayoutOptions(true, true, true, orders, GearLayout.LIST);
+		return new BankLayoutOptions(true, true, true, orders, GearLayout.LIST,
+			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
 	}
 
 	// A part-finished Herblore chain: two herbs and one dose, so a recipe row is
@@ -153,7 +154,8 @@ public class BankLayoutOptionsTest
 				new BankLayoutOptions(true, true, true).orderFor(mode));
 		}
 		assertEquals(TabOrder.SEQUENTIAL, SEQUENTIAL.orderFor(BankCategorySortMode.MAIN));
-		assertEquals(GearLayout.GRID_STYLES, BankLayoutOptions.DEFAULTS.gearLayout());
+		assertEquals(PotionDoseOrder.GRAB_AREA, BankLayoutOptions.DEFAULTS.potionDoses());
+		assertEquals(RuneOrder.ALPHABETICAL, BankLayoutOptions.DEFAULTS.runeOrder());
 	}
 
 	/**
@@ -370,6 +372,35 @@ public class BankLayoutOptionsTest
 	 * one place instead of the partials trailing as a to-decant pile.
 	 */
 	/**
+	 * Part doses live on the Herblore part-doses tag, a different bucket from
+	 * the potions, so no sorter alone can unite a family. By family they count
+	 * as their potion at classification time and land in the potions bucket.
+	 */
+	@Test
+	public void byFamilyUnitesDoseFamiliesAcrossTheBucketBoundary()
+	{
+		BankSnapshot bank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(12625, 38, 0),  // Stamina potion(4)
+			new BankItemSnapshot(385, 184, 1),   // Shark
+			new BankItemSnapshot(12627, 1, 2),   // Stamina potion(3)
+			new BankItemSnapshot(12629, 1, 3),   // Stamina potion(2)
+			new BankItemSnapshot(12631, 1, 4))); // Stamina potion(1)
+
+		BankLayoutOptions byFamily = new BankLayoutOptions(true, true, true,
+			new EnumMap<>(BankCategorySortMode.class), GearLayout.GRID_STYLES,
+			PotionDoseOrder.BY_FAMILY, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
+		int suppliesTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.destinationOf("potions");
+
+		List<Integer> laidOut = idsOn(build(bank, byFamily), suppliesTab);
+		assertEquals(Arrays.asList(12625, 12627, 12629, 12631, 385), laidOut);
+
+		// The default keeps the partials on their own tag.
+		List<Integer> grabArea = idsOn(build(bank, BankLayoutOptions.DEFAULTS), suppliesTab);
+		assertEquals(Arrays.asList(12625, 385), grabArea);
+	}
+
+	/**
 	 * The tab name reads in the player's own tag order, and so does the tab: a
 	 * layout listing food before potions puts the food block first. A default
 	 * plan's order is bookkeeping, not a statement, so the sorters' curated
@@ -398,7 +429,45 @@ public class BankLayoutOptionsTest
 		assertEquals(Integer.valueOf(12625), curated.get(0));
 	}
 
+	@Test
+	public void byFamilyRunsEachPotionsDosesTogether()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			potionDose(2434, "Prayer potion(4)", 4), potionDose(139, "Prayer potion(3)", 3),
+			potionDose(141, "Prayer potion(2)", 2), potionDose(143, "Prayer potion(1)", 1),
+			potionDose(3024, "Super restore(4)", 4), potionDose(3026, "Super restore(3)", 3),
+			potion(385, "Shark"));
+
+		List<String> names = new ArrayList<>();
+		for (BankPreviewItem item : SupplyItemSorter.sort(items,
+			com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
+			PotionDoseOrder.BY_FAMILY))
+		{
+			names.add(item.getDisplayName());
+		}
+
+		assertEquals(Arrays.asList("Prayer potion(4)", "Prayer potion(3)", "Prayer potion(2)",
+			"Prayer potion(1)", "Super restore(4)", "Super restore(3)", "Shark"), names);
+	}
+
 	/** The canonical spellbook sequence, with unknowns following alphabetically. */
+	@Test
+	public void elementalRuneOrderFollowsTheCanonicalSequence()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			rune(559, "Body rune"), rune(554, "Fire rune"), rune(556, "Air rune"),
+			rune(1436, "Rune essence"), rune(555, "Water rune"), rune(557, "Earth rune"));
+
+		List<String> names = new ArrayList<>();
+		for (BankPreviewItem item : IronmanMainItemSorter.sort(items, RuneOrder.ELEMENTAL))
+		{
+			names.add(item.getDisplayName());
+		}
+
+		assertEquals(Arrays.asList("Air rune", "Water rune", "Earth rune", "Fire rune",
+			"Body rune", "Rune essence"), names);
+	}
+
 	private static BankPreviewItem potionDose(int id, String name, int dose)
 	{
 		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.POTION,
@@ -406,6 +475,25 @@ public class BankLayoutOptionsTest
 	}
 
 	/** The spellbook's casting order leads; oddballs follow alphabetically. */
+	@Test
+	public void spellbookFirstLeadsWithTheCityTeleports()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			teleport(12403, "Digsite teleport"), teleport(8011, "Ardougne teleport"),
+			teleport(8007, "Varrock teleport"), teleport(4251, "Ectophial"),
+			teleport(8010, "Camelot teleport"), teleport(8008, "Lumbridge teleport"));
+
+		List<String> names = new ArrayList<>();
+		for (BankPreviewItem item : IronmanMainItemSorter.sort(items,
+			RuneOrder.ALPHABETICAL, TeleportOrder.SPELLBOOK_FIRST))
+		{
+			names.add(item.getDisplayName());
+		}
+
+		assertEquals(Arrays.asList("Varrock teleport", "Lumbridge teleport", "Camelot teleport",
+			"Ardougne teleport", "Digsite teleport", "Ectophial"), names);
+	}
+
 	private static BankPreviewItem teleport(int id, String name)
 	{
 		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.TELEPORT,

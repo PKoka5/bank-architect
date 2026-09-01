@@ -29,6 +29,9 @@ public final class BankLayoutOptions
 	private final boolean alchPile;
 	private final Map<BankCategorySortMode, TabOrder> tabOrders;
 	private final GearLayout gearLayout;
+	private final PotionDoseOrder potionDoses;
+	private final RuneOrder runeOrder;
+	private final TeleportOrder teleportOrder;
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
 	{
@@ -38,11 +41,13 @@ public final class BankLayoutOptions
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
 		Map<BankCategorySortMode, TabOrder> tabOrders)
 	{
-		this(fillGearRows, fillHerbloreRows, alchPile, tabOrders, GearLayout.GRID_STYLES);
+		this(fillGearRows, fillHerbloreRows, alchPile, tabOrders, GearLayout.GRID_STYLES,
+			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
 	}
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
-		Map<BankCategorySortMode, TabOrder> tabOrders, GearLayout gearLayout)
+		Map<BankCategorySortMode, TabOrder> tabOrders, GearLayout gearLayout,
+		PotionDoseOrder potionDoses, RuneOrder runeOrder, TeleportOrder teleportOrder)
 	{
 		this.fillGearRows = fillGearRows;
 		this.fillHerbloreRows = fillHerbloreRows;
@@ -51,6 +56,9 @@ public final class BankLayoutOptions
 			? Collections.emptyMap()
 			: Collections.unmodifiableMap(new EnumMap<>(tabOrders));
 		this.gearLayout = Objects.requireNonNull(gearLayout, "gearLayout");
+		this.potionDoses = Objects.requireNonNull(potionDoses, "potionDoses");
+		this.runeOrder = Objects.requireNonNull(runeOrder, "runeOrder");
+		this.teleportOrder = Objects.requireNonNull(teleportOrder, "teleportOrder");
 	}
 
 	/**
@@ -106,5 +114,23 @@ public final class BankLayoutOptions
 	public GearLayout gearLayout()
 	{
 		return gearLayout;
+	}
+
+	/** Where part doses sit on the supplies tab. */
+	public PotionDoseOrder potionDoses()
+	{
+		return potionDoses;
+	}
+
+	/** How runes order among themselves. */
+	public RuneOrder runeOrder()
+	{
+		return runeOrder;
+	}
+
+	/** How single teleport items order among themselves. */
+	public TeleportOrder teleportOrder()
+	{
+		return teleportOrder;
 	}
 }

@@ -190,6 +190,16 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory("currency-utilities");
 			}
+			// By family, a part dose counts as its potion: it classifies with
+			// the full potions rather than as Herblore's to-decant pile, so
+			// each potion runs 4 to 1 in one place.
+			boolean partDoseAsPotion = options.potionDoses() == PotionDoseOrder.BY_FAMILY
+				&& normalizedSubcategory(catalogItem).startsWith("potion-dose-")
+				&& !normalizedSubcategory(catalogItem).equals("potion-dose-4");
+			if (partDoseAsPotion)
+			{
+				category = preset.getCategory("potions-food");
+			}
 			if (options.alchPile() && !bankItem.isPlaceholder()
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
 				gearStats, itemValues, ownedGearByKey))
@@ -230,6 +240,7 @@ public final class BankOrganizationPreviewBuilder
 				// category on one tab share a bucket, which is what keeps a
 				// bundle's layout intact while its parts stay together.
 				BankTag tag = pinnedTag != null ? pinnedTag
+					: partDoseAsPotion ? BankTags.byKey("potions")
 					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
 				if (!bankItem.isPlaceholder())
 				{
@@ -555,6 +566,13 @@ public final class BankOrganizationPreviewBuilder
 
 		private String tagKeyOf(BankPreviewItem item)
 		{
+			String subcategory = item.getSubcategory() == null ? ""
+				: item.getSubcategory().trim().toLowerCase();
+			if (options.potionDoses() == PotionDoseOrder.BY_FAMILY
+				&& subcategory.startsWith("potion-dose-") && !subcategory.equals("potion-dose-4"))
+			{
+				return "potions";
+			}
 			try
 			{
 				return BankTags.tagFor(category.getKey(), item.getSubcategory()).getKey();
@@ -577,7 +595,7 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(IronmanMainItemSorter.sort(items)),
+						honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
@@ -588,7 +606,9 @@ public final class BankOrganizationPreviewBuilder
 						sequential(BankCategorySortMode.TELEPORTS)));
 				case SUPPLIES:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(SupplyItemSorter.sort(items)),
+						honorTagOrder(SupplyItemSorter.sort(items,
+							com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
+							options.potionDoses())),
 						PotionDoseSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.SUPPLIES)));
 				case TOOLS:

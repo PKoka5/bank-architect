@@ -29,7 +29,8 @@ public class BankOrganizationPreviewBuilderTest
 {
 	/** The gear tab laid out as set columns rather than the default matrix. */
 	private static final BankLayoutOptions SET_COLUMNS = new BankLayoutOptions(true, true, true,
-		java.util.Collections.emptyMap(), GearLayout.GRID_SETS);
+		java.util.Collections.emptyMap(), GearLayout.GRID_SETS,
+		PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
 
 	@Test
 	public void separateChargedCopiesRemainSeparatePhysicalBlueprintSlots()
