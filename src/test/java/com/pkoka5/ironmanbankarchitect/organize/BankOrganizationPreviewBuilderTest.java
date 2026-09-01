@@ -1630,6 +1630,54 @@ public class BankOrganizationPreviewBuilderTest
 		return ids;
 	}
 
+	/**
+	 * A family never splits the run of singles behind it: deferring must carry
+	 * the whole run, not pluck out just enough to fill the row. Six singles
+	 * lead, the four-dose family meets the row edge, and all three following
+	 * singles come before it - not two of three around it.
+	 */
+	@Test
+	public void aDeferringFamilyNeverSplitsTheRunOfSinglesBehindIt()
+	{
+		List<CatalogItem> catalogItems = Arrays.asList(
+			catalogItem(9739, "Renamed combat dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(141, "Renamed prayer dose two", ItemCategory.POTION, "potion-dose-2"),
+			catalogItem(12905, "Renamed anti-venom dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2434, "Renamed prayer dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2452, "Renamed antifire dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(143, "Renamed prayer dose one", ItemCategory.POTION, "potion-dose-1"),
+			catalogItem(2428, "Renamed attack dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(385, "Renamed shark", ItemCategory.POTION, "food"),
+			catalogItem(12913, "Renamed anti-venom-plus dose four", ItemCategory.POTION,
+				"potion-dose-4"),
+			catalogItem(139, "Renamed prayer dose three", ItemCategory.POTION, "potion-dose-3"),
+			catalogItem(2446, "Renamed antipoison dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(3024, "Renamed super restore dose four", ItemCategory.POTION,
+				"potion-dose-4"),
+			catalogItem(2450, "Renamed zamorak dose four", ItemCategory.POTION, "potion-dose-4"));
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), index + 1,
+				17 + index * 61));
+		}
+		List<BankPreviewItem> fallbackInput = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			fallbackInput.add(new BankPreviewItem(catalogItems.get(index), index + 1));
+		}
+		List<Integer> fallbackOrder = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			2434, 139, 141, 143, 3024, 2450, 385);
+		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
+
+		List<Integer> expected = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			3024, 2450, 385, 2434, 139, 141, 143);
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
+		assertEquals(expected,
+			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));
+	}
+
 	private static void assertVerticalFamily(List<Integer> target, List<Integer> family)
 	{
 		int first = target.indexOf(family.get(0));
@@ -1687,9 +1735,9 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	/**
-	 * With singles close behind the run, the packer borrows just enough of
-	 * them to finish the row, so the dose run starts the next row whole and
-	 * nothing else moves.
+	 * With singles directly behind the run, the family defers behind them to
+	 * the next clean row, so the dose run stays whole and the singles' own
+	 * order is untouched.
 	 */
 	@Test
 	public void supplyCategoryNudgesSinglesForwardToKeepADoseRunWhole()

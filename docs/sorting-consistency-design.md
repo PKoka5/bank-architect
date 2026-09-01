@@ -49,10 +49,11 @@ filler anywhere) to guarantee no family straddles a row edge — the source of
 every "why is X before Y" complaint.
 
 New behaviour of Packed for every category that uses the beam packer: **place
-groups in the sorter's order; when a family would straddle a row edge, make the
-smallest local nudge (pull forward one or two nearby singles to finish the row)
-so the family starts on the next row; if no nearby single exists, let it
-straddle.** The reorder-freely policy is retired, with no toggle preserving it.
+groups in the sorter's order; when a family would straddle a row edge, the
+family defers behind the whole run of singles that follows it, to the latest
+point it still fits a row cleanly; singles are never plucked out of their flow,
+and when no clean point is in reach the family wraps in place.** The
+reorder-freely policy is retired, with no toggle preserving it.
 
 Implementation shape: candidate generation and validation stay; the beam search
 is replaced (or constrained) by a linear pass over the sorter's sequence with a

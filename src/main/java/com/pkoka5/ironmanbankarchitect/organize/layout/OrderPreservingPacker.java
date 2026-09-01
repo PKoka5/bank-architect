@@ -13,9 +13,10 @@ import java.util.Map;
  * Packs a category by following the sorter's order. The real bank always
  * compacts, so density is never a choice — the only decision is what happens
  * when a semantic family (a charge set, an outfit) meets the end of a row.
- * This packer makes the smallest local move: it pulls a few upcoming single
- * items forward to finish the row so the family starts on the next one, and
- * when no such single is close by, it lets the family wrap.
+ * Single items are never plucked out of their flow to fix it: the family is
+ * the movable thing, sliding behind the whole run of singles that follows it
+ * until it finds a gap it fits cleanly, and wrapping in place when none is
+ * near.
  *
  * <p>Everything else about the sorter's sequence is preserved. The item a
  * player expects first is first; nothing jumps the queue to make a rectangle
@@ -95,15 +96,24 @@ final class OrderPreservingPacker
 			boolean wouldStraddle = gap != 0 && pending.size() > gap;
 			if (isFamily && wouldStraddle)
 			{
-				List<Integer> nudges = collectNudges(blocks, blockIndex + 1, placed, gap);
-				if (nudges.size() == gap)
+				// The family slides behind the run of singles that follows it,
+				// as far as the run reaches, to the latest point it still fits
+				// a row cleanly. The singles' own order is never disturbed.
+				List<Integer> run = consecutiveSingles(blocks, blockIndex + 1, placed);
+				for (int deferred = run.size(); deferred > 0; deferred--)
 				{
-					for (Integer itemId : nudges)
+					int columnAfter = (column + deferred) % GRID_COLUMNS;
+					int gapAfter = (GRID_COLUMNS - columnAfter) % GRID_COLUMNS;
+					if (gapAfter == 0 || gapAfter >= pending.size())
 					{
-						placed.put(itemId, Boolean.TRUE);
-						laidOut.add(itemId);
+						for (Integer itemId : run.subList(0, deferred))
+						{
+							placed.put(itemId, Boolean.TRUE);
+							laidOut.add(itemId);
+						}
+						column = columnAfter;
+						break;
 					}
-					column = 0;
 				}
 			}
 
@@ -155,22 +165,20 @@ final class OrderPreservingPacker
 		return blocks;
 	}
 
-	/** The next {@code needed} singles within the window, in their own order. */
-	private static List<Integer> collectNudges(List<List<Integer>> blocks, int fromBlock,
-		Map<Integer, Boolean> placed, int needed)
+	/** The unbroken run of single items directly after a block, within the window. */
+	private static List<Integer> consecutiveSingles(List<List<Integer>> blocks, int fromBlock,
+		Map<Integer, Boolean> placed)
 	{
-		List<Integer> nudges = new ArrayList<>(needed);
-		int scanned = 0;
-		for (int index = fromBlock; index < blocks.size() && scanned < NUDGE_WINDOW
-			&& nudges.size() < needed; index++)
+		List<Integer> run = new ArrayList<>();
+		for (int index = fromBlock; index < blocks.size() && run.size() < NUDGE_WINDOW; index++)
 		{
 			List<Integer> block = blocks.get(index);
-			scanned += block.size();
-			if (block.size() == 1 && !placed.containsKey(block.get(0)))
+			if (block.size() != 1 || placed.containsKey(block.get(0)))
 			{
-				nudges.add(block.get(0));
+				break;
 			}
+			run.add(block.get(0));
 		}
-		return nudges.size() == needed ? nudges : List.of();
+		return run;
 	}
 }
