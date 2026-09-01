@@ -116,7 +116,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = gearSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid reads each set down a column - helm, body, legs - with rows completed so the columns stay straight. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after, junk-free."
+		description = "Grid stacks each set down a column - helm, body, legs - with the rest of the kit arranged around it so the columns stay straight. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after. Both are junk-free."
 	)
 	default TabOrder gearLayout()
 	{

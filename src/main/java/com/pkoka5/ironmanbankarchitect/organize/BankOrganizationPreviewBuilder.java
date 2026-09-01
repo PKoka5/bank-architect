@@ -648,43 +648,25 @@ public final class BankOrganizationPreviewBuilder
 			return options.orderFor(mode) == TabOrder.SEQUENTIAL;
 		}
 
-		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
+		/** Sets vertical in the grid, sets horizontal in the list; junk-free either way. */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
 			if (sequential(BankCategorySortMode.GEAR))
 			{
 				// The list layout: each set reads as one run, strongest first,
-				// loose gear flowing after. Junk-free by construction.
+				// loose gear flowing after.
 				return new ArrayList<>(GearItemSorter.bySet(items, gearStats));
 			}
 
-			if (!options.fillGearRows())
-			{
-				// The aligned setup rows are the only thing here that needs padding,
-				// so without filling there is nothing to align and the whole tab is
-				// laid out as the dense tail. Sets still hold together as columns;
-				// what goes is the four-style grid, not the families.
-				List<BankPreviewItem> dense = GearItemSorter.dense(items, gearStats);
-				List<LayoutEntry> denseEntries = entriesForItems(entries, dense);
-				int rows = (denseEntries.size() + GearItemSorter.GRID_COLUMNS - 1)
-					/ GearItemSorter.GRID_COLUMNS;
-				return semanticLayout(dense,
-					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)), false);
-			}
-
-			GearItemSorter.GearLayout gear = GearItemSorter.plan(items, gearStats);
-			List<BankPreviewItem> planned = new ArrayList<>(items.size());
-			planned.addAll(gear.getSetupRows());
-
-			List<LayoutEntry> tailEntries = entriesForItems(entries, gear.getTail());
-			int gridStartColumn = planned.size() % GearItemSorter.GRID_COLUMNS;
-			int physicalTailRows = (gridStartColumn + tailEntries.size()
-				+ GearItemSorter.GRID_COLUMNS - 1) / GearItemSorter.GRID_COLUMNS;
-			LayoutRequest tailRequest = GearSetSemanticRuleSet
-				.forEntries(tailEntries, Math.max(1, physicalTailRows))
-				.withGridStartColumn(gridStartColumn);
-			planned.addAll(semanticLayout(gear.getTail(), tailRequest, false));
-			return planned;
+			// The grid layout: the semantic engine stacks each curated set as a
+			// vertical column and arranges the rest of the kit around it, so the
+			// columns stay straight without borrowing filler from other rows.
+			List<BankPreviewItem> dense = GearItemSorter.dense(items, gearStats);
+			List<LayoutEntry> denseEntries = entriesForItems(entries, dense);
+			int rows = (denseEntries.size() + GearItemSorter.GRID_COLUMNS - 1)
+				/ GearItemSorter.GRID_COLUMNS;
+			return semanticLayout(dense,
+				GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)), false);
 		}
 
 		/**

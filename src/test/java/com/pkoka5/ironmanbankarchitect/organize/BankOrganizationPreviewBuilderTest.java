@@ -1230,8 +1230,12 @@ public class BankOrganizationPreviewBuilderTest
 		assertVerticalFamily(target, cow);
 	}
 
+	/**
+	 * The grid stacks each curated set as one vertical column; the rest of the
+	 * kit arranges around it and no item is lost or duplicated.
+	 */
 	@Test
-	public void gearSetRulesNeverRepackPrimaryCombatStyleColumns()
+	public void gearGridStacksACuratedSetAsOneColumn()
 	{
 		int[][] rows = {
 			{930101, 930102, 930103, 9672, 930105, 930106, 930107, 930108},
@@ -1270,18 +1274,12 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		for (int row = 0; row < rows.length; row++)
-		{
-			assertEquals("melee/strength column", Integer.valueOf(rows[row][0]), target.get(row * 8));
-			assertEquals("ranged column", Integer.valueOf(rows[row][1]), target.get(row * 8 + 1));
-			assertEquals("magic column", Integer.valueOf(rows[row][2]), target.get(row * 8 + 2));
-			assertEquals("prayer column", Integer.valueOf(rows[row][3]), target.get(row * 8 + 3));
-		}
+		assertVerticalFamily(target, Arrays.asList(9672, 9674, 9676));
 		assertEquals(32, new HashSet<>(target).size());
 	}
 
 	@Test
-	public void nonBisMonkAndDharokSetsStayVerticalWithoutEnteringSetupFillers()
+	public void monkAndDharokSetsStackAsVerticalColumnsInTheGrid()
 	{
 		List<Integer> monk = Arrays.asList(544, 542);
 		List<Integer> dharok = Arrays.asList(4716, 4718, 4720, 4722);
@@ -1326,22 +1324,19 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		for (int row = 0; row < slots.length; row++)
-		{
-			for (int style = 0; style < 4; style++)
-			{
-				assertEquals("primary setup column changed",
-					Integer.valueOf(935000 + row * 10 + style), target.get(row * 8 + style));
-			}
-		}
 		assertVerticalFamily(target, monk);
 		assertVerticalFamily(target, dharok);
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
 
+	/**
+	 * Under the old setup-row grid the Lunar gloves were exiled to the magic
+	 * BIS cell while the rest of the set formed a separate block. The grid now
+	 * keeps the whole set together as one column, gloves included.
+	 */
 	@Test
-	public void lunarGlovesStayMagicBisWhileTheRemainingSetFormsOneCompactBlock()
+	public void theLunarSetStacksAsOneColumnGlovesIncluded()
 	{
 		List<CatalogItem> catalogItems = new ArrayList<>();
 		List<BankItemSnapshot> snapshots = new ArrayList<>();
@@ -1395,17 +1390,7 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		assertEquals("Lunar gloves left the Magic BIS hands cell",
-			Integer.valueOf(9099), target.get(6 * 8 + 2));
-		int first = target.indexOf(9096);
-		assertTrue("missing Lunar remainder", first >= 72);
-		assertEquals(first + 1, target.indexOf(9097));
-		assertEquals(first + 8, target.indexOf(9101));
-		assertEquals(first + 9, target.indexOf(9098));
-		assertEquals(first + 16, target.indexOf(9102));
-		assertEquals(first + 17, target.indexOf(9100));
-		assertEquals(first + 24, target.indexOf(9084));
-		assertEquals(first + 25, target.indexOf(9104));
+		assertVerticalFamily(target, lunar);
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
