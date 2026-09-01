@@ -236,6 +236,26 @@ public class PresetItemSorterTest
 			names.subList(firstDye, firstDye + 4));
 	}
 
+	@Test
+	public void partyhatsStayTogetherInsteadOfSortingBesideSameColouredCosmetics()
+	{
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("clues-cosmetics"), Arrays.asList(
+				item(1042, "Blue partyhat", ItemCategory.CLUE),
+				item(1767, "Blue dye", ItemCategory.CLUE),
+				item(1763, "Red dye", ItemCategory.CLUE),
+				item(1044, "Green partyhat", ItemCategory.CLUE),
+				item(1559, "Pet kitten", ItemCategory.CLUE),
+				item(1038, "Red partyhat", ItemCategory.CLUE),
+				item(1040, "Yellow partyhat", ItemCategory.CLUE)));
+
+		List<String> names = names(sorted);
+		int firstHat = names.indexOf("Blue partyhat");
+		assertEquals(Arrays.asList(
+				"Blue partyhat", "Green partyhat", "Red partyhat", "Yellow partyhat"),
+			names.subList(firstHat, firstHat + 4));
+	}
+
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
 	{
 		String subcategory = category == ItemCategory.UNIQUE

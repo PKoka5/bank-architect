@@ -77,14 +77,20 @@ public final class PresetItemSorter
 
 	/**
 	 * Keeps a cosmetic family adjacent where plain alphabetical order would
-	 * scatter it. The seven dyes share a colour word with unrelated cosmetics,
-	 * so sorting them by name alone filed each one next to a boater or a pair
-	 * of boots instead of next to the other dyes.
+	 * scatter it. Recoloured cosmetics lead with their colour word, so sorting
+	 * them by name alone files each partyhat or dye next to whatever else
+	 * shares its colour instead of next to the rest of its family.
 	 */
 	private static String clueFamily(BankPreviewItem item)
 	{
 		String name = normalizedName(item.getDisplayName());
 		if (name.endsWith(" dye")) return "dye";
+		if (name.endsWith(" partyhat")) return "partyhat";
+		if (name.endsWith(" halloween mask")) return "halloween mask";
+		if (name.endsWith(" boater")) return "boater";
+		if (name.endsWith(" headband")) return "headband";
+		if (name.endsWith(" beret")) return "beret";
+		if (name.endsWith(" firelighter")) return "firelighter";
 		return name;
 	}
 
