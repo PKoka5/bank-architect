@@ -177,6 +177,18 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "suppliesLayout",
+		section = suppliesSection,
+		position = 1,
+		name = "Tab layout",
+		description = "Packed keeps a dose family whole at a row edge by letting it slide behind the items after it. Sorted is the exact order, wrapping like text, so a family may split at the row edge but nothing ever moves."
+	)
+	default TabOrder suppliesLayout()
+	{
+		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
 		keyName = "utilitiesLayout",
 		section = utilitiesSection,
 		position = 0,
