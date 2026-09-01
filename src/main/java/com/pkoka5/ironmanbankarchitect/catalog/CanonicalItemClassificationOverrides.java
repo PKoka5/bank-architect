@@ -2087,8 +2087,10 @@ final class CanonicalItemClassificationOverrides
 			case 24735:
 				return equipmentUpgrade();
 
-			// The one Xerician piece without base stats; the robe classifies as
-			// gear, and a set never splits across tabs.
+			// The two Xerician pieces without base stats; the robe classifies
+			// as gear, and a set never splits across tabs.
+			// Wiki: https://oldschool.runescape.wiki/w/Xerician_hat
+			case 13385:
 			// Wiki: https://oldschool.runescape.wiki/w/Xerician_top?oldid=15187772
 			case 13387:
 				return gear();

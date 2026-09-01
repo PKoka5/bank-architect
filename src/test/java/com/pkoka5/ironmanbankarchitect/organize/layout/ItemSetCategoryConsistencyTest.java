@@ -98,8 +98,8 @@ public class ItemSetCategoryConsistencyTest
 		sets.put("supplemental.builders-outfit", new int[] {10862, 10863, 10864, 10865});
 		// Plague outfit: jacket and trousers (Plague City).
 		sets.put("supplemental.plague-outfit", new int[] {284, 285});
-		// Xerician robes: hat is absent (no such piece); top and robe.
-		sets.put("supplemental.xerician-robes", new int[] {13387, 13389});
+		// Xerician robes: hat, top and robe.
+		sets.put("supplemental.xerician-robes", new int[] {13385, 13387, 13389});
 		return sets;
 	}
 
