@@ -1,6 +1,9 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.pkoka5.ironmanbankarchitect.organize.GearLayout;
+import com.pkoka5.ironmanbankarchitect.organize.PotionDoseOrder;
+import com.pkoka5.ironmanbankarchitect.organize.RuneOrder;
+import com.pkoka5.ironmanbankarchitect.organize.TeleportOrder;
 import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -141,6 +144,18 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "potionDoses",
+		section = suppliesSection,
+		position = 0,
+		name = "Potion doses",
+		description = "Grab area keeps full potions at the front with part doses trailing behind the food as the to-decant pile. By family runs each potion 4 to 1 in one place."
+	)
+	default PotionDoseOrder potionDoses()
+	{
+		return PotionDoseOrder.GRAB_AREA;
+	}
+
+	@ConfigItem(
 		keyName = "fillHerbloreRows",
 		section = herbloreSection,
 		position = 0,
@@ -210,6 +225,30 @@ public interface IronmanBankArchitectConfig extends Config
 	default TabOrder cluesLayout()
 	{
 		return TabOrder.PACKED;
+	}
+
+	@ConfigItem(
+		keyName = "runeOrder",
+		section = utilitiesSection,
+		position = 1,
+		name = "Rune order",
+		description = "Alphabetical, or the canonical elemental sequence: air, water, earth, fire, then mind, body, cosmic, chaos, nature, law, death, blood, soul, astral, wrath."
+	)
+	default RuneOrder runeOrder()
+	{
+		return RuneOrder.ALPHABETICAL;
+	}
+
+	@ConfigItem(
+		keyName = "teleportOrder",
+		section = utilitiesSection,
+		position = 2,
+		name = "Teleport order",
+		description = "Alphabetical, or the standard spellbook's city teleports first in casting order - Varrock, Lumbridge, Falador, House, Camelot, Ardougne, Watchtower and on - with other teleports following alphabetically and jewellery after."
+	)
+	default TeleportOrder teleportOrder()
+	{
+		return TeleportOrder.ALPHABETICAL;
 	}
 
 	@ConfigItem(
