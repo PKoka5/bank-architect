@@ -478,6 +478,32 @@ public class BankLayoutOptionsTest
 			"potion-dose-" + dose, Collections.emptySet(), null), 1);
 	}
 
+	/** The spellbook's casting order leads; oddballs follow alphabetically. */
+	@Test
+	public void spellbookFirstLeadsWithTheCityTeleports()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			teleport(12403, "Digsite teleport"), teleport(8011, "Ardougne teleport"),
+			teleport(8007, "Varrock teleport"), teleport(4251, "Ectophial"),
+			teleport(8010, "Camelot teleport"), teleport(8008, "Lumbridge teleport"));
+
+		List<String> names = new ArrayList<>();
+		for (BankPreviewItem item : IronmanMainItemSorter.sort(items,
+			RuneOrder.ALPHABETICAL, TeleportOrder.SPELLBOOK_FIRST))
+		{
+			names.add(item.getDisplayName());
+		}
+
+		assertEquals(Arrays.asList("Varrock teleport", "Lumbridge teleport", "Camelot teleport",
+			"Ardougne teleport", "Digsite teleport", "Ectophial"), names);
+	}
+
+	private static BankPreviewItem teleport(int id, String name)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.TELEPORT,
+			"teleport", Collections.emptySet(), null), 1);
+	}
+
 	private static BankPreviewItem rune(int id, String name)
 	{
 		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.RUNE,

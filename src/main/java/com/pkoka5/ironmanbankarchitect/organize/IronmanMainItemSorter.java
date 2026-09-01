@@ -19,15 +19,23 @@ final class IronmanMainItemSorter
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items)
 	{
-		return sort(items, RuneOrder.ALPHABETICAL);
+		return sort(items, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
 	}
 
 	static List<BankPreviewItem> sort(List<BankPreviewItem> items, RuneOrder runeOrder)
+	{
+		return sort(items, runeOrder, TeleportOrder.ALPHABETICAL);
+	}
+
+	static List<BankPreviewItem> sort(List<BankPreviewItem> items, RuneOrder runeOrder,
+		TeleportOrder teleportOrder)
 	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator.comparingInt(IronmanMainItemSorter::rank)
 			.thenComparingInt(item -> runeOrder == RuneOrder.ELEMENTAL
 				? elementalRank(item) : 0)
+			.thenComparingInt(item -> teleportOrder == TeleportOrder.SPELLBOOK_FIRST
+				? spellbookRank(item) : 0)
 			.thenComparing(IronmanMainItemSorter::familyOrder)
 			.thenComparingLong(item -> -(long) charge(item))
 			.thenComparing(item -> normalized(item.getDisplayName()))
@@ -94,6 +102,36 @@ final class IronmanMainItemSorter
 		for (int index = 0; index < order.length; index++)
 		{
 			if (name.equals(order[index] + " rune"))
+			{
+				return index;
+			}
+		}
+		return order.length + 1;
+	}
+
+	/**
+	 * The standard spellbook's city teleports in casting order lead; other
+	 * single teleports follow alphabetically; charged jewellery families come
+	 * after the singles as always.
+	 */
+	private static int spellbookRank(BankPreviewItem item)
+	{
+		if (item.getItemCategory() != ItemCategory.TELEPORT)
+		{
+			return 0;
+		}
+		if (chargedJewelleryMetadata(item).isPresent())
+		{
+			return 90;
+		}
+		String name = normalized(item.getDisplayName());
+		String[] order = {"varrock teleport", "lumbridge teleport", "falador teleport",
+			"teleport to house", "camelot teleport", "ardougne teleport", "watchtower teleport",
+			"trollheim teleport", "ape atoll teleport", "kourend castle teleport",
+			"civitas illa fortis teleport"};
+		for (int index = 0; index < order.length; index++)
+		{
+			if (name.equals(order[index]))
 			{
 				return index;
 			}

@@ -31,6 +31,7 @@ public final class BankLayoutOptions
 	private final Map<BankCategorySortMode, TabOrder> tabOrders;
 	private final PotionDoseOrder potionDoses;
 	private final RuneOrder runeOrder;
+	private final TeleportOrder teleportOrder;
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
 	{
@@ -49,6 +50,14 @@ public final class BankLayoutOptions
 		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders,
 		PotionDoseOrder potionDoses, RuneOrder runeOrder)
 	{
+		this(fillGearRows, fillHerbloreRows, alchPile, gearOrder, tabOrders,
+			potionDoses, runeOrder, TeleportOrder.ALPHABETICAL);
+	}
+
+	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
+		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders,
+		PotionDoseOrder potionDoses, RuneOrder runeOrder, TeleportOrder teleportOrder)
+	{
 		this.fillGearRows = fillGearRows;
 		this.fillHerbloreRows = fillHerbloreRows;
 		this.alchPile = alchPile;
@@ -58,6 +67,7 @@ public final class BankLayoutOptions
 			: Collections.unmodifiableMap(new EnumMap<>(tabOrders));
 		this.potionDoses = Objects.requireNonNull(potionDoses, "potionDoses");
 		this.runeOrder = Objects.requireNonNull(runeOrder, "runeOrder");
+		this.teleportOrder = Objects.requireNonNull(teleportOrder, "teleportOrder");
 	}
 
 	/**
@@ -125,5 +135,11 @@ public final class BankLayoutOptions
 	public RuneOrder runeOrder()
 	{
 		return runeOrder;
+	}
+
+	/** How single teleport items order among themselves. */
+	public TeleportOrder teleportOrder()
+	{
+		return teleportOrder;
 	}
 }

@@ -313,7 +313,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		tabOrders.put(BankCategorySortMode.CLUES, config.cluesLayout());
 		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
 			config.alchPile(), config.gearOrder(), tabOrders,
-			config.potionDoses(), config.runeOrder());
+			config.potionDoses(), config.runeOrder(), config.teleportOrder());
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */

@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect;
 import com.pkoka5.ironmanbankarchitect.organize.GearOrder;
 import com.pkoka5.ironmanbankarchitect.organize.PotionDoseOrder;
 import com.pkoka5.ironmanbankarchitect.organize.RuneOrder;
+import com.pkoka5.ironmanbankarchitect.organize.TeleportOrder;
 import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -246,6 +247,18 @@ public interface IronmanBankArchitectConfig extends Config
 	default RuneOrder runeOrder()
 	{
 		return RuneOrder.ALPHABETICAL;
+	}
+
+	@ConfigItem(
+		keyName = "teleportOrder",
+		section = utilitiesSection,
+		position = 2,
+		name = "Teleport order",
+		description = "Alphabetical, or the standard spellbook's city teleports first in casting order - Varrock, Lumbridge, Falador, House, Camelot, Ardougne, Watchtower and on - with other teleports following alphabetically and jewellery after."
+	)
+	default TeleportOrder teleportOrder()
+	{
+		return TeleportOrder.ALPHABETICAL;
 	}
 
 	@ConfigItem(

@@ -595,7 +595,7 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return new BankCategoryPreview(category, semanticLayout(
-						honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder())),
+						honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
