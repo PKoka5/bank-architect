@@ -12,12 +12,12 @@ public enum GearLayout
 	 * leading columns your strongest melee, ranged, magic and prayer options,
 	 * rows completed with same-slot spares so the columns stay straight.
 	 */
-	GRID_STYLES("Grid (styles)"),
+	GRID_STYLES("Best in slot"),
 	/**
 	 * Each curated set as one vertical column - helm, body, legs - with the
 	 * rest of the kit arranged around it, junk-free.
 	 */
-	GRID_SETS("Grid (sets)"),
+	GRID_SETS("Sets together"),
 	/**
 	 * Each curated set as one left-to-right run in slot order, strongest set
 	 * first, loose gear and weapons flowing after like text, junk-free.

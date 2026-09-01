@@ -124,7 +124,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = gearSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid (styles) is the four-style best-in-slot matrix: one row per equipment slot, the leading columns your strongest melee, ranged, magic and prayer options, rows completed so the columns stay straight. Grid (sets) stacks each set down a column - helm, body, legs - with the rest of the kit arranged around it, junk-free. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after, junk-free."
+		description = "Best in slot is the four-style best-in-slot matrix: one row per equipment slot, the leading columns your strongest melee, ranged, magic and prayer options, rows completed so the columns stay straight. Sets together stacks each set down a column - helm, body, legs - with the rest of the kit arranged around it, junk-free. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after, junk-free."
 	)
 	default GearLayout gearLayout()
 	{
