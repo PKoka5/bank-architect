@@ -417,6 +417,27 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
+	public void shayzienArmourTiersRemainEquipmentDespiteNumericSuffixes()
+	{
+		String[] roles = {"hands", "feet", "head", "legs", "body"};
+		for (int itemId = 13357; itemId <= 13381; itemId++)
+		{
+			assertCategoryOnly(itemId, ItemCategory.GEAR);
+			assertSubcategory(itemId, roles[(itemId - 13357) % roles.length]);
+		}
+	}
+
+	@Test
+	public void everyBallistaAssemblyStageStaysWithFletchingComponents()
+	{
+		for (int itemId : new int[]{19586, 19589, 19592, 19595, 19598, 19601, 19604, 19607, 19610})
+		{
+			assertCategoryOnly(itemId, ItemCategory.SKILLING);
+			assertSubcategory(itemId, "ammo-component");
+		}
+	}
+
+	@Test
 	public void barrowsWeaponFamiliesStayGearAcrossEveryChargeState()
 	{
 		// Bounded family recognition: base name plus the 100/75/50/25/0 charge
@@ -782,6 +803,20 @@ public class ResourceItemRegistryTest
 		assertFalse(CanonicalItemClassificationOverrides.find(51).isPresent());
 		assertFalse(CanonicalItemClassificationOverrides.find(18229).isPresent());
 		assertFalse(CanonicalItemClassificationOverrides.find(18230).isPresent());
+	}
+
+	@Test
+	public void canonicalUnfinishedCrossbowsAreFletchingComponents()
+	{
+		assertAuditFamily(new int[] {9454, 9456, 9457, 9459, 9461, 9463, 9465, 21921},
+			ItemCategory.SKILLING, "ammo-component");
+	}
+
+	@Test
+	public void guildHunterOutfitStaysWithSkillingEquipment()
+	{
+		assertAuditFamily(new int[] {29263, 29265, 29267, 29269},
+			ItemCategory.TOOL, "skilling-equipment");
 	}
 
 	@Test
@@ -1704,6 +1739,8 @@ public class ResourceItemRegistryTest
 			assertClassification(itemId, "Damaged book", ItemCategory.GEAR, "shield");
 		}
 
+		assertClassification(21129, "Ring of returning(5)", ItemCategory.TELEPORT, "teleport");
+		assertClassification(21132, "Ring of returning(4)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21134, "Ring of returning(3)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21136, "Ring of returning(2)", ItemCategory.TELEPORT, "teleport");
 		assertClassification(21138, "Ring of returning(1)", ItemCategory.TELEPORT, "teleport");

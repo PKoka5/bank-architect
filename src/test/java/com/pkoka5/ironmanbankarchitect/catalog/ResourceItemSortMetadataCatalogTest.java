@@ -30,7 +30,7 @@ public class ResourceItemSortMetadataCatalogTest
 		ItemSortMetadata halibut = catalog.findById(32336).get();
 		ItemSortMetadata prayerPotion = catalog.findById(2434).get();
 
-		assertEquals(399, catalog.size());
+		assertEquals(408, catalog.size());
 		assertEquals(20, shark.getImmediateHealMax());
 		assertEquals(ItemSortMetadata.HealModel.VARIABLE, anglerfish.getHealModel());
 		assertEquals(3, anglerfish.getImmediateHealMin());
@@ -72,7 +72,7 @@ public class ResourceItemSortMetadataCatalogTest
 		assertEquals(43, foodCount);
 		assertEquals(88, doseCount);
 		assertEquals(81, chargeCount);
-		assertEquals(187, workflowStageCount);
+		assertEquals(196, workflowStageCount);
 		assertWorkflowFamily("herb.guam", 199, 249, 91);
 		assertWorkflowFamily("herb.ranarr", 207, 257, 99);
 		assertWorkflowFamily("herb.dwarf_weed", 217, 267, 109);
@@ -102,6 +102,8 @@ public class ResourceItemSortMetadataCatalogTest
 		assertOrderedWorkflowFamily("construction.nails",
 			new int[] {4819, 4820, 1539, 4822, 4823, 4824});
 		assertOrderedWorkflowFamily("fletching.arrow-production", new int[] {52, 314, 53});
+		assertOrderedWorkflowFamily("fletching.ballista-assembly",
+			new int[] {19586, 19589, 19592, 19601, 19610, 19595, 19604, 19598, 19607});
 		assertDoseFamily("potion.attack", new int[] {2428, 121, 123, 125});
 		assertDoseFamily("potion.strength", new int[] {113, 115, 117, 119});
 		assertDoseFamily("potion.defence", new int[] {2432, 133, 135, 137});

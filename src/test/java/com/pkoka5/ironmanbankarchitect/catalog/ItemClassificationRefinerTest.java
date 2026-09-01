@@ -57,6 +57,15 @@ public class ItemClassificationRefinerTest
 	}
 
 	@Test
+	public void preservesTeleportFormFromRegistryConstants()
+	{
+		assertClassification("Teleport to house", "POH_TABLET_TELEPORTTOHOUSE",
+			ItemCategory.TELEPORT, ItemCategory.TELEPORT, "teleport-tablet");
+		assertClassification("Nardah teleport", "TELEPORTSCROLL_NARDAH",
+			ItemCategory.TELEPORT, ItemCategory.TELEPORT, "teleport-scroll");
+	}
+
+	@Test
 	public void routesProcessingInputsAndFarmingProduceByUse()
 	{
 		assertClassification("Leaping sturgeon", ItemCategory.CLEANUP,

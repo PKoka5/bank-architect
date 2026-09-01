@@ -237,6 +237,17 @@ final class ItemClassificationRefiner
 		}
 		if (legacyCategory == ItemCategory.TELEPORT)
 		{
+			if (constant.startsWith("teleportscroll_") || constant.endsWith("_teleport_scroll")
+				|| "ardougnescroll".equals(constant))
+			{
+				return new Classification(ItemCategory.TELEPORT, "teleport-scroll");
+			}
+			if (constant.startsWith("poh_tablet_") || constant.startsWith("nzone_teletab_")
+				|| constant.startsWith("teletab_") || constant.startsWith("tablet_")
+				|| constant.startsWith("lunar_tablet_") || constant.startsWith("fossil_tablet_"))
+			{
+				return new Classification(ItemCategory.TELEPORT, "teleport-tablet");
+			}
 			return new Classification(ItemCategory.TELEPORT, "teleport");
 		}
 		if (isSkillCapeOrSkillingGear(name) || isRaimentsOfTheEye(name))
