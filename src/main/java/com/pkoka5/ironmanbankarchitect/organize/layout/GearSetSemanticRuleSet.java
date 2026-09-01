@@ -14,6 +14,21 @@ import java.util.Set;
 /** Exact combat families whose reviewed equipment order is vertical outside the primary setups. */
 public final class GearSetSemanticRuleSet
 {
+
+	/**
+	 * Every curated gear set's item IDs in slot order, for layouts that read a
+	 * set as one run. Sets keep the catalog's order.
+	 */
+	public static java.util.List<java.util.List<Integer>> gearSetsInSlotOrder()
+	{
+		java.util.List<java.util.List<Integer>> sets = new java.util.ArrayList<>();
+		for (ItemSetCatalog.SetDefinition set : ItemSetCatalog.sets("gear"))
+		{
+			sets.add(set.getItemIds());
+		}
+		return sets;
+	}
+
 	private static final List<SetFact> SETS = buildSets();
 
 	private GearSetSemanticRuleSet()

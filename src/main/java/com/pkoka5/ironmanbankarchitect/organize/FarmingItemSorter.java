@@ -89,6 +89,40 @@ final class FarmingItemSorter
 		return result;
 	}
 
+	/**
+	 * The family runs in their curated order with the leftovers behind them,
+	 * and no filler moved forward to keep a run at a row edge.
+	 */
+	static List<BankPreviewItem> sequential(List<BankPreviewItem> sortedItems)
+	{
+		Map<Integer, BankPreviewItem> byId = new LinkedHashMap<>();
+		for (BankPreviewItem item : sortedItems)
+		{
+			byId.put(item.getItemId(), item);
+		}
+
+		List<BankPreviewItem> result = new ArrayList<>(sortedItems.size());
+		for (List<Integer> family : FARMING_FAMILIES)
+		{
+			for (Integer itemId : family)
+			{
+				BankPreviewItem item = byId.remove(itemId);
+				if (item != null)
+				{
+					result.add(item);
+				}
+			}
+		}
+		for (BankPreviewItem item : sortedItems)
+		{
+			if (byId.remove(item.getItemId()) != null)
+			{
+				result.add(item);
+			}
+		}
+		return result;
+	}
+
 	private static List<Integer> ids(Integer... itemIds)
 	{
 		return Collections.unmodifiableList(Arrays.asList(itemIds));

@@ -127,8 +127,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton exportButton;
 	private final JButton deleteProfileButton;
 	private final JComboBox<String> profileChooser;
-	private final JCheckBox fillGearRowsBox;
-	private final JCheckBox fillHerbloreRowsBox;
 	private final JCheckBox alchPileBox;
 	private boolean refreshingProfiles;
 	private boolean refreshingOptions;
@@ -234,18 +232,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			applyLayoutPlan(BankLayoutPlan.defaultFor(bankLayoutModel.preset())));
 		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
 		// Asked separately, because they are the same mechanism but not the same
-		// trade: a player may want the combat columns held straight and still be
-		// happy for a short recipe row to stop where it stops.
-		fillGearRowsBox = layoutOptionBox("Fill part-empty gear rows",
-			"<html>A bank tab cannot hold an empty slot, so the four combat-style columns "
-				+ "only stay straight if real items fill each row.<br>On: the grid holds its "
-				+ "shape, at the cost of the odd unrelated item in a row.<br>Off: the gear tab "
-				+ "is dense and nothing sits where it does not belong. Sets still hold "
-				+ "together.</html>");
-		fillHerbloreRowsBox = layoutOptionBox("Fill part-empty Herblore rows",
-			"<html>On: a part-finished recipe borrows from the rest of the tab, so the next "
-				+ "recipe still starts at the left edge.<br>Off: a short row is left short and "
-				+ "the recipes simply follow each other.</html>");
 		alchPileBox = layoutOptionBox("Gather outclassed gear",
 			"<html>Move gear you own two strictly better versions of, and that is worth "
 				+ "alching, to the Slayer &amp; Boss Loot tab.<br>Off: every piece of gear "
@@ -285,8 +271,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(layoutHelp);
 		layoutEditor.add(Box.createVerticalStrut(6));
-		layoutEditor.add(fillGearRowsBox);
-		layoutEditor.add(fillHerbloreRowsBox);
 		layoutEditor.add(alchPileBox);
 		layoutEditor.add(Box.createVerticalStrut(6));
 		// Kept for its text, but not shown: every tab already carries its own
@@ -815,8 +799,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			if (!refreshingOptions)
 			{
 				bankLayoutModel.saveOptions(
-					new BankLayoutOptions(fillGearRowsBox.isSelected(),
-						fillHerbloreRowsBox.isSelected(), alchPileBox.isSelected()));
+					new BankLayoutOptions(true, true, alchPileBox.isSelected()));
 			}
 		});
 		return box;
@@ -828,19 +811,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		try
 		{
 			BankLayoutOptions options = bankLayoutModel.options();
-			fillGearRowsBox.setSelected(options.fillGearRows());
-			fillHerbloreRowsBox.setSelected(options.fillHerbloreRows());
 			alchPileBox.setSelected(options.alchPile());
 		}
 		finally
 		{
 			refreshingOptions = false;
 		}
-	}
-
-	JCheckBox getFillGearRowsBox()
-	{
-		return fillGearRowsBox;
 	}
 
 	JCheckBox getAlchPileBox()
