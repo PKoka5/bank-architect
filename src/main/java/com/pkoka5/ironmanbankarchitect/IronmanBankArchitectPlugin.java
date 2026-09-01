@@ -10,6 +10,7 @@ import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategorySortMode;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
@@ -19,6 +20,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.BankTag;
 import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
+import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
 import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
 import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
@@ -29,6 +31,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -296,8 +299,21 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	/** The player's layout choices that no plan can state for them. */
 	private BankLayoutOptions activeOptions()
 	{
-		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
-			config.alchPile());
+		// A layout choice exists only where packed and sorted genuinely differ:
+		// where a category has curated geometry to keep or give up. Everywhere
+		// else the two are a nudge apart, so no option is offered and packed
+		// stands.
+		Map<BankCategorySortMode, TabOrder> tabOrders = new EnumMap<>(BankCategorySortMode.class);
+		tabOrders.put(BankCategorySortMode.MAIN, config.utilitiesLayout());
+		tabOrders.put(BankCategorySortMode.TELEPORTS, config.utilitiesLayout());
+		tabOrders.put(BankCategorySortMode.CURRENCY, config.utilitiesLayout());
+		tabOrders.put(BankCategorySortMode.SUPPLIES,
+			config.keepDoseRows() ? TabOrder.PACKED : TabOrder.SEQUENTIAL);
+		tabOrders.put(BankCategorySortMode.TOOLS, config.toolsLayout());
+		tabOrders.put(BankCategorySortMode.RESOURCES, config.resourcesLayout());
+		tabOrders.put(BankCategorySortMode.CLUES, config.cluesLayout());
+		return new BankLayoutOptions(true, config.fillHerbloreRows(), config.alchPile(), tabOrders,
+			config.gearLayout());
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */
@@ -413,8 +429,6 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void saveOptions(BankLayoutOptions options)
 			{
-				config.setFillGearRows(options.fillGearRows());
-				config.setFillHerbloreRows(options.fillHerbloreRows());
 				config.setAlchPile(options.alchPile());
 				analyzeBank();
 			}

@@ -20,6 +20,7 @@ import com.pkoka5.ironmanbankarchitect.organize.layout.RuneSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.SemanticBlockLayoutEngine;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ToolOutfitSemanticRuleSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,6 +46,47 @@ public final class BankOrganizationPreviewBuilder
 
 	private BankOrganizationPreviewBuilder()
 	{
+	}
+
+	/**
+	 * The tag order of this destination when the player has made it their own.
+	 * A default plan's order is bookkeeping, not a statement - the sorters'
+	 * curated group orders stand until the player rearranges the tags, and
+	 * from then on their sequence wins.
+	 */
+	private static List<String> customizedTagOrder(BankPreset preset, BankLayoutPlan plan,
+		int destination)
+	{
+		List<String> tags = plan.getTagKeys(destination);
+		if (tags.size() < 2)
+		{
+			return Collections.emptyList();
+		}
+		List<String> defaultOrder = new ArrayList<>();
+		for (List<String> defaultTags : BankLayoutPlan.defaultFor(preset).getDestinations())
+		{
+			for (String tag : defaultTags)
+			{
+				if (tags.contains(tag))
+				{
+					defaultOrder.add(tag);
+				}
+			}
+		}
+		for (String tag : tags)
+		{
+			if (!defaultOrder.contains(tag))
+			{
+				defaultOrder.add(tag);
+			}
+		}
+		return tags.equals(defaultOrder) ? Collections.emptyList() : tags;
+	}
+
+	private static String normalizedSubcategory(CatalogItem item)
+	{
+		String subcategory = item.getSubcategory();
+		return subcategory == null ? "" : subcategory.trim().toLowerCase();
 	}
 
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset)
@@ -109,7 +151,8 @@ public final class BankOrganizationPreviewBuilder
 		{
 			for (BankCategory category : preset.getCategories())
 			{
-				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category, herbloreRecipeRows, options));
+				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category,
+					herbloreRecipeRows, options, Collections.emptyList()));
 			}
 		}
 
@@ -202,7 +245,8 @@ public final class BankOrganizationPreviewBuilder
 				preview = previewsByCategory.get(bucketKey);
 				if (preview == null)
 				{
-					preview = new MutableCategoryPreview(category, herbloreRecipeRows, options);
+					preview = new MutableCategoryPreview(category, herbloreRecipeRows, options,
+						customizedTagOrder(preset, plan, destination));
 					previewsByCategory.put(bucketKey, preview);
 				}
 			}
@@ -465,12 +509,60 @@ public final class BankOrganizationPreviewBuilder
 		private final BankLayoutOptions options;
 		private final List<LayoutEntry> entries = new ArrayList<>();
 
+		private final List<String> destinationTags;
+
 		private MutableCategoryPreview(BankCategory category, boolean herbloreRecipeRows,
-			BankLayoutOptions options)
+			BankLayoutOptions options, List<String> destinationTags)
 		{
 			this.category = category;
 			this.herbloreRecipeRows = herbloreRecipeRows;
 			this.options = options;
+			this.destinationTags = destinationTags;
+		}
+
+		/**
+		 * The player's layout lists this tab's tags in an order, and that order
+		 * is theirs: the sorted items regroup by tag, tags in the layout's
+		 * sequence, order within a tag untouched. Bundle layouts that span
+		 * tags by design - Herblore's recipe rows, the gear grid - are exempt.
+		 */
+		private List<BankPreviewItem> honorTagOrder(List<BankPreviewItem> sorted)
+		{
+			if (destinationTags.size() < 2)
+			{
+				return sorted;
+			}
+			List<BankPreviewItem> regrouped = new ArrayList<>(sorted.size());
+			for (String tagKey : destinationTags)
+			{
+				for (BankPreviewItem item : sorted)
+				{
+					if (tagKey.equals(tagKeyOf(item)))
+					{
+						regrouped.add(item);
+					}
+				}
+			}
+			for (BankPreviewItem item : sorted)
+			{
+				if (!destinationTags.contains(tagKeyOf(item)))
+				{
+					regrouped.add(item);
+				}
+			}
+			return regrouped;
+		}
+
+		private String tagKeyOf(BankPreviewItem item)
+		{
+			try
+			{
+				return BankTags.tagFor(category.getKey(), item.getSubcategory()).getKey();
+			}
+			catch (RuntimeException unknownTag)
+			{
+				return "";
+			}
 		}
 
 		private void add(LayoutEntry entry)
@@ -485,56 +577,80 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						IronmanMainItemSorter.sort(items), MainQuickAccessSemanticRuleSet.forEntries(entries)));
+						honorTagOrder(IronmanMainItemSorter.sort(items)),
+						MainQuickAccessSemanticRuleSet.forEntries(entries),
+						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
 					return BankCategoryPreview.fromLogicalItems(category, resourceLayout(items));
 				case TELEPORTS:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						TeleportItemSorter.sort(items), RuneSemanticRuleSet.forEntries(entries)));
+						honorTagOrder(TeleportItemSorter.sort(items)), RuneSemanticRuleSet.forEntries(entries),
+						sequential(BankCategorySortMode.TELEPORTS)));
 				case SUPPLIES:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						SupplyItemSorter.sort(items), PotionDoseSemanticRuleSet.forEntries(entries)));
+						honorTagOrder(SupplyItemSorter.sort(items)),
+						PotionDoseSemanticRuleSet.forEntries(entries),
+						sequential(BankCategorySortMode.SUPPLIES)));
 				case TOOLS:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						ToolItemSorter.sort(items), ToolOutfitSemanticRuleSet.forEntries(entries)));
+						honorTagOrder(ToolItemSorter.sort(items)), ToolOutfitSemanticRuleSet.forEntries(entries),
+						sequential(BankCategorySortMode.TOOLS)));
 				case CURRENCY:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						CurrencyItemSorter.sort(items), AchievementDiarySemanticRuleSet.forEntries(entries)));
+						honorTagOrder(CurrencyItemSorter.sort(items)), AchievementDiarySemanticRuleSet.forEntries(entries),
+						sequential(BankCategorySortMode.CURRENCY)));
 				case FARMING:
-					return BankCategoryPreview.fromLogicalItems(category, FarmingItemSorter.layout(items, 0));
+					return BankCategoryPreview.fromLogicalItems(category, sequential(BankCategorySortMode.FARMING)
+						? FarmingItemSorter.sequential(items)
+						: FarmingItemSorter.layout(items, 0));
 				case GEAR:
 					return BankCategoryPreview.fromLogicalItems(category, gearLayout(items, gearStats));
 				case CLUES:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						PresetItemSorter.sort(category, items, gearStats),
-						CosmeticSetSemanticRuleSet.forEntries(entries)));
+						honorTagOrder(PresetItemSorter.sort(category, items, gearStats)),
+						CosmeticSetSemanticRuleSet.forEntries(entries),
+						sequential(BankCategorySortMode.CLUES)));
 				case HERBLORE:
 					// The only layout the plan can talk out of its default shape:
 					// see BankLayoutStyles for why moving the doses changes it.
 					return BankCategoryPreview.fromLogicalItems(category, herbloreRecipeRows
 						? HerbloreItemSorter.layout(items, options.fillHerbloreRows())
-						: HerbloreItemSorter.layoutByKind(items));
+						: honorTagOrder(HerbloreItemSorter.layoutByKind(items)));
 				default:
 					return BankCategoryPreview.fromLogicalItems(category,
 						PresetItemSorter.sort(category, items, gearStats));
 			}
 		}
 
-		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
+		private boolean sequential(BankCategorySortMode mode)
+		{
+			return options.orderFor(mode) == TabOrder.SEQUENTIAL;
+		}
+
+		/**
+		 * Gear is the one category with two curated grid shapes, so its layout
+		 * carries three values: the four-style best-in-slot matrix (the
+		 * default), each set as a vertical column, or each set as one run.
+		 */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
-			if (!options.fillGearRows())
+			if (options.gearLayout() == GearLayout.LIST)
 			{
-				// The aligned setup rows are the only thing here that needs padding,
-				// so without filling there is nothing to align and the whole tab is
-				// laid out as the dense tail. Sets still hold together as columns;
-				// what goes is the four-style grid, not the families.
+				// Each set reads as one run, strongest first, loose gear
+				// flowing after like text.
+				return new ArrayList<>(GearItemSorter.bySet(items, gearStats));
+			}
+			if (options.gearLayout() == GearLayout.GRID_SETS || !options.fillGearRows())
+			{
+				// The semantic engine stacks each curated set as a vertical
+				// column and arranges the rest of the kit around it, so the
+				// columns stay straight without borrowing filler.
 				List<BankPreviewItem> dense = GearItemSorter.dense(items, gearStats);
 				List<LayoutEntry> denseEntries = entriesForItems(entries, dense);
 				int rows = (denseEntries.size() + GearItemSorter.GRID_COLUMNS - 1)
 					/ GearItemSorter.GRID_COLUMNS;
 				return semanticLayout(dense,
-					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)));
+					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)), false);
 			}
 
 			GearItemSorter.GearLayout gear = GearItemSorter.plan(items, gearStats);
@@ -548,7 +664,7 @@ public final class BankOrganizationPreviewBuilder
 			LayoutRequest tailRequest = GearSetSemanticRuleSet
 				.forEntries(tailEntries, Math.max(1, physicalTailRows))
 				.withGridStartColumn(gridStartColumn);
-			planned.addAll(semanticLayout(gear.getTail(), tailRequest));
+			planned.addAll(semanticLayout(gear.getTail(), tailRequest, false));
 			return planned;
 		}
 
@@ -560,7 +676,7 @@ public final class BankOrganizationPreviewBuilder
 		 */
 		private List<BankPreviewItem> resourceLayout(List<BankPreviewItem> items)
 		{
-			List<BankPreviewItem> sorted = ResourceItemSorter.sort(items);
+			List<BankPreviewItem> sorted = honorTagOrder(ResourceItemSorter.sort(items));
 			List<BankPreviewItem> planned = new ArrayList<>(sorted.size());
 			int start = 0;
 			while (start < sorted.size())
@@ -576,7 +692,8 @@ public final class BankOrganizationPreviewBuilder
 				List<LayoutEntry> zoneEntries = entriesForItems(entries, zoneItems);
 				LayoutRequest zoneRequest = ResourceSemanticRuleSet.forZoneEntries(zoneEntries)
 					.withGridStartColumn(planned.size() % GearItemSorter.GRID_COLUMNS);
-				planned.addAll(semanticLayout(zoneItems, zoneRequest));
+				planned.addAll(semanticLayout(zoneItems, zoneRequest,
+					sequential(BankCategorySortMode.RESOURCES)));
 				start = end;
 			}
 			return planned;
@@ -615,8 +732,15 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		private List<BankPreviewItem> semanticLayout(List<BankPreviewItem> fallback,
-			LayoutRequest request)
+			LayoutRequest request, boolean sequential)
 		{
+			if (sequential)
+			{
+				// The sorter's order is the layout: no family rectangles, no
+				// row-completing rearrangement, items simply wrap row by row.
+				return new ArrayList<>(fallback);
+			}
+
 			List<Integer> fallbackItemIds = new ArrayList<>(fallback.size());
 			for (BankPreviewItem item : fallback)
 			{

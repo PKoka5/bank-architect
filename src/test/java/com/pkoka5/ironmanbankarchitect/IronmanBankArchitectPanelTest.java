@@ -760,13 +760,11 @@ public class IronmanBankArchitectPanelTest
 		IronmanBankArchitectPanel panel = panelWith(model);
 		panel.getTabOrderButton().doClick();
 
-		assertTrue(panel.getFillGearRowsBox().isSelected());
 		assertTrue(panel.getAlchPileBox().isSelected());
 
-		panel.getFillGearRowsBox().doClick();
+		panel.getAlchPileBox().doClick();
 
-		assertFalse(model.options().fillGearRows());
-		assertTrue("the other option must be left alone", model.options().alchPile());
+		assertFalse(model.options().alchPile());
 		panel.shutdown();
 	}
 
@@ -779,7 +777,6 @@ public class IronmanBankArchitectPanelTest
 
 		panel.getTabOrderButton().doClick();
 
-		assertFalse(panel.getFillGearRowsBox().isSelected());
 		assertFalse(panel.getAlchPileBox().isSelected());
 		panel.shutdown();
 	}

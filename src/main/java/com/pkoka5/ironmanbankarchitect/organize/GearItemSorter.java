@@ -76,6 +76,68 @@ final class GearItemSorter
 		return remainingSorted(items, new LinkedHashSet<>(), gearStats);
 	}
 
+	/**
+	 * The list layout: each curated set reads as one run in slot order, helm
+	 * to boots, strongest set first; everything outside a set follows in the
+	 * dense order, weapons and loose pieces flowing like text.
+	 */
+	static List<BankPreviewItem> bySet(List<BankPreviewItem> items, GearStatsSource gearStats)
+	{
+		Map<Integer, BankPreviewItem> byId = new LinkedHashMap<>();
+		for (BankPreviewItem item : items)
+		{
+			byId.put(item.getItemId(), item);
+		}
+
+		List<List<BankPreviewItem>> presentSets = new ArrayList<>();
+		for (List<Integer> set : GearSetSemanticRuleSet.gearSetsInSlotOrder())
+		{
+			List<BankPreviewItem> present = new ArrayList<>();
+			for (Integer itemId : set)
+			{
+				BankPreviewItem item = byId.get(itemId);
+				if (item != null)
+				{
+					present.add(item);
+				}
+			}
+			if (present.size() >= 2)
+			{
+				presentSets.add(present);
+			}
+		}
+		// Strongest set first: a set ranks by its best piece.
+		presentSets.sort(Comparator.comparingInt((List<BankPreviewItem> set) -> {
+			int best = Integer.MIN_VALUE;
+			for (BankPreviewItem item : set)
+			{
+				best = Math.max(best, scoreOf(item, gearStats));
+			}
+			return -best;
+		}));
+
+		List<BankPreviewItem> laidOut = new ArrayList<>(items.size());
+		Set<Integer> used = new LinkedHashSet<>();
+		for (List<BankPreviewItem> set : presentSets)
+		{
+			for (BankPreviewItem item : set)
+			{
+				if (used.add(item.getItemId()))
+				{
+					laidOut.add(item);
+				}
+			}
+		}
+		for (BankPreviewItem item : remainingSorted(items, used, gearStats))
+		{
+			if (used.add(item.getItemId()))
+			{
+				laidOut.add(item);
+			}
+		}
+		return laidOut;
+	}
+
 	static GearLayout plan(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		Map<String, List<BankPreviewItem>> setCandidates = new LinkedHashMap<>();

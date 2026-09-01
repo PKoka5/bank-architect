@@ -8,7 +8,9 @@ import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,6 +26,17 @@ public class BankLayoutOptionsTest
 {
 	private static final BankLayoutOptions NO_FILLERS = new BankLayoutOptions(false, false, true);
 	private static final BankLayoutOptions NO_ALCH = new BankLayoutOptions(true, true, false);
+	private static final BankLayoutOptions SEQUENTIAL = sequentialEverywhere();
+
+	private static BankLayoutOptions sequentialEverywhere()
+	{
+		Map<BankCategorySortMode, TabOrder> orders = new EnumMap<>(BankCategorySortMode.class);
+		for (BankCategorySortMode mode : BankCategorySortMode.values())
+		{
+			orders.put(mode, TabOrder.SEQUENTIAL);
+		}
+		return new BankLayoutOptions(true, true, true, orders, GearLayout.LIST);
+	}
 
 	// A part-finished Herblore chain: two herbs and one dose, so a recipe row is
 	// short and would otherwise be padded out to eight columns.
@@ -130,6 +143,162 @@ public class BankLayoutOptionsTest
 			"Prayer potion(1)", "Super restore(4)", "Super restore(3)"), names);
 	}
 
+	@Test
+	public void orderingDefaultsToPacked()
+	{
+		for (BankCategorySortMode mode : BankCategorySortMode.values())
+		{
+			assertEquals(TabOrder.PACKED, BankLayoutOptions.DEFAULTS.orderFor(mode));
+			assertEquals(TabOrder.PACKED,
+				new BankLayoutOptions(true, true, true).orderFor(mode));
+		}
+		assertEquals(TabOrder.SEQUENTIAL, SEQUENTIAL.orderFor(BankCategorySortMode.MAIN));
+		assertEquals(GearLayout.GRID_STYLES, BankLayoutOptions.DEFAULTS.gearLayout());
+	}
+
+	/**
+	 * The point of the switch: seven single teleport tablets and two four-strong
+	 * charge families cannot all stay contiguous in an eight-wide grid, and the
+	 * packed layout sacrifices the tablets. Sequential keeps the sorter's order,
+	 * so the tablets run unbroken.
+	 */
+	@Test
+	public void sequentialLayoutKeepsSortedNeighboursTogether()
+	{
+		BankSnapshot teleports = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(8011, 85, 0),   // Ardougne teleport
+			new BankItemSnapshot(8010, 94, 1),   // Camelot teleport
+			new BankItemSnapshot(19615, 49, 2),  // Draynor manor teleport
+			new BankItemSnapshot(8009, 79, 3),   // Falador teleport
+			new BankItemSnapshot(12642, 7, 4),   // Lumberyard teleport
+			new BankItemSnapshot(8013, 94, 5),   // Teleport to house
+			new BankItemSnapshot(8007, 54, 6),   // Varrock teleport
+			new BankItemSnapshot(11978, 11, 7),  // Amulet of glory(6)
+			new BankItemSnapshot(11976, 1, 8),   // Amulet of glory(5)
+			new BankItemSnapshot(1706, 1, 9),    // Amulet of glory(1)
+			new BankItemSnapshot(1704, 1, 10),   // Amulet of glory
+			new BankItemSnapshot(3853, 1, 11),   // Games necklace(8)
+			new BankItemSnapshot(3855, 4, 12),   // Games necklace(7)
+			new BankItemSnapshot(3857, 2, 13),   // Games necklace(6)
+			new BankItemSnapshot(3859, 1, 14))); // Games necklace(5)
+		List<Integer> tablets = Arrays.asList(8011, 8010, 19615, 8009, 12642, 8013, 8007);
+
+		int teleportTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.destinationOf("teleports");
+		List<Integer> laidOut = idsOn(build(teleports, SEQUENTIAL), teleportTab);
+
+		assertEquals(15, laidOut.size());
+		int first = laidOut.size(), last = -1;
+		for (int index = 0; index < laidOut.size(); index++)
+		{
+			if (tablets.contains(laidOut.get(index)))
+			{
+				first = Math.min(first, index);
+				last = Math.max(last, index);
+			}
+		}
+		assertEquals("tablets must form one unbroken run",
+			tablets.size() - 1, last - first);
+	}
+
+	/**
+	 * The gear list reads each curated set as one run in slot order - the
+	 * adamant set left to right, helm to legs - with loose gear following.
+	 */
+	@Test
+	public void gearListReadsEachSetAsOneRun()
+	{
+		BankSnapshot gear = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1161, 1, 0),   // Adamant full helm
+			new BankItemSnapshot(841, 1, 1),    // Shortbow (loose)
+			new BankItemSnapshot(1073, 1, 2),   // Adamant platelegs
+			new BankItemSnapshot(1123, 1, 3),   // Adamant platebody
+			new BankItemSnapshot(1381, 1, 4),   // Staff of air (loose)
+			new BankItemSnapshot(1199, 1, 5))); // Adamant kiteshield
+
+		List<Integer> laidOut = idsOn(build(gear, SEQUENTIAL), gearTab());
+
+		assertEquals(6, laidOut.size());
+		// The set runs contiguously in the catalog's slot order.
+		assertEquals(Arrays.asList(1161, 1123, 1199, 1073), laidOut.subList(0, 4));
+	}
+
+	private static int firstOf(List<Integer> ids, int... members)
+	{
+		int first = ids.size();
+		for (int member : members)
+		{
+			int index = ids.indexOf(member);
+			if (index >= 0)
+			{
+				first = Math.min(first, index);
+			}
+		}
+		return first;
+	}
+
+	private static int lastOf(List<Integer> ids, int... members)
+	{
+		int last = -1;
+		for (int member : members)
+		{
+			last = Math.max(last, ids.indexOf(member));
+		}
+		return last;
+	}
+
+	/**
+	 * The order-preserving packer never seats a family block ahead of earlier
+	 * singles: mining leads the tools tab because the sorter says so, even
+	 * though hammer and saw form a two-item family and the pickaxe stands alone.
+	 */
+	@Test
+	public void packedToolsKeepTheSortersOrder()
+	{
+		BankSnapshot tools = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(2347, 3, 0),   // Hammer
+			new BankItemSnapshot(8794, 1, 1),   // Saw
+			new BankItemSnapshot(1265, 2, 2),   // Bronze pickaxe
+			new BankItemSnapshot(1351, 1, 3),   // Bronze axe
+			new BankItemSnapshot(590, 2, 4),    // Tinderbox
+			// One talisman brings a single-member rune rule with it; a rule
+			// naming one present item must not drag the tab to the geometry
+			// packer.
+			new BankItemSnapshot(1438, 1, 6),   // Air talisman
+			new BankItemSnapshot(952, 1, 5))); // Spade
+
+		BankOrganizationPreview preview = build(tools, BankLayoutOptions.DEFAULTS);
+		List<Integer> laidOut = null;
+		for (BankCategoryPreview categoryPreview : preview.getCategories())
+		{
+			List<Integer> ids = new ArrayList<>();
+			for (BankPreviewItem item : categoryPreview.getItems())
+			{
+				if (!item.isBlank())
+				{
+					ids.add(item.getItemId());
+				}
+			}
+			if (ids.contains(2347))
+			{
+				laidOut = ids;
+				break;
+			}
+		}
+
+		assertTrue("pickaxe must share the hammer's tab and precede it",
+			laidOut.contains(1265) && laidOut.indexOf(1265) < laidOut.indexOf(2347));
+		assertTrue("axe must share the hammer's tab and precede it",
+			laidOut.contains(1351) && laidOut.indexOf(1351) < laidOut.indexOf(2347));
+	}
+
+	@Test
+	public void sequentialLayoutNeverLosesAnItem()
+	{
+		assertEquals(countItems(build(HERBLORE_BANK, BankLayoutOptions.DEFAULTS)),
+			countItems(build(HERBLORE_BANK, SEQUENTIAL)));
+	}
+
 	private static int gearTab()
 	{
 		return BankLayoutPlan.defaultFor(BankPresets.IRONMAN).destinationOf("gear");
@@ -168,9 +337,15 @@ public class BankLayoutOptionsTest
 
 	private static BankOrganizationPreview build(BankSnapshot snapshot, BankLayoutOptions options)
 	{
+		return build(snapshot, options, BankLayoutPlan.defaultFor(BankPresets.IRONMAN));
+	}
+
+	private static BankOrganizationPreview build(BankSnapshot snapshot, BankLayoutOptions options,
+		BankLayoutPlan plan)
+	{
 		return BankOrganizationPreviewBuilder.build(snapshot, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
-			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN), options);
+			CategoryOverrideSource.NONE, plan, options);
 	}
 
 	private static int tagCount(BankOrganizationPreview preview, String tagKey)
@@ -188,6 +363,59 @@ public class BankLayoutOptionsTest
 		}
 
 		return count;
+	}
+
+	/**
+	 * By family, every dose counts as its potion: each family runs 4 to 1 in
+	 * one place instead of the partials trailing as a to-decant pile.
+	 */
+	/**
+	 * The tab name reads in the player's own tag order, and so does the tab: a
+	 * layout listing food before potions puts the food block first. A default
+	 * plan's order is bookkeeping, not a statement, so the sorters' curated
+	 * group orders stand there.
+	 */
+	@Test
+	public void aRearrangedTagOrderBecomesTheTabsGroupOrder()
+	{
+		BankSnapshot bank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(12625, 38, 0),  // Stamina potion(4)
+			new BankItemSnapshot(385, 184, 1),   // Shark
+			new BankItemSnapshot(361, 5, 2)));   // Tuna
+
+		BankLayoutPlan foodFirst = BankLayoutPlan.parse(BankPresets.IRONMAN,
+			BankLayoutShareCode.decode("BAv1~Food first~currency|gear|food+potions"
+				+ "|runes+ammunition|teleports|tools|raw-resources|grimy-herbs"
+				+ "|quest-items|cleanup").get().getPlan());
+
+		List<Integer> laidOut = idsOn(build(bank, BankLayoutOptions.DEFAULTS, foodFirst),
+			foodFirst.destinationOf("food"));
+		assertEquals(Arrays.asList(385, 361, 12625), laidOut);
+
+		// The default plan keeps the curated potions-first convention.
+		List<Integer> curated = idsOn(build(bank, BankLayoutOptions.DEFAULTS),
+			BankLayoutPlan.defaultFor(BankPresets.IRONMAN).destinationOf("potions"));
+		assertEquals(Integer.valueOf(12625), curated.get(0));
+	}
+
+	/** The canonical spellbook sequence, with unknowns following alphabetically. */
+	private static BankPreviewItem potionDose(int id, String name, int dose)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.POTION,
+			"potion-dose-" + dose, Collections.emptySet(), null), 1);
+	}
+
+	/** The spellbook's casting order leads; oddballs follow alphabetically. */
+	private static BankPreviewItem teleport(int id, String name)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.TELEPORT,
+			"teleport", Collections.emptySet(), null), 1);
+	}
+
+	private static BankPreviewItem rune(int id, String name)
+	{
+		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.RUNE,
+			"rune", Collections.emptySet(), null), 1);
 	}
 
 	private static BankPreviewItem potion(int id, String name)

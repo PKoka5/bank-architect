@@ -27,6 +27,10 @@ import org.junit.Test;
 
 public class BankOrganizationPreviewBuilderTest
 {
+	/** The gear tab laid out as set columns rather than the default matrix. */
+	private static final BankLayoutOptions SET_COLUMNS = new BankLayoutOptions(true, true, true,
+		java.util.Collections.emptyMap(), GearLayout.GRID_SETS);
+
 	@Test
 	public void separateChargedCopiesRemainSeparatePhysicalBlueprintSlots()
 	{
@@ -920,8 +924,13 @@ public class BankOrganizationPreviewBuilderTest
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
 
+	/**
+	 * The order-preserving packer never moves a family ahead of earlier items.
+	 * With no single item close behind the run to borrow, the run simply wraps
+	 * the row edge and the sorter's order survives untouched.
+	 */
 	@Test
-	public void supplyCategoryMovesCompleteDoseRunOffAPhysicalRowBoundary()
+	public void supplyCategoryKeepsOrderAndWrapsADoseRunWhenNoNudgeExists()
 	{
 		List<CatalogItem> catalogItems = Arrays.asList(
 			catalogItem(9739, "Renamed combat dose four", ItemCategory.POTION, "potion-dose-4"),
@@ -952,8 +961,7 @@ public class BankOrganizationPreviewBuilderTest
 		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
 		assertEquals(Arrays.asList(2434, 139, 141, 143), fallbackOrder.subList(6, 10));
 
-		List<Integer> expected = Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452, 2446,
-			2428, 9739, 385);
+		List<Integer> expected = fallbackOrder;
 		BankSnapshot snapshot = new BankSnapshot(snapshots);
 		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN,
 			BankPresets.PVM, BankPresets.PVP))
@@ -1424,6 +1432,174 @@ public class BankOrganizationPreviewBuilderTest
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
 
+	/**
+	 * The grid stacks each curated set as one vertical column; the rest of the
+	 * kit arranges around it and no item is lost or duplicated.
+	 */
+	@Test
+	public void gearGridStacksACuratedSetAsOneColumn()
+	{
+		int[][] rows = {
+			{930101, 930102, 930103, 9672, 930105, 930106, 930107, 930108},
+			{930201, 29280, 930203, 9674, 930205, 930206, 930207, 930208},
+			{930301, 29283, 930303, 9676, 930305, 930306, 930307, 930308},
+			{930401, 29286, 930403, 930404, 930405, 930406, 930407, 930408}
+		};
+		String[][] names = {
+			{"Helm of neitiznot", "Archer helm", "Farseer helm", "Proselyte sallet"},
+			{"Bandos chestplate", "Mixed hide top", "Mystic robe top", "Proselyte hauberk"},
+			{"Obsidian platelegs", "Mixed hide legs", "Mystic robe bottom", "Proselyte cuisse"},
+			{"Dragon boots", "Mixed hide boots", "Mystic boots", "Prayer boots"}
+		};
+		GearSlot[] slots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.FEET};
+		List<CatalogItem> catalogItems = new ArrayList<>();
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		Map<Integer, GearStats> stats = new HashMap<>();
+		for (int row = 0; row < rows.length; row++)
+		{
+			for (int column = 0; column < rows[row].length; column++)
+			{
+				int itemId = rows[row][column];
+				String name = column < 4 ? names[row][column] : "Spare " + row + " " + column;
+				catalogItems.add(catalogItem(itemId, name, ItemCategory.GEAR, "gear"));
+				snapshots.add(new BankItemSnapshot(itemId, 1, row * 100 + column));
+				int melee = column == 0 || column >= 4 ? 5 : 0;
+				int ranged = column == 1 ? 5 : 0;
+				int magic = column == 2 ? 5 : 0;
+				int prayer = column == 3 ? 5 : 0;
+				stats.put(itemId, new GearStats(slots[row], melee, 0, 0, magic, ranged,
+					melee, ranged, prayer, 100 - column));
+			}
+		}
+
+		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
+			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
+
+		assertVerticalFamily(target, Arrays.asList(9672, 9674, 9676));
+		assertEquals(32, new HashSet<>(target).size());
+	}
+
+	@Test
+	public void monkAndDharokSetsStackAsVerticalColumnsInTheGrid()
+	{
+		List<Integer> monk = Arrays.asList(544, 542);
+		List<Integer> dharok = Arrays.asList(4716, 4718, 4720, 4722);
+		List<CatalogItem> catalogItems = new ArrayList<>();
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		Map<Integer, GearStats> stats = new HashMap<>();
+		GearSlot[] slots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.FEET};
+		int sourceSlot = 0;
+
+		for (int row = 0; row < slots.length; row++)
+		{
+			for (int style = 0; style < 4; style++)
+			{
+				int itemId = 935000 + row * 10 + style;
+				catalogItems.add(catalogItem(itemId, "Primary " + row + " " + style,
+					ItemCategory.GEAR, "gear"));
+				snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+				int melee = style == 0 ? 10 : 0;
+				int ranged = style == 1 ? 10 : 0;
+				int magic = style == 2 ? 10 : 0;
+				int prayer = style == 3 ? 10 : 0;
+				stats.put(itemId, new GearStats(slots[row], melee, 0, 0, magic, ranged,
+					melee, ranged, prayer, 2000));
+			}
+		}
+
+		for (int itemId : Arrays.asList(544, 542, 4716, 4720, 4722, 4718))
+		{
+			catalogItems.add(catalogItem(itemId, "Set piece " + itemId,
+				ItemCategory.GEAR, "gear"));
+			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+		}
+		for (int index = 0; index < 42; index++)
+		{
+			int itemId = 936000 + index;
+			catalogItems.add(catalogItem(itemId, "Utility filler " + index,
+				ItemCategory.GEAR, "gear"));
+			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+		}
+
+		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
+			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
+
+		assertVerticalFamily(target, monk);
+		assertVerticalFamily(target, dharok);
+		assertEquals(snapshots.size(), target.size());
+		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
+	}
+
+	/**
+	 * Under the old setup-row grid the Lunar gloves were exiled to the magic
+	 * BIS cell while the rest of the set formed a separate block. The grid now
+	 * keeps the whole set together as one column, gloves included.
+	 */
+	@Test
+	public void theLunarSetStacksAsOneColumnGlovesIncluded()
+	{
+		List<CatalogItem> catalogItems = new ArrayList<>();
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		Map<Integer, GearStats> stats = new HashMap<>();
+		GearSlot[] wearableSlots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.CAPE,
+			GearSlot.NECK, GearSlot.SHIELD, GearSlot.HANDS, GearSlot.FEET};
+		int sourceSlot = 0;
+
+		for (int row = 0; row < wearableSlots.length; row++)
+		{
+			for (int style = 0; style < 4; style++)
+			{
+				if (row == 6 && style == 2)
+				{
+					continue;
+				}
+				int itemId = 937000 + row * 10 + style;
+				catalogItems.add(catalogItem(itemId, "Primary " + row + " " + style,
+					ItemCategory.GEAR, "gear"));
+				snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+				stats.put(itemId, styleStats(wearableSlots[row], style, 100));
+			}
+		}
+		for (int style = 0; style < 3; style++)
+		{
+			int itemId = 938000 + style;
+			catalogItems.add(catalogItem(itemId, "Primary weapon " + style,
+				ItemCategory.GEAR, "weapon"));
+			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+			stats.put(itemId, styleStats(GearSlot.WEAPON, style, 100));
+		}
+
+		List<Integer> lunar = Arrays.asList(9096, 9101, 9102, 9084, 9097, 9098, 9099, 9100, 9104);
+		for (int itemId : lunar)
+		{
+			catalogItems.add(catalogItem(itemId, "Lunar piece " + itemId,
+				ItemCategory.GEAR, "gear"));
+			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+		}
+		stats.put(9099, styleStats(GearSlot.HANDS, 2, 1000));
+
+		for (int index = 0; index < 79; index++)
+		{
+			int itemId = 939000 + index;
+			catalogItems.add(catalogItem(itemId, "Utility filler " + index,
+				ItemCategory.GEAR, "gear"));
+			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
+		}
+
+		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
+			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
+			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
+
+		assertVerticalFamily(target, lunar);
+		assertEquals(snapshots.size(), target.size());
+		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
+	}
+
 	private static GearStats styleStats(GearSlot slot, int style, int score)
 	{
 		return new GearStats(slot, style == 0 ? score : 0, 0, 0,
@@ -1644,6 +1820,54 @@ public class BankOrganizationPreviewBuilderTest
 		return ids;
 	}
 
+	/**
+	 * A family never splits the run of singles behind it: deferring must carry
+	 * the whole run, not pluck out just enough to fill the row. Six singles
+	 * lead, the four-dose family meets the row edge, and all three following
+	 * singles come before it - not two of three around it.
+	 */
+	@Test
+	public void aDeferringFamilyNeverSplitsTheRunOfSinglesBehindIt()
+	{
+		List<CatalogItem> catalogItems = Arrays.asList(
+			catalogItem(9739, "Renamed combat dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(141, "Renamed prayer dose two", ItemCategory.POTION, "potion-dose-2"),
+			catalogItem(12905, "Renamed anti-venom dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2434, "Renamed prayer dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2452, "Renamed antifire dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(143, "Renamed prayer dose one", ItemCategory.POTION, "potion-dose-1"),
+			catalogItem(2428, "Renamed attack dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(385, "Renamed shark", ItemCategory.POTION, "food"),
+			catalogItem(12913, "Renamed anti-venom-plus dose four", ItemCategory.POTION,
+				"potion-dose-4"),
+			catalogItem(139, "Renamed prayer dose three", ItemCategory.POTION, "potion-dose-3"),
+			catalogItem(2446, "Renamed antipoison dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(3024, "Renamed super restore dose four", ItemCategory.POTION,
+				"potion-dose-4"),
+			catalogItem(2450, "Renamed zamorak dose four", ItemCategory.POTION, "potion-dose-4"));
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), index + 1,
+				17 + index * 61));
+		}
+		List<BankPreviewItem> fallbackInput = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			fallbackInput.add(new BankPreviewItem(catalogItems.get(index), index + 1));
+		}
+		List<Integer> fallbackOrder = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			2434, 139, 141, 143, 3024, 2450, 385);
+		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
+
+		List<Integer> expected = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			3024, 2450, 385, 2434, 139, 141, 143);
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
+		assertEquals(expected,
+			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));
+	}
+
 	private static void assertVerticalFamily(List<Integer> target, List<Integer> family)
 	{
 		int first = target.indexOf(family.get(0));
@@ -1698,5 +1922,53 @@ public class BankOrganizationPreviewBuilderTest
 			ids.add(item.getItemId());
 		}
 		return ids;
+	}
+
+	/**
+	 * With singles directly behind the run, the family defers behind them to
+	 * the next clean row, so the dose run stays whole and the singles' own
+	 * order is untouched.
+	 */
+	@Test
+	public void supplyCategoryNudgesSinglesForwardToKeepADoseRunWhole()
+	{
+		List<CatalogItem> catalogItems = Arrays.asList(
+			catalogItem(9739, "Renamed combat dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(141, "Renamed prayer dose two", ItemCategory.POTION, "potion-dose-2"),
+			catalogItem(12905, "Renamed anti-venom dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2434, "Renamed prayer dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(2452, "Renamed antifire dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(143, "Renamed prayer dose one", ItemCategory.POTION, "potion-dose-1"),
+			catalogItem(2428, "Renamed attack dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(385, "Renamed shark", ItemCategory.POTION, "food"),
+			catalogItem(12913, "Renamed anti-venom-plus dose four", ItemCategory.POTION,
+				"potion-dose-4"),
+			catalogItem(139, "Renamed prayer dose three", ItemCategory.POTION, "potion-dose-3"),
+			catalogItem(2446, "Renamed antipoison dose four", ItemCategory.POTION, "potion-dose-4"),
+			catalogItem(3024, "Renamed super restore dose four", ItemCategory.POTION,
+				"potion-dose-4"));
+		List<BankItemSnapshot> snapshots = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), index + 1,
+				17 + index * 61));
+		}
+		List<BankPreviewItem> fallbackInput = new ArrayList<>();
+		for (int index = 0; index < catalogItems.size(); index++)
+		{
+			fallbackInput.add(new BankPreviewItem(catalogItems.get(index), index + 1));
+		}
+		List<Integer> fallbackOrder = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			2434, 139, 141, 143, 3024, 385);
+		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
+
+		// Two singles behind the run fill the two-column gap; the run then
+		// starts the second row whole.
+		List<Integer> expected = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
+			3024, 385, 2434, 139, 141, 143);
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
+		assertEquals(expected,
+			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));
 	}
 }
