@@ -159,6 +159,21 @@ public class ResourceItemRegistryTest
 		assertCategory(22446, "Vial of blood", ItemCategory.UNIQUE);
 	}
 
+	/** The cooked-bake food rule must not swallow the burnt or uncooked states. */
+	@Test
+	public void cookedBakesAreFoodWhileBurntAndUncookedOnesAreNot()
+	{
+		assertCategory(2323, "Apple pie", ItemCategory.POTION);
+		assertSubcategory(2323, "food");
+		assertCategory(1897, "Chocolate cake", ItemCategory.POTION);
+		assertSubcategory(1897, "food");
+		assertCategory(1903, "Burnt cake", ItemCategory.CLEANUP);
+		// Uncooked bakes share the potions-food category by name but must
+		// never read as ready food.
+		assertCategory(2317, "Uncooked apple pie", ItemCategory.POTION);
+		assertSubcategory(2317, "potion");
+	}
+
 	@Test
 	public void unfinishedPotionsAreHerbloreInputs()
 	{

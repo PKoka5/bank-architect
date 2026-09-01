@@ -124,11 +124,13 @@ final class ItemClassificationRefiner
 		}
 		if ("botanical pie".equals(name) || "half a botanical pie".equals(name)
 			|| "cake".equals(name) || "kebab".equals(name) || "stew".equals(name)
-			|| (name.endsWith(" pie") && !name.startsWith("uncooked"))
-			|| (name.endsWith(" cake") && !name.endsWith("rock cake")))
+			|| (!name.startsWith("uncooked") && !name.startsWith("burnt")
+				&& (name.endsWith(" pie")
+					|| (name.endsWith(" cake") && !name.endsWith("rock cake")))))
 		{
 			// Cooked pies and cakes eat like food; without this they fall to the
-			// category-label subcategory and sort among the potions.
+			// category-label subcategory and sort among the potions. Uncooked
+			// and burnt bakes are not food and keep their own piles.
 			return new Classification(ItemCategory.POTION, "food");
 		}
 		if (containsAny(name, "dwarven stout", "wizard's mind bomb", "lizardkicker")
