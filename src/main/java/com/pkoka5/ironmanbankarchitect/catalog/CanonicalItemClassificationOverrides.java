@@ -2093,6 +2093,12 @@ final class CanonicalItemClassificationOverrides
 			case 13387:
 				return gear();
 
+			// Catalogued as the Plague Outfit cosmetic set; classifying the
+			// pieces with it keeps them on the cosmetics tag instead of the
+			// clues catch-all their quest-item subcategory falls into.
+			// Wiki: https://oldschool.runescape.wiki/w/Plague_jacket
+			case 284:
+			case 285:
 			// Wearable/re-obtainable costumes with no combat role.
 			// Wiki: https://oldschool.runescape.wiki/w/Black_desert_robe?oldid=15185624
 			case 6752:
