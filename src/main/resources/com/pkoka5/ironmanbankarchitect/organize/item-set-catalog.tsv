@@ -392,3 +392,48 @@ tools	tools.rogue	Rogue	5	5553
 tools	tools.rogue	Rogue	7	5555
 tools	tools.rogue	Rogue	8	5556
 tools	tools.rogue	Rogue	9	5557
+# Colour families: recoloured cosmetics whose names lead with a colour word,
+# grouped so sorting keeps each family adjacent. Read only by the clue sorter;
+# the domain is invisible to tab routing and to the grid outfit rules.
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1038
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1040
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1042
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1044
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1046
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1048
+cosmetic-family	cosmetic-family.halloween-masks	Halloween Masks	0	1053
+cosmetic-family	cosmetic-family.halloween-masks	Halloween Masks	0	1055
+cosmetic-family	cosmetic-family.halloween-masks	Halloween Masks	0	1057
+cosmetic-family	cosmetic-family.dyes	Dyes	0	1763
+cosmetic-family	cosmetic-family.dyes	Dyes	0	1765
+cosmetic-family	cosmetic-family.dyes	Dyes	0	1767
+cosmetic-family	cosmetic-family.dyes	Dyes	0	1769
+cosmetic-family	cosmetic-family.dyes	Dyes	0	1771
+cosmetic-family	cosmetic-family.dyes	Dyes	0	1773
+cosmetic-family	cosmetic-family.dyes	Dyes	0	4622
+cosmetic-family	cosmetic-family.dyes	Dyes	0	6955
+cosmetic-family	cosmetic-family.berets	Berets	0	2633
+cosmetic-family	cosmetic-family.berets	Berets	0	2635
+cosmetic-family	cosmetic-family.berets	Berets	0	2637
+cosmetic-family	cosmetic-family.berets	Berets	0	12247
+cosmetic-family	cosmetic-family.headbands	Headbands	0	2645
+cosmetic-family	cosmetic-family.headbands	Headbands	0	2647
+cosmetic-family	cosmetic-family.headbands	Headbands	0	2649
+cosmetic-family	cosmetic-family.headbands	Headbands	0	12299
+cosmetic-family	cosmetic-family.headbands	Headbands	0	12301
+cosmetic-family	cosmetic-family.headbands	Headbands	0	12303
+cosmetic-family	cosmetic-family.headbands	Headbands	0	12305
+cosmetic-family	cosmetic-family.headbands	Headbands	0	12307
+cosmetic-family	cosmetic-family.boaters	Boaters	0	7319
+cosmetic-family	cosmetic-family.boaters	Boaters	0	7321
+cosmetic-family	cosmetic-family.boaters	Boaters	0	7323
+cosmetic-family	cosmetic-family.boaters	Boaters	0	7325
+cosmetic-family	cosmetic-family.boaters	Boaters	0	7327
+cosmetic-family	cosmetic-family.boaters	Boaters	0	12309
+cosmetic-family	cosmetic-family.boaters	Boaters	0	12311
+cosmetic-family	cosmetic-family.boaters	Boaters	0	12313
+cosmetic-family	cosmetic-family.firelighters	Firelighters	0	7329
+cosmetic-family	cosmetic-family.firelighters	Firelighters	0	7330
+cosmetic-family	cosmetic-family.firelighters	Firelighters	0	7331
+cosmetic-family	cosmetic-family.firelighters	Firelighters	0	10326
+cosmetic-family	cosmetic-family.firelighters	Firelighters	0	10327

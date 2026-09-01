@@ -256,6 +256,22 @@ public class PresetItemSorterTest
 			names.subList(firstHat, firstHat + 4));
 	}
 
+	@Test
+	public void theWigDisguiseNeverJoinsThePartyhatFamily()
+	{
+		// Item 2422 is the plain wig from Prince Ali Rescue, which shares the
+		// display name "Blue partyhat". Families collate by exact ID, so the
+		// wig files under its own name while the real hats stay together.
+		List<BankPreviewItem> sorted = PresetItemSorter.sort(
+			BankPresets.IRONMAN.getCategory("clues-cosmetics"), Arrays.asList(
+				item(1038, "Red partyhat", ItemCategory.CLUE),
+				item(2422, "Blue partyhat", ItemCategory.CLUE),
+				item(1040, "Yellow partyhat", ItemCategory.CLUE)));
+
+		assertEquals(Arrays.asList("Blue partyhat", "Red partyhat", "Yellow partyhat"),
+			names(sorted));
+	}
+
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)
 	{
 		String subcategory = category == ItemCategory.UNIQUE
