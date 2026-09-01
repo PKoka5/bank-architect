@@ -17,7 +17,7 @@ the seed list or scale requires updating this note and the test-scope
 | Simulated scenario banks | 1,800 |
 | Seed derivation within each protocol seed | `protocol seed + zero-based run index` |
 | Registry resource | `src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv` |
-| Registry SHA-256 | `449712144c522f622f975c9b7667a9f84c43da57260da40fa428ea2d7515b038` |
+| Registry SHA-256 | `97331c2f6826461713807b576e6b17a0dc4fd8ffdcc5e6b7ec94f79191ff96bf` (line endings normalised to LF) |
 
 The three seeds are deliberately far enough apart that their 200 derived simulation-seed ranges do
 not overlap. `20260718` preserves continuity with the original fixed-seed verification. The other
@@ -26,6 +26,11 @@ two values are stable, recognizable constants and do not encode an item or categ
 The checked fingerprint makes the registry revision explicit. A changed fingerprint stops the
 benchmark and requires a reviewed protocol revision; it must not be silently accepted as the same
 baseline.
+
+The fingerprint is taken over the registry with CRLF and lone CR normalised to LF. The file is
+committed with normalised line endings, so a Windows checkout holds CRLF and every other checkout
+holds LF for the same commit; hashing the raw bytes would make the same revision fingerprint
+differently per contributor.
 
 ## Occurrence semantics
 

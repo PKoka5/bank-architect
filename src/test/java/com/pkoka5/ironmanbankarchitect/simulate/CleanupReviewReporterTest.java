@@ -84,6 +84,22 @@ public class CleanupReviewReporterTest
 			CleanupReviewReporter.registrySha256());
 	}
 
+	@Test
+	public void registryFingerprintIgnoresTheCheckoutsLineEndings()
+	{
+		String unix = "1\tToolkit\n2\tSteel cannonball\n";
+		String windows = "1\tToolkit\r\n2\tSteel cannonball\r\n";
+		String classicMac = "1\tToolkit\r2\tSteel cannonball\r";
+
+		String expected = CleanupReviewReporter.sha256OfNormalisedLines(
+			unix.getBytes(StandardCharsets.UTF_8));
+
+		assertEquals(expected, CleanupReviewReporter.sha256OfNormalisedLines(
+			windows.getBytes(StandardCharsets.UTF_8)));
+		assertEquals(expected, CleanupReviewReporter.sha256OfNormalisedLines(
+			classicMac.getBytes(StandardCharsets.UTF_8)));
+	}
+
 	private static Map<Integer, Integer> counts(int... pairs)
 	{
 		assertTrue("pairs required", pairs.length % 2 == 0);

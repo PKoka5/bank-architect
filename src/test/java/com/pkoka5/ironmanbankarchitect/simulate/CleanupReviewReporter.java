@@ -160,9 +160,36 @@ final class CleanupReviewReporter
 			}
 			bytes = output.toByteArray();
 		}
+		return sha256OfNormalisedLines(bytes);
+	}
+
+	/**
+	 * SHA-256 of the given bytes with CRLF and lone CR normalised to LF.
+	 *
+	 * <p>The registry is a text resource and {@code .gitattributes} normalises it
+	 * on commit, so a Windows checkout holds CRLF and every other checkout holds
+	 * LF for the same commit. Hashing the raw bytes would make the fingerprint -
+	 * the benchmark's trust anchor - depend on who checked the repository out.</p>
+	 */
+	static String sha256OfNormalisedLines(byte[] bytes)
+	{
+		ByteArrayOutputStream normalised = new ByteArrayOutputStream(bytes.length);
+		for (int index = 0; index < bytes.length; index++)
+		{
+			if (bytes[index] == '\r')
+			{
+				if (index + 1 < bytes.length && bytes[index + 1] == '\n')
+				{
+					continue;
+				}
+				normalised.write('\n');
+				continue;
+			}
+			normalised.write(bytes[index]);
+		}
 		try
 		{
-			byte[] digest = MessageDigest.getInstance("SHA-256").digest(bytes);
+			byte[] digest = MessageDigest.getInstance("SHA-256").digest(normalised.toByteArray());
 			StringBuilder hex = new StringBuilder(digest.length * 2);
 			for (byte value : digest)
 			{
