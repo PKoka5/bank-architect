@@ -77,12 +77,6 @@ final class GearItemSorter
 	}
 
 	/**
-	 * The dense order grouped by combat style: the melee kit reads as one block,
-	 * then ranged, magic, prayer, and finally unstyled gear. Within a block,
-	 * slot order then strongest first. This is the packed grid's style columns
-	 * read top to bottom, for layouts that run linearly instead of in rows.
-	 */
-	/**
 	 * The list layout: each curated set reads as one run in slot order, helm
 	 * to boots, strongest set first; everything outside a set follows in the
 	 * dense order, weapons and loose pieces flowing like text.
