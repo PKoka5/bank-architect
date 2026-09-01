@@ -63,6 +63,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.JTabbedPane;
@@ -917,6 +918,31 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		chooser.setFont(FontManager.getRunescapeSmallFont());
 		chooser.setFocusable(false);
 		sizeToSidebar(chooser, 20);
+		nameTheClosedChooser(chooser);
+	}
+
+	/**
+	 * Says "Layout: Best in slot" while closed, and just "Best in slot" in the
+	 * open list.
+	 *
+	 * <p>Unlabelled, this box sits under the tag chooser and reads as a second
+	 * copy of it: the value alone does not say what question it answers, and a
+	 * player scanning the tab list slides straight past it. A heading of its own
+	 * would cost a row in a sidebar already short of them, so the name rides on
+	 * the closed value instead - the one place it is always visible.</p>
+	 */
+	private void nameTheClosedChooser(JComboBox<?> chooser)
+	{
+		ListCellRenderer<Object> base = (ListCellRenderer<Object>) chooser.getRenderer();
+		chooser.setRenderer((list, value, index, selected, focused) -> {
+			Component cell = base.getListCellRendererComponent(
+				list, value, index, selected, focused);
+			if (index < 0 && cell instanceof JLabel)
+			{
+				((JLabel) cell).setText("Layout: " + value);
+			}
+			return cell;
+		});
 	}
 
 	private BankLayoutOptions withGearLayout(BankLayoutOptions base, GearLayout gearLayout)

@@ -39,8 +39,10 @@ import javax.swing.JLabel;
 import javax.swing.Box;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
 
@@ -790,6 +792,34 @@ public class IronmanBankArchitectPanelTest
 		chooser.setSelectedItem(GearLayout.GRID_SETS);
 
 		assertEquals(GearLayout.GRID_SETS, model.options().gearLayout());
+		panel.shutdown();
+	}
+
+	/**
+	 * The closed box says which question it answers. Showing the bare value put
+	 * it under the tag chooser looking like a second copy of it, and the
+	 * maintainer scanned straight past his own feature.
+	 */
+	@Test
+	@SuppressWarnings("unchecked")
+	public void theLayoutChooserNamesItselfWhileClosed()
+	{
+		IronmanBankArchitectPanel panel = panelWith(new ProfileLayoutModel());
+		panel.getTabOrderButton().doClick();
+		JComboBox<?> chooser = findChooserOver(panel, GearLayout.class);
+		ListCellRenderer<Object> renderer =
+			(ListCellRenderer<Object>) chooser.getRenderer();
+
+		// Read each one before asking for the next: a list renderer hands back
+		// the same label every time, so holding both would compare one cell
+		// with itself.
+		String closed = ((JLabel) renderer.getListCellRendererComponent(
+			new JList<>(), GearLayout.GRID_STYLES, -1, false, false)).getText();
+		String open = ((JLabel) renderer.getListCellRendererComponent(
+			new JList<>(), GearLayout.GRID_STYLES, 0, false, false)).getText();
+
+		assertEquals("Layout: Best in slot", closed);
+		assertEquals("Best in slot", open);
 		panel.shutdown();
 	}
 
