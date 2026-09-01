@@ -123,8 +123,12 @@ final class ItemClassificationRefiner
 			return new Classification(ItemCategory.POTION, "pvm-utility");
 		}
 		if ("botanical pie".equals(name) || "half a botanical pie".equals(name)
-			|| "cake".equals(name) || "kebab".equals(name) || "stew".equals(name))
+			|| "cake".equals(name) || "kebab".equals(name) || "stew".equals(name)
+			|| (name.endsWith(" pie") && !name.startsWith("uncooked"))
+			|| (name.endsWith(" cake") && !name.endsWith("rock cake")))
 		{
+			// Cooked pies and cakes eat like food; without this they fall to the
+			// category-label subcategory and sort among the potions.
 			return new Classification(ItemCategory.POTION, "food");
 		}
 		if (containsAny(name, "dwarven stout", "wizard's mind bomb", "lizardkicker")
