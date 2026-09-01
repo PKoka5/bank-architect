@@ -20,11 +20,36 @@ public final class ItemSetCatalog
 	private static final String RESOURCE_PATH =
 		"/com/pkoka5/ironmanbankarchitect/organize/item-set-catalog.tsv";
 	private static final String SCHEMA_HEADER = "# schema=1";
+	private static final String COSMETIC_FAMILY_DOMAIN = "cosmetic-family";
 	private static final Map<String, List<SetDefinition>> SETS_BY_DOMAIN = load();
 	private static final Map<Integer, String> DOMAIN_BY_ITEM_ID = indexDomains();
+	private static final Map<Integer, String> COSMETIC_FAMILY_BY_ITEM_ID = indexCosmeticFamilies();
 
 	private ItemSetCatalog()
 	{
+	}
+
+	/**
+	 * The name of the colour family the item belongs to, if any. Recoloured
+	 * cosmetics lead with a colour word, so a sorter that files them by name
+	 * scatters each family; this lookup lets it file them by what they are.
+	 */
+	public static Optional<String> cosmeticFamilyOf(int itemId)
+	{
+		return Optional.ofNullable(COSMETIC_FAMILY_BY_ITEM_ID.get(itemId));
+	}
+
+	private static Map<Integer, String> indexCosmeticFamilies()
+	{
+		Map<Integer, String> families = new LinkedHashMap<>();
+		for (SetDefinition definition : sets(COSMETIC_FAMILY_DOMAIN))
+		{
+			for (Integer itemId : definition.itemIds)
+			{
+				families.put(itemId, definition.name);
+			}
+		}
+		return Collections.unmodifiableMap(families);
 	}
 
 	static List<SetDefinition> sets(String domain)

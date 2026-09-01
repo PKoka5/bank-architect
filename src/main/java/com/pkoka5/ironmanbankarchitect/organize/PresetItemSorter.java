@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -79,19 +80,15 @@ public final class PresetItemSorter
 	 * Keeps a cosmetic family adjacent where plain alphabetical order would
 	 * scatter it. Recoloured cosmetics lead with their colour word, so sorting
 	 * them by name alone files each partyhat or dye next to whatever else
-	 * shares its colour instead of next to the rest of its family.
+	 * shares its colour instead of next to the rest of its family. Families
+	 * come from the set catalogue by exact ID, so a lookalike name such as the
+	 * plain wig disguise never rides along with the real partyhats.
 	 */
 	private static String clueFamily(BankPreviewItem item)
 	{
-		String name = normalizedName(item.getDisplayName());
-		if (name.endsWith(" dye")) return "dye";
-		if (name.endsWith(" partyhat")) return "partyhat";
-		if (name.endsWith(" halloween mask")) return "halloween mask";
-		if (name.endsWith(" boater")) return "boater";
-		if (name.endsWith(" headband")) return "headband";
-		if (name.endsWith(" beret")) return "beret";
-		if (name.endsWith(" firelighter")) return "firelighter";
-		return name;
+		return ItemSetCatalog.cosmeticFamilyOf(item.getItemId())
+			.map(PresetItemSorter::normalizedName)
+			.orElseGet(() -> normalizedName(item.getDisplayName()));
 	}
 
 	private static List<BankPreviewItem> sortBossLoot(List<BankPreviewItem> items)
