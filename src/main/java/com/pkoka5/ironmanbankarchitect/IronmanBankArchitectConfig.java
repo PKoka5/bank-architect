@@ -1,6 +1,5 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import com.pkoka5.ironmanbankarchitect.organize.GearOrder;
 import com.pkoka5.ironmanbankarchitect.organize.PotionDoseOrder;
 import com.pkoka5.ironmanbankarchitect.organize.RuneOrder;
 import com.pkoka5.ironmanbankarchitect.organize.TeleportOrder;
@@ -35,13 +34,6 @@ public interface IronmanBankArchitectConfig extends Config
 		position = 2
 	)
 	String suppliesSection = "Food & potions";
-
-	@ConfigSection(
-		name = "Herblore",
-		description = "How the Herblore tab is arranged.",
-		position = 3
-	)
-	String herbloreSection = "Herblore";
 
 	@ConfigSection(
 		name = "Runes, teleports & currency",
@@ -109,6 +101,8 @@ public interface IronmanBankArchitectConfig extends Config
 
 	@ConfigItem(
 		keyName = "autoGuide",
+		section = guidanceSection,
+		position = 3,
 		name = "Guide on bank open",
 		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
 	)
@@ -118,51 +112,27 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "fillGearRows",
+		keyName = "gearLayout",
 		section = gearSection,
-		position = 1,
-		name = "Fill part-empty gear rows",
-		description = "A bank tab cannot hold an empty slot, so the four combat-style columns only stay straight if real items fill the rest of each row. On, the grid holds its shape and an occasional unrelated item sits in a row to complete it. Off, the gear tab is laid out densely and nothing sits where it does not belong; sets still hold together."
-	)
-	default boolean fillGearRows()
-	{
-		return true;
-	}
-
-	@ConfigItem(
-		keyName = "fillHerbloreRows",
-		section = herbloreSection,
 		position = 0,
-		name = "Fill part-empty Herblore rows",
-		description = "On, a part-finished recipe row borrows from the rest of the tab so the next recipe still starts at the left edge. Off, a short row is left short and the recipes simply follow each other."
+		name = "Layout",
+		description = "Grid reads each set down a column - helm, body, legs - with rows completed so the columns stay straight. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after, junk-free."
 	)
-	default boolean fillHerbloreRows()
+	default TabOrder gearLayout()
 	{
-		return true;
+		return TabOrder.PACKED;
 	}
 
 	@ConfigItem(
 		keyName = "alchPile",
 		section = gearSection,
-		position = 2,
+		position = 1,
 		name = "Gather outclassed gear for alching",
 		description = "Move equipment you own two strictly better versions of, and that is worth alching, to the Slayer & Boss Loot tab. Turn this off to keep every piece of gear in the combat gear tab, for example when you deliberately keep a spare set."
 	)
 	default boolean alchPile()
 	{
 		return true;
-	}
-
-	@ConfigItem(
-		keyName = "gearOrder",
-		section = gearSection,
-		position = 0,
-		name = "Combat gear order",
-		description = "How the combat gear tab lays out. Packed grid is the aligned style-column layout. The linear orders run item after item instead: by slot compares across styles (every helmet, then every body), the style orders read each kit as one block, armour head to feet or led by its weapon."
-	)
-	default GearOrder gearOrder()
-	{
-		return GearOrder.PACKED;
 	}
 
 	@ConfigItem(
@@ -178,23 +148,23 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "suppliesLayout",
+		keyName = "keepDoseRows",
 		section = suppliesSection,
 		position = 1,
-		name = "Tab layout",
-		description = "Packed keeps a dose family whole at a row edge by letting it slide behind the items after it. Sorted is the exact order, wrapping like text, so a family may split at the row edge but nothing ever moves."
+		name = "Keep dose sets on one row",
+		description = "A dose family meeting a row edge slides behind the items after it so it stays on one row. Off, nothing ever moves: the tab reads in exact order and a family may wrap at the row edge."
 	)
-	default TabOrder suppliesLayout()
+	default boolean keepDoseRows()
 	{
-		return TabOrder.PACKED;
+		return true;
 	}
 
 	@ConfigItem(
 		keyName = "utilitiesLayout",
 		section = utilitiesSection,
 		position = 0,
-		name = "Tab layout",
-		description = "Packed keeps the curated geometry: the four-wide rune block and the achievement diary grid. Sorted runs every item in the sorter's order, wrapping like text."
+		name = "Layout",
+		description = "Grid keeps the curated shapes: the four-wide rune block and the achievement diary grid. List runs every item in reading order, wrapping like text, junk-free."
 	)
 	default TabOrder utilitiesLayout()
 	{
@@ -205,8 +175,8 @@ public interface IronmanBankArchitectConfig extends Config
 		keyName = "toolsLayout",
 		section = toolsSection,
 		position = 0,
-		name = "Tab layout",
-		description = "Packed keeps the curated geometry: empty containers as columns above their filled forms. Sorted runs every tool in skill order, wrapping like text."
+		name = "Layout",
+		description = "Grid keeps the curated shape: empty containers as columns above their filled forms. List runs every tool in skill order, wrapping like text, junk-free."
 	)
 	default TabOrder toolsLayout()
 	{
@@ -217,8 +187,8 @@ public interface IronmanBankArchitectConfig extends Config
 		keyName = "resourcesLayout",
 		section = resourcesSection,
 		position = 0,
-		name = "Tab layout",
-		description = "Packed keeps the curated geometry: raw materials aligned above their processed forms. Sorted runs every item in the sorter's order, wrapping like text."
+		name = "Layout",
+		description = "Grid keeps the curated shape: raw materials aligned above their processed forms. List runs every item in reading order, wrapping like text, junk-free."
 	)
 	default TabOrder resourcesLayout()
 	{
@@ -229,8 +199,8 @@ public interface IronmanBankArchitectConfig extends Config
 		keyName = "cluesLayout",
 		section = cluesSection,
 		position = 0,
-		name = "Tab layout",
-		description = "Packed keeps the curated geometry: cosmetic outfits as vertical columns. Sorted runs every item in the sorter's order, wrapping like text."
+		name = "Layout",
+		description = "Grid keeps the curated shape: cosmetic outfits as vertical columns. List runs every item in reading order, wrapping like text, junk-free."
 	)
 	default TabOrder cluesLayout()
 	{
@@ -262,20 +232,6 @@ public interface IronmanBankArchitectConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "fillGearRows",
-		name = "",
-		description = ""
-	)
-	void setFillGearRows(boolean fillGearRows);
-
-	@ConfigItem(
-		keyName = "fillHerbloreRows",
-		name = "",
-		description = ""
-	)
-	void setFillHerbloreRows(boolean fillHerbloreRows);
-
-	@ConfigItem(
 		keyName = "alchPile",
 		name = "",
 		description = ""
@@ -285,7 +241,7 @@ public interface IronmanBankArchitectConfig extends Config
 	@ConfigItem(
 		keyName = "categoryOverlayOpacity",
 		section = guidanceSection,
-		position = 3,
+		position = 4,
 		name = "Destination colour opacity",
 		description = "Fill strength of the destination colours, 0-100. Borders stay fully visible."
 	)

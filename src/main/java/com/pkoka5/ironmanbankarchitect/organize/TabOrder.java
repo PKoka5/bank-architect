@@ -11,8 +11,8 @@ package com.pkoka5.ironmanbankarchitect.organize;
  */
 public enum TabOrder
 {
-	PACKED("Packed"),
-	SEQUENTIAL("Sorted");
+	PACKED("Grid"),
+	SEQUENTIAL("List");
 
 	private final String label;
 

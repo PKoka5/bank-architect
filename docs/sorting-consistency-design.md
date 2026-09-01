@@ -85,27 +85,24 @@ Runes category gains one dropdown: **"Rune order"** —
 
 ## Config surface after this branch
 
-A section per category, but only where a category has a real decision:
+Two concepts everywhere: **Grid / List**.
 
-- **Guidance** — existing overlay/hint items.
-- **Tab layout dropdowns exist only where Packed and Sorted genuinely
-  differ** — where a category has curated geometry to keep or give up: the
-  runes/teleports/currency tabs (four-wide rune block, diary grid), the
-  resources tab (raw above processed), and the clues & cosmetics tab (outfit
-  columns). Everywhere else the two modes are a nudge apart, so no option is
-  offered and packed stands. Gear's own four-way order is its version of this
-  choice.
-- **Combat gear** — order (**Style columns / By slot / By style / By style,
-  weapon first**), *Fill part-empty gear rows*, *Gather outclassed gear for
-  alching* (moved here from the abstract Classification section).
-- **Food & potions** — **Potion doses: Grab area / By family** (F5).
-- **Herblore** — *Fill part-empty Herblore rows*.
-- **Runes, teleports & currency** — **Tab layout** and **Rune order:
-  Alphabetical / Elemental** (F6).
-- **Resources** / **Clues & cosmetics** — **Tab layout** each.
+- **Grid** keeps a tab's curated shape - gear sets down columns, ore above its
+  bar, empty containers above filled, outfit columns, the rune block and diary
+  grid - and always fills its rows to hold the shape (a grid that does not
+  fill is not a grid; the old per-tab fill toggles are retired with their
+  degraded middle states).
+- **List** is pure reading order, wrapping at the row edge like text, junk-free
+  by construction. Gear's list reads each curated set as one run in slot
+  order, strongest set first, loose gear and weapons flowing after.
 
-Nothing else — F2/F3/F4 are corrections, not options. Categories without a
-section have no decisions to make.
+Sections: Guidance; Combat gear (Layout, alch pile); Food & potions (Potion
+doses, "Keep dose sets on one row" checkbox - the one list-side exception,
+letting a dose family slide behind the items after it rather than wrap);
+Runes, teleports & currency (Layout, Rune order, Teleport order); Tools,
+Resources, Clues & cosmetics (Layout each). The Herblore section is gone: its
+recipe-rows-versus-kind choice is already stated by where the player puts the
+Part Doses tag, and its fill toggle retired with the rest.
 
 ## Testing
 

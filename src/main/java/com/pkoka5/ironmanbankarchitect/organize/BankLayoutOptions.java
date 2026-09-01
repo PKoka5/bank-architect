@@ -27,7 +27,6 @@ public final class BankLayoutOptions
 	private final boolean fillGearRows;
 	private final boolean fillHerbloreRows;
 	private final boolean alchPile;
-	private final GearOrder gearOrder;
 	private final Map<BankCategorySortMode, TabOrder> tabOrders;
 	private final PotionDoseOrder potionDoses;
 	private final RuneOrder runeOrder;
@@ -35,33 +34,23 @@ public final class BankLayoutOptions
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
 	{
-		this(fillGearRows, fillHerbloreRows, alchPile, GearOrder.PACKED,
-			Collections.emptyMap());
+		this(fillGearRows, fillHerbloreRows, alchPile, Collections.emptyMap());
 	}
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
-		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders)
+		Map<BankCategorySortMode, TabOrder> tabOrders)
 	{
-		this(fillGearRows, fillHerbloreRows, alchPile, gearOrder, tabOrders,
-			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL);
+		this(fillGearRows, fillHerbloreRows, alchPile, tabOrders,
+			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
 	}
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
-		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders,
-		PotionDoseOrder potionDoses, RuneOrder runeOrder)
-	{
-		this(fillGearRows, fillHerbloreRows, alchPile, gearOrder, tabOrders,
-			potionDoses, runeOrder, TeleportOrder.ALPHABETICAL);
-	}
-
-	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
-		GearOrder gearOrder, Map<BankCategorySortMode, TabOrder> tabOrders,
+		Map<BankCategorySortMode, TabOrder> tabOrders,
 		PotionDoseOrder potionDoses, RuneOrder runeOrder, TeleportOrder teleportOrder)
 	{
 		this.fillGearRows = fillGearRows;
 		this.fillHerbloreRows = fillHerbloreRows;
 		this.alchPile = alchPile;
-		this.gearOrder = Objects.requireNonNull(gearOrder, "gearOrder");
 		this.tabOrders = tabOrders.isEmpty()
 			? Collections.emptyMap()
 			: Collections.unmodifiableMap(new EnumMap<>(tabOrders));
@@ -108,12 +97,6 @@ public final class BankLayoutOptions
 	public boolean alchPile()
 	{
 		return alchPile;
-	}
-
-	/** How the combat gear tab lays out; the packed grid unless chosen otherwise. */
-	public GearOrder gearOrder()
-	{
-		return gearOrder;
 	}
 
 	/**

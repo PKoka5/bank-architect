@@ -82,25 +82,66 @@ final class GearItemSorter
 	 * slot order then strongest first. This is the packed grid's style columns
 	 * read top to bottom, for layouts that run linearly instead of in rows.
 	 */
-	static List<BankPreviewItem> denseByStyle(List<BankPreviewItem> items, GearStatsSource gearStats,
-		boolean weaponFirst)
+	/**
+	 * The list layout: each curated set reads as one run in slot order, helm
+	 * to boots, strongest set first; everything outside a set follows in the
+	 * dense order, weapons and loose pieces flowing like text.
+	 */
+	static List<BankPreviewItem> bySet(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
-		List<BankPreviewItem> sorted = new ArrayList<>(items);
-		sorted.sort(Comparator
-			.comparingInt((BankPreviewItem item) -> styleRankOf(item, gearStats))
-			.thenComparingInt(item -> weaponFirst
-				? weaponFirstSlotRank(item, gearStats) : slotRankOf(item, gearStats))
-			.thenComparingInt(item -> -scoreOf(item, gearStats))
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
-			.thenComparingInt(BankPreviewItem::getItemId));
-		return sorted;
-	}
+		Map<Integer, BankPreviewItem> byId = new LinkedHashMap<>();
+		for (BankPreviewItem item : items)
+		{
+			byId.put(item.getItemId(), item);
+		}
 
-	/** The weapon leads its style block: it is the item that names the kit. */
-	private static int weaponFirstSlotRank(BankPreviewItem item, GearStatsSource gearStats)
-	{
-		int slot = slotRankOf(item, gearStats);
-		return slot >= 8 && slot <= 10 ? -1 : slot;
+		List<List<BankPreviewItem>> presentSets = new ArrayList<>();
+		for (List<Integer> set : GearSetSemanticRuleSet.gearSetsInSlotOrder())
+		{
+			List<BankPreviewItem> present = new ArrayList<>();
+			for (Integer itemId : set)
+			{
+				BankPreviewItem item = byId.get(itemId);
+				if (item != null)
+				{
+					present.add(item);
+				}
+			}
+			if (present.size() >= 2)
+			{
+				presentSets.add(present);
+			}
+		}
+		// Strongest set first: a set ranks by its best piece.
+		presentSets.sort(Comparator.comparingInt((List<BankPreviewItem> set) -> {
+			int best = Integer.MIN_VALUE;
+			for (BankPreviewItem item : set)
+			{
+				best = Math.max(best, scoreOf(item, gearStats));
+			}
+			return -best;
+		}));
+
+		List<BankPreviewItem> laidOut = new ArrayList<>(items.size());
+		Set<Integer> used = new LinkedHashSet<>();
+		for (List<BankPreviewItem> set : presentSets)
+		{
+			for (BankPreviewItem item : set)
+			{
+				if (used.add(item.getItemId()))
+				{
+					laidOut.add(item);
+				}
+			}
+		}
+		for (BankPreviewItem item : remainingSorted(items, used, gearStats))
+		{
+			if (used.add(item.getItemId()))
+			{
+				laidOut.add(item);
+			}
+		}
+		return laidOut;
 	}
 
 	static GearLayout plan(List<BankPreviewItem> items, GearStatsSource gearStats)

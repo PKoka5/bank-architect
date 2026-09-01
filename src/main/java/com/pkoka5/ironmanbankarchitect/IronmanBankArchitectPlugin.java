@@ -307,12 +307,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		tabOrders.put(BankCategorySortMode.MAIN, config.utilitiesLayout());
 		tabOrders.put(BankCategorySortMode.TELEPORTS, config.utilitiesLayout());
 		tabOrders.put(BankCategorySortMode.CURRENCY, config.utilitiesLayout());
-		tabOrders.put(BankCategorySortMode.SUPPLIES, config.suppliesLayout());
+		tabOrders.put(BankCategorySortMode.GEAR, config.gearLayout());
+		tabOrders.put(BankCategorySortMode.SUPPLIES,
+			config.keepDoseRows() ? TabOrder.PACKED : TabOrder.SEQUENTIAL);
 		tabOrders.put(BankCategorySortMode.TOOLS, config.toolsLayout());
 		tabOrders.put(BankCategorySortMode.RESOURCES, config.resourcesLayout());
 		tabOrders.put(BankCategorySortMode.CLUES, config.cluesLayout());
-		return new BankLayoutOptions(config.fillGearRows(), config.fillHerbloreRows(),
-			config.alchPile(), config.gearOrder(), tabOrders,
+		return new BankLayoutOptions(true, true, config.alchPile(), tabOrders,
 			config.potionDoses(), config.runeOrder(), config.teleportOrder());
 	}
 
@@ -429,8 +430,6 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void saveOptions(BankLayoutOptions options)
 			{
-				config.setFillGearRows(options.fillGearRows());
-				config.setFillHerbloreRows(options.fillHerbloreRows());
 				config.setAlchPile(options.alchPile());
 				analyzeBank();
 			}

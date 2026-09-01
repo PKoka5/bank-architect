@@ -651,17 +651,11 @@ public final class BankOrganizationPreviewBuilder
 		/** Keeps the primary strength/ranged/magic/prayer rows physically fixed. */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
-			switch (options.gearOrder())
+			if (sequential(BankCategorySortMode.GEAR))
 			{
-				case BY_SLOT:
-					return new ArrayList<>(GearItemSorter.dense(items, gearStats));
-				case BY_STYLE:
-					return new ArrayList<>(GearItemSorter.denseByStyle(items, gearStats, false));
-				case BY_STYLE_WEAPON_FIRST:
-					return new ArrayList<>(GearItemSorter.denseByStyle(items, gearStats, true));
-				case PACKED:
-				default:
-					break;
+				// The list layout: each set reads as one run, strongest first,
+				// loose gear flowing after. Junk-free by construction.
+				return new ArrayList<>(GearItemSorter.bySet(items, gearStats));
 			}
 
 			if (!options.fillGearRows())

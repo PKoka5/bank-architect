@@ -35,7 +35,7 @@ public class BankLayoutOptionsTest
 		{
 			orders.put(mode, TabOrder.SEQUENTIAL);
 		}
-		return new BankLayoutOptions(true, true, true, GearOrder.BY_STYLE_WEAPON_FIRST, orders);
+		return new BankLayoutOptions(true, true, true, orders);
 	}
 
 	// A part-finished Herblore chain: two herbs and one dose, so a recipe row is
@@ -146,7 +146,6 @@ public class BankLayoutOptionsTest
 	@Test
 	public void orderingDefaultsToPacked()
 	{
-		assertEquals(GearOrder.PACKED, BankLayoutOptions.DEFAULTS.gearOrder());
 		for (BankCategorySortMode mode : BankCategorySortMode.values())
 		{
 			assertEquals(TabOrder.PACKED, BankLayoutOptions.DEFAULTS.orderFor(mode));
@@ -154,7 +153,6 @@ public class BankLayoutOptionsTest
 				new BankLayoutOptions(true, true, true).orderFor(mode));
 		}
 		assertEquals(TabOrder.SEQUENTIAL, SEQUENTIAL.orderFor(BankCategorySortMode.MAIN));
-		assertEquals(GearOrder.BY_STYLE_WEAPON_FIRST, SEQUENTIAL.gearOrder());
 		assertEquals(PotionDoseOrder.GRAB_AREA, BankLayoutOptions.DEFAULTS.potionDoses());
 		assertEquals(RuneOrder.ALPHABETICAL, BankLayoutOptions.DEFAULTS.runeOrder());
 	}
@@ -205,28 +203,25 @@ public class BankLayoutOptionsTest
 	}
 
 	/**
-	 * Sequential gear reads the packed grid's style columns as blocks: the whole
-	 * melee kit, then ranged, then magic, instead of every helmet then every
-	 * body across styles.
+	 * The gear list reads each curated set as one run in slot order - the
+	 * adamant set left to right, helm to legs - with loose gear following.
 	 */
 	@Test
-	public void sequentialGearGroupsByCombatStyle()
+	public void gearListReadsEachSetAsOneRun()
 	{
 		BankSnapshot gear = new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(1163, 1, 0),   // Rune full helm (melee)
-			new BankItemSnapshot(841, 1, 1),    // Shortbow (ranged)
-			new BankItemSnapshot(1381, 1, 2),   // Staff of air (magic)
-			new BankItemSnapshot(1127, 1, 3),   // Rune platebody (melee)
-			new BankItemSnapshot(1129, 1, 4),   // Leather body (ranged)
-			new BankItemSnapshot(13389, 1, 5))); // Xerician robe (magic)
+			new BankItemSnapshot(1161, 1, 0),   // Adamant full helm
+			new BankItemSnapshot(841, 1, 1),    // Shortbow (loose)
+			new BankItemSnapshot(1073, 1, 2),   // Adamant platelegs
+			new BankItemSnapshot(1123, 1, 3),   // Adamant platebody
+			new BankItemSnapshot(1381, 1, 4),   // Staff of air (loose)
+			new BankItemSnapshot(1199, 1, 5))); // Adamant kiteshield
 
 		List<Integer> laidOut = idsOn(build(gear, SEQUENTIAL), gearTab());
 
 		assertEquals(6, laidOut.size());
-		assertTrue("melee block first", lastOf(laidOut, 1163, 1127) < firstOf(laidOut, 841, 1129));
-		assertTrue("weapon leads its block", laidOut.indexOf(841) < laidOut.indexOf(1129));
-		assertTrue("weapon leads its block", laidOut.indexOf(1381) < laidOut.indexOf(13389));
-		assertTrue("ranged before magic", lastOf(laidOut, 841, 1129) < firstOf(laidOut, 1381, 13389));
+		// The set runs contiguously in the catalog's slot order.
+		assertEquals(Arrays.asList(1161, 1123, 1199, 1073), laidOut.subList(0, 4));
 	}
 
 	private static int firstOf(List<Integer> ids, int... members)
@@ -391,8 +386,8 @@ public class BankLayoutOptionsTest
 			new BankItemSnapshot(12631, 1, 4))); // Stamina potion(1)
 
 		BankLayoutOptions byFamily = new BankLayoutOptions(true, true, true,
-			GearOrder.PACKED, new EnumMap<>(BankCategorySortMode.class),
-			PotionDoseOrder.BY_FAMILY, RuneOrder.ALPHABETICAL);
+			new EnumMap<>(BankCategorySortMode.class),
+			PotionDoseOrder.BY_FAMILY, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL);
 		int suppliesTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
 			.destinationOf("potions");
 
