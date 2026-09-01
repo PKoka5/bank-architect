@@ -24,6 +24,7 @@ public final class ItemSetCatalog
 	private static final Map<String, List<SetDefinition>> SETS_BY_DOMAIN = load();
 	private static final Map<Integer, String> DOMAIN_BY_ITEM_ID = indexDomains();
 	private static final Map<Integer, String> COSMETIC_FAMILY_BY_ITEM_ID = indexCosmeticFamilies();
+	private static final Map<Integer, Integer> COSMETIC_FAMILY_RANK_BY_ITEM_ID = indexCosmeticFamilyRanks();
 
 	private ItemSetCatalog()
 	{
@@ -39,6 +40,17 @@ public final class ItemSetCatalog
 		return Optional.ofNullable(COSMETIC_FAMILY_BY_ITEM_ID.get(itemId));
 	}
 
+	/**
+	 * Where the item's colour family stands in the catalogue's declaration
+	 * order, which is the curated display order: showpieces first, materials
+	 * last. Items outside every family rank after all of them.
+	 */
+	public static int cosmeticFamilyRankOf(int itemId)
+	{
+		Integer rank = COSMETIC_FAMILY_RANK_BY_ITEM_ID.get(itemId);
+		return rank == null ? Integer.MAX_VALUE : rank;
+	}
+
 	private static Map<Integer, String> indexCosmeticFamilies()
 	{
 		Map<Integer, String> families = new LinkedHashMap<>();
@@ -50,6 +62,20 @@ public final class ItemSetCatalog
 			}
 		}
 		return Collections.unmodifiableMap(families);
+	}
+
+	private static Map<Integer, Integer> indexCosmeticFamilyRanks()
+	{
+		Map<Integer, Integer> ranks = new LinkedHashMap<>();
+		List<SetDefinition> definitions = sets(COSMETIC_FAMILY_DOMAIN);
+		for (int rank = 0; rank < definitions.size(); rank++)
+		{
+			for (Integer itemId : definitions.get(rank).itemIds)
+			{
+				ranks.put(itemId, rank);
+			}
+		}
+		return Collections.unmodifiableMap(ranks);
 	}
 
 	static List<SetDefinition> sets(String domain)

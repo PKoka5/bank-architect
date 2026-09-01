@@ -70,6 +70,7 @@ public final class PresetItemSorter
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt(PresetItemSorter::clueRank)
+			.thenComparingInt(item -> ItemSetCatalog.cosmeticFamilyRankOf(item.getItemId()))
 			.thenComparing(PresetItemSorter::clueFamily)
 			.thenComparing(item -> normalizedName(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));

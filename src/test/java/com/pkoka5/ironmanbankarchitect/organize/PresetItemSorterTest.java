@@ -249,11 +249,13 @@ public class PresetItemSorterTest
 				item(1038, "Red partyhat", ItemCategory.CLUE),
 				item(1040, "Yellow partyhat", ItemCategory.CLUE)));
 
-		List<String> names = names(sorted);
-		int firstHat = names.indexOf("Blue partyhat");
+		// Families follow the catalogue's declaration order - partyhats are
+		// showpieces and lead, dyes are materials and trail - and anything
+		// outside every family files after them by name.
 		assertEquals(Arrays.asList(
-				"Blue partyhat", "Green partyhat", "Red partyhat", "Yellow partyhat"),
-			names.subList(firstHat, firstHat + 4));
+				"Blue partyhat", "Green partyhat", "Red partyhat", "Yellow partyhat",
+				"Blue dye", "Red dye", "Pet kitten"),
+			names(sorted));
 	}
 
 	@Test
@@ -261,14 +263,14 @@ public class PresetItemSorterTest
 	{
 		// Item 2422 is the plain wig from Prince Ali Rescue, which shares the
 		// display name "Blue partyhat". Families collate by exact ID, so the
-		// wig files under its own name while the real hats stay together.
+		// wig files after the real hats instead of riding along with them.
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(
 			BankPresets.IRONMAN.getCategory("clues-cosmetics"), Arrays.asList(
 				item(1038, "Red partyhat", ItemCategory.CLUE),
 				item(2422, "Blue partyhat", ItemCategory.CLUE),
 				item(1040, "Yellow partyhat", ItemCategory.CLUE)));
 
-		assertEquals(Arrays.asList("Blue partyhat", "Red partyhat", "Yellow partyhat"),
+		assertEquals(Arrays.asList("Red partyhat", "Yellow partyhat", "Blue partyhat"),
 			names(sorted));
 	}
 
