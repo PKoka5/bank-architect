@@ -17,8 +17,8 @@ calculates one recommendation and draws source/target guidance.
 
 ## Pure advisor phases
 
-`TabRouteAdvisor.assess(int[], BankTabPlan, int[])` validates unique canonical
-IDs and exactly nine contiguous count inputs, then emits one of:
+`TabRouteAdvisor.assess(int[], BankTabPlan, int[])` validates canonical item-ID
+multiplicities and exactly nine contiguous count inputs, then emits one of:
 
 - `COLLAPSE_TAB` for the highest dirty or surplus physical bucket;
 - `DRAG_TO_NEW_TAB` for the next required bucket anchor from main;
@@ -42,15 +42,15 @@ and verifies the next bank state before advancing:
 
 - collapse accepts server-defined main order but preserves lower buckets;
 - create requires the advised singleton bucket;
-- distribution validates count and set membership, not landing position;
-- tab-to-tab and tab-to-Main recovery validate exact source/destination set and
-  count deltas while ignoring landing order;
+- distribution validates count and item-ID multiplicities, not landing position;
+- tab-to-tab and tab-to-Main recovery validate exact source/destination
+  item-ID multiplicity and count deltas while ignoring landing order;
 - section swap requires the exact two-slot exchange.
 
 An unexpected state is held without arrows until the same snapshot survives a
 later RuneLite game tick, then reassessed through the non-destructive route. A
-different manual action is accepted only when its item sets and tab-count
-deltas prove one safe drag; a foreign item then becomes a local recovery
+different manual action is accepted only when its item-ID multiplicities and
+tab-count deltas prove one safe drag; a foreign item then becomes a local recovery
 action. Half-updated snapshots and unexpected tab removal are rejected. If the
 only available continuation would be structural collapse, the session returns
 `MANUAL_RECOVERY_REQUIRED`. The pinned state
@@ -112,8 +112,8 @@ suppressed. It returns during local sorting and completion.
   closes the open prefix cycle when a partial existing tab already owns that
   item, minimizing the later `n - cycles` swap count;
 - arbitrary target landing positions accepted by membership validation;
-- main sorted before physical buckets, with direct two-cycles first and the
-  exact minimum remaining swap count exposed to the guide;
+- main sorted before physical buckets, with direct two-cycles first; the guide
+  shows a swap estimate, which is exact when every item ID is unique;
 - all swaps remain inside one section;
 - empty main/physical categories, malformed counts, duplicates and gaps;
 - transition acknowledgement for distribution, recovery, create, collapse and

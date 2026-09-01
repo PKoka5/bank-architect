@@ -59,6 +59,8 @@ public class BankSnapshotTest
 		assertEquals(2, snapshot.getItems().size());
 		assertEquals(8, snapshot.getTotalQuantity(209));
 		assertEquals(7, snapshot.getItems().get(0).getSlotIndex());
+		assertEquals(Arrays.asList(3, 5),
+			snapshot.getItems().get(0).getPhysicalSlotQuantities());
 	}
 
 	@Test
@@ -72,10 +74,12 @@ public class BankSnapshotTest
 		assertEquals(0, snapshot.getTotalQuantity(6687));
 		assertEquals(14, snapshot.getItems().get(0).getSlotIndex());
 		assertEquals(true, snapshot.getItems().get(0).isPlaceholder());
+		assertEquals(Arrays.asList(0),
+			snapshot.getItems().get(0).getPhysicalSlotQuantities());
 	}
 
 	@Test
-	public void ownedStackWinsIfPlaceholderAndOwnedEntryShareAnItemId()
+	public void preservesPlaceholderAndOwnedOccurrencesThatShareAnItemId()
 	{
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(6687, 0, 14, true),
@@ -84,5 +88,20 @@ public class BankSnapshotTest
 
 		assertEquals(3, snapshot.getTotalQuantity(6687));
 		assertEquals(false, snapshot.getItems().get(0).isPlaceholder());
+		assertEquals(Arrays.asList(0, 3),
+			snapshot.getItems().get(0).getPhysicalSlotQuantities());
+	}
+
+	@Test
+	public void preservesEveryPlaceholderOccurrenceForOneItemId()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(6687, 0, 14, true),
+			new BankItemSnapshot(6687, 0, 20, true)
+		));
+
+		assertEquals(true, snapshot.getItems().get(0).isPlaceholder());
+		assertEquals(Arrays.asList(0, 0),
+			snapshot.getItems().get(0).getPhysicalSlotQuantities());
 	}
 }

@@ -4,18 +4,16 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Pure next-move planner for a dense bank order. Guidance is deliberately
  * fail-closed: it only proposes a swap when the live bank and analyzed plan
- * contain the same unique item IDs and every planned target is occupied.
+ * contain the same item-ID multiplicities and every planned target is occupied.
  */
 public final class NextMoveAdvisor
 {
@@ -36,7 +34,6 @@ public final class NextMoveAdvisor
 		Objects.requireNonNull(preferredVisibleSlots, "preferredVisibleSlots");
 
 		Map<Integer, Integer> plannedCounts = new HashMap<>();
-		Set<Integer> plannedDuplicates = new HashSet<>();
 		for (BankPreviewItem planned : plannedItems)
 		{
 			int itemId = planned.getItemId();
@@ -45,36 +42,29 @@ public final class NextMoveAdvisor
 				return Assessment.blocked(Status.UNSUPPORTED_PLAN,
 					progress(actualItemIds, plannedItems), List.of());
 			}
-			if (plannedCounts.merge(itemId, 1, Integer::sum) > 1)
-			{
-				plannedDuplicates.add(itemId);
-			}
+			plannedCounts.merge(itemId, 1, Integer::sum);
 		}
 
 		Map<Integer, Integer> actualCounts = new HashMap<>();
-		Set<Integer> actualDuplicates = new HashSet<>();
 		for (int itemId : actualItemIds)
 		{
 			if (itemId <= 0)
 			{
 				continue;
 			}
-			if (actualCounts.merge(itemId, 1, Integer::sum) > 1)
-			{
-				actualDuplicates.add(itemId);
-			}
+			actualCounts.merge(itemId, 1, Integer::sum);
 		}
 
 		GuideProgress progress = progress(actualItemIds, plannedItems);
-		if (!plannedDuplicates.isEmpty() || !actualDuplicates.isEmpty())
-		{
-			Set<Integer> duplicateItemIds = new TreeSet<>(plannedDuplicates);
-			duplicateItemIds.addAll(actualDuplicates);
-			return Assessment.blocked(Status.DUPLICATE_ITEMS, progress,
-				List.copyOf(duplicateItemIds));
-		}
 		if (!plannedCounts.equals(actualCounts))
 		{
+			List<Integer> duplicateItemIds = ItemOccurrenceMatcher.excessRepeatedItemIds(
+				actualCounts, plannedCounts);
+			if (!duplicateItemIds.isEmpty())
+			{
+				return Assessment.blocked(Status.DUPLICATE_ITEMS, progress,
+					List.copyOf(duplicateItemIds));
+			}
 			return Assessment.blocked(Status.RESCAN_REQUIRED, progress, List.of());
 		}
 
@@ -103,12 +93,6 @@ public final class NextMoveAdvisor
 			return Assessment.blocked(Status.COMPLETE, progress, List.of());
 		}
 
-		Map<Integer, Integer> slotByItemId = new HashMap<>();
-		for (int slot = 0; slot < plannedSize; slot++)
-		{
-			slotByItemId.put(actualItemIds[slot], slot);
-		}
-
 		NextMove bestMove = null;
 		int bestVisibilityRank = Integer.MAX_VALUE;
 		int bestDistance = Integer.MAX_VALUE;
@@ -121,22 +105,24 @@ public final class NextMoveAdvisor
 				continue;
 			}
 
-			Integer sourceSlot = slotByItemId.get(expectedItemId);
-			if (sourceSlot == null)
+			for (int sourceSlot = 0; sourceSlot < plannedSize; sourceSlot++)
 			{
-				return Assessment.blocked(Status.RESCAN_REQUIRED, progress, List.of());
-			}
-
-			int distance = Math.abs(sourceSlot - targetSlot);
-			int visibilityRank = visibilityRank(sourceSlot, targetSlot, preferredVisibleSlots);
-			if (bestMove == null || visibilityRank < bestVisibilityRank
-				|| (visibilityRank == bestVisibilityRank && distance < bestDistance)
-				|| (visibilityRank == bestVisibilityRank && distance == bestDistance
-					&& targetSlot < bestMove.getToSlot()))
-			{
-				bestMove = new NextMove(expectedItemId, planned.getDisplayName(), sourceSlot, targetSlot);
-				bestVisibilityRank = visibilityRank;
-				bestDistance = distance;
+				if (actualItemIds[sourceSlot] != expectedItemId
+					|| actualItemIds[sourceSlot] == plannedItems.get(sourceSlot).getItemId())
+				{
+					continue;
+				}
+				int distance = Math.abs(sourceSlot - targetSlot);
+				int visibilityRank = visibilityRank(sourceSlot, targetSlot, preferredVisibleSlots);
+				if (bestMove == null || visibilityRank < bestVisibilityRank
+					|| (visibilityRank == bestVisibilityRank && distance < bestDistance)
+					|| (visibilityRank == bestVisibilityRank && distance == bestDistance
+						&& targetSlot < bestMove.getToSlot()))
+				{
+					bestMove = new NextMove(expectedItemId, planned.getDisplayName(), sourceSlot, targetSlot);
+					bestVisibilityRank = visibilityRank;
+					bestDistance = distance;
+				}
 			}
 		}
 

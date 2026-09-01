@@ -159,13 +159,24 @@ public class NextMoveAdvisorTest
 	}
 
 	@Test
-	public void duplicateStacksAreRejectedRatherThanChoosingTheWrongOccurrence()
+	public void equalChargedCopiesAreInterchangeableDuringSorting()
 	{
-		Assessment result = NextMoveAdvisor.assess(new int[]{10, 20, 10}, plan(10, 10, 20));
+		int usedEclipseMoonChestplate = 29031;
+		Assessment result = NextMoveAdvisor.assess(
+			new int[]{usedEclipseMoonChestplate, 20, usedEclipseMoonChestplate},
+			plan(usedEclipseMoonChestplate, usedEclipseMoonChestplate, 20));
+
+		assertEquals(Status.READY, result.getStatus());
+		assertTrue(result.getMove().isPresent());
+	}
+
+	@Test
+	public void extraRepeatedLiveEntryStillRequiresDuplicateRecovery()
+	{
+		Assessment result = NextMoveAdvisor.assess(new int[]{10, 20, 10}, plan(10, 20));
 
 		assertEquals(Status.DUPLICATE_ITEMS, result.getStatus());
 		assertEquals(List.of(10), result.getDuplicateItemIds());
-		assertFalse(result.getMove().isPresent());
 	}
 
 	@Test

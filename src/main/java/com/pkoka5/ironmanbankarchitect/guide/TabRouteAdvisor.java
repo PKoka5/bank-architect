@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Pure tab-aware route planner. It first builds clean category buckets from
@@ -147,7 +146,7 @@ public final class TabRouteAdvisor
 
 		int correctPositions = correctPositionCount(actualItemIds, plan.getFlattenedItems());
 		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length, mode,
-			minimumRemainingSwaps(actualItemIds, plan.getFlattenedItems()),
+			estimatedRemainingSwaps(actualItemIds, plan.getFlattenedItems()),
 			minimumRemainingInserts(actualItemIds, plan, mainStart));
 		if (focusTabNumber >= 1 && focusTabNumber <= targets.size())
 		{
@@ -208,10 +207,13 @@ public final class TabRouteAdvisor
 			{
 				return false;
 			}
-			Set<Integer> targetIds = itemIds(target.getItems());
+			Map<Integer, Integer> targetCounts = itemCounts(target.getItems());
+			Map<Integer, Integer> observedCounts = new HashMap<>();
 			for (int slot = sectionStart; slot < sectionStart + count; slot++)
 			{
-				if (!targetIds.contains(actualItemIds[slot]))
+				int itemId = actualItemIds[slot];
+				int observed = observedCounts.merge(itemId, 1, Integer::sum);
+				if (observed > targetCounts.getOrDefault(itemId, 0))
 				{
 					return false;
 				}
@@ -230,12 +232,15 @@ public final class TabRouteAdvisor
 		for (int sourceIndex = 0; sourceIndex < currentTabs; sourceIndex++)
 		{
 			int sourceCount = tabCounts[sourceIndex];
-			Set<Integer> sourceTargetIds = sourceIndex < targets.size()
-				? itemIds(targets.get(sourceIndex).getItems()) : java.util.Collections.emptySet();
+			Map<Integer, Integer> sourceTargetCounts = sourceIndex < targets.size()
+				? itemCounts(targets.get(sourceIndex).getItems())
+				: java.util.Collections.emptyMap();
+			Map<Integer, Integer> observedCounts = new HashMap<>();
 			for (int slot = sectionStart; slot < sectionStart + sourceCount; slot++)
 			{
 				int itemId = actualItemIds[slot];
-				if (sourceTargetIds.contains(itemId) || sourceCount <= 1)
+				int observed = observedCounts.merge(itemId, 1, Integer::sum);
+				if (observed <= sourceTargetCounts.getOrDefault(itemId, 0) || sourceCount <= 1)
 				{
 					continue;
 				}
@@ -264,11 +269,15 @@ public final class TabRouteAdvisor
 		int sectionStart = 0;
 		for (int tabIndex = 0; tabIndex < currentTabs; tabIndex++)
 		{
-			Set<Integer> targetIds = tabIndex < targets.size()
-				? itemIds(targets.get(tabIndex).getItems()) : java.util.Collections.emptySet();
+			Map<Integer, Integer> targetCounts = tabIndex < targets.size()
+				? itemCounts(targets.get(tabIndex).getItems())
+				: java.util.Collections.emptyMap();
+			Map<Integer, Integer> observedCounts = new HashMap<>();
 			for (int slot = sectionStart; slot < sectionStart + tabCounts[tabIndex]; slot++)
 			{
-				if (!targetIds.contains(actualItemIds[slot]))
+				int itemId = actualItemIds[slot];
+				int observed = observedCounts.merge(itemId, 1, Integer::sum);
+				if (observed > targetCounts.getOrDefault(itemId, 0))
 				{
 					foreign++;
 				}
@@ -287,16 +296,16 @@ public final class TabRouteAdvisor
 		{
 			TargetTab target = targets.get(tabIndex);
 			if (tabCounts[tabIndex] != target.getItems().size()
-				|| !sectionSet(actualItemIds, sectionStart,
-					sectionStart + tabCounts[tabIndex]).equals(itemIds(target.getItems())))
+				|| !sectionCounts(actualItemIds, sectionStart,
+					sectionStart + tabCounts[tabIndex]).equals(itemCounts(target.getItems())))
 			{
 				return false;
 			}
 			sectionStart += tabCounts[tabIndex];
 		}
 		return actualItemIds.length - mainStart == plan.getMainItems().size()
-			&& sectionSet(actualItemIds, mainStart, actualItemIds.length)
-				.equals(itemIds(plan.getMainItems()));
+			&& sectionCounts(actualItemIds, mainStart, actualItemIds.length)
+				.equals(itemCounts(plan.getMainItems()));
 	}
 
 	/**
@@ -312,23 +321,20 @@ public final class TabRouteAdvisor
 		List<BankPreviewItem> targetItems, int targetTab, int blueprintTabNumber,
 		String categoryName)
 	{
-		Map<Integer, Integer> targetOffsetByItemId = new HashMap<>();
-		for (int offset = 0; offset < targetItems.size(); offset++)
+		int[] targetOffsets = ItemOccurrenceMatcher.targetOffsets(actualItemIds,
+			sectionStart, targetItems);
+		if (targetOffsets == null)
 		{
-			targetOffsetByItemId.put(targetItems.get(offset).getItemId(), offset);
+			return null;
 		}
 
 		for (int offset = 0; offset < targetItems.size(); offset++)
 		{
 			int anchorSlot = sectionStart + offset;
-			if (actualItemIds[anchorSlot] == targetItems.get(offset).getItemId())
+			int homeOffset = targetOffsets[offset];
+			if (homeOffset == offset)
 			{
 				continue;
-			}
-			Integer homeOffset = targetOffsetByItemId.get(actualItemIds[anchorSlot]);
-			if (homeOffset == null)
-			{
-				return null;
 			}
 			BankPreviewItem occupant = targetItems.get(homeOffset);
 			return Move.swapSection(occupant, anchorSlot, sectionStart + homeOffset,
@@ -387,8 +393,9 @@ public final class TabRouteAdvisor
 				sectionStart += count;
 				continue;
 			}
-			int appendItemId = cycleClosingAppendItemId(actualItemIds, sectionStart,
-				count, target.getItems());
+			int appendItemId = hasRepeatedItemIds(target.getItems())
+				? firstMissingTargetItemId(actualItemIds, sectionStart, count, target.getItems())
+				: cycleClosingAppendItemId(actualItemIds, sectionStart, count, target.getItems());
 			int sourceSlot = firstMainSourceForItem(actualItemIds, mainStart,
 				appendItemId);
 			if (sourceSlot >= 0)
@@ -399,6 +406,30 @@ public final class TabRouteAdvisor
 			sectionStart += count;
 		}
 		return null;
+	}
+
+	private static boolean hasRepeatedItemIds(List<BankPreviewItem> items)
+	{
+		return itemCounts(items).size() < items.size();
+	}
+
+	private static int firstMissingTargetItemId(int[] actualItemIds, int sectionStart,
+		int currentCount, List<BankPreviewItem> targetItems)
+	{
+		Map<Integer, Integer> remainingCounts = itemCounts(targetItems);
+		for (int slot = sectionStart; slot < sectionStart + currentCount; slot++)
+		{
+			remainingCounts.computeIfPresent(actualItemIds[slot],
+				(ignored, count) -> count > 1 ? count - 1 : null);
+		}
+		for (BankPreviewItem targetItem : targetItems)
+		{
+			if (remainingCounts.getOrDefault(targetItem.getItemId(), 0) > 0)
+			{
+				return targetItem.getItemId();
+			}
+		}
+		throw new IllegalArgumentException("partial section contains too many planned items");
 	}
 
 	/**
@@ -448,60 +479,34 @@ public final class TabRouteAdvisor
 
 	private static Validation validateItems(int[] actualItemIds, List<BankPreviewItem> plannedItems)
 	{
-		Set<Integer> plannedIds = new HashSet<>();
+		Map<Integer, Integer> plannedCounts = new HashMap<>();
 		for (BankPreviewItem item : plannedItems)
 		{
 			if (item == null || item.isBlank() || item.getItemId() <= 0)
 			{
 				return Validation.blocked(Status.UNSUPPORTED_PLAN, List.of());
 			}
-			if (!plannedIds.add(item.getItemId()))
-			{
-				return Validation.blocked(Status.DUPLICATE_ITEMS,
-					duplicateItemIds(actualItemIds, plannedItems));
-			}
+			plannedCounts.merge(item.getItemId(), 1, Integer::sum);
 		}
 
-		Set<Integer> actualIds = new HashSet<>();
+		Map<Integer, Integer> actualCounts = new HashMap<>();
 		for (int itemId : actualItemIds)
 		{
 			if (itemId <= 0)
 			{
 				return Validation.blocked(Status.UNSTABLE_BANK, List.of());
 			}
-			if (!actualIds.add(itemId))
-			{
-				return Validation.blocked(Status.DUPLICATE_ITEMS,
-					duplicateItemIds(actualItemIds, plannedItems));
-			}
+			actualCounts.merge(itemId, 1, Integer::sum);
 		}
-		return actualItemIds.length == plannedItems.size() && actualIds.equals(plannedIds)
-			? Validation.valid()
-			: Validation.blocked(Status.RESCAN_REQUIRED, List.of());
-	}
-
-	private static List<Integer> duplicateItemIds(int[] actualItemIds,
-		List<BankPreviewItem> plannedItems)
-	{
-		Set<Integer> duplicates = new TreeSet<>();
-		Set<Integer> plannedIds = new HashSet<>();
-		for (BankPreviewItem item : plannedItems)
+		if (actualItemIds.length == plannedItems.size() && actualCounts.equals(plannedCounts))
 		{
-			if (item != null && item.getItemId() > 0 && !plannedIds.add(item.getItemId()))
-			{
-				duplicates.add(item.getItemId());
-			}
+			return Validation.valid();
 		}
-
-		Set<Integer> actualIds = new HashSet<>();
-		for (int itemId : actualItemIds)
-		{
-			if (itemId > 0 && !actualIds.add(itemId))
-			{
-				duplicates.add(itemId);
-			}
-		}
-		return List.copyOf(duplicates);
+		List<Integer> duplicates = ItemOccurrenceMatcher.excessRepeatedItemIds(
+			actualCounts, plannedCounts);
+		return duplicates.isEmpty()
+			? Validation.blocked(Status.RESCAN_REQUIRED, List.of())
+			: Validation.blocked(Status.DUPLICATE_ITEMS, duplicates);
 	}
 
 	private static Map<Integer, BankPreviewItem> itemsById(List<BankPreviewItem> items)
@@ -552,13 +557,17 @@ public final class TabRouteAdvisor
 		return -1;
 	}
 
-	/** Exact unrestricted same-section swap lower bound: n minus permutation cycles. */
-	static int minimumRemainingSwaps(int[] actualItemIds, List<BankPreviewItem> targetItems)
+	/**
+	 * Deterministic unrestricted swap estimate. It is exact when item IDs are
+	 * unique. With duplicate IDs, another occurrence pairing can require fewer
+	 * swaps than this stable pairing.
+	 */
+	static int estimatedRemainingSwaps(int[] actualItemIds, List<BankPreviewItem> targetItems)
 	{
-		Map<Integer, Integer> targetSlotByItemId = new HashMap<>();
-		for (int slot = 0; slot < targetItems.size(); slot++)
+		int[] targetOffsets = ItemOccurrenceMatcher.targetOffsets(actualItemIds, 0, targetItems);
+		if (targetOffsets == null)
 		{
-			targetSlotByItemId.put(targetItems.get(slot).getItemId(), slot);
+			throw new IllegalArgumentException("actual and target item occurrences must match");
 		}
 		boolean[] visited = new boolean[actualItemIds.length];
 		int cycles = 0;
@@ -573,12 +582,7 @@ public final class TabRouteAdvisor
 			while (!visited[slot])
 			{
 				visited[slot] = true;
-				Integer next = targetSlotByItemId.get(actualItemIds[slot]);
-				if (next == null)
-				{
-					throw new IllegalArgumentException("actual and target item IDs must match");
-				}
-				slot = next;
+				slot = targetOffsets[slot];
 			}
 		}
 		return actualItemIds.length - cycles;
@@ -607,22 +611,22 @@ public final class TabRouteAdvisor
 		return correct;
 	}
 
-	private static Set<Integer> itemIds(List<BankPreviewItem> items)
+	private static Map<Integer, Integer> itemCounts(List<BankPreviewItem> items)
 	{
-		Set<Integer> result = new HashSet<>();
+		Map<Integer, Integer> result = new HashMap<>();
 		for (BankPreviewItem item : items)
 		{
-			result.add(item.getItemId());
+			result.merge(item.getItemId(), 1, Integer::sum);
 		}
 		return result;
 	}
 
-	private static Set<Integer> sectionSet(int[] itemIds, int start, int end)
+	private static Map<Integer, Integer> sectionCounts(int[] itemIds, int start, int end)
 	{
-		Set<Integer> result = new HashSet<>();
+		Map<Integer, Integer> result = new HashMap<>();
 		for (int slot = start; slot < end; slot++)
 		{
-			result.add(itemIds[slot]);
+			result.merge(itemIds[slot], 1, Integer::sum);
 		}
 		return result;
 	}
@@ -812,7 +816,7 @@ public final class TabRouteAdvisor
 	private static boolean matchesSafeManualTransition(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, RearrangeMode mode)
 	{
-		if (!sameUniqueItemSet(beforeItems, afterItems)
+		if (!sameItemCounts(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
 			|| !hasValidSectionBounds(beforeItems, beforeCounts)
 			|| !hasValidSectionBounds(afterItems, afterCounts))
@@ -894,29 +898,30 @@ public final class TabRouteAdvisor
 		}
 		for (int index = 0; index < beforeTabs; index++)
 		{
-			if (!tabSectionSet(beforeItems, beforeCounts, index)
-				.equals(tabSectionSet(afterItems, afterCounts, index)))
+			if (!tabSectionCounts(beforeItems, beforeCounts, index)
+				.equals(tabSectionCounts(afterItems, afterCounts, index)))
 			{
 				return false;
 			}
 		}
-		Set<Integer> created = tabSectionSet(afterItems, afterCounts, beforeTabs);
-		return created.size() == 1 && mainLostOnly(beforeItems, beforeCounts,
-			afterItems, afterCounts, created.iterator().next());
+		int createdStart = sumLeadingCounts(afterCounts, beforeTabs);
+		return mainLostOnly(beforeItems, beforeCounts, afterItems, afterCounts,
+			afterItems[createdStart]);
 	}
 
 	private static boolean matchesAnyDistribution(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, int targetIndex, int tabs)
 	{
-		Set<Integer> added = addedItems(tabSectionSet(beforeItems, beforeCounts, targetIndex),
-			tabSectionSet(afterItems, afterCounts, targetIndex));
-		if (added.size() != 1 || !otherTabSectionsUnchanged(beforeItems, beforeCounts,
+		Integer addedItemId = singleAddedItem(
+			tabSectionCounts(beforeItems, beforeCounts, targetIndex),
+			tabSectionCounts(afterItems, afterCounts, targetIndex));
+		if (addedItemId == null || !otherTabSectionsUnchanged(beforeItems, beforeCounts,
 			afterItems, afterCounts, tabs, targetIndex, -1))
 		{
 			return false;
 		}
 		return mainLostOnly(beforeItems, beforeCounts, afterItems, afterCounts,
-			added.iterator().next());
+			addedItemId);
 	}
 
 	private static boolean matchesAnyTransfer(int[] beforeItems, int[] beforeCounts,
@@ -926,16 +931,17 @@ public final class TabRouteAdvisor
 		{
 			return false;
 		}
-		Set<Integer> beforeSource = tabSectionSet(beforeItems, beforeCounts, sourceIndex);
-		Set<Integer> afterSource = tabSectionSet(afterItems, afterCounts, sourceIndex);
-		Set<Integer> removed = removedItems(beforeSource, afterSource);
-		Set<Integer> added = addedItems(tabSectionSet(beforeItems, beforeCounts, targetIndex),
-			tabSectionSet(afterItems, afterCounts, targetIndex));
-		return removed.size() == 1 && removed.equals(added)
+		Integer removedItemId = singleRemovedItem(
+			tabSectionCounts(beforeItems, beforeCounts, sourceIndex),
+			tabSectionCounts(afterItems, afterCounts, sourceIndex));
+		Integer addedItemId = singleAddedItem(
+			tabSectionCounts(beforeItems, beforeCounts, targetIndex),
+			tabSectionCounts(afterItems, afterCounts, targetIndex));
+		return removedItemId != null && removedItemId.equals(addedItemId)
 			&& otherTabSectionsUnchanged(beforeItems, beforeCounts, afterItems, afterCounts,
 				tabs, sourceIndex, targetIndex)
-			&& mainSectionSet(beforeItems, beforeCounts)
-				.equals(mainSectionSet(afterItems, afterCounts));
+			&& mainSectionCounts(beforeItems, beforeCounts)
+				.equals(mainSectionCounts(afterItems, afterCounts));
 	}
 
 	private static boolean matchesAnyReturnToMain(int[] beforeItems, int[] beforeCounts,
@@ -947,16 +953,16 @@ public final class TabRouteAdvisor
 		{
 			return false;
 		}
-		Set<Integer> removed = removedItems(
-			tabSectionSet(beforeItems, beforeCounts, sourceIndex),
-			tabSectionSet(afterItems, afterCounts, sourceIndex));
-		if (removed.size() != 1)
+		Integer removedItemId = singleRemovedItem(
+			tabSectionCounts(beforeItems, beforeCounts, sourceIndex),
+			tabSectionCounts(afterItems, afterCounts, sourceIndex));
+		if (removedItemId == null)
 		{
 			return false;
 		}
-		Set<Integer> expectedMain = mainSectionSet(beforeItems, beforeCounts);
-		expectedMain.add(removed.iterator().next());
-		return expectedMain.equals(mainSectionSet(afterItems, afterCounts));
+		Map<Integer, Integer> expectedMain = mainSectionCounts(beforeItems, beforeCounts);
+		expectedMain.merge(removedItemId, 1, Integer::sum);
+		return expectedMain.equals(mainSectionCounts(afterItems, afterCounts));
 	}
 
 	private static boolean matchesAnySwap(int[] beforeItems, int[] afterItems)
@@ -1049,8 +1055,8 @@ public final class TabRouteAdvisor
 		for (int index = 0; index < tabs; index++)
 		{
 			if (index != firstExcluded && index != secondExcluded
-				&& !tabSectionSet(beforeItems, beforeCounts, index)
-					.equals(tabSectionSet(afterItems, afterCounts, index)))
+				&& !tabSectionCounts(beforeItems, beforeCounts, index)
+					.equals(tabSectionCounts(afterItems, afterCounts, index)))
 			{
 				return false;
 			}
@@ -1058,18 +1064,37 @@ public final class TabRouteAdvisor
 		return true;
 	}
 
-	private static Set<Integer> addedItems(Set<Integer> before, Set<Integer> after)
+	private static Integer singleAddedItem(Map<Integer, Integer> before,
+		Map<Integer, Integer> after)
 	{
-		Set<Integer> added = new HashSet<>(after);
-		added.removeAll(before);
-		return added;
+		return singleCountDifference(before, after);
 	}
 
-	private static Set<Integer> removedItems(Set<Integer> before, Set<Integer> after)
+	private static Integer singleRemovedItem(Map<Integer, Integer> before,
+		Map<Integer, Integer> after)
 	{
-		Set<Integer> removed = new HashSet<>(before);
-		removed.removeAll(after);
-		return removed;
+		return singleCountDifference(after, before);
+	}
+
+	private static Integer singleCountDifference(Map<Integer, Integer> smaller,
+		Map<Integer, Integer> larger)
+	{
+		Integer changedItemId = null;
+		Set<Integer> itemIds = new HashSet<>(smaller.keySet());
+		itemIds.addAll(larger.keySet());
+		for (int itemId : itemIds)
+		{
+			int difference = larger.getOrDefault(itemId, 0) - smaller.getOrDefault(itemId, 0);
+			if (difference == 1 && changedItemId == null)
+			{
+				changedItemId = itemId;
+			}
+			else if (difference != 0)
+			{
+				return null;
+			}
+		}
+		return changedItemId;
 	}
 
 	private static boolean transitionMatches(int[] beforeItems, int[] beforeCounts,
@@ -1121,7 +1146,7 @@ public final class TabRouteAdvisor
 		int[] afterItems, int[] afterCounts, int targetTab)
 	{
 		int targetIndex = targetTab - 1;
-		if (!sameUniqueItemSet(beforeItems, afterItems)
+		if (!sameItemCounts(beforeItems, afterItems)
 			|| targetIndex < 0 || targetIndex >= beforeCounts.length
 			|| beforeCounts.length != afterCounts.length
 			|| beforeCounts[targetIndex] <= 0)
@@ -1158,7 +1183,7 @@ public final class TabRouteAdvisor
 		int[] afterItems, int[] afterCounts, Move move)
 	{
 		int targetIndex = move.getTargetTab() - 1;
-		if (!sameUniqueItemSet(beforeItems, afterItems)
+		if (!sameItemCounts(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
 			|| targetIndex < 0 || targetIndex >= beforeCounts.length)
 		{
@@ -1187,7 +1212,7 @@ public final class TabRouteAdvisor
 		int[] afterItems, int[] afterCounts, Move move)
 	{
 		int targetIndex = move.getTargetTab() - 1;
-		if (!sameUniqueItemSet(beforeItems, afterItems)
+		if (!sameItemCounts(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
 			|| targetIndex < 0 || targetIndex >= beforeCounts.length)
 		{
@@ -1209,13 +1234,12 @@ public final class TabRouteAdvisor
 
 		for (int index = 0; index < tabs; index++)
 		{
-			Set<Integer> before = tabSectionSet(beforeItems, beforeCounts, index);
-			Set<Integer> expected = new HashSet<>(before);
+			Map<Integer, Integer> expected = tabSectionCounts(beforeItems, beforeCounts, index);
 			if (index == targetIndex)
 			{
-				expected.add(move.getItemId());
+				expected.merge(move.getItemId(), 1, Integer::sum);
 			}
-			if (!expected.equals(tabSectionSet(afterItems, afterCounts, index)))
+			if (!expected.equals(tabSectionCounts(afterItems, afterCounts, index)))
 			{
 				return false;
 			}
@@ -1247,7 +1271,7 @@ public final class TabRouteAdvisor
 		int sourceIndex = move.getSourceTab() - 1;
 		int targetIndex = move.getTargetTab() - 1;
 		int tabs = leadingTabCount(beforeCounts);
-		if (!sameUniqueItemSet(beforeItems, afterItems)
+		if (!sameItemCounts(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
 			|| tabs < 0 || leadingTabCount(afterCounts) != tabs
 			|| sourceIndex < 0 || sourceIndex >= tabs
@@ -1267,22 +1291,22 @@ public final class TabRouteAdvisor
 		}
 		for (int index = 0; index < tabs; index++)
 		{
-			Set<Integer> expected = tabSectionSet(beforeItems, beforeCounts, index);
+			Map<Integer, Integer> expected = tabSectionCounts(beforeItems, beforeCounts, index);
 			if (index == sourceIndex)
 			{
-				expected.remove(move.getItemId());
+				decrementItemCount(expected, move.getItemId());
 			}
 			if (index == targetIndex)
 			{
-				expected.add(move.getItemId());
+				expected.merge(move.getItemId(), 1, Integer::sum);
 			}
-			if (!expected.equals(tabSectionSet(afterItems, afterCounts, index)))
+			if (!expected.equals(tabSectionCounts(afterItems, afterCounts, index)))
 			{
 				return false;
 			}
 		}
-		return mainSectionSet(beforeItems, beforeCounts)
-			.equals(mainSectionSet(afterItems, afterCounts));
+		return mainSectionCounts(beforeItems, beforeCounts)
+			.equals(mainSectionCounts(afterItems, afterCounts));
 	}
 
 	private static boolean matchesReturnToMain(int[] beforeItems, int[] beforeCounts,
@@ -1290,7 +1314,7 @@ public final class TabRouteAdvisor
 	{
 		int sourceIndex = move.getSourceTab() - 1;
 		int tabs = leadingTabCount(beforeCounts);
-		if (!sameUniqueItemSet(beforeItems, afterItems)
+		if (!sameItemCounts(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
 			|| tabs < 0 || leadingTabCount(afterCounts) != tabs
 			|| sourceIndex < 0 || sourceIndex >= tabs || beforeCounts[sourceIndex] <= 1)
@@ -1307,19 +1331,19 @@ public final class TabRouteAdvisor
 		}
 		for (int index = 0; index < tabs; index++)
 		{
-			Set<Integer> expected = tabSectionSet(beforeItems, beforeCounts, index);
+			Map<Integer, Integer> expected = tabSectionCounts(beforeItems, beforeCounts, index);
 			if (index == sourceIndex)
 			{
-				expected.remove(move.getItemId());
+				decrementItemCount(expected, move.getItemId());
 			}
-			if (!expected.equals(tabSectionSet(afterItems, afterCounts, index)))
+			if (!expected.equals(tabSectionCounts(afterItems, afterCounts, index)))
 			{
 				return false;
 			}
 		}
-		Set<Integer> expectedMain = mainSectionSet(beforeItems, beforeCounts);
-		expectedMain.add(move.getItemId());
-		return expectedMain.equals(mainSectionSet(afterItems, afterCounts));
+		Map<Integer, Integer> expectedMain = mainSectionCounts(beforeItems, beforeCounts);
+		expectedMain.merge(move.getItemId(), 1, Integer::sum);
+		return expectedMain.equals(mainSectionCounts(afterItems, afterCounts));
 	}
 
 	private static boolean lowerSectionsUnchanged(int[] beforeItems, int[] beforeCounts,
@@ -1327,8 +1351,8 @@ public final class TabRouteAdvisor
 	{
 		for (int index = 0; index < sectionLimit; index++)
 		{
-			if (!tabSectionSet(beforeItems, beforeCounts, index)
-				.equals(tabSectionSet(afterItems, afterCounts, index)))
+			if (!tabSectionCounts(beforeItems, beforeCounts, index)
+				.equals(tabSectionCounts(afterItems, afterCounts, index)))
 			{
 				return false;
 			}
@@ -1339,44 +1363,53 @@ public final class TabRouteAdvisor
 	private static boolean mainLostOnly(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, int itemId)
 	{
-		Set<Integer> expectedMain = mainSectionSet(beforeItems, beforeCounts);
-		if (!expectedMain.remove(itemId))
+		Map<Integer, Integer> expectedMain = mainSectionCounts(beforeItems, beforeCounts);
+		if (!decrementItemCount(expectedMain, itemId))
 		{
 			return false;
 		}
-		return expectedMain.equals(mainSectionSet(afterItems, afterCounts));
+		return expectedMain.equals(mainSectionCounts(afterItems, afterCounts));
 	}
 
-	private static Set<Integer> tabSectionSet(int[] items, int[] counts, int tabIndex)
+	private static Map<Integer, Integer> tabSectionCounts(int[] items, int[] counts, int tabIndex)
 	{
 		int start = sumLeadingCounts(counts, tabIndex);
-		return sectionSet(items, start, start + counts[tabIndex]);
+		return sectionCounts(items, start, start + counts[tabIndex]);
 	}
 
-	private static Set<Integer> mainSectionSet(int[] items, int[] counts)
+	private static Map<Integer, Integer> mainSectionCounts(int[] items, int[] counts)
 	{
 		int tabs = leadingTabCount(counts);
 		int start = tabs < 0 ? items.length : sumLeadingCounts(counts, tabs);
-		return sectionSet(items, start, items.length);
+		return sectionCounts(items, start, items.length);
 	}
 
-	private static boolean sameUniqueItemSet(int[] first, int[] second)
+	private static boolean decrementItemCount(Map<Integer, Integer> counts, int itemId)
+	{
+		Integer count = counts.get(itemId);
+		if (count == null)
+		{
+			return false;
+		}
+		if (count == 1)
+		{
+			counts.remove(itemId);
+		}
+		else
+		{
+			counts.put(itemId, count - 1);
+		}
+		return true;
+	}
+
+	private static boolean sameItemCounts(int[] first, int[] second)
 	{
 		if (first.length != second.length)
 		{
 			return false;
 		}
-		Set<Integer> firstSet = new HashSet<>();
-		Set<Integer> secondSet = new HashSet<>();
-		for (int itemId : first)
-		{
-			firstSet.add(itemId);
-		}
-		for (int itemId : second)
-		{
-			secondSet.add(itemId);
-		}
-		return firstSet.size() == first.length && firstSet.equals(secondSet);
+		return sectionCounts(first, 0, first.length)
+			.equals(sectionCounts(second, 0, second.length));
 	}
 
 	public enum Status
@@ -1620,17 +1653,17 @@ public final class TabRouteAdvisor
 		private final int completed;
 		private final int total;
 		private final RearrangeMode mode;
-		private final int minimumRemainingSwaps;
+		private final int estimatedRemainingSwaps;
 		private final int minimumRemainingInserts;
 
 		private Progress(Phase phase, int completed, int total, RearrangeMode mode,
-			int minimumRemainingSwaps, int minimumRemainingInserts)
+			int estimatedRemainingSwaps, int minimumRemainingInserts)
 		{
 			this.phase = Objects.requireNonNull(phase, "phase");
 			this.completed = completed;
 			this.total = total;
 			this.mode = Objects.requireNonNull(mode, "mode");
-			this.minimumRemainingSwaps = minimumRemainingSwaps;
+			this.estimatedRemainingSwaps = estimatedRemainingSwaps;
 			this.minimumRemainingInserts = minimumRemainingInserts;
 		}
 
@@ -1665,9 +1698,9 @@ public final class TabRouteAdvisor
 		}
 
 		private static Progress sorting(int correct, int total, RearrangeMode mode,
-			int minimumRemainingSwaps, int minimumRemainingInserts)
+			int estimatedRemainingSwaps, int minimumRemainingInserts)
 		{
-			return new Progress(Phase.SORTING, correct, total, mode, minimumRemainingSwaps,
+			return new Progress(Phase.SORTING, correct, total, mode, estimatedRemainingSwaps,
 				minimumRemainingInserts);
 		}
 
@@ -1698,22 +1731,21 @@ public final class TabRouteAdvisor
 		}
 
 		/**
-		 * Exact lower bound on the drags still needed to finish sorting in the
-		 * mode the assessment was made for, or -1 outside the sorting phase.
+		 * Remaining drag estimate for the current mode, or -1 outside sorting.
+		 * Insert mode is exact. Swap mode is exact for unique IDs and stable for
+		 * duplicates, where a different occurrence pairing may be shorter.
 		 */
-		public int getMinimumRemainingDrags()
+		public int getRemainingDragsEstimate()
 		{
-			return mode == RearrangeMode.SWAP ? minimumRemainingSwaps : minimumRemainingInserts;
+			return mode == RearrangeMode.SWAP ? estimatedRemainingSwaps : minimumRemainingInserts;
 		}
 
 		/**
-		 * Exact lower bound for the mode the player is not currently using, so
-		 * guidance can quote what switching would cost or save. -1 outside the
-		 * sorting phase.
+		 * Remaining drag estimate for the other mode, or -1 outside sorting.
 		 */
-		public int getMinimumRemainingDragsInOtherMode()
+		public int getOtherModeDragsEstimate()
 		{
-			return mode == RearrangeMode.SWAP ? minimumRemainingInserts : minimumRemainingSwaps;
+			return mode == RearrangeMode.SWAP ? minimumRemainingInserts : estimatedRemainingSwaps;
 		}
 
 		public int getPercent()

@@ -3,7 +3,10 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 
 public class BankCategoryPreviewTest
@@ -30,5 +33,36 @@ public class BankCategoryPreviewTest
 		assertTrue(BankPreviewItem.blank().isBlank());
 		assertEquals(-1, BankPreviewItem.blank().getItemId());
 		assertEquals(false, new BankPreviewItem(1, "Coins", 1).isBlank());
+	}
+
+	@Test
+	public void constructorPreservesSuppliedItemsWithoutExpansion()
+	{
+		CatalogItem item = new CatalogItem(6687, "Saradomin brew(3)", ItemCategory.POTION,
+			"potion", Collections.emptySet(), null);
+		BankPreviewItem aggregate = new BankPreviewItem(item, 3, false, Arrays.asList(0, 3));
+
+		BankCategoryPreview preview = new BankCategoryPreview(
+			BankPresets.IRONMAN.getCategory("potions-food"), Collections.singletonList(aggregate));
+
+		assertEquals(1, preview.getItems().size());
+		assertEquals(aggregate, preview.getItems().get(0));
+	}
+
+	@Test
+	public void logicalFactoryExpandsMixedPlaceholderAndOwnedOccurrencesWithoutLosingEither()
+	{
+		CatalogItem item = new CatalogItem(6687, "Saradomin brew(3)", ItemCategory.POTION,
+			"potion", Collections.emptySet(), null);
+		BankPreviewItem aggregate = new BankPreviewItem(item, 3, false, Arrays.asList(0, 3));
+
+		BankCategoryPreview preview = BankCategoryPreview.fromLogicalItems(
+			BankPresets.IRONMAN.getCategory("potions-food"), Collections.singletonList(aggregate));
+
+		assertEquals(2, preview.getItems().size());
+		assertTrue(preview.getItems().get(0).isPlaceholder());
+		assertEquals(0, preview.getItems().get(0).getQuantity());
+		assertEquals(false, preview.getItems().get(1).isPlaceholder());
+		assertEquals(3, preview.getItems().get(1).getQuantity());
 	}
 }

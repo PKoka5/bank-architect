@@ -16,6 +16,18 @@ public final class BankCategoryPreview
 		this.items = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(items, "items")));
 	}
 
+	/** Expands logically classified items into the physical bank slots they occupy. */
+	public static BankCategoryPreview fromLogicalItems(BankCategory category,
+		List<BankPreviewItem> logicalItems)
+	{
+		List<BankPreviewItem> physicalItems = new ArrayList<>();
+		for (BankPreviewItem item : Objects.requireNonNull(logicalItems, "logicalItems"))
+		{
+			physicalItems.addAll(Objects.requireNonNull(item, "item").physicalBankSlots());
+		}
+		return new BankCategoryPreview(category, physicalItems);
+	}
+
 	public BankCategory getCategory()
 	{
 		return category;

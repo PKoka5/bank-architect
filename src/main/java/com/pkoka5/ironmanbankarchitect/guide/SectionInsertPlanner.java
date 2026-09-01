@@ -1,9 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -147,29 +145,7 @@ public final class SectionInsertPlanner
 	private static int[] permutation(int[] actualItemIds, int sectionStart,
 		List<BankPreviewItem> targetItems)
 	{
-		int size = targetItems.size();
-		if (sectionStart < 0 || size == 0 || sectionStart + size > actualItemIds.length)
-		{
-			return null;
-		}
-
-		Map<Integer, Integer> targetOffsetByItemId = new HashMap<>();
-		for (int offset = 0; offset < size; offset++)
-		{
-			targetOffsetByItemId.put(targetItems.get(offset).getItemId(), offset);
-		}
-
-		int[] permutation = new int[size];
-		for (int offset = 0; offset < size; offset++)
-		{
-			Integer targetOffset = targetOffsetByItemId.get(actualItemIds[sectionStart + offset]);
-			if (targetOffset == null)
-			{
-				return null;
-			}
-			permutation[offset] = targetOffset;
-		}
-		return permutation;
+		return ItemOccurrenceMatcher.orderedTargetOffsets(actualItemIds, sectionStart, targetItems);
 	}
 
 	/**
