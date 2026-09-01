@@ -5,6 +5,7 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategorySortMode;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
@@ -15,7 +16,9 @@ import com.pkoka5.ironmanbankarchitect.organize.BankTag;
 import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import com.pkoka5.ironmanbankarchitect.organize.CategoryIcons;
 import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
+import com.pkoka5.ironmanbankarchitect.organize.GearLayout;
 import com.pkoka5.ironmanbankarchitect.organize.PresetItemSorter;
+import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -40,9 +43,12 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -651,6 +657,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		{
 			layoutRows.add(destinationHeader(destination, tagCounts));
 			layoutRows.add(tagChooser(destination));
+			addLayoutChoices(destination);
 			List<String> keys = layoutPlan.getTagKeys(destination);
 			if (keys.isEmpty())
 			{
@@ -803,6 +810,146 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			}
 		});
 		return box;
+	}
+
+	/**
+	 * The layout choices belonging to one tab, under its heading.
+	 *
+	 * <p>A choice is asked where the player already is. Reaching the client's
+	 * plugin settings to decide how the gear tab should look means leaving the
+	 * list of tabs to go and find a menu that says nothing about tabs, so the
+	 * question is repeated here, beside the tab it shapes. Both places write the
+	 * same setting.</p>
+	 *
+	 * <p>Only the categories actually sitting on this tab are asked about, and
+	 * the three utility categories share one setting, so a tab holding runes and
+	 * teleports still shows a single choice.</p>
+	 *
+	 * <p>The controls go straight into the rows rather than into a panel of
+	 * their own: a panel in this list reads as a tag row, both to the eye and to
+	 * the code that walks it.</p>
+	 */
+	private void addLayoutChoices(int destination)
+	{
+		Set<BankCategorySortMode> modes = new LinkedHashSet<>();
+		for (String key : layoutPlan.getTagKeys(destination))
+		{
+			BankCategory category = bankLayoutModel.preset()
+				.getCategory(BankTags.byKey(key).getCategoryKey());
+			if (category != null)
+			{
+				modes.add(category.getSortMode());
+			}
+		}
+
+		BankLayoutOptions options = bankLayoutModel.options();
+		boolean utilitiesAsked = false;
+		for (BankCategorySortMode mode : modes)
+		{
+			switch (mode)
+			{
+				case GEAR:
+					layoutRows.add(gearLayoutChooser(options));
+					break;
+				case MAIN:
+				case TELEPORTS:
+				case CURRENCY:
+					if (!utilitiesAsked)
+					{
+						utilitiesAsked = true;
+						layoutRows.add(orderChooser(options, BankCategorySortMode.MAIN,
+							"How the runes, teleports and currency read: Grid keeps the curated "
+								+ "shapes, List runs them in reading order."));
+					}
+					break;
+				case TOOLS:
+				case RESOURCES:
+				case CLUES:
+					layoutRows.add(orderChooser(options, mode,
+						"Grid keeps this tab's curated shape; List runs it in reading order, "
+							+ "wrapping like text."));
+					break;
+				default:
+					// Supplies and Herblore ask their question as a checkbox in
+					// the client settings; the tab order is not theirs to choose.
+					break;
+			}
+		}
+	}
+
+	private JComboBox<GearLayout> gearLayoutChooser(BankLayoutOptions options)
+	{
+		JComboBox<GearLayout> chooser = new JComboBox<>(GearLayout.values());
+		chooser.setSelectedItem(options.gearLayout());
+		chooser.setToolTipText("<html>Best in slot: the four-style matrix, your strongest melee, "
+			+ "ranged, magic and prayer options per slot.<br>Sets together: each set as a "
+			+ "column.<br>List: sets as runs, strongest first.</html>");
+		styleChooser(chooser);
+		chooser.addActionListener(event -> {
+			if (!refreshingOptions)
+			{
+				GearLayout chosen = (GearLayout) chooser.getSelectedItem();
+				bankLayoutModel.saveOptions(withGearLayout(bankLayoutModel.options(), chosen));
+			}
+		});
+		return chooser;
+	}
+
+	private JComboBox<TabOrder> orderChooser(BankLayoutOptions options, BankCategorySortMode mode,
+		String tooltip)
+	{
+		JComboBox<TabOrder> chooser = new JComboBox<>(TabOrder.values());
+		chooser.setSelectedItem(options.orderFor(mode));
+		chooser.setToolTipText(tooltip);
+		styleChooser(chooser);
+		chooser.addActionListener(event -> {
+			if (!refreshingOptions)
+			{
+				TabOrder chosen = (TabOrder) chooser.getSelectedItem();
+				bankLayoutModel.saveOptions(withOrder(bankLayoutModel.options(), mode, chosen));
+			}
+		});
+		return chooser;
+	}
+
+	private void styleChooser(JComboBox<?> chooser)
+	{
+		chooser.setFont(FontManager.getRunescapeSmallFont());
+		chooser.setFocusable(false);
+		sizeToSidebar(chooser, 20);
+	}
+
+	private BankLayoutOptions withGearLayout(BankLayoutOptions base, GearLayout gearLayout)
+	{
+		return new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(), base.alchPile(),
+			ordersOf(base), gearLayout, base.potionDoses(), base.runeOrder(), base.teleportOrder());
+	}
+
+	private BankLayoutOptions withOrder(BankLayoutOptions base, BankCategorySortMode mode,
+		TabOrder order)
+	{
+		Map<BankCategorySortMode, TabOrder> orders = ordersOf(base);
+		orders.put(mode, order);
+		if (mode == BankCategorySortMode.MAIN)
+		{
+			// One setting behind three categories: choosing for the main tab
+			// chooses for the teleports and currency that share it.
+			orders.put(BankCategorySortMode.TELEPORTS, order);
+			orders.put(BankCategorySortMode.CURRENCY, order);
+		}
+		return new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(), base.alchPile(),
+			orders, base.gearLayout(), base.potionDoses(), base.runeOrder(), base.teleportOrder());
+	}
+
+	private Map<BankCategorySortMode, TabOrder> ordersOf(BankLayoutOptions base)
+	{
+		Map<BankCategorySortMode, TabOrder> orders =
+			new EnumMap<>(BankCategorySortMode.class);
+		for (BankCategorySortMode mode : BankCategorySortMode.values())
+		{
+			orders.put(mode, base.orderFor(mode));
+		}
+		return orders;
 	}
 
 	private void refreshLayoutOptions()

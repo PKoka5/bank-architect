@@ -429,7 +429,20 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void saveOptions(BankLayoutOptions options)
 			{
+				// The inverse of activeOptions(): the sidebar hands back a whole
+				// options object, and each field goes home to the setting it came
+				// from. The three utility categories share one setting, so MAIN
+				// stands for all of them, and supplies asks its question as a
+				// checkbox rather than an order.
 				config.setAlchPile(options.alchPile());
+				config.setGearLayout(options.gearLayout());
+				config.setUtilitiesLayout(options.orderFor(BankCategorySortMode.MAIN));
+				config.setToolsLayout(options.orderFor(BankCategorySortMode.TOOLS));
+				config.setResourcesLayout(options.orderFor(BankCategorySortMode.RESOURCES));
+				config.setCluesLayout(options.orderFor(BankCategorySortMode.CLUES));
+				config.setKeepDoseRows(
+					options.orderFor(BankCategorySortMode.SUPPLIES) == TabOrder.PACKED);
+				config.setFillHerbloreRows(options.fillHerbloreRows());
 				analyzeBank();
 			}
 		};

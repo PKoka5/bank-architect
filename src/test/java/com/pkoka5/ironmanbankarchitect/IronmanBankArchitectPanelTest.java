@@ -1,5 +1,6 @@
 package com.pkoka5.ironmanbankarchitect;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +19,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import com.pkoka5.ironmanbankarchitect.organize.CategoryOverrideSource;
+import com.pkoka5.ironmanbankarchitect.organize.GearLayout;
 import com.pkoka5.ironmanbankarchitect.organize.GearStatsSource;
 import com.pkoka5.ironmanbankarchitect.organize.ItemValueSource;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
@@ -35,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.AbstractButton;
 import javax.swing.JLabel;
 import javax.swing.Box;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -766,6 +769,53 @@ public class IronmanBankArchitectPanelTest
 
 		assertFalse(model.options().alchPile());
 		panel.shutdown();
+	}
+
+	/**
+	 * The gear tab's layout choice is asked in the tab list, not only in the
+	 * client's settings: a player deciding how the gear tab should look is
+	 * already looking at the tabs.
+	 */
+	@Test
+	public void theGearTabCarriesItsLayoutChoiceBesideIt()
+	{
+		ProfileLayoutModel model = new ProfileLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		panel.getTabOrderButton().doClick();
+
+		JComboBox<?> chooser = findChooserOver(panel, GearLayout.class);
+		assertNotNull("the gear tab should carry a layout choice", chooser);
+		assertEquals(GearLayout.GRID_STYLES, chooser.getSelectedItem());
+
+		chooser.setSelectedItem(GearLayout.GRID_SETS);
+
+		assertEquals(GearLayout.GRID_SETS, model.options().gearLayout());
+		panel.shutdown();
+	}
+
+	/** The first combo box offering the given kind of value, anywhere in the panel. */
+	private static JComboBox<?> findChooserOver(Container container, Class<?> valueType)
+	{
+		for (Component child : container.getComponents())
+		{
+			if (child instanceof JComboBox)
+			{
+				JComboBox<?> chooser = (JComboBox<?>) child;
+				if (chooser.getItemCount() > 0 && valueType.isInstance(chooser.getItemAt(0)))
+				{
+					return chooser;
+				}
+			}
+			if (child instanceof Container)
+			{
+				JComboBox<?> found = findChooserOver((Container) child, valueType);
+				if (found != null)
+				{
+					return found;
+				}
+			}
+		}
+		return null;
 	}
 
 	@Test

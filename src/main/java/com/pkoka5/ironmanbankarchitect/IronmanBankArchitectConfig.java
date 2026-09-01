@@ -258,6 +258,59 @@ public interface IronmanBankArchitectConfig extends Config
 	)
 	void setAlchPile(boolean alchPile);
 
+	// The sidebar offers these beside the tab each one shapes, so it needs to
+	// write them as well as read them. Hidden here: the visible controls are the
+	// ones above, and a second copy in the settings list would only confuse.
+
+	@ConfigItem(
+		keyName = "gearLayout",
+		name = "",
+		description = ""
+	)
+	void setGearLayout(GearLayout gearLayout);
+
+	@ConfigItem(
+		keyName = "utilitiesLayout",
+		name = "",
+		description = ""
+	)
+	void setUtilitiesLayout(TabOrder utilitiesLayout);
+
+	@ConfigItem(
+		keyName = "toolsLayout",
+		name = "",
+		description = ""
+	)
+	void setToolsLayout(TabOrder toolsLayout);
+
+	@ConfigItem(
+		keyName = "resourcesLayout",
+		name = "",
+		description = ""
+	)
+	void setResourcesLayout(TabOrder resourcesLayout);
+
+	@ConfigItem(
+		keyName = "cluesLayout",
+		name = "",
+		description = ""
+	)
+	void setCluesLayout(TabOrder cluesLayout);
+
+	@ConfigItem(
+		keyName = "keepDoseRows",
+		name = "",
+		description = ""
+	)
+	void setKeepDoseRows(boolean keepDoseRows);
+
+	@ConfigItem(
+		keyName = "fillHerbloreRows",
+		name = "",
+		description = ""
+	)
+	void setFillHerbloreRows(boolean fillHerbloreRows);
+
 	@ConfigItem(
 		keyName = "categoryOverlayOpacity",
 		section = guidanceSection,
