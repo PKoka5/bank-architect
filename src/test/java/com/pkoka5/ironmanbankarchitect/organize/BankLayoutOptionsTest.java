@@ -343,9 +343,15 @@ public class BankLayoutOptionsTest
 
 	private static BankOrganizationPreview build(BankSnapshot snapshot, BankLayoutOptions options)
 	{
+		return build(snapshot, options, BankLayoutPlan.defaultFor(BankPresets.IRONMAN));
+	}
+
+	private static BankOrganizationPreview build(BankSnapshot snapshot, BankLayoutOptions options,
+		BankLayoutPlan plan)
+	{
 		return BankOrganizationPreviewBuilder.build(snapshot, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
-			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN), options);
+			CategoryOverrideSource.NONE, plan, options);
 	}
 
 	private static int tagCount(BankOrganizationPreview preview, String tagKey)
@@ -396,6 +402,35 @@ public class BankLayoutOptionsTest
 		// The default keeps the partials on their own tag.
 		List<Integer> grabArea = idsOn(build(bank, BankLayoutOptions.DEFAULTS), suppliesTab);
 		assertEquals(Arrays.asList(12625, 385), grabArea);
+	}
+
+	/**
+	 * The tab name reads in the player's own tag order, and so does the tab: a
+	 * layout listing food before potions puts the food block first. A default
+	 * plan's order is bookkeeping, not a statement, so the sorters' curated
+	 * group orders stand there.
+	 */
+	@Test
+	public void aRearrangedTagOrderBecomesTheTabsGroupOrder()
+	{
+		BankSnapshot bank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(12625, 38, 0),  // Stamina potion(4)
+			new BankItemSnapshot(385, 184, 1),   // Shark
+			new BankItemSnapshot(361, 5, 2)));   // Tuna
+
+		BankLayoutPlan foodFirst = BankLayoutPlan.parse(BankPresets.IRONMAN,
+			BankLayoutShareCode.decode("BAv1~Food first~currency|gear|food+potions"
+				+ "|runes+ammunition|teleports|tools|raw-resources|grimy-herbs"
+				+ "|quest-items|cleanup").get().getPlan());
+
+		List<Integer> laidOut = idsOn(build(bank, BankLayoutOptions.DEFAULTS, foodFirst),
+			foodFirst.destinationOf("food"));
+		assertEquals(Arrays.asList(385, 361, 12625), laidOut);
+
+		// The default plan keeps the curated potions-first convention.
+		List<Integer> curated = idsOn(build(bank, BankLayoutOptions.DEFAULTS),
+			BankLayoutPlan.defaultFor(BankPresets.IRONMAN).destinationOf("potions"));
+		assertEquals(Integer.valueOf(12625), curated.get(0));
 	}
 
 	@Test

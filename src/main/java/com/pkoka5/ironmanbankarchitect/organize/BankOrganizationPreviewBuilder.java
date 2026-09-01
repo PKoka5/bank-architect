@@ -20,6 +20,7 @@ import com.pkoka5.ironmanbankarchitect.organize.layout.RuneSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.SemanticBlockLayoutEngine;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ToolOutfitSemanticRuleSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,6 +46,41 @@ public final class BankOrganizationPreviewBuilder
 
 	private BankOrganizationPreviewBuilder()
 	{
+	}
+
+	/**
+	 * The tag order of this destination when the player has made it their own.
+	 * A default plan's order is bookkeeping, not a statement - the sorters'
+	 * curated group orders stand until the player rearranges the tags, and
+	 * from then on their sequence wins.
+	 */
+	private static List<String> customizedTagOrder(BankPreset preset, BankLayoutPlan plan,
+		int destination)
+	{
+		List<String> tags = plan.getTagKeys(destination);
+		if (tags.size() < 2)
+		{
+			return Collections.emptyList();
+		}
+		List<String> defaultOrder = new ArrayList<>();
+		for (List<String> defaultTags : BankLayoutPlan.defaultFor(preset).getDestinations())
+		{
+			for (String tag : defaultTags)
+			{
+				if (tags.contains(tag))
+				{
+					defaultOrder.add(tag);
+				}
+			}
+		}
+		for (String tag : tags)
+		{
+			if (!defaultOrder.contains(tag))
+			{
+				defaultOrder.add(tag);
+			}
+		}
+		return tags.equals(defaultOrder) ? Collections.emptyList() : tags;
 	}
 
 	private static String normalizedSubcategory(CatalogItem item)
@@ -115,7 +151,8 @@ public final class BankOrganizationPreviewBuilder
 		{
 			for (BankCategory category : preset.getCategories())
 			{
-				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category, herbloreRecipeRows, options));
+				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category,
+					herbloreRecipeRows, options, Collections.emptyList()));
 			}
 		}
 
@@ -219,7 +256,8 @@ public final class BankOrganizationPreviewBuilder
 				preview = previewsByCategory.get(bucketKey);
 				if (preview == null)
 				{
-					preview = new MutableCategoryPreview(category, herbloreRecipeRows, options);
+					preview = new MutableCategoryPreview(category, herbloreRecipeRows, options,
+						customizedTagOrder(preset, plan, destination));
 					previewsByCategory.put(bucketKey, preview);
 				}
 			}
@@ -482,12 +520,67 @@ public final class BankOrganizationPreviewBuilder
 		private final BankLayoutOptions options;
 		private final List<LayoutEntry> entries = new ArrayList<>();
 
+		private final List<String> destinationTags;
+
 		private MutableCategoryPreview(BankCategory category, boolean herbloreRecipeRows,
-			BankLayoutOptions options)
+			BankLayoutOptions options, List<String> destinationTags)
 		{
 			this.category = category;
 			this.herbloreRecipeRows = herbloreRecipeRows;
 			this.options = options;
+			this.destinationTags = destinationTags;
+		}
+
+		/**
+		 * The player's layout lists this tab's tags in an order, and that order
+		 * is theirs: the sorted items regroup by tag, tags in the layout's
+		 * sequence, order within a tag untouched. Bundle layouts that span
+		 * tags by design - Herblore's recipe rows, the gear grid - are exempt.
+		 */
+		private List<BankPreviewItem> honorTagOrder(List<BankPreviewItem> sorted)
+		{
+			if (destinationTags.size() < 2)
+			{
+				return sorted;
+			}
+			List<BankPreviewItem> regrouped = new ArrayList<>(sorted.size());
+			for (String tagKey : destinationTags)
+			{
+				for (BankPreviewItem item : sorted)
+				{
+					if (tagKey.equals(tagKeyOf(item)))
+					{
+						regrouped.add(item);
+					}
+				}
+			}
+			for (BankPreviewItem item : sorted)
+			{
+				if (!destinationTags.contains(tagKeyOf(item)))
+				{
+					regrouped.add(item);
+				}
+			}
+			return regrouped;
+		}
+
+		private String tagKeyOf(BankPreviewItem item)
+		{
+			String subcategory = item.getSubcategory() == null ? ""
+				: item.getSubcategory().trim().toLowerCase();
+			if (options.potionDoses() == PotionDoseOrder.BY_FAMILY
+				&& subcategory.startsWith("potion-dose-") && !subcategory.equals("potion-dose-4"))
+			{
+				return "potions";
+			}
+			try
+			{
+				return BankTags.tagFor(category.getKey(), item.getSubcategory()).getKey();
+			}
+			catch (RuntimeException unknownTag)
+			{
+				return "";
+			}
 		}
 
 		private void add(LayoutEntry entry)
@@ -502,29 +595,29 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return new BankCategoryPreview(category, semanticLayout(
-						IronmanMainItemSorter.sort(items, options.runeOrder()),
+						honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder())),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
 					return new BankCategoryPreview(category, resourceLayout(items));
 				case TELEPORTS:
 					return new BankCategoryPreview(category, semanticLayout(
-						TeleportItemSorter.sort(items), RuneSemanticRuleSet.forEntries(entries),
+						honorTagOrder(TeleportItemSorter.sort(items)), RuneSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.TELEPORTS)));
 				case SUPPLIES:
 					return new BankCategoryPreview(category, semanticLayout(
-						SupplyItemSorter.sort(items,
+						honorTagOrder(SupplyItemSorter.sort(items,
 							com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
-							options.potionDoses()),
+							options.potionDoses())),
 						PotionDoseSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.SUPPLIES)));
 				case TOOLS:
 					return new BankCategoryPreview(category, semanticLayout(
-						ToolItemSorter.sort(items), ToolOutfitSemanticRuleSet.forEntries(entries),
+						honorTagOrder(ToolItemSorter.sort(items)), ToolOutfitSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.TOOLS)));
 				case CURRENCY:
 					return new BankCategoryPreview(category, semanticLayout(
-						CurrencyItemSorter.sort(items), AchievementDiarySemanticRuleSet.forEntries(entries),
+						honorTagOrder(CurrencyItemSorter.sort(items)), AchievementDiarySemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CURRENCY)));
 				case FARMING:
 					return new BankCategoryPreview(category, sequential(BankCategorySortMode.FARMING)
@@ -534,7 +627,7 @@ public final class BankOrganizationPreviewBuilder
 					return new BankCategoryPreview(category, gearLayout(items, gearStats));
 				case CLUES:
 					return new BankCategoryPreview(category, semanticLayout(
-						PresetItemSorter.sort(category, items, gearStats),
+						honorTagOrder(PresetItemSorter.sort(category, items, gearStats)),
 						CosmeticSetSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CLUES)));
 				case HERBLORE:
@@ -543,7 +636,7 @@ public final class BankOrganizationPreviewBuilder
 					return new BankCategoryPreview(category, herbloreRecipeRows
 						? HerbloreItemSorter.layout(items, options.fillHerbloreRows()
 							&& !sequential(BankCategorySortMode.HERBLORE))
-						: HerbloreItemSorter.layoutByKind(items));
+						: honorTagOrder(HerbloreItemSorter.layoutByKind(items)));
 				default:
 					return new BankCategoryPreview(category,
 						PresetItemSorter.sort(category, items, gearStats));
@@ -608,7 +701,7 @@ public final class BankOrganizationPreviewBuilder
 		 */
 		private List<BankPreviewItem> resourceLayout(List<BankPreviewItem> items)
 		{
-			List<BankPreviewItem> sorted = ResourceItemSorter.sort(items);
+			List<BankPreviewItem> sorted = honorTagOrder(ResourceItemSorter.sort(items));
 			List<BankPreviewItem> planned = new ArrayList<>(sorted.size());
 			int start = 0;
 			while (start < sorted.size())
