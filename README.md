@@ -257,7 +257,7 @@ guide names the item and where to drag it back to rather than giving up:
 ## Support
 
 Questions, bug reports, and suggestions go through
-[GitHub Issues](https://github.com/PKoka5/ironman-bank-architect/issues).
+[GitHub Issues](https://github.com/PKoka5/bank-architect/issues).
 Bank Architect is a third-party Plugin Hub plugin; RuneLite itself does not
 provide support for it.
 
