@@ -64,8 +64,7 @@ final class HerbloreItemSorter
 		List<BankPreviewItem> farming = new ArrayList<>();
 		for (BankPreviewItem item : items)
 		{
-			if (item.getItemCategory() == ItemCategory.FARMING
-				&& !"herb-seeds".equals(runKey(item)))
+			if (takesFarmingLayout(item))
 			{
 				farming.add(item);
 			}
@@ -86,6 +85,29 @@ final class HerbloreItemSorter
 		List<BankPreviewItem> laidOut = new ArrayList<>(herblore);
 		laidOut.addAll(FarmingItemSorter.layout(farming, laidOut.size() % GRID_COLUMNS));
 		return laidOut;
+	}
+
+	/**
+	 * Whether {@link #layoutByKind} would place anything by column. It hands
+	 * every farming item other than a herb seed to the farming layout, which
+	 * keeps seed families off row edges by position.
+	 */
+	static boolean layoutByKindPlacesByColumn(List<BankPreviewItem> items)
+	{
+		for (BankPreviewItem item : items)
+		{
+			if (takesFarmingLayout(item))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean takesFarmingLayout(BankPreviewItem item)
+	{
+		return item.getItemCategory() == ItemCategory.FARMING
+			&& !"herb-seeds".equals(runKey(item));
 	}
 
 	private static int runRank(BankPreviewItem item)
