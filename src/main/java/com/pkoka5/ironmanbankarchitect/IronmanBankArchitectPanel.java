@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect;
 
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
+import com.pkoka5.ironmanbankarchitect.organize.BankBlockDescriptor;
 import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
@@ -157,6 +158,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BankOrganizationPreview renderedOrganizationPreview;
 	private BankOrganizationPreview renderedDestinations;
 	private BankOrganizationPreview renderedLayoutPreview;
+	private String arrangeOpenTagKey;
 	private JDialog bankDialog;
 	private JTabbedPane bankTabs;
 	private JButton exportBlueprintButton;
@@ -667,6 +669,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			for (String key : keys)
 			{
 				layoutRows.add(layoutRow(BankTags.byKey(key), destination, tagCounts));
+				if (key.equals(arrangeOpenTagKey))
+				{
+					addArrangeRows(key);
+				}
 			}
 			layoutRows.add(Box.createVerticalStrut(6));
 		}
@@ -715,6 +721,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		JPanel buttons = new JPanel(new GridLayout(1, 0, 1, 0));
 		buttons.setOpaque(false);
+		List<BankBlockDescriptor> blocks = blocksFor(key);
+		buttons.add(layoutButton("≡", blocks.size() >= 2
+				? (key.equals(arrangeOpenTagKey)
+					? "Close the arrange rows"
+					: "Arrange the blocks inside " + tag.getName())
+				: "Nothing to arrange here - the order is curated geometry, or the "
+					+ "tag holds a single block. A Grid layout arranges once "
+					+ "switched to List.",
+			blocks.size() >= 2, event -> toggleArrange(key)));
 		buttons.add(layoutButton("▲", "Move earlier on this tab", position > 0,
 			event -> shiftWithinSelected(key, -1)));
 		buttons.add(layoutButton("▼", "Move later on this tab",
@@ -729,6 +744,95 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		row.add(name, BorderLayout.CENTER);
 		row.add(buttons, BorderLayout.EAST);
 		return row;
+	}
+
+	private List<BankBlockDescriptor> blocksFor(String tagKey)
+	{
+		if (renderedLayoutPreview == null)
+		{
+			return Collections.emptyList();
+		}
+		List<BankBlockDescriptor> blocks = renderedLayoutPreview.getBlockDescriptors().get(tagKey);
+		return blocks == null ? Collections.emptyList() : blocks;
+	}
+
+	private void toggleArrange(String tagKey)
+	{
+		arrangeOpenTagKey = tagKey.equals(arrangeOpenTagKey) ? null : tagKey;
+		renderLayoutEditor();
+	}
+
+	/**
+	 * The blocks of one tag as rows the player can shift, in the order the
+	 * blueprint will lay them out. Every press stores the whole sequence, so a
+	 * single nudge is the same statement a full rearrangement would be.
+	 */
+	private void addArrangeRows(String tagKey)
+	{
+		List<BankBlockDescriptor> blocks = blocksFor(tagKey);
+		for (int index = 0; index < blocks.size(); index++)
+		{
+			layoutRows.add(blockRow(tagKey, blocks, index));
+		}
+
+		JPanel reset = new JPanel(new BorderLayout());
+		reset.setOpaque(false);
+		reset.setBorder(BorderFactory.createEmptyBorder(2, 16, 2, 2));
+		JButton resetButton = new JButton("Reset to curated order");
+		resetButton.setFont(FontManager.getRunescapeSmallFont());
+		resetButton.setToolTipText(
+			"Forget this tag's saved order; the curated order stands again");
+		resetButton.addActionListener(event ->
+			bankLayoutModel.saveBlockOrder(tagKey, Collections.emptyList()));
+		reset.add(resetButton, BorderLayout.WEST);
+		sizeToSidebar(reset, 26);
+		layoutRows.add(reset);
+	}
+
+	private JPanel blockRow(String tagKey, List<BankBlockDescriptor> blocks, int index)
+	{
+		BankBlockDescriptor block = blocks.get(index);
+		JPanel row = new JPanel(new BorderLayout(4, 0));
+		row.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		row.setBorder(BorderFactory.createEmptyBorder(1, 16, 1, 0));
+		sizeToSidebar(row, 24);
+
+		String countNote = block.getMemberCount() > 1
+			? " <font color='#9a9a9a'>(" + block.getMemberCount() + ")</font>" : "";
+		JLabel name = new JLabel("<html><body width='" + LAYOUT_NAME_WIDTH + "'>"
+			+ block.getDisplayName() + countNote + "</body></html>");
+		name.setFont(FontManager.getRunescapeSmallFont());
+		name.setForeground(Color.WHITE);
+		name.setToolTipText(block.getDisplayName());
+
+		JPanel buttons = new JPanel(new GridLayout(1, 0, 1, 0));
+		buttons.setOpaque(false);
+		buttons.add(layoutButton("⤒", "Send this block to the top", index > 0,
+			event -> moveBlock(tagKey, index, 0)));
+		buttons.add(layoutButton("▲", "Move this block earlier", index > 0,
+			event -> moveBlock(tagKey, index, index - 1)));
+		buttons.add(layoutButton("▼", "Move this block later", index < blocks.size() - 1,
+			event -> moveBlock(tagKey, index, index + 1)));
+
+		row.add(name, BorderLayout.CENTER);
+		row.add(buttons, BorderLayout.EAST);
+		return row;
+	}
+
+	private void moveBlock(String tagKey, int from, int to)
+	{
+		List<BankBlockDescriptor> blocks = blocksFor(tagKey);
+		List<String> keys = new ArrayList<>();
+		for (BankBlockDescriptor block : blocks)
+		{
+			keys.add(block.getBlockKey());
+		}
+		if (from < 0 || from >= keys.size() || to < 0 || to >= keys.size())
+		{
+			return;
+		}
+		keys.add(to, keys.remove(from));
+		bankLayoutModel.saveBlockOrder(tagKey, keys);
 	}
 
 	/**

@@ -703,8 +703,8 @@ public class IronmanBankArchitectPanelTest
 			rows++;
 			List<AbstractButton> buttons = new ArrayList<>();
 			collectButtons((Container) child, buttons);
-			assertEquals("row " + rows + " is missing controls", 3, buttons.size());
-			if (buttons.get(2).isEnabled())
+			assertEquals("row " + rows + " is missing controls", 4, buttons.size());
+			if (buttons.get(3).isEnabled())
 			{
 				enabledRemovals++;
 			}
