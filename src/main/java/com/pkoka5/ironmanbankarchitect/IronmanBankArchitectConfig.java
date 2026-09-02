@@ -23,51 +23,58 @@ public interface IronmanBankArchitectConfig extends Config
 	String guidanceSection = "Guidance";
 
 	@ConfigSection(
+		name = "Frequently used",
+		description = "The quick-access items gathered from across the whole bank.",
+		position = 1
+	)
+	String frequentlyUsedSection = "Frequently used";
+
+	@ConfigSection(
 		name = "Combat gear",
 		description = "How the combat gear tab is arranged and curated.",
-		position = 1
+		position = 2
 	)
 	String gearSection = "Combat gear";
 
 	@ConfigSection(
 		name = "Food & potions",
 		description = "How the supplies tab is arranged.",
-		position = 2
+		position = 3
 	)
 	String suppliesSection = "Food & potions";
 
 	@ConfigSection(
 		name = "Herblore",
 		description = "How the Herblore tab's recipe rows are arranged.",
-		position = 3
+		position = 4
 	)
 	String herbloreSection = "Herblore";
 
 	@ConfigSection(
 		name = "Runes, teleports & currency",
 		description = "How the utility tabs are arranged.",
-		position = 4
+		position = 5
 	)
 	String utilitiesSection = "Runes, teleports & currency";
 
 	@ConfigSection(
 		name = "Tools",
 		description = "How the skilling tools tab is arranged.",
-		position = 5
+		position = 6
 	)
 	String toolsSection = "Tools";
 
 	@ConfigSection(
 		name = "Resources",
 		description = "How the resources tab is arranged.",
-		position = 6
+		position = 7
 	)
 	String resourcesSection = "Resources";
 
 	@ConfigSection(
 		name = "Clues & cosmetics",
 		description = "How the clues and cosmetics tab is arranged.",
-		position = 7
+		position = 8
 	)
 	String cluesSection = "Clues & cosmetics";
 
@@ -249,6 +256,18 @@ public interface IronmanBankArchitectConfig extends Config
 	default TeleportOrder teleportOrder()
 	{
 		return TeleportOrder.ALPHABETICAL;
+	}
+
+	@ConfigItem(
+		keyName = "gatherFrequentlyUsed",
+		section = frequentlyUsedSection,
+		position = 0,
+		name = "Gather frequently used items",
+		description = "Hoist recurring items from across the whole bank - your best axe and pickaxe, a hammer, graceful, rune pouches, diary rewards and the staple utilities - onto the Frequently Used tag for quick access. Turn this off to keep every item filed with its own category."
+	)
+	default boolean gatherFrequentlyUsed()
+	{
+		return true;
 	}
 
 	@ConfigItem(

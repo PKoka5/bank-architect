@@ -32,10 +32,20 @@ public final class PresetCategoryMapper
 
 	public static BankCategory map(BankPreset preset, CatalogItem item)
 	{
+		return map(preset, item, true);
+	}
+
+	/**
+	 * Maps with the player's choice about the Frequently Used gathering: when
+	 * off, nothing is hoisted to the quick-access main tab and every item
+	 * files with its own category.
+	 */
+	public static BankCategory map(BankPreset preset, CatalogItem item, boolean gatherFrequentlyUsed)
+	{
 		switch (preset.getType())
 		{
 			case IRONMAN:
-				return mapIronman(preset, item);
+				return mapIronman(preset, item, gatherFrequentlyUsed);
 			case MAIN:
 				return mapMain(preset, item);
 			case PVM:
@@ -49,7 +59,8 @@ public final class PresetCategoryMapper
 		}
 	}
 
-	private static BankCategory mapIronman(BankPreset preset, CatalogItem item)
+	private static BankCategory mapIronman(BankPreset preset, CatalogItem item,
+		boolean gatherFrequentlyUsed)
 	{
 		ItemCategory category = item.getCategory();
 		if (IRONMAN_RESOURCE_IDS.contains(item.getItemId()))
@@ -74,7 +85,7 @@ public final class PresetCategoryMapper
 		{
 			return preset.getCategory("clues-cosmetics");
 		}
-		if (IronmanMainTabPolicy.belongsOnMain(item))
+		if (gatherFrequentlyUsed && IronmanMainTabPolicy.belongsOnMain(item))
 		{
 			return preset.getCategory("currency-utilities");
 		}

@@ -157,7 +157,8 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		Map<String, List<OwnedGear>> ownedGearByKey = new LinkedHashMap<>();
-		java.util.Set<Integer> quickToolIds = IronmanQuickToolSelector.select(snapshot);
+		java.util.Set<Integer> quickToolIds = options.gatherFrequentlyUsed()
+			? IronmanQuickToolSelector.select(snapshot) : Collections.emptySet();
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
 			if (bankItem.isPlaceholder())
@@ -184,7 +185,8 @@ public final class BankOrganizationPreviewBuilder
 		{
 			CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
 				bankItem.getItemId(), gearStats);
-			BankCategory category = PresetCategoryMapper.map(preset, catalogItem);
+			BankCategory category = PresetCategoryMapper.map(preset, catalogItem,
+				options.gatherFrequentlyUsed());
 			if (preset.getType() == BankPresetType.IRONMAN
 				&& quickToolIds.contains(catalogItem.getItemId()))
 			{

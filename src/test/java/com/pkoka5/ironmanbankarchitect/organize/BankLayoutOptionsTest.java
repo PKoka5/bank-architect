@@ -144,6 +144,28 @@ public class BankLayoutOptionsTest
 			"Prayer potion(1)", "Super restore(4)", "Super restore(3)"), names);
 	}
 
+	/**
+	 * The quick-access gathering is a taste, not a fact: off, the best owned
+	 * axe stays a tool and nothing is hoisted onto the Frequently Used tag.
+	 */
+	@Test
+	public void turningGatheringOffKeepsQuickToolsWithTheirCategories()
+	{
+		BankSnapshot toolBank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(1355, 1, 0),   // Mithril axe - the best owned axe
+			new BankItemSnapshot(2347, 1, 1),   // Hammer
+			new BankItemSnapshot(1265, 1, 2))); // Bronze pickaxe
+		BankLayoutOptions gatheringOff = new BankLayoutOptions(true, true, true,
+			new EnumMap<>(BankCategorySortMode.class), GearLayout.GRID_STYLES,
+			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL,
+			false);
+
+		assertTrue(BankLayoutOptions.DEFAULTS.gatherFrequentlyUsed());
+		assertTrue(tagCount(build(toolBank, BankLayoutOptions.DEFAULTS), "frequently-used") > 0);
+		assertEquals(0, tagCount(build(toolBank, gatheringOff), "frequently-used"));
+		assertEquals(3, tagCount(build(toolBank, gatheringOff), "tools"));
+	}
+
 	@Test
 	public void orderingDefaultsToPacked()
 	{
