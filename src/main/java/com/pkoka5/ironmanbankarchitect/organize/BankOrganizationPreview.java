@@ -12,6 +12,7 @@ public final class BankOrganizationPreview
 	private final BankPreset preset;
 	private final List<BankCategoryPreview> categories;
 	private final Map<String, Integer> tagCounts;
+	private final Map<String, List<BankBlockDescriptor>> blockDescriptors;
 
 	public BankOrganizationPreview(BankPreset preset, List<BankCategoryPreview> categories)
 	{
@@ -21,10 +22,29 @@ public final class BankOrganizationPreview
 	public BankOrganizationPreview(BankPreset preset, List<BankCategoryPreview> categories,
 		Map<String, Integer> tagCounts)
 	{
+		this(preset, categories, tagCounts,
+			Collections.<String, List<BankBlockDescriptor>>emptyMap());
+	}
+
+	public BankOrganizationPreview(BankPreset preset, List<BankCategoryPreview> categories,
+		Map<String, Integer> tagCounts, Map<String, List<BankBlockDescriptor>> blockDescriptors)
+	{
 		this.preset = Objects.requireNonNull(preset, "preset");
 		this.categories = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(categories, "categories")));
 		this.tagCounts = Collections.unmodifiableMap(
 			new LinkedHashMap<>(Objects.requireNonNull(tagCounts, "tagCounts")));
+		this.blockDescriptors = Collections.unmodifiableMap(
+			new LinkedHashMap<>(Objects.requireNonNull(blockDescriptors, "blockDescriptors")));
+	}
+
+	/**
+	 * Each tag's arrangeable blocks in their effective order, for the arrange
+	 * editor. A tag with no entry is not arrangeable in the current layout -
+	 * its shape is curated geometry, or its category has no block seam.
+	 */
+	public Map<String, List<BankBlockDescriptor>> getBlockDescriptors()
+	{
+		return blockDescriptors;
 	}
 
 	public BankPreset getPreset()

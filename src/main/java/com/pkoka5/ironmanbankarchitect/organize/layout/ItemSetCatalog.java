@@ -25,6 +25,7 @@ public final class ItemSetCatalog
 	private static final Map<Integer, String> DOMAIN_BY_ITEM_ID = indexDomains();
 	private static final Map<Integer, String> COSMETIC_FAMILY_BY_ITEM_ID = indexCosmeticFamilies();
 	private static final Map<Integer, Integer> COSMETIC_FAMILY_RANK_BY_ITEM_ID = indexCosmeticFamilyRanks();
+	private static final Map<Integer, SetDefinition> SET_BY_ITEM_ID = indexSets();
 
 	private ItemSetCatalog()
 	{
@@ -49,6 +50,36 @@ public final class ItemSetCatalog
 	{
 		Integer rank = COSMETIC_FAMILY_RANK_BY_ITEM_ID.get(itemId);
 		return rank == null ? Integer.MAX_VALUE : rank;
+	}
+
+	/** The catalogued set key the item belongs to, across every domain. */
+	public static Optional<String> setKeyOf(int itemId)
+	{
+		SetDefinition definition = SET_BY_ITEM_ID.get(itemId);
+		return definition == null ? Optional.empty() : Optional.of(definition.key);
+	}
+
+	/** The catalogued set's display name for the item, across every domain. */
+	public static Optional<String> setNameOf(int itemId)
+	{
+		SetDefinition definition = SET_BY_ITEM_ID.get(itemId);
+		return definition == null ? Optional.empty() : Optional.of(definition.name);
+	}
+
+	private static Map<Integer, SetDefinition> indexSets()
+	{
+		Map<Integer, SetDefinition> byId = new LinkedHashMap<>();
+		for (List<SetDefinition> domain : SETS_BY_DOMAIN.values())
+		{
+			for (SetDefinition definition : domain)
+			{
+				for (Integer itemId : definition.itemIds)
+				{
+					byId.put(itemId, definition);
+				}
+			}
+		}
+		return Collections.unmodifiableMap(byId);
 	}
 
 	private static Map<Integer, String> indexCosmeticFamilies()

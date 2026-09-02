@@ -270,8 +270,14 @@ public final class BankOrganizationPreviewBuilder
 
 		if (plan != null)
 		{
-			return new BankOrganizationPreview(preset,
-				destinationPreviews(plan, previewsByCategory, gearStats), tagCounts);
+			List<BankCategoryPreview> destinations =
+				destinationPreviews(plan, previewsByCategory, gearStats);
+			Map<String, List<BankBlockDescriptor>> blockDescriptors = new LinkedHashMap<>();
+			for (MutableCategoryPreview mutable : previewsByCategory.values())
+			{
+				blockDescriptors.putAll(mutable.getBlockDescriptors());
+			}
+			return new BankOrganizationPreview(preset, destinations, tagCounts, blockDescriptors);
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -600,6 +606,7 @@ public final class BankOrganizationPreviewBuilder
 		private final boolean herbloreRecipeRows;
 		private final BankLayoutOptions options;
 		private final List<LayoutEntry> entries = new ArrayList<>();
+		private final Map<String, List<BankBlockDescriptor>> blockDescriptors = new LinkedHashMap<>();
 
 		private final List<String> destinationTags;
 		private boolean plainRun;
@@ -665,6 +672,168 @@ public final class BankOrganizationPreviewBuilder
 			return regrouped;
 		}
 
+		/**
+		 * The player's saved block order for a tag, applied at the sorter
+		 * stage: their blocks lead in their sequence, and an unarranged block
+		 * slots in after its nearest curated-order predecessor among them,
+		 * joining the tail only when none precedes it. A pure permutation of
+		 * the input; with nothing saved it IS the input, byte for byte.
+		 */
+		private List<BankPreviewItem> honorBlockOrder(List<BankPreviewItem> sorted)
+		{
+			Map<String, List<String>> arrangements = options.blockArrangements().orders();
+			if (arrangements.isEmpty())
+			{
+				return sorted;
+			}
+
+			Map<String, Map<String, List<BankPreviewItem>>> blocksByTag = new LinkedHashMap<>();
+			for (BankPreviewItem item : sorted)
+			{
+				blocksByTag.computeIfAbsent(tagKeyOf(item), ignored -> new LinkedHashMap<>())
+					.computeIfAbsent(BlockKeys.blockKeyOf(item), ignored -> new ArrayList<>())
+					.add(item);
+			}
+
+			Map<String, List<String>> sequenceByTag = new LinkedHashMap<>();
+			for (Map.Entry<String, Map<String, List<BankPreviewItem>>> tag : blocksByTag.entrySet())
+			{
+				List<String> saved = arrangements.get(tag.getKey());
+				if (saved != null)
+				{
+					sequenceByTag.put(tag.getKey(),
+						blockSequence(saved, new ArrayList<>(tag.getValue().keySet())));
+				}
+			}
+			if (sequenceByTag.isEmpty())
+			{
+				return sorted;
+			}
+
+			// Each arranged tag's items are emitted as one run where the tag
+			// first appears, so a regrouped tag stays contiguous and a
+			// scattered one collects where it began.
+			List<BankPreviewItem> result = new ArrayList<>(sorted.size());
+			Set<String> emitted = new LinkedHashSet<>();
+			for (BankPreviewItem item : sorted)
+			{
+				String tagKey = tagKeyOf(item);
+				List<String> sequence = sequenceByTag.get(tagKey);
+				if (sequence == null)
+				{
+					result.add(item);
+				}
+				else if (emitted.add(tagKey))
+				{
+					for (String blockKey : sequence)
+					{
+						result.addAll(blocksByTag.get(tagKey).get(blockKey));
+					}
+				}
+			}
+			return result;
+		}
+
+		/**
+		 * Merges the saved order with the blocks actually present. A saved key
+		 * matching nothing resolves through its representative item to the
+		 * block now containing it - the arrangement survives an item joining
+		 * a catalogued family - and is otherwise skipped but kept stored.
+		 */
+		private List<String> blockSequence(List<String> saved, List<String> curated)
+		{
+			List<String> arranged = new ArrayList<>();
+			for (String key : saved)
+			{
+				String resolved = curated.contains(key) ? key : successorOf(key, curated);
+				if (resolved != null && !arranged.contains(resolved))
+				{
+					arranged.add(resolved);
+				}
+			}
+			if (arranged.isEmpty())
+			{
+				return curated;
+			}
+
+			List<String> sequence = new ArrayList<>(arranged);
+			for (String key : curated)
+			{
+				if (sequence.contains(key))
+				{
+					continue;
+				}
+				int anchor = -1;
+				for (int i = curated.indexOf(key) - 1; i >= 0 && anchor < 0; i--)
+				{
+					anchor = sequence.indexOf(curated.get(i));
+				}
+				if (anchor < 0)
+				{
+					sequence.add(key);
+				}
+				else
+				{
+					sequence.add(anchor + 1, key);
+				}
+			}
+			return sequence;
+		}
+
+		private String successorOf(String savedKey, List<String> curated)
+		{
+			if (!savedKey.startsWith("item:"))
+			{
+				return null;
+			}
+			int itemId;
+			try
+			{
+				itemId = Integer.parseInt(savedKey.substring("item:".length()));
+			}
+			catch (NumberFormatException malformed)
+			{
+				return null;
+			}
+			for (LayoutEntry entry : entries)
+			{
+				if (entry.getItem().getItemId() == itemId)
+				{
+					String current = BlockKeys.blockKeyOf(entry.getItem());
+					return curated.contains(current) ? current : null;
+				}
+			}
+			return null;
+		}
+
+		/** Publishes the tag's blocks, in effective order, for the arrange editor. */
+		private List<BankPreviewItem> recordBlocks(List<BankPreviewItem> ordered)
+		{
+			blockDescriptors.clear();
+			Map<String, Map<String, BankBlockDescriptor>> collected = new LinkedHashMap<>();
+			for (BankPreviewItem item : ordered)
+			{
+				String tagKey = tagKeyOf(item);
+				String blockKey = BlockKeys.blockKeyOf(item);
+				Map<String, BankBlockDescriptor> tagBlocks =
+					collected.computeIfAbsent(tagKey, ignored -> new LinkedHashMap<>());
+				BankBlockDescriptor existing = tagBlocks.get(blockKey);
+				tagBlocks.put(blockKey, new BankBlockDescriptor(tagKey, blockKey,
+					existing == null ? BlockKeys.blockNameOf(item) : existing.getDisplayName(),
+					existing == null ? 1 : existing.getMemberCount() + 1));
+			}
+			for (Map.Entry<String, Map<String, BankBlockDescriptor>> tag : collected.entrySet())
+			{
+				blockDescriptors.put(tag.getKey(), new ArrayList<>(tag.getValue().values()));
+			}
+			return ordered;
+		}
+
+		Map<String, List<BankBlockDescriptor>> getBlockDescriptors()
+		{
+			return blockDescriptors;
+		}
+
 		private String tagKeyOf(BankPreviewItem item)
 		{
 			String subcategory = item.getSubcategory() == null ? ""
@@ -697,29 +866,29 @@ public final class BankOrganizationPreviewBuilder
 				{
 				case MAIN:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())),
+						recordBlocks(honorBlockOrder(honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())))),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
 					return BankCategoryPreview.fromLogicalItems(category, resourceLayout(items));
 				case TELEPORTS:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(TeleportItemSorter.sort(items)), RuneSemanticRuleSet.forEntries(entries),
+						recordBlocks(honorBlockOrder(honorTagOrder(TeleportItemSorter.sort(items)))), RuneSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.TELEPORTS)));
 				case SUPPLIES:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(SupplyItemSorter.sort(items,
+						recordBlocks(honorBlockOrder(honorTagOrder(SupplyItemSorter.sort(items,
 							com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
-							options.potionDoses())),
+							options.potionDoses())))),
 						PotionDoseSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.SUPPLIES)));
 				case TOOLS:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(ToolItemSorter.sort(items)), ToolOutfitSemanticRuleSet.forEntries(entries),
+						recordBlocks(honorBlockOrder(honorTagOrder(ToolItemSorter.sort(items)))), ToolOutfitSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.TOOLS)));
 				case CURRENCY:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(CurrencyItemSorter.sort(items)), AchievementDiarySemanticRuleSet.forEntries(entries),
+						recordBlocks(honorBlockOrder(honorTagOrder(CurrencyItemSorter.sort(items)))), AchievementDiarySemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CURRENCY)));
 				case FARMING:
 					plainRun = sequential(BankCategorySortMode.FARMING);
@@ -730,7 +899,7 @@ public final class BankOrganizationPreviewBuilder
 					return BankCategoryPreview.fromLogicalItems(category, gearLayout(items, gearStats));
 				case CLUES:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						honorTagOrder(PresetItemSorter.sort(category, items, gearStats)),
+						recordBlocks(honorBlockOrder(honorTagOrder(PresetItemSorter.sort(category, items, gearStats)))),
 						CosmeticSetSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CLUES)));
 				case HERBLORE:
@@ -743,7 +912,7 @@ public final class BankOrganizationPreviewBuilder
 					}
 					plainRun = !HerbloreItemSorter.layoutByKindPlacesByColumn(items);
 					return BankCategoryPreview.fromLogicalItems(category,
-						honorTagOrder(HerbloreItemSorter.layoutByKind(items)));
+						recordBlocks(honorBlockOrder(honorTagOrder(HerbloreItemSorter.layoutByKind(items)))));
 				default:
 					plainRun = true;
 					return BankCategoryPreview.fromLogicalItems(category,
@@ -768,7 +937,7 @@ public final class BankOrganizationPreviewBuilder
 				// Each set reads as one run, strongest first, loose gear
 				// flowing after like text.
 				plainRun = true;
-				return new ArrayList<>(GearItemSorter.bySet(items, gearStats));
+				return new ArrayList<>(recordBlocks(honorBlockOrder(GearItemSorter.bySet(items, gearStats))));
 			}
 			if (options.gearLayout() == GearLayout.GRID_SETS || !options.fillGearRows())
 			{
