@@ -112,10 +112,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final Color DESTINATION_EMPTY_BG = new Color(26, 26, 26);
 	// PluginPanel is ~225px wide; leave room for panel padding, card padding
 	// and the scrollbar so wrapped text never clips at the right edge.
-	private static final int SIDEBAR_TEXT_WIDTH = 160;
+	private static final int SIDEBAR_TEXT_WIDTH = 200;
 	// The layout editor sits inside the same 225px panel, so its rows are pinned
 	// to one width; anything wider pushes the whole column off the right edge.
-	private static final int SIDEBAR_CONTENT_WIDTH = 186;
+	private static final int SIDEBAR_CONTENT_WIDTH = 204;
 	private static final int LAYOUT_NAME_WIDTH = 110;
 	/** Shown in the profile list while the working layout matches no saved one. */
 	private static final String UNSAVED_PROFILE = "Custom (unsaved)";
@@ -702,7 +702,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		row.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createMatteBorder(0, 3, 0, 0,
 				CategoryPalette.colorForCategory(tag.getCategoryKey(), destination)),
-			BorderFactory.createEmptyBorder(2, 4, 2, 2)));
+			BorderFactory.createEmptyBorder(2, 4, 2, 0)));
 		sizeToSidebar(row, 40);
 
 		int itemCount = tagCounts.getOrDefault(key, 0);
@@ -739,10 +739,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 */
 	private void sizeToSidebar(JComponent component, int height)
 	{
-		Dimension size = new Dimension(SIDEBAR_CONTENT_WIDTH, height);
-		component.setPreferredSize(size);
-		component.setMaximumSize(size);
-		component.setMinimumSize(size);
+		// Preferred width is a baseline; the maximum is left open so the
+		// vertical BoxLayout stretches every row to the sidebar's true width
+		// on any platform, instead of leaving a dead strip beside a guess.
+		component.setPreferredSize(new Dimension(SIDEBAR_CONTENT_WIDTH, height));
+		component.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+		component.setMinimumSize(new Dimension(SIDEBAR_CONTENT_WIDTH, height));
 		component.setAlignmentX(LEFT_ALIGNMENT);
 	}
 
