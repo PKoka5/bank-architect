@@ -497,6 +497,22 @@ public class PresetCategoryMapperTest
 			item(ItemCategory.UNIQUE, "Crystal weapon seed")).getKey());
 	}
 
+	/**
+	 * Gathering frequently used items is the player's call: with it off, the
+	 * quick-access policy never fires and an item files with its category.
+	 */
+	@Test
+	public void gatheringOffLeavesFrequentlyUsedItemsWithTheirCategories()
+	{
+		CatalogItem gracefulHood = item(11850, ItemCategory.CLEANUP, "Graceful hood");
+
+		assertEquals("currency-utilities",
+			PresetCategoryMapper.map(BankPresets.IRONMAN, gracefulHood).getKey());
+		// Not hoisted, graceful is what it always was: a skilling outfit.
+		assertEquals("skilling-tools",
+			PresetCategoryMapper.map(BankPresets.IRONMAN, gracefulHood, false).getKey());
+	}
+
 	private static CatalogItem item(ItemCategory category, String name)
 	{
 		return new CatalogItem(1, name, category, "test", Collections.emptySet(), null);

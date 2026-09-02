@@ -32,6 +32,7 @@ public final class BankLayoutOptions
 	private final PotionDoseOrder potionDoses;
 	private final RuneOrder runeOrder;
 	private final TeleportOrder teleportOrder;
+	private final boolean gatherFrequentlyUsed;
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
 	{
@@ -49,6 +50,16 @@ public final class BankLayoutOptions
 		Map<BankCategorySortMode, TabOrder> tabOrders, GearLayout gearLayout,
 		PotionDoseOrder potionDoses, RuneOrder runeOrder, TeleportOrder teleportOrder)
 	{
+		this(fillGearRows, fillHerbloreRows, alchPile, tabOrders, gearLayout,
+			potionDoses, runeOrder, teleportOrder, true);
+	}
+
+	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile,
+		Map<BankCategorySortMode, TabOrder> tabOrders, GearLayout gearLayout,
+		PotionDoseOrder potionDoses, RuneOrder runeOrder, TeleportOrder teleportOrder,
+		boolean gatherFrequentlyUsed)
+	{
+		this.gatherFrequentlyUsed = gatherFrequentlyUsed;
 		this.fillGearRows = fillGearRows;
 		this.fillHerbloreRows = fillHerbloreRows;
 		this.alchPile = alchPile;
@@ -114,6 +125,18 @@ public final class BankLayoutOptions
 	public GearLayout gearLayout()
 	{
 		return gearLayout;
+	}
+
+	/**
+	 * Whether recurring items - the best owned axe and pickaxe, a hammer,
+	 * graceful, rune pouches, diary rewards and the staple utilities - are
+	 * gathered onto the Frequently Used tag instead of filing with their own
+	 * categories. On by default; off, nothing is hoisted and every tool and
+	 * teleport stays where its category puts it.
+	 */
+	public boolean gatherFrequentlyUsed()
+	{
+		return gatherFrequentlyUsed;
 	}
 
 	/** Where part doses sit on the supplies tab. */
