@@ -20,8 +20,9 @@ import com.pkoka5.ironmanbankarchitect.organize.layout.RuneSemanticRuleSet;
 import com.pkoka5.ironmanbankarchitect.organize.layout.SemanticBlockLayoutEngine;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ToolOutfitSemanticRuleSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -307,16 +308,20 @@ public final class BankOrganizationPreviewBuilder
 
 	/**
 	 * One destination, built from its tags in the order the player arranged them.
-	 * Tags of the same category share a bucket, so the first of them decides
-	 * where that category's block sits on the tab.
+	 * Tags of the same category share a bucket, and by default the first of
+	 * them decides where that category's whole block sits on the tab. Once the
+	 * player has rearranged the tab's tags, the blocks are woven instead: each
+	 * tag's items are drawn from its category's bucket in turn, so the tab
+	 * reads in the tag order even where that order alternates between
+	 * categories.
 	 */
 	private static BankCategoryPreview destinationPreview(BankLayoutPlan plan,
 		Map<String, MutableCategoryPreview> buckets, int destination, GearStatsSource gearStats)
 	{
-		List<BankPreviewItem> items = new ArrayList<>();
 		List<String> names = new ArrayList<>();
-		Set<String> usedCategories = new LinkedHashSet<>();
-		String firstCategoryKey = null;
+		List<BankTag> tags = new ArrayList<>();
+		Map<String, MutableCategoryPreview> bucketsByCategory = new LinkedHashMap<>();
+		Map<String, List<BankPreviewItem>> blocks = new LinkedHashMap<>();
 
 		for (String tagKey : plan.getTagKeys(destination))
 		{
@@ -326,26 +331,100 @@ public final class BankOrganizationPreviewBuilder
 				continue;
 			}
 			names.add(tag.getName());
-			if (firstCategoryKey == null)
+			tags.add(tag);
+			String categoryKey = tag.getCategoryKey();
+			MutableCategoryPreview bucket = buckets.get(destination + "|" + categoryKey);
+			if (bucket != null && !blocks.containsKey(categoryKey))
 			{
-				firstCategoryKey = tag.getCategoryKey();
-			}
-			if (!usedCategories.add(tag.getCategoryKey()))
-			{
-				continue;
-			}
-			MutableCategoryPreview bucket = buckets.get(destination + "|" + tag.getCategoryKey());
-			if (bucket != null)
-			{
-				items.addAll(bucket.toImmutable(gearStats).getItems());
+				bucketsByCategory.put(categoryKey, bucket);
+				blocks.put(categoryKey, bucket.toImmutable(gearStats).getItems());
 			}
 		}
 
+		List<BankPreviewItem> items = weavesByTag(bucketsByCategory.values())
+			? weave(tags, bucketsByCategory, blocks)
+			: stack(blocks.values());
+
+		String firstCategoryKey = tags.isEmpty() ? null : tags.get(0).getCategoryKey();
 		String key = firstCategoryKey == null ? "empty-" + destination : firstCategoryKey;
 		String name = names.isEmpty() ? "Empty" : String.join(" + ", names);
 		BankCategorySortMode sortMode = firstCategoryKey == null
 			? BankCategorySortMode.GENERIC : new BankCategory(firstCategoryKey, name).getSortMode();
 		return new BankCategoryPreview(new BankCategory(key, name, sortMode), items);
+	}
+
+	/**
+	 * Whether a tab's category blocks are woven by tag rather than stacked.
+	 * Only a tab the player has rearranged qualifies, only when it holds more
+	 * than one category - a single block reads the same either way - and only
+	 * while every block on it is a plain run. A block placed by column, like
+	 * the gear grid or the farming families, keeps its shape by staying whole.
+	 */
+	private static boolean weavesByTag(Collection<MutableCategoryPreview> buckets)
+	{
+		if (buckets.size() < 2)
+		{
+			return false;
+		}
+		for (MutableCategoryPreview bucket : buckets)
+		{
+			if (!bucket.arrangedByPlayer() || !bucket.isPlainRun())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/** The blocks one after another, each whole, in the order they were met. */
+	private static List<BankPreviewItem> stack(Collection<List<BankPreviewItem>> blocks)
+	{
+		List<BankPreviewItem> items = new ArrayList<>();
+		for (List<BankPreviewItem> block : blocks)
+		{
+			items.addAll(block);
+		}
+		return items;
+	}
+
+	/**
+	 * The blocks woven in tag order: each tag draws its own items out of its
+	 * category's laid-out block, keeping their order within the tag. Anything
+	 * a block holds under no listed tag follows at the end, block by block, so
+	 * no item is dropped.
+	 */
+	private static List<BankPreviewItem> weave(List<BankTag> tags,
+		Map<String, MutableCategoryPreview> bucketsByCategory, Map<String, List<BankPreviewItem>> blocks)
+	{
+		List<BankPreviewItem> woven = new ArrayList<>();
+		Set<BankPreviewItem> placed = Collections.newSetFromMap(new IdentityHashMap<>());
+		for (BankTag tag : tags)
+		{
+			MutableCategoryPreview bucket = bucketsByCategory.get(tag.getCategoryKey());
+			if (bucket == null)
+			{
+				continue;
+			}
+			for (BankPreviewItem item : blocks.get(tag.getCategoryKey()))
+			{
+				if (!placed.contains(item) && tag.getKey().equals(bucket.tagKeyOf(item)))
+				{
+					placed.add(item);
+					woven.add(item);
+				}
+			}
+		}
+		for (List<BankPreviewItem> block : blocks.values())
+		{
+			for (BankPreviewItem item : block)
+			{
+				if (placed.add(item))
+				{
+					woven.add(item);
+				}
+			}
+		}
+		return woven;
 	}
 
 	/**
@@ -523,6 +602,7 @@ public final class BankOrganizationPreviewBuilder
 		private final List<LayoutEntry> entries = new ArrayList<>();
 
 		private final List<String> destinationTags;
+		private boolean plainRun;
 
 		private MutableCategoryPreview(BankCategory category, boolean herbloreRecipeRows,
 			BankLayoutOptions options, List<String> destinationTags)
@@ -539,6 +619,25 @@ public final class BankOrganizationPreviewBuilder
 		 * sequence, order within a tag untouched. Bundle layouts that span
 		 * tags by design - Herblore's recipe rows, the gear grid - are exempt.
 		 */
+		/** Whether the player has rearranged the tags of this bucket's tab. */
+		private boolean arrangedByPlayer()
+		{
+			return !destinationTags.isEmpty();
+		}
+
+		/**
+		 * Whether the layout this bucket last produced is a plain run: the
+		 * sorter's order, wrapping row by row, with nothing placed by column.
+		 * Only such a run can be woven with another category's block without
+		 * losing its shape. Each layout path declares itself as it runs, and a
+		 * path that says nothing counts as shaped, so an oversight stacks the
+		 * tab rather than scrambling a grid.
+		 */
+		private boolean isPlainRun()
+		{
+			return plainRun;
+		}
+
 		private List<BankPreviewItem> honorTagOrder(List<BankPreviewItem> sorted)
 		{
 			if (destinationTags.size() < 2)
@@ -593,6 +692,7 @@ public final class BankOrganizationPreviewBuilder
 		private BankCategoryPreview toImmutable(GearStatsSource gearStats)
 		{
 			List<BankPreviewItem> items = items(entries);
+			plainRun = false;
 				switch (category.getSortMode())
 				{
 				case MAIN:
@@ -622,7 +722,8 @@ public final class BankOrganizationPreviewBuilder
 						honorTagOrder(CurrencyItemSorter.sort(items)), AchievementDiarySemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CURRENCY)));
 				case FARMING:
-					return BankCategoryPreview.fromLogicalItems(category, sequential(BankCategorySortMode.FARMING)
+					plainRun = sequential(BankCategorySortMode.FARMING);
+					return BankCategoryPreview.fromLogicalItems(category, plainRun
 						? FarmingItemSorter.sequential(items)
 						: FarmingItemSorter.layout(items, 0));
 				case GEAR:
@@ -635,10 +736,16 @@ public final class BankOrganizationPreviewBuilder
 				case HERBLORE:
 					// The only layout the plan can talk out of its default shape:
 					// see BankLayoutStyles for why moving the doses changes it.
-					return BankCategoryPreview.fromLogicalItems(category, herbloreRecipeRows
-						? HerbloreItemSorter.layout(items, options.fillHerbloreRows())
-						: honorTagOrder(HerbloreItemSorter.layoutByKind(items)));
+					if (herbloreRecipeRows)
+					{
+						return BankCategoryPreview.fromLogicalItems(category,
+							HerbloreItemSorter.layout(items, options.fillHerbloreRows()));
+					}
+					plainRun = !HerbloreItemSorter.layoutByKindPlacesByColumn(items);
+					return BankCategoryPreview.fromLogicalItems(category,
+						honorTagOrder(HerbloreItemSorter.layoutByKind(items)));
 				default:
+					plainRun = true;
 					return BankCategoryPreview.fromLogicalItems(category,
 						PresetItemSorter.sort(category, items, gearStats));
 			}
@@ -660,6 +767,7 @@ public final class BankOrganizationPreviewBuilder
 			{
 				// Each set reads as one run, strongest first, loose gear
 				// flowing after like text.
+				plainRun = true;
 				return new ArrayList<>(GearItemSorter.bySet(items, gearStats));
 			}
 			if (options.gearLayout() == GearLayout.GRID_SETS || !options.fillGearRows())
@@ -756,6 +864,7 @@ public final class BankOrganizationPreviewBuilder
 		private List<BankPreviewItem> semanticLayout(List<BankPreviewItem> fallback,
 			LayoutRequest request, boolean sequential)
 		{
+			plainRun = sequential;
 			if (sequential)
 			{
 				// The sorter's order is the layout: no family rectangles, no
