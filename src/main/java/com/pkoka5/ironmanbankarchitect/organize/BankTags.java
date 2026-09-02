@@ -36,7 +36,8 @@ public final class BankTags
 			split("frequently-used", "Frequently Used"),
 			split("runes", "Runes", "rune", "rune-container"),
 			split("teleports", "Teleports",
-				"teleport", "teleport-charge", "teleport-container", "transport-access"),
+				"teleport", "teleport-tablet", "teleport-scroll", "teleport-charge",
+				"teleport-container", "transport-access"),
 			split("currency", "Currency", "currency")));
 		splits.put("combat-gear", Arrays.asList(
 			split("gear", "Combat Gear"),

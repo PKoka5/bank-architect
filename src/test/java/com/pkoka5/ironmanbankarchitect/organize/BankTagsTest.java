@@ -56,6 +56,21 @@ public class BankTagsTest
 		assertEquals("currency", BankTags.tagFor("currency-utilities", "currency").getKey());
 	}
 
+	/**
+	 * The refined teleport subcategories must keep reaching the Teleports tag.
+	 * When tablet and scroll were introduced without being listed here, every
+	 * city tablet fell through to the Frequently Used catch-all and a plan
+	 * sent them wherever that tag lived - usually the front of the main tab.
+	 */
+	@Test
+	public void refinedTeleportSubcategoriesStayOnTheTeleportsTag()
+	{
+		assertEquals("teleports", BankTags.tagFor("currency-utilities", "teleport-tablet").getKey());
+		assertEquals("teleports", BankTags.tagFor("currency-utilities", "teleport-scroll").getKey());
+		assertEquals("teleports", BankTags.tagFor("currency-utilities", "teleport-charge").getKey());
+		assertEquals("teleports", BankTags.tagFor("currency-utilities", "transport-access").getKey());
+	}
+
 	@Test
 	public void theHerbloreChainSplitsIntoItsWorkflowSteps()
 	{
