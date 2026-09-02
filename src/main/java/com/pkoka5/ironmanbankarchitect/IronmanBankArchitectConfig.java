@@ -57,27 +57,6 @@ public interface IronmanBankArchitectConfig extends Config
 	)
 	String utilitiesSection = "Runes, teleports & currency";
 
-	@ConfigSection(
-		name = "Tools",
-		description = "How the skilling tools tab is arranged.",
-		position = 6
-	)
-	String toolsSection = "Tools";
-
-	@ConfigSection(
-		name = "Resources",
-		description = "How the resources tab is arranged.",
-		position = 7
-	)
-	String resourcesSection = "Resources";
-
-	@ConfigSection(
-		name = "Clues & cosmetics",
-		description = "How the clues and cosmetics tab is arranged.",
-		position = 8
-	)
-	String cluesSection = "Clues & cosmetics";
-
 	@ConfigItem(
 		keyName = "suggestNextMove",
 		section = guidanceSection,
@@ -126,12 +105,13 @@ public interface IronmanBankArchitectConfig extends Config
 		return false;
 	}
 
+	// Chosen beside its tab in the sidebar's Tab Layout screen - the one
+	// home for layout choices; this key is the storage behind it.
 	@ConfigItem(
 		keyName = "gearLayout",
-		section = gearSection,
-		position = 0,
-		name = "Layout",
-		description = "Best in slot is the four-style best-in-slot matrix: one row per equipment slot, the leading columns your strongest melee, ranged, magic and prayer options, rows completed so the columns stay straight. Sets together stacks each set down a column - helm, body, legs - with the rest of the kit arranged around it, junk-free. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after, junk-free."
+		name = "",
+		description = "",
+		hidden = true
 	)
 	default GearLayout gearLayout()
 	{
@@ -186,48 +166,52 @@ public interface IronmanBankArchitectConfig extends Config
 		return true;
 	}
 
+	// Chosen beside its tab in the sidebar's Tab Layout screen - the one
+	// home for layout choices; this key is the storage behind it.
 	@ConfigItem(
 		keyName = "utilitiesLayout",
-		section = utilitiesSection,
-		position = 0,
-		name = "Layout",
-		description = "Grid keeps the curated shapes: the four-wide rune block and the achievement diary grid. List runs every item in reading order, wrapping like text, junk-free."
+		name = "",
+		description = "",
+		hidden = true
 	)
 	default TabOrder utilitiesLayout()
 	{
 		return TabOrder.PACKED;
 	}
 
+	// Chosen beside its tab in the sidebar's Tab Layout screen - the one
+	// home for layout choices; this key is the storage behind it.
 	@ConfigItem(
 		keyName = "toolsLayout",
-		section = toolsSection,
-		position = 0,
-		name = "Layout",
-		description = "Grid keeps the curated shape: empty containers as columns above their filled forms. List runs every tool in skill order, wrapping like text, junk-free."
+		name = "",
+		description = "",
+		hidden = true
 	)
 	default TabOrder toolsLayout()
 	{
 		return TabOrder.PACKED;
 	}
 
+	// Chosen beside its tab in the sidebar's Tab Layout screen - the one
+	// home for layout choices; this key is the storage behind it.
 	@ConfigItem(
 		keyName = "resourcesLayout",
-		section = resourcesSection,
-		position = 0,
-		name = "Layout",
-		description = "Grid keeps the curated shape: raw materials aligned above their processed forms. List runs every item in reading order, wrapping like text, junk-free."
+		name = "",
+		description = "",
+		hidden = true
 	)
 	default TabOrder resourcesLayout()
 	{
 		return TabOrder.PACKED;
 	}
 
+	// Chosen beside its tab in the sidebar's Tab Layout screen - the one
+	// home for layout choices; this key is the storage behind it.
 	@ConfigItem(
 		keyName = "cluesLayout",
-		section = cluesSection,
-		position = 0,
-		name = "Layout",
-		description = "Grid keeps the curated shape: cosmetic outfits as vertical columns. List runs every item in reading order, wrapping like text, junk-free."
+		name = "",
+		description = "",
+		hidden = true
 	)
 	default TabOrder cluesLayout()
 	{
