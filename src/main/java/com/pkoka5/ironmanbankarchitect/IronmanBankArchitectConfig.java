@@ -389,6 +389,51 @@ public interface IronmanBankArchitectConfig extends Config
 	void setTabOrder(String serialized);
 
 	/**
+	 * The player's saved block orders for the active layout, one entry per
+	 * tag. Hidden because they are edited through the sidebar's arrange rows,
+	 * not by hand.
+	 */
+	@ConfigItem(
+		keyName = "blockOrders",
+		name = "",
+		description = "",
+		hidden = true
+	)
+	default String blockOrders()
+	{
+		return "";
+	}
+
+	@ConfigItem(
+		keyName = "blockOrders",
+		name = "",
+		description = ""
+	)
+	void setBlockOrders(String serialized);
+
+	/**
+	 * Block orders snapshotted per saved layout, so switching profiles brings
+	 * each layout's own arrangements back with it.
+	 */
+	@ConfigItem(
+		keyName = "blockOrdersByProfile",
+		name = "",
+		description = "",
+		hidden = true
+	)
+	default String blockOrdersByProfile()
+	{
+		return "";
+	}
+
+	@ConfigItem(
+		keyName = "blockOrdersByProfile",
+		name = "",
+		description = ""
+	)
+	void setBlockOrdersByProfile(String serialized);
+
+	/**
 	 * The player's saved tab layouts, stored locally as {@code name~plan} pairs.
 	 * Hidden because they are created by saving, importing and switching in the
 	 * sidebar rather than typed by hand.

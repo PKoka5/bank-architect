@@ -97,4 +97,12 @@ interface BankLayoutModel
 	default void saveOptions(BankLayoutOptions options)
 	{
 	}
+
+	/**
+	 * Stores a tag's block order and rebuilds the blueprint from it. An empty
+	 * list forgets the tag's arrangement, so its curated order stands again.
+	 */
+	default void saveBlockOrder(String tagKey, List<String> blockKeys)
+	{
+	}
 }

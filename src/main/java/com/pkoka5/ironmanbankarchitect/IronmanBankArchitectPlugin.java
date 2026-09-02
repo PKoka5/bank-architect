@@ -12,6 +12,7 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
 import com.pkoka5.ironmanbankarchitect.organize.BankCategorySortMode;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
+import com.pkoka5.ironmanbankarchitect.organize.BlockArrangements;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
@@ -314,7 +315,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		tabOrders.put(BankCategorySortMode.CLUES, config.cluesLayout());
 		return new BankLayoutOptions(true, config.fillHerbloreRows(), config.alchPile(), tabOrders,
 			config.gearLayout(), config.potionDoses(), config.runeOrder(), config.teleportOrder(),
-			config.gatherFrequentlyUsed());
+			config.gatherFrequentlyUsed())
+			.withBlockArrangements(BlockArrangements.parse(config.blockOrders()));
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */
@@ -327,6 +329,48 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	{
 		config.setLayoutProfiles(profiles.serialize());
 		config.setActiveLayoutProfile(profiles.getActiveName());
+	}
+
+	/**
+	 * Block orders snapshotted per profile name. The outer grammar is the
+	 * profiles' own (names cannot contain the separators), while each value is
+	 * a {@link BlockArrangements} string, whose grammar avoids both.
+	 */
+	private Map<String, String> blockOrderSnapshots()
+	{
+		Map<String, String> snapshots = new java.util.LinkedHashMap<>();
+		String serialized = config.blockOrdersByProfile();
+		if (serialized == null || serialized.isEmpty())
+		{
+			return snapshots;
+		}
+		for (String entry : serialized.split(";"))
+		{
+			int split = entry.indexOf('~');
+			if (split > 0 && split < entry.length() - 1)
+			{
+				snapshots.put(entry.substring(0, split), entry.substring(split + 1));
+			}
+		}
+		return snapshots;
+	}
+
+	private void storeBlockOrderSnapshots(Map<String, String> snapshots)
+	{
+		StringBuilder builder = new StringBuilder();
+		for (Map.Entry<String, String> entry : snapshots.entrySet())
+		{
+			if (entry.getValue() == null || entry.getValue().isEmpty())
+			{
+				continue;
+			}
+			if (builder.length() > 0)
+			{
+				builder.append(';');
+			}
+			builder.append(entry.getKey()).append('~').append(entry.getValue());
+		}
+		config.setBlockOrdersByProfile(builder.toString());
 	}
 
 	/**
@@ -398,11 +442,19 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void selectProfile(String name)
 			{
+				// The outgoing layout keeps its arrangements and the incoming
+				// one brings its own back, so block orders belong to the
+				// layout they were made for rather than bleeding across all.
+				Map<String, String> snapshots = blockOrderSnapshots();
+				snapshots.put(config.activeLayoutProfile(), config.blockOrders());
 				BankLayoutProfiles profiles = savedProfiles().withActive(name);
 				config.setActiveLayoutProfile(profiles.getActiveName());
 				config.setTabOrder(BankLayoutPlan
 					.parse(BankPresets.IRONMAN, profiles.activePlan())
 					.serialize());
+				String restored = snapshots.get(profiles.getActiveName());
+				config.setBlockOrders(restored == null ? "" : restored);
+				storeBlockOrderSnapshots(snapshots);
 				analyzeBank();
 			}
 
@@ -412,6 +464,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				BankLayoutProfiles profiles = savedProfiles().withProfile(name,
 					plan.completedFor(BankPresets.IRONMAN).serialize());
 				storeProfiles(profiles);
+				Map<String, String> snapshots = blockOrderSnapshots();
+				snapshots.put(profiles.getActiveName(), config.blockOrders());
+				storeBlockOrderSnapshots(snapshots);
 				save(plan);
 			}
 
@@ -419,6 +474,19 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public void deleteProfile(String name)
 			{
 				storeProfiles(savedProfiles().without(name));
+				Map<String, String> snapshots = blockOrderSnapshots();
+				if (snapshots.remove(name) != null)
+				{
+					storeBlockOrderSnapshots(snapshots);
+				}
+			}
+
+			@Override
+			public void saveBlockOrder(String tagKey, List<String> blockKeys)
+			{
+				config.setBlockOrders(BlockArrangements.parse(config.blockOrders())
+					.withTag(tagKey, blockKeys).serialize());
+				analyzeBank();
 			}
 
 			@Override
