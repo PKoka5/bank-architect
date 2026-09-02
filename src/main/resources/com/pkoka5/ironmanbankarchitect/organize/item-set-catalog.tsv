@@ -396,12 +396,18 @@ tools	tools.rogue	Rogue	9	5557
 # grouped so sorting keeps each family adjacent. Read only by the clue sorter;
 # the domain is invisible to tab routing and to the grid outfit rules.
 # Declaration order is display order: showpieces first, materials last.
+cosmetic-family	cosmetic-family.santa-hats	Santa Hats	0	1050
+cosmetic-family	cosmetic-family.santa-hats	Santa Hats	0	13343
+cosmetic-family	cosmetic-family.santa-hats	Santa Hats	0	13344
 cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1038
 cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1040
 cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1042
 cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1044
 cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1046
 cosmetic-family	cosmetic-family.partyhats	Partyhats	0	1048
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	11862
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	11863
+cosmetic-family	cosmetic-family.partyhats	Partyhats	0	27828
 cosmetic-family	cosmetic-family.halloween-masks	Halloween Masks	0	1053
 cosmetic-family	cosmetic-family.halloween-masks	Halloween Masks	0	1055
 cosmetic-family	cosmetic-family.halloween-masks	Halloween Masks	0	1057

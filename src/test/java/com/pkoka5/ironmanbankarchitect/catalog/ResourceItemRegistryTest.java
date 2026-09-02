@@ -159,6 +159,16 @@ public class ResourceItemRegistryTest
 		assertCategory(22446, "Vial of blood", ItemCategory.UNIQUE);
 	}
 
+	/** Holiday rares are display pieces, not the cleanup pile's problem. */
+	@Test
+	public void santaHatsClassifyWithTheOtherHolidayCosmetics()
+	{
+		assertCategory(1050, "Santa hat", ItemCategory.CLUE);
+		assertSubcategory(1050, "cosmetic");
+		assertCategory(13343, "Black santa hat", ItemCategory.CLUE);
+		assertCategory(13344, "Inverted santa hat", ItemCategory.CLUE);
+	}
+
 	/** The cooked-bake food rule must not swallow the burnt or uncooked states. */
 	@Test
 	public void cookedBakesAreFoodWhileBurntAndUncookedOnesAreNot()

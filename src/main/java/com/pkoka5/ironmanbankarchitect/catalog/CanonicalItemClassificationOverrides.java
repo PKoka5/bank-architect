@@ -2502,6 +2502,14 @@ final class CanonicalItemClassificationOverrides
 			case 27828: // Silver partyhat
 				return clueCosmetic();
 
+			// Standalone player-facing santa hat cosmetics, the same family of
+			// holiday rares as the partyhats above.
+			// Wiki: https://oldschool.runescape.wiki/w/Santa_hat
+			case 1050:
+			case 13343: // Black santa hat
+			case 13344: // Inverted santa hat
+				return clueCosmetic();
+
 			// Complete player-facing metal/chromatic dragon-mask family.
 			case 12363:
 			case 12365:
