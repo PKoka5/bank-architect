@@ -720,7 +720,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		buttons.add(layoutButton("▼", "Move later on this tab",
 			position >= 0 && position < onDestination.size() - 1,
 			event -> shiftWithinSelected(key, 1)));
-		buttons.add(layoutButton("⃠", isFallback
+		buttons.add(layoutButton("✕", isFallback
 				? "This tag catches everything left over, so it always has a tab"
 				: "Take " + tag.getName() + " off this tab and send it to the "
 					+ fallbackName() + " tab",
@@ -1177,7 +1177,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		JButton button = new JButton(glyph);
 		button.setPreferredSize(new Dimension(20, 20));
 		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setFont(FontManager.getRunescapeSmallFont());
+		// The RuneScape font draws none of these glyphs and RuneLite makes it
+		// the Swing-wide default, so inheriting any "default" font still shows
+		// tofu; the controls ask for a real system font by name.
+		button.setFont(new java.awt.Font(java.awt.Font.SANS_SERIF, java.awt.Font.PLAIN, 12));
 		button.setFocusPainted(false);
 		button.setToolTipText(tooltip);
 		button.setEnabled(enabled);
