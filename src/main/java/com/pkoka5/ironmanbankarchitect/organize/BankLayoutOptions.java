@@ -77,7 +77,7 @@ public final class BankLayoutOptions
 	public BankLayoutOptions withBlockArrangements(BlockArrangements arrangements)
 	{
 		BankLayoutOptions copy = new BankLayoutOptions(fillGearRows, fillHerbloreRows, alchPile,
-			tabOrders, gearLayout, potionDoses, runeOrder, teleportOrder);
+			tabOrders, gearLayout, potionDoses, runeOrder, teleportOrder, gatherFrequentlyUsed);
 		copy.blockArrangements = Objects.requireNonNull(arrangements, "arrangements");
 		return copy;
 	}
