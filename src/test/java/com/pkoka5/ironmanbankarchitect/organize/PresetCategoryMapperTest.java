@@ -74,7 +74,10 @@ public class PresetCategoryMapperTest
 			item(8952, ItemCategory.POTION, "Blue naval shirt")).getKey());
 		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(30404, ItemCategory.UNKNOWN, "Raging echoes hat (t1)")).getKey());
-		assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.IRONMAN,
+		// A recolour is graceful too: the quick-access policy reads the
+		// catalogue's graceful families, so it beats the tools domain the way
+		// the base set always has.
+		assertEquals("currency-utilities", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(13579, ItemCategory.UNKNOWN, "Graceful hood")).getKey());
 		assertEquals("combat-gear", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(22326, ItemCategory.UNKNOWN, "Justiciar faceguard")).getKey());
@@ -119,8 +122,14 @@ public class PresetCategoryMapperTest
 		assertRegistryItemsRoute("seeds-farming", 1955, 1982, 5986);
 	}
 
+	/**
+	 * Reported by a player who swapped his set for the Colossal Wyrm recolour
+	 * and watched it leave the tab it had always sat on. Every catalogued
+	 * graceful family counts now, not the six base IDs; this test used to pin
+	 * the opposite for the Arceuus set, which was the bug written down.
+	 */
 	@Test
-	public void ironmanRoutesReviewedGracefulAndRunePouchesToMainByExactId()
+	public void ironmanRoutesEveryGracefulRecolourAndRunePouchesToMain()
 	{
 		CatalogItem graceful = new CatalogItem(11850, "Graceful hood", ItemCategory.TOOL,
 			"skilling-outfit", Collections.emptySet(), null);
@@ -128,7 +137,9 @@ public class PresetCategoryMapperTest
 			"rune-container", Collections.emptySet(), null);
 		CatalogItem divineRunePouch = new CatalogItem(27281, "Divine rune pouch", ItemCategory.RUNE,
 			"rune-container", Collections.emptySet(), null);
-		CatalogItem recolouredGraceful = new CatalogItem(13579, "Graceful hood", ItemCategory.TOOL,
+		CatalogItem arceuusGraceful = new CatalogItem(13579, "Graceful hood", ItemCategory.TOOL,
+			"skilling-outfit", Collections.emptySet(), null);
+		CatalogItem wyrmGraceful = new CatalogItem(30045, "Graceful hood", ItemCategory.TOOL,
 			"skilling-outfit", Collections.emptySet(), null);
 
 		assertEquals("currency-utilities",
@@ -137,8 +148,10 @@ public class PresetCategoryMapperTest
 			PresetCategoryMapper.map(BankPresets.IRONMAN, runePouch).getKey());
 		assertEquals("currency-utilities",
 			PresetCategoryMapper.map(BankPresets.IRONMAN, divineRunePouch).getKey());
-		assertEquals("skilling-tools",
-			PresetCategoryMapper.map(BankPresets.IRONMAN, recolouredGraceful).getKey());
+		assertEquals("currency-utilities",
+			PresetCategoryMapper.map(BankPresets.IRONMAN, arceuusGraceful).getKey());
+		assertEquals("currency-utilities",
+			PresetCategoryMapper.map(BankPresets.IRONMAN, wyrmGraceful).getKey());
 	}
 
 	@Test

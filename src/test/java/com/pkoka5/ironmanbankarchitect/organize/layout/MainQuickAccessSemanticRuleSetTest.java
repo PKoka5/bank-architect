@@ -41,6 +41,66 @@ public class MainQuickAccessSemanticRuleSetTest
 			request.getRules().get(1).getShapePrimitive());
 	}
 
+	/**
+	 * The column follows the set that reached the tab. A player who files his
+	 * old set with the tools and his new one here gets the column on the new
+	 * one - the plugin has no opinion about which recolour is the real one.
+	 */
+	@Test
+	public void theGracefulSetOnTheTabTakesTheColumn()
+	{
+		List<LayoutEntry> entries = new ArrayList<>();
+		entries.add(entry(30045, "Graceful hood", ItemCategory.TOOL, "skilling-outfit"));
+		entries.add(entry(30048, "Graceful cape", ItemCategory.TOOL, "skilling-outfit"));
+		entries.add(entry(30051, "Graceful top", ItemCategory.TOOL, "skilling-outfit"));
+		entries.add(entry(30054, "Graceful legs", ItemCategory.TOOL, "skilling-outfit"));
+		entries.add(entry(30057, "Graceful gloves", ItemCategory.TOOL, "skilling-outfit"));
+		entries.add(entry(30060, "Graceful boots", ItemCategory.TOOL, "skilling-outfit"));
+
+		SemanticRule rule = MainQuickAccessSemanticRuleSet.forEntries(entries).getRules().get(0);
+
+		assertEquals("main.graceful-column", rule.getRuleKey());
+		assertEquals(ShapePrimitive.VERTICAL_RUN, rule.getShapePrimitive());
+		// Wear order, cape last, exactly as the base set has always read.
+		assertEquals(Arrays.asList(30045, 30051, 30054, 30057, 30060, 30048),
+			rule.getAtoms().get(0).getItemIds());
+	}
+
+	/** Two sets and no instruction: the more complete one, base breaking a tie. */
+	@Test
+	public void theBaseSetKeepsTheColumnWhenBothAreWhole()
+	{
+		List<LayoutEntry> entries = new ArrayList<>();
+		for (Integer id : Arrays.asList(30045, 30048, 30051, 30054, 30057, 30060))
+		{
+			entries.add(entry(id, gracefulPieceName(id), ItemCategory.TOOL, "skilling-outfit"));
+		}
+		for (Integer id : Arrays.asList(11850, 11852, 11854, 11856, 11858, 11860))
+		{
+			entries.add(entry(id, gracefulPieceName(id), ItemCategory.TOOL, "skilling-outfit"));
+		}
+
+		SemanticRule rule = MainQuickAccessSemanticRuleSet.forEntries(entries).getRules().get(0);
+
+		assertEquals(Arrays.asList(11850, 11854, 11856, 11858, 11860, 11852),
+			rule.getAtoms().get(0).getItemIds());
+	}
+
+	/** Every family names its pieces identically, so one lookup covers them all. */
+	private static String gracefulPieceName(int itemId)
+	{
+		switch (itemId)
+		{
+			case 11850: case 30045: return "Graceful hood";
+			case 11852: case 30048: return "Graceful cape";
+			case 11854: case 30051: return "Graceful top";
+			case 11856: case 30054: return "Graceful legs";
+			case 11858: case 30057: return "Graceful gloves";
+			case 11860: case 30060: return "Graceful boots";
+			default: throw new IllegalArgumentException("not a graceful piece: " + itemId);
+		}
+	}
+
 	@Test
 	public void runeMatrixIsComposedIntoMainWithoutAClueRule()
 	{

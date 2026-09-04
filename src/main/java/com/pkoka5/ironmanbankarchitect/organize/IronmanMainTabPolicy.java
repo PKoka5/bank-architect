@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,8 +14,16 @@ import java.util.Set;
  */
 final class IronmanMainTabPolicy
 {
-	private static final Set<Integer> GRACEFUL_IDS = Collections.unmodifiableSet(
-		new HashSet<>(Arrays.asList(11850, 11854, 11856, 11858, 11860, 11852)));
+	/**
+	 * Every graceful recolour counts, not just the base set.
+	 *
+	 * <p>The six base IDs were listed here by hand, so a player who swapped
+	 * their set for a course recolour watched it leave the tab it had always
+	 * sat on. The recolours are already catalogued as {@code tools.graceful-*}
+	 * families, so asking the catalogue means a recolour released later works
+	 * without anyone remembering to come back here.</p>
+	 */
+	private static final String GRACEFUL_FAMILY_PREFIX = "tools.graceful-";
 	private static final Set<Integer> RUNE_POUCH_IDS = Collections.unmodifiableSet(
 		new HashSet<>(Arrays.asList(12791, 27281, 27509)));
 	private static final Set<Integer> RECURRING_UTILITY_IDS = Collections.unmodifiableSet(
@@ -54,12 +63,19 @@ final class IronmanMainTabPolicy
 
 	static boolean isGraceful(CatalogItem item)
 	{
-		return GRACEFUL_IDS.contains(item.getItemId());
+		return isGraceful(item.getItemId());
 	}
 
 	static boolean isGraceful(BankPreviewItem item)
 	{
-		return GRACEFUL_IDS.contains(item.getItemId());
+		return isGraceful(item.getItemId());
+	}
+
+	static boolean isGraceful(int itemId)
+	{
+		return ItemSetCatalog.setKeyOf(itemId)
+			.filter(key -> key.startsWith(GRACEFUL_FAMILY_PREFIX))
+			.isPresent();
 	}
 
 	static boolean isRunePouch(CatalogItem item)

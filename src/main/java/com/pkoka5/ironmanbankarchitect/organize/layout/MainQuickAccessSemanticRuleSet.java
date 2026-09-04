@@ -12,8 +12,12 @@ import java.util.Objects;
 /** Reviewed quick-access geometry for the active Ironman main tab. */
 public final class MainQuickAccessSemanticRuleSet
 {
-	private static final List<Integer> GRACEFUL = Collections.unmodifiableList(
-		Arrays.asList(11850, 11854, 11856, 11858, 11860, 11852));
+	private static final String GRACEFUL_FAMILY_PREFIX = "tools.graceful-";
+	private static final String GRACEFUL_BASE_FAMILY = "tools.graceful-base";
+	/** Wear order, which is not catalogue order: the cape reads last, as it did. */
+	private static final List<String> GRACEFUL_PIECE_ORDER = Collections.unmodifiableList(
+		Arrays.asList("graceful hood", "graceful top", "graceful legs",
+			"graceful gloves", "graceful boots", "graceful cape"));
 	private static final int GRACEFUL_COLUMN = 7;
 	private static final int RUNE_BLOCK_SECOND_ROW = 8;
 
@@ -50,11 +54,7 @@ public final class MainQuickAccessSemanticRuleSet
 				return entries;
 			}
 		}
-		int ownedGraceful = 0;
-		for (Integer itemId : GRACEFUL)
-		{
-			if (contains(entries, itemId)) ownedGraceful++;
-		}
+		int ownedGraceful = gracefulColumn(entries).size();
 		boolean anchorGraceful = ownedGraceful >= 2
 			&& GRACEFUL_COLUMN + (ownedGraceful - 1) * SemanticRule.MAX_WIDTH < entries.size();
 		boolean hasCoins = contains(entries, 995);
@@ -97,9 +97,9 @@ public final class MainQuickAccessSemanticRuleSet
 		Map<Integer, Integer> targets = new LinkedHashMap<>();
 		if (!anchorGraceful) return targets;
 		int row = 0;
-		for (Integer itemId : GRACEFUL)
+		for (Integer itemId : gracefulColumn(entries))
 		{
-			if (contains(entries, itemId)) targets.put(itemId, GRACEFUL_COLUMN + row++ * 8);
+			targets.put(itemId, GRACEFUL_COLUMN + row++ * 8);
 		}
 		return targets;
 	}
@@ -174,15 +174,69 @@ public final class MainQuickAccessSemanticRuleSet
 		return Collections.unmodifiableList(tools);
 	}
 
+	/**
+	 * The graceful pieces this tab stands in a column, in wear order.
+	 *
+	 * <p>Read from the tab rather than from a list of IDs, so the column
+	 * follows whichever set actually reached the tab. A player who files their
+	 * old set with the tools and their new one here gets the column on the new
+	 * one, without the plugin having an opinion about which recolour is the
+	 * real one. Owning two and saying nothing gives the column to the more
+	 * complete set, and the base set breaks a tie.</p>
+	 */
+	private static List<Integer> gracefulColumn(List<LayoutEntry> entries)
+	{
+		Map<String, List<LayoutEntry>> byFamily = new LinkedHashMap<>();
+		for (LayoutEntry entry : entries)
+		{
+			String key = ItemSetCatalog.setKeyOf(entry.getItem().getItemId()).orElse("");
+			if (key.startsWith(GRACEFUL_FAMILY_PREFIX))
+			{
+				byFamily.computeIfAbsent(key, ignored -> new ArrayList<>()).add(entry);
+			}
+		}
+
+		List<LayoutEntry> chosen = Collections.emptyList();
+		for (Map.Entry<String, List<LayoutEntry>> family : byFamily.entrySet())
+		{
+			boolean better = family.getValue().size() > chosen.size()
+				|| (family.getValue().size() == chosen.size()
+					&& GRACEFUL_BASE_FAMILY.equals(family.getKey()));
+			if (better)
+			{
+				chosen = family.getValue();
+			}
+		}
+
+		List<Integer> column = new ArrayList<>(chosen.size());
+		for (String piece : GRACEFUL_PIECE_ORDER)
+		{
+			for (LayoutEntry entry : chosen)
+			{
+				if (piece.equalsIgnoreCase(entry.getItem().getDisplayName().trim()))
+				{
+					column.add(entry.getItem().getItemId());
+				}
+			}
+		}
+		// A piece whose name does not read like the others still belongs to the
+		// set, so it follows rather than being dropped from its own column.
+		for (LayoutEntry entry : chosen)
+		{
+			if (!column.contains(entry.getItem().getItemId()))
+			{
+				column.add(entry.getItem().getItemId());
+			}
+		}
+		return column;
+	}
+
 	private static SemanticRule gracefulRule(List<LayoutEntry> entries)
 	{
 		List<SemanticAtom.Member> members = new ArrayList<>();
-		for (Integer itemId : GRACEFUL)
+		for (Integer itemId : gracefulColumn(entries))
 		{
-			if (contains(entries, itemId))
-			{
-				members.add(new SemanticAtom.Member("slot-" + members.size(), itemId));
-			}
+			members.add(new SemanticAtom.Member("slot-" + members.size(), itemId));
 		}
 		if (members.size() < 2)
 		{

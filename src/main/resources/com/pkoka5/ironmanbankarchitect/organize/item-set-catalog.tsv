@@ -1,5 +1,8 @@
 # schema=1
 # Generated from the reviewed workbook plus exact-ID supplements by tools/research/gear-sets/resolve-master-gear-sets.ps1
+# Note: tools.graceful-brimhaven holds the Colossal Wyrm course recolour (30045-30060).
+# The key is kept as-is because saved block arrangements reference it; only the
+# display name was corrected.
 # domain	setKey	setName	slotRank	itemId
 cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	0	25129
 cosmetics	cosmetics.beekeeper-outfit	Beekeeper Outfit	5	25131
@@ -321,12 +324,12 @@ tools	tools.graceful-base	Graceful (Base)	5	11854
 tools	tools.graceful-base	Graceful (Base)	7	11856
 tools	tools.graceful-base	Graceful (Base)	8	11858
 tools	tools.graceful-base	Graceful (Base)	9	11860
-tools	tools.graceful-brimhaven	Graceful (Brimhaven)	0	30045
-tools	tools.graceful-brimhaven	Graceful (Brimhaven)	1	30048
-tools	tools.graceful-brimhaven	Graceful (Brimhaven)	5	30051
-tools	tools.graceful-brimhaven	Graceful (Brimhaven)	7	30054
-tools	tools.graceful-brimhaven	Graceful (Brimhaven)	8	30057
-tools	tools.graceful-brimhaven	Graceful (Brimhaven)	9	30060
+tools	tools.graceful-brimhaven	Graceful (Colossal Wyrm)	0	30045
+tools	tools.graceful-brimhaven	Graceful (Colossal Wyrm)	1	30048
+tools	tools.graceful-brimhaven	Graceful (Colossal Wyrm)	5	30051
+tools	tools.graceful-brimhaven	Graceful (Colossal Wyrm)	7	30054
+tools	tools.graceful-brimhaven	Graceful (Colossal Wyrm)	8	30057
+tools	tools.graceful-brimhaven	Graceful (Colossal Wyrm)	9	30060
 tools	tools.graceful-dark	Graceful (Dark)	0	24743
 tools	tools.graceful-dark	Graceful (Dark)	1	24746
 tools	tools.graceful-dark	Graceful (Dark)	5	24749
