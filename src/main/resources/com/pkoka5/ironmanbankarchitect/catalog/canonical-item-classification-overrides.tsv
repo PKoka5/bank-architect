@@ -1,0 +1,2839 @@
+# schema=1
+# Exact item-ID classification overrides, one row per item:
+#   itemId	category	subcategory	[note]
+# Moved out of Java in September 2026: the table was 3,635 lines of case
+# labels, which is data wearing a switch statement. The Plugin Hub review
+# bot counts src/main/java and stops at 200k tokens, and this file alone
+# was 14% of it. Behaviour is unchanged - every row was dumped from the
+# switch it replaces and compared back.
+# Comment lines and the fourth column carry the provenance the case labels
+# used to hold; neither is read by the loader.
+# Wiki: https://oldschool.runescape.wiki/w/Cannon_barrels_(or)?oldid=15190733
+# Only the barrels of the ornamented cannon were listed here, so its
+# other three parts scattered across generic gear and storage cleanup.
+10	GEAR	cannon-part	Cannon barrels
+26524	GEAR	cannon-part	Reversible ornamented cannon barrels
+26520	GEAR	cannon-part	Cannon base (or)
+26522	GEAR	cannon-part	Cannon stand (or)
+26526	GEAR	cannon-part	Cannon furnace (or)
+805	GEAR	thrown-weapon	Rune thrownaxe
+# Wiki: https://oldschool.runescape.wiki/w/Morrigan's_throwing_axe_(bh)?oldid=15191344
+27912	GEAR	thrown-weapon
+27914	GEAR	thrown-weapon	Active and inactive Bounty Hunter states remain functional ranged weapons
+20714	GEAR	magic-offhand	Tome of fire
+25574	GEAR	magic-offhand	Tome of water
+30064	GEAR	magic-offhand	Tome of earth
+# The registry files both Burning claws and its drop piece under
+# SKILLING, which sent a melee weapon to the resources tab. The
+# Last Man Standing copy at 33200 stays junk; it is handled below.
+29577	GEAR	weapon	Burning claws
+29574	GEAR	gear	Burning claw: drop piece that combines into the weapon
+28997	GEAR	weapon	Dual macuahuitl
+4158	GEAR	weapon	Leaf-bladed spear
+11902	GEAR	weapon	Leaf-bladed sword
+20727	GEAR	weapon	Leaf-bladed battleaxe
+28583	GEAR	weapon	Warped sceptre (uncharged)
+28585	GEAR	weapon	Warped sceptre
+9084	GEAR	weapon	Lunar staff
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_battleaxe_(cr)?oldid=15191318
+28037	GEAR	weapon	Normal-game cosmetic dragon battleaxe
+10498	GEAR	gear	Ava's attractor
+10499	GEAR	gear	Ava's accumulator
+22109	GEAR	gear	Ava's assembler
+24222	GEAR	gear	Ava's assembler (l)
+27374	GEAR	gear	Masori assembler
+27376	GEAR	gear	Masori assembler (l)
+# Wiki: https://oldschool.runescape.wiki/w/Broken_bark_snelm?oldid=15182921
+# Wiki: https://oldschool.runescape.wiki/w/Fighter_hat?oldid=15260298
+# Wiki: https://oldschool.runescape.wiki/w/Ranger_hat?oldid=15260300
+# Wiki: https://oldschool.runescape.wiki/w/Healer_hat?oldid=15260302
+# Wiki: https://oldschool.runescape.wiki/w/Runner_hat?oldid=15260301
+3335	GEAR	head	Functional snail-protection helmet
+20507	GEAR	head
+20509	GEAR	head
+20511	GEAR	head
+24531	GEAR	head	Broken Penance hats are repairable by Perdu
+4740	GEAR	ammo	Bolt rack
+20220	GEAR	ammo	Holy blessing
+20223	GEAR	ammo	Unholy blessing
+20226	GEAR	ammo	Peaceful blessing
+20229	GEAR	ammo	Honourable blessing
+20232	GEAR	ammo	War blessing
+20235	GEAR	ammo	Ancient blessing
+31088	GEAR	feet	Avernic treads
+31091	GEAR	feet	Avernic treads (pr)
+31092	GEAR	feet	Avernic treads (pe)
+31093	GEAR	feet	Avernic treads (et)
+31094	GEAR	feet	Avernic treads (pr)(pe)
+31095	GEAR	feet	Avernic treads (pr)(et)
+31096	GEAR	feet	Avernic treads (pe)(et)
+31097	GEAR	feet	Avernic treads (max)
+23037	GEAR	feet	Boots of stone
+# Numeric Shayzien tiers are armour levels, not potion doses.
+# Wiki: https://oldschool.runescape.wiki/w/Shayzien_armour
+13357	GEAR	hands	Shayzien gloves (1)
+13362	GEAR	hands	Shayzien gloves (2)
+13367	GEAR	hands	Shayzien gloves (3)
+13372	GEAR	hands	Shayzien gloves (4)
+13377	GEAR	hands	Shayzien gloves (5)
+13358	GEAR	feet	Shayzien boots (1)
+13363	GEAR	feet	Shayzien boots (2)
+13368	GEAR	feet	Shayzien boots (3)
+13373	GEAR	feet	Shayzien boots (4)
+13378	GEAR	feet	Shayzien boots (5)
+13359	GEAR	head	Shayzien helm (1)
+13364	GEAR	head	Shayzien helm (2)
+13369	GEAR	head	Shayzien helm (3)
+13374	GEAR	head	Shayzien helm (4)
+13379	GEAR	head	Shayzien helm (5)
+13360	GEAR	legs	Shayzien greaves (1)
+13365	GEAR	legs	Shayzien greaves (2)
+13370	GEAR	legs	Shayzien greaves (3)
+13375	GEAR	legs	Shayzien greaves (4)
+13380	GEAR	legs	Shayzien greaves (5)
+13361	GEAR	body	Shayzien platebody (1)
+13366	GEAR	body	Shayzien platebody (2)
+13371	GEAR	body	Shayzien platebody (3)
+13376	GEAR	body	Shayzien platebody (4)
+13381	GEAR	body	Shayzien body (5)
+1	CLEANUP	quest-item	Toolkit
+14	CLEANUP	quest-item	Railing
+16	CLEANUP	quest-item	Magic whistle
+74	CLEANUP	quest-item	Khazard helmet
+75	CLEANUP	quest-item	Khazard armour
+286	CLEANUP	quest-item	Orange goblin mail
+287	CLEANUP	quest-item	Blue goblin mail
+288	CLEANUP	quest-item	Goblin mail
+295	CLEANUP	quest-item	Glarial's amulet
+762	CLEANUP	quest-item	CERT intelligence-report collision
+9054	CLEANUP	quest-item	Red goblin mail
+9055	CLEANUP	quest-item	Black goblin mail
+9056	CLEANUP	quest-item	Yellow goblin mail
+9057	CLEANUP	quest-item	Green goblin mail
+9058	CLEANUP	quest-item	Purple goblin mail
+9059	CLEANUP	quest-item	Pink goblin mail
+26567	CLEANUP	quest-item	White goblin mail
+686	CLEANUP	junk	Rusty sword
+# Wiki: https://oldschool.runescape.wiki/w/Broken_axe_(bronze)?oldid=15184560
+# Family cross-checks:
+# https://oldschool.runescape.wiki/w/Broken_axe_(adamant)?oldid=15184562
+# https://oldschool.runescape.wiki/w/Broken_axe_(black)?oldid=15182617
+# Wiki: https://oldschool.runescape.wiki/w/Logs_(Tutorial_Island)?oldid=15190473
+# Wiki: https://oldschool.runescape.wiki/w/Raw_shrimps_(Tutorial_Island)?oldid=15190474
+# Wiki: https://oldschool.runescape.wiki/w/Bones_(Tutorial_Island)?oldid=15190476
+# Wiki: https://oldschool.runescape.wiki/w/Bones_(Soul_Wars)?oldid=15209204
+# Wiki: https://oldschool.runescape.wiki/w/Climbing_rope?oldid=15187162
+# Wiki: https://oldschool.runescape.wiki/w/Barricade?oldid=15187164
+# Wiki: https://oldschool.runescape.wiki/w/Barricade_(Soul_Wars)?oldid=15209192
+# Wiki: https://oldschool.runescape.wiki/w/Queen_help_book?oldid=15186957
+# Wiki: https://oldschool.runescape.wiki/w/Rope_(Last_Man_Standing)?oldid=15209259
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_dust?oldid=15189349
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_orb?oldid=15189352
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_ore?oldid=15189391
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_paddlefish?oldid=15190372
+# Wiki: https://oldschool.runescape.wiki/w/Burning_claws_(Last_Man_Standing)?oldid=15208943
+# Wiki: https://oldschool.runescape.wiki/w/Barbarian_arm?oldid=15194403
+494	CLEANUP	junk
+496	CLEANUP	junk
+498	CLEANUP	junk
+500	CLEANUP	junk
+502	CLEANUP	junk
+504	CLEANUP	junk
+6741	CLEANUP	junk	Historical broken axes; automatically repaired in 2014
+2511	CLEANUP	junk
+24650	CLEANUP	junk	Tutorial Island-only logs
+2514	CLEANUP	junk
+24652	CLEANUP	junk	Tutorial Island-only raw shrimps
+2530	CLEANUP	junk
+24655	CLEANUP	junk
+25199	CLEANUP	junk	Tutorial Island/Soul Wars gameplay copies
+4047	CLEANUP	junk	Castle Wars gameplay item
+4053	CLEANUP	junk
+25209	CLEANUP	junk
+25210	CLEANUP	junk	Castle Wars/Soul Wars gameplay items
+10562	CLEANUP	junk	Reclaimable Barbarian Assault reference book
+20587	CLEANUP	junk	LMS-only rope
+23830	CLEANUP	junk
+23833	CLEANUP	junk
+23837	CLEANUP	junk
+25958	CLEANUP	junk	Corrupted Gauntlet-only resources
+33200	CLEANUP	junk	LMS-only weapon copy
+33221	CLEANUP	junk	Hidden Demonic Pacts League cache item
+# Wiki: https://oldschool.runescape.wiki/w/Broken_pickaxe_(bronze)?oldid=15184083
+# Family cross-checks:
+# https://oldschool.runescape.wiki/w/Broken_pickaxe_(adamant)?oldid=15184086
+# https://oldschool.runescape.wiki/w/Broken_pickaxe_(black)?oldid=15189068
+# Wiki: https://oldschool.runescape.wiki/w/Broken_fishing_rod?oldid=15184527
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_axe?oldid=15189345
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_pickaxe?oldid=15189346
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_harpoon?oldid=15189347
+# Wiki: https://oldschool.runescape.wiki/w/Echo_axe?oldid=15239873
+# Wiki: https://oldschool.runescape.wiki/w/Echo_pickaxe?oldid=15262483
+# Wiki: https://oldschool.runescape.wiki/w/Echo_harpoon?oldid=15239875
+# Wiki: https://oldschool.runescape.wiki/w/Sage's_axe?oldid=15224281
+468	CLEANUP	junk
+470	CLEANUP	junk
+472	CLEANUP	junk
+474	CLEANUP	junk
+476	CLEANUP	junk
+478	CLEANUP	junk
+11923	CLEANUP	junk
+12594	CLEANUP	junk	Historical broken pickaxes; automatically repaired in 2014
+6662	CLEANUP	junk	No use and cannot be repaired
+23821	CLEANUP	junk	Corrupted Gauntlet-only axe
+23822	CLEANUP	junk	Corrupted Gauntlet-only pickaxe
+23823	CLEANUP	junk	Corrupted Gauntlet-only harpoon
+25110	CLEANUP	junk	Removed Raging Echoes League relic tool
+25112	CLEANUP	junk	Removed Raging Echoes League relic tool
+25114	CLEANUP	junk	Removed Raging Echoes League relic tool
+28773	CLEANUP	junk	Removed Trailblazer Reloaded League relic weapon
+626	CLUE	cosmetic	Pink boots
+628	CLUE	cosmetic	Green boots
+630	CLUE	cosmetic	Blue boots
+632	CLUE	cosmetic	Cream boots
+634	CLUE	cosmetic	Turquoise boots
+636	CLUE	cosmetic	Pink robe top
+638	CLUE	cosmetic	Green robe top
+640	CLUE	cosmetic	Blue robe top
+642	CLUE	cosmetic	Cream robe top
+644	CLUE	cosmetic	Turquoise robe top
+646	CLUE	cosmetic	Pink robe bottoms
+648	CLUE	cosmetic	Green robe bottoms
+650	CLUE	cosmetic	Blue robe bottoms
+652	CLUE	cosmetic	Cream robe bottoms
+654	CLUE	cosmetic	Turquoise robe bottoms
+656	CLUE	cosmetic	Pink hat
+658	CLUE	cosmetic	Green hat
+660	CLUE	cosmetic	Blue hat
+662	CLUE	cosmetic	Cream hat
+664	CLUE	cosmetic	Turquoise hat
+19958	CLUE	cosmetic	Dark tuxedo jacket
+19961	CLUE	cosmetic	Dark tuxedo cuffs
+19964	CLUE	cosmetic	Dark trousers
+19967	CLUE	cosmetic	Dark tuxedo shoes
+19970	CLUE	cosmetic	Dark bow tie
+19973	CLUE	cosmetic	Light tuxedo jacket
+19976	CLUE	cosmetic	Light tuxedo cuffs
+19979	CLUE	cosmetic	Light trousers
+19982	CLUE	cosmetic	Light tuxedo shoes
+19985	CLUE	cosmetic	Light bow tie
+88	TOOL	skilling-utility	Boots of lightness
+1005	TOOL	cooking-tool	White apron
+20713	TOOL	skilling-outfit	Pyromancer gloves
+25434	TOOL	skilling-outfit	Zealot's robe top
+25436	TOOL	skilling-outfit	Zealot's robe bottom
+25438	TOOL	skilling-outfit	Zealot's helm
+25440	TOOL	skilling-outfit	Zealot's boots
+25597	TOOL	skilling-outfit	Spirit angler legs
+27031	TOOL	skilling-outfit	Smiths gloves (i)
+28172	TOOL	skilling-outfit	Forestry lumberjack legs
+28176	TOOL	skilling-outfit	Forestry lumberjack boots
+235	HERBLORE	secondary	Unicorn horn dust
+243	HERBLORE	secondary	Blue dragon scale
+241	HERBLORE	secondary	Dragon scale dust
+245	HERBLORE	secondary	Wine of zamorak
+6049	HERBLORE	secondary	Yew roots
+227	HERBLORE	herblore-base	Vial of water
+9469	TELEPORT	teleport	Grand seed pod
+19564	TELEPORT	teleport	Royal seed pod
+29892	TELEPORT	teleport	Pendant of ates (inert)
+29893	TELEPORT	teleport	Pendant of ates
+21387	TELEPORT	teleport-container	Master scroll book (empty)
+21389	TELEPORT	teleport-container	Master scroll book
+29895	TELEPORT	teleport-charge	Frozen tear
+32399	TELEPORT	teleport	Sailors' amulet
+10890	TOOL	quest-utility	Prayer book
+552	TOOL	quest-utility	Ghostspeak amulet
+4024	TOOL	quest-utility	Ninja monkey greegree
+4026	TOOL	quest-utility	Gorilla greegree
+4030	TOOL	quest-utility	Zombie monkey greegree
+4031	TOOL	quest-utility	Karamjan monkey greegree
+6465	TOOL	quest-utility	Ring of charos(a)
+6544	TOOL	quest-utility	Catspeak amulet(e)
+4657	TOOL	quest-utility	Ring of visibility
+4567	TOOL	quest-utility	Gold helmet
+4156	TOOL	slayer-tool	Mirror shield
+4551	TOOL	slayer-tool	Spiny helmet
+6720	TOOL	slayer-tool	Slayer gloves
+7159	TOOL	slayer-tool	Insulated boots
+31398	TOOL	slayer-tool	Tortugan shield
+3337	TOOL	slayer-tool	Pointed myre snelm
+20712	TOOL	skilling-utility	Warm gloves
+4600	TOOL	skilling-utility	Willow blackjack
+6666	TOOL	skilling-utility	Flippers
+10069	TOOL	skilling-utility	Spotted cape
+10071	TOOL	skilling-utility	Spottier cape
+22435	TOOL	quest-utility	Enchanted emerald sickle (b)
+# Wiki: https://oldschool.runescape.wiki/w/Blessed_axe?oldid=15254568
+10491	TOOL	tool	Still chops undead trees and can damage vampyres after the quest
+# Wiki: https://oldschool.runescape.wiki/w/Emerald_lantern?oldid=15185115
+9064	TOOL	light-source	Unlit, fuelled
+9065	TOOL	light-source	Lit
+20722	TOOL	light-source	Empty, can be fuelled with lamp oil
+27023	TOOL	skilling-outfit	Smiths tunic
+27025	TOOL	skilling-outfit	Smiths trousers
+27027	TOOL	skilling-outfit	Smiths boots
+27029	TOOL	skilling-outfit	Smiths gloves
+1923	TOOL	cooking-tool	Bowl
+25580	TOOL	resource-container	Tackle box
+9419	TOOL	skilling-utility	Mith grapple
+13116	TOOL	skilling-utility	Bonecrusher
+6664	TOOL	slayer-tool	Fishing explosive
+26822	TOOL	runecrafting-utility	Abyssal lantern
+2309	POTION	food	Bread
+22081	POTION	pvm-utility	Locator orb
+4286	SKILLING	prayer-resource	Bucket of slime
+21129	TELEPORT	teleport	Ring of returning(5)
+21132	TELEPORT	teleport	Ring of returning(4)
+21134	TELEPORT	teleport	Ring of returning(3)
+21136	TELEPORT	teleport	Ring of returning(2)
+21138	TELEPORT	teleport	Ring of returning(1)
+772	TELEPORT	transport-access	Dramen staff
+31986	TOOL	sailing-utility	Captain's log
+31989	TOOL	sailing-utility	Boat bottle (empty)
+31733	TOOL	sailing-upgrade	Barrel stand
+31745	TOOL	sailing-upgrade	Captured wind mote
+31757	TOOL	sailing-upgrade	Heart of ithell
+31511	FARMING	coral-fragment	Elkhorn frag
+31515	FARMING	coral-fragment	Umbral frag
+985	UNIQUE	key-material	Tooth half of key
+987	UNIQUE	key-material	Loop half of key
+31732	UNIQUE	reward-key	Stormy key
+31744	UNIQUE	reward-key	Fetid key
+31756	UNIQUE	reward-key	Serrated key
+32865	UNIQUE	salvaging-relic	Dull knife (salvaging relic)
+32870	UNIQUE	salvaging-relic	Smashed mirror
+22710	SKILLING	construction-material	Curator's medallion
+1540	GEAR	shield	Anti-dragon shield
+3839	GEAR	shield	Damaged book (Saradomin)
+3841	GEAR	shield	Damaged book (Zamorak)
+3843	GEAR	shield	Damaged book (Guthix)
+12607	GEAR	shield	Damaged book (Bandos)
+12609	GEAR	shield	Damaged book (Armadyl)
+12611	GEAR	shield	Damaged book (Zaros)
+19677	UNIQUE	equipment-charge	Ancient shard
+# Wiki: https://oldschool.runescape.wiki/w/Ring_of_wealth_scroll?oldid=15186408
+12783	UNIQUE	equipment-upgrade	Repeatable Last Man Standing reward used to upgrade a ring of wealth
+22969	UNIQUE	equipment-upgrade	Hydra's heart
+22971	UNIQUE	equipment-upgrade	Hydra's fang
+22973	UNIQUE	equipment-upgrade	Hydra's eye
+11942	UNIQUE	boss-access-key	Ecumenical key
+19679	UNIQUE	boss-access-key	Dark totem base
+19681	UNIQUE	boss-access-key	Dark totem middle
+19683	UNIQUE	boss-access-key	Dark totem top
+19685	UNIQUE	boss-access-key	Dark totem
+20754	UNIQUE	boss-access-key	Giant key
+21724	UNIQUE	boss-access-key	Brittle key
+26356	UNIQUE	boss-access-key	Frozen key
+# Complete player-facing champion-scroll collection.
+6798	CLUE	collection-trophy
+6799	CLUE	collection-trophy
+6800	CLUE	collection-trophy	Giant champion scroll
+6801	CLUE	collection-trophy
+6802	CLUE	collection-trophy
+6803	CLUE	collection-trophy
+6804	CLUE	collection-trophy
+6805	CLUE	collection-trophy
+6806	CLUE	collection-trophy
+6807	CLUE	collection-trophy	Zombie champion scroll
+6808	CLUE	collection-trophy
+7975	CLUE	collection-trophy	Crawling hand
+7977	CLUE	collection-trophy	Basilisk head
+7981	CLUE	collection-trophy	Kq head
+11258	CLUE	collection-trophy	Jar generator
+12007	CLUE	collection-trophy	Jar of dirt
+21275	CLUE	collection-trophy	Dark claw
+23064	CLUE	collection-trophy	Jar of chemicals
+23077	CLUE	collection-trophy	Hydra heads
+21347	SKILLING	resource	Amethyst
+9375	SKILLING	ammo-component	Bronze bolts (unf)
+9376	SKILLING	ammo-component	Blurite bolts (unf)
+9377	SKILLING	ammo-component	Iron bolts (unf)
+9378	SKILLING	ammo-component	Steel bolts (unf)
+9379	SKILLING	ammo-component	Mithril bolts (unf)
+9380	SKILLING	ammo-component	Adamant bolts(unf)
+9381	SKILLING	ammo-component	Runite bolts (unf)
+9382	SKILLING	ammo-component	Silver bolts (unf)
+21930	SKILLING	ammo-component	Dragon bolts (unf)
+48	SKILLING	ammo-component	Longbow (u)
+50	SKILLING	ammo-component	Shortbow (u)
+54	SKILLING	ammo-component	Oak shortbow (u)
+56	SKILLING	ammo-component	Oak longbow (u)
+58	SKILLING	ammo-component	Willow longbow (u)
+60	SKILLING	ammo-component	Willow shortbow (u)
+62	SKILLING	ammo-component	Maple longbow (u)
+64	SKILLING	ammo-component	Maple shortbow (u)
+66	SKILLING	ammo-component	Yew longbow (u)
+68	SKILLING	ammo-component	Yew shortbow (u)
+70	SKILLING	ammo-component	Magic longbow (u)
+72	SKILLING	ammo-component	Magic shortbow (u)
+9454	SKILLING	ammo-component	Bronze crossbow (u)
+9456	SKILLING	ammo-component	Blurite crossbow (u)
+9457	SKILLING	ammo-component	Iron crossbow (u)
+9459	SKILLING	ammo-component	Steel crossbow (u)
+9461	SKILLING	ammo-component	Mithril crossbow (u)
+9463	SKILLING	ammo-component	Adamant crossbow (u)
+9465	SKILLING	ammo-component	Runite crossbow (u)
+21921	SKILLING	ammo-component	Dragon crossbow (u)
+5076	SKILLING	prayer-resource	Bird's egg
+5077	SKILLING	prayer-resource	Bird's egg
+5078	SKILLING	prayer-resource	Bird's egg
+# Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolts?oldid=15185058
+# Wiki: https://oldschool.runescape.wiki/w/Unfinished_broad_bolt_pack?oldid=15215059
+11876	SKILLING	ammo-component	Unfinished broad bolts
+11887	SKILLING	ammo-component	Unfinished broad bolt pack
+# Wiki: https://oldschool.runescape.wiki/w/Broken_antler?oldid=15194017
+31086	SKILLING	ammo-component	Fletched into atlatl dart tips
+# Wiki: https://oldschool.runescape.wiki/w/Unstrung_light_ballista?oldid=15187508
+# Wiki: https://oldschool.runescape.wiki/w/Unstrung_heavy_ballista?oldid=15187507
+19604	SKILLING	ammo-component	Unstrung light ballista
+19607	SKILLING	ammo-component	Unstrung heavy ballista
+# Wiki: https://oldschool.runescape.wiki/w/Cadava_berries?oldid=15183459
+753	FARMING	produce	Cadava berries: repeatable Farming payment, compost, and antipoison exchange
+# Wiki: https://oldschool.runescape.wiki/w/Grimy_snake_weed?oldid=15186652
+# Wiki: https://oldschool.runescape.wiki/w/Snake_weed?oldid=15184203
+# Wiki: https://oldschool.runescape.wiki/w/Grimy_rogue's_purse?oldid=15186655
+# Wiki: https://oldschool.runescape.wiki/w/Goutweed?oldid=15183815
+1525	HERBLORE	secondary	Grimy snake weed
+1526	HERBLORE	secondary	Snake weed
+1533	HERBLORE	secondary	Grimy rogue's purse
+3261	HERBLORE	secondary	Goutweed
+# Wiki: https://oldschool.runescape.wiki/w/Unfired_pot_lid?oldid=15187385
+4438	SKILLING	crafting-material	Unfired pot lid: repeatable Crafting intermediate
+# Wiki: https://oldschool.runescape.wiki/w/Herb_tea_mix?oldid=15185742
+# Wiki: https://oldschool.runescape.wiki/w/Magic_essence_(unf)?oldid=15186269
+4464	HERBLORE	herblore
+4466	HERBLORE	herblore
+4468	HERBLORE	herblore
+4470	HERBLORE	herblore
+4472	HERBLORE	herblore
+4474	HERBLORE	herblore
+4476	HERBLORE	herblore
+4478	HERBLORE	herblore
+4480	HERBLORE	herblore
+4482	HERBLORE	herblore	Herb tea mix variants used to make Guthix rest
+9019	HERBLORE	herblore	Magic essence (unf)
+# Wiki: https://oldschool.runescape.wiki/w/Goblin_potion?oldid=15195296
+26581	POTION	potion-dose-4	Goblin potion(4)
+26583	POTION	potion-dose-3	Goblin potion(3)
+26585	POTION	potion-dose-2	Goblin potion(2)
+26587	POTION	potion-dose-1	Goblin potion(1)
+# Wiki: https://oldschool.runescape.wiki/w/Ardrigal_mixture?oldid=15185810
+# Wiki: https://oldschool.runescape.wiki/w/Unicorn_horn_(Underground_Pass)?oldid=15185533
+# Wiki: https://oldschool.runescape.wiki/w/Grimy_ardrigal?oldid=15186651
+# Wiki: https://oldschool.runescape.wiki/w/Grimy_sito_foil?oldid=15186653
+# Wiki: https://oldschool.runescape.wiki/w/Grimy_volencia_moss?oldid=15186654
+# Wiki: https://oldschool.runescape.wiki/w/Mysterious_herb?oldid=15188842
+# Wiki: https://oldschool.runescape.wiki/w/Unfinished_blood_potion?oldid=15188844
+# Wiki: https://oldschool.runescape.wiki/w/Unfinished_potion_(A_Taste_of_Hope)?oldid=15188845
+# Wiki: https://oldschool.runescape.wiki/w/Elder_cadantine?oldid=15189342
+# Wiki: https://oldschool.runescape.wiki/w/Elder_cadantine_potion_(unf)?oldid=15189343
+# Wiki: https://oldschool.runescape.wiki/w/Korbal_herb?oldid=15191527
+# Wiki: https://oldschool.runescape.wiki/w/Smooth_leaf?oldid=15192435
+# Wiki: https://oldschool.runescape.wiki/w/Sticky_leaf?oldid=15192437
+# Wiki: https://oldschool.runescape.wiki/w/Enriched_snapdragon?oldid=15192547
+# Wiki: https://oldschool.runescape.wiki/w/Enriched_snapdragon_seed?oldid=15192546
+# Wiki: https://oldschool.runescape.wiki/w/Grimy_note?oldid=15192550
+# Wiki: https://oldschool.runescape.wiki/w/Putrid_sticky_potion?oldid=15254431
+# Wiki: https://oldschool.runescape.wiki/w/Foul_chunky_potion?oldid=15254430
+# Wiki: https://oldschool.runescape.wiki/w/Rancid_slimy_potion?oldid=15263434
+# Wiki: https://oldschool.runescape.wiki/w/Rank_frothy_potion?oldid=15254428
+738	CLEANUP	quest-item	Ardrigal mixture
+1487	CLEANUP	quest-item	Unicorn horn
+1527	CLEANUP	quest-item	Grimy ardrigal
+1529	CLEANUP	quest-item	Grimy sito foil
+1531	CLEANUP	quest-item	Grimy volencia moss
+22402	CLEANUP	quest-item	Mysterious herb
+22406	CLEANUP	quest-item	Unfinished blood potion
+22408	CLEANUP	quest-item	Unfinished potion
+23798	CLEANUP	quest-item	Elder cadantine
+23800	CLEANUP	quest-item	Elder cadantine potion (unf)
+28384	CLEANUP	quest-item	Korbal herb
+28978	CLEANUP	quest-item	Smooth leaf
+28979	CLEANUP	quest-item	Sticky leaf
+29530	CLEANUP	quest-item	Enriched snapdragon
+29538	CLEANUP	quest-item	Enriched snapdragon seed
+29558	CLEANUP	quest-item	Grimy note
+33803	CLEANUP	quest-item
+33804	CLEANUP	quest-item
+33805	CLEANUP	quest-item
+33806	CLEANUP	quest-item	Putrid sticky potion variants
+33807	CLEANUP	quest-item
+33808	CLEANUP	quest-item
+33809	CLEANUP	quest-item
+33810	CLEANUP	quest-item	Foul chunky potion variants
+33811	CLEANUP	quest-item
+33812	CLEANUP	quest-item
+33813	CLEANUP	quest-item
+33814	CLEANUP	quest-item	Rancid slimy potion variants
+33815	CLEANUP	quest-item
+33816	CLEANUP	quest-item
+33817	CLEANUP	quest-item
+33818	CLEANUP	quest-item	Rank frothy potion variants
+# Wiki: https://oldschool.runescape.wiki/w/Yommi_tree_seeds?oldid=15184984
+# "not possible to reobtain ... after completion"; used for the Legends' Quest totem.
+# Wiki: https://oldschool.runescape.wiki/w/Consecration_seed?oldid=15184516
+# Used for the Roving Elves consecration; replacements are described only during the quest.
+# Wiki: https://oldschool.runescape.wiki/w/White_pearl_seed?oldid=15184378
+# "can not be planted in any farming patches".
+# Wiki: https://oldschool.runescape.wiki/w/Kelda_seed?oldid=15184586
+# Grown to brew the Kelda stout required during Forgettable Tale.
+# Wiki: https://oldschool.runescape.wiki/w/White_rose_seed?oldid=15184617
+# Wiki: https://oldschool.runescape.wiki/w/Red_rose_seed?oldid=15184615
+# Wiki: https://oldschool.runescape.wiki/w/Pink_rose_seed?oldid=15184614
+# Wiki: https://oldschool.runescape.wiki/w/Vine_seed?oldid=15184616
+# Wiki: https://oldschool.runescape.wiki/w/Delphinium_seed?oldid=15184613
+# Wiki: https://oldschool.runescape.wiki/w/Orchid_seed_(pink)?oldid=15186005
+# Wiki: https://oldschool.runescape.wiki/w/Orchid_seed_(yellow)?oldid=15186006
+# Wiki: https://oldschool.runescape.wiki/w/Snowdrop_seed?oldid=15183912
+# Wiki: https://oldschool.runescape.wiki/w/White_tree_sapling?oldid=15184618
+# The garden family is planted in Queen Ellamaria's quest garden; no continuing use is recorded.
+# Wiki: https://oldschool.runescape.wiki/w/Plant_cure_(Garden_of_Tranquillity)?oldid=15184621
+# It can still be created later, but its recorded use is curing the quest's Burthorpe vines.
+# Wiki: https://oldschool.runescape.wiki/w/Blindweed_seed?oldid=15185824
+# The player "must grow" it during Rum Deal for the quest's unsanitary swill.
+# Wiki: https://oldschool.runescape.wiki/w/Auguste's_sapling?oldid=15185627
+# "cannot be re-obtained after completing the quest".
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_(Song_of_the_Elves)?oldid=15189419
+# Quest item ground into the crystal dust needed for the inversion potion.
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_seed_(Song_of_the_Elves)?oldid=15189418
+# Quest item used to locate Lord Amlodd before Eluned enchants it.
+735	CLEANUP	quest-item
+736	CLEANUP	quest-item
+4205	CLEANUP	quest-item
+4206	CLEANUP	quest-item
+4486	CLEANUP	quest-item
+6112	CLEANUP	quest-item
+6453	CLEANUP	quest-item
+6454	CLEANUP	quest-item
+6455	CLEANUP	quest-item
+6456	CLEANUP	quest-item
+6457	CLEANUP	quest-item
+6458	CLEANUP	quest-item
+6459	CLEANUP	quest-item
+6460	CLEANUP	quest-item
+6464	CLEANUP	quest-item
+6468	CLEANUP	quest-item
+6710	CLEANUP	quest-item
+9932	CLEANUP	quest-item
+23802	CLEANUP	quest-item
+23808	CLEANUP	quest-item
+23810	CLEANUP	quest-item
+# Wiki: https://oldschool.runescape.wiki/w/Bone_seeds?oldid=15184790
+# "obtained during and after" Swan Song; repeatedly summons an emote-performing skeleton.
+7950	CLUE	cosmetic
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_saw_seed?oldid=15203824
+# Quest reward that "can be enchanted into a crystal saw" and can be replaced if lost.
+9626	TOOL	tool
+# Wiki: https://oldschool.runescape.wiki/w/%3F%3F%3F_mixture?oldid=15188933
+# "used only in Recruitment Drive"; none of the failed mixtures help complete the trial.
+# Wiki: https://oldschool.runescape.wiki/w/Agility_dolmen?oldid=15192526
+# Wiki: https://oldschool.runescape.wiki/w/Attack_dolmen?oldid=15192529
+# Wiki: https://oldschool.runescape.wiki/w/Balance_dolmen?oldid=15192530
+# Wiki: https://oldschool.runescape.wiki/w/Combat_dolmen?oldid=15192534
+# Wiki: https://oldschool.runescape.wiki/w/Defence_dolmen?oldid=15192538
+# Wiki: https://oldschool.runescape.wiki/w/Energy_dolmen?oldid=15192545
+# Wiki: https://oldschool.runescape.wiki/w/Hunter_dolmen?oldid=15192551
+# Wiki: https://oldschool.runescape.wiki/w/Inversion_potion?oldid=15189413
+# Made only to enter the crystallised Grand Library; attempting to drink it is refused.
+# Wiki: https://oldschool.runescape.wiki/w/Magic_dolmen?oldid=15192553
+# Wiki: https://oldschool.runescape.wiki/w/Prayer_dolmen?oldid=15192557
+# Wiki: https://oldschool.runescape.wiki/w/Ranged_dolmen?oldid=15192558
+# Wiki: https://oldschool.runescape.wiki/w/Restoration_dolmen?oldid=15192559
+# Wiki: https://oldschool.runescape.wiki/w/Strength_dolmen?oldid=15192566
+# Each dolmen is used once on the central table to open the While Guthix Sleeps door.
+# Wiki: https://oldschool.runescape.wiki/w/Amitire_stew?oldid=15252771
+# Made during The Blood Moon Rises and given to Safalaan so he can recover.
+# Wiki: https://oldschool.runescape.wiki/w/Apricot_cream_pie?oldid=15209189
+# "unobtainable item" shown only in a Fremennik Isles cutscene.
+# Wiki: https://oldschool.runescape.wiki/w/Arder-musca_poison?oldid=15191551
+# Two are fed to Duke Sucellus for the one quest encounter; no normal-bank use is recorded.
+# Wiki: https://oldschool.runescape.wiki/w/Arder-resper_poison?oldid=15191547
+# Wiki: https://oldschool.runescape.wiki/w/Holos-arder_poison?oldid=15191549
+# Wiki: https://oldschool.runescape.wiki/w/Musca-holos_poison?oldid=15191552
+# Wiki: https://oldschool.runescape.wiki/w/Musca-resper_poison?oldid=15191550
+# Wiki: https://oldschool.runescape.wiki/w/Resper-holos_poison?oldid=15191548
+# These five poison combinations are explicitly described as scrapped Duke-fight items.
+# Wiki: https://oldschool.runescape.wiki/w/Blood_potion?oldid=15188847
+# Used on Serafina's door during A Taste of Hope, not drunk as a repeatable potion.
+# Wiki: https://oldschool.runescape.wiki/w/Bravery_potion?oldid=15185855
+# It can still be made later, but "has no uses aside from the quest".
+# Wiki: https://oldschool.runescape.wiki/w/Cadava_potion?oldid=15185450
+# Quest-only sleeping potion; it cannot be made through normal Herblore.
+# Wiki: https://oldschool.runescape.wiki/w/Cake_of_guidance?oldid=15185652
+# Used on the Lumbridge Guide and "cannot be eaten".
+# Wiki: https://oldschool.runescape.wiki/w/Canvas_piece?oldid=14960776
+# Used once on The Final Dawn's sun-and-moon mural.
+# Wiki: https://oldschool.runescape.wiki/w/Cat_antipoison?oldid=15185820
+# Cures Pox and "can only be obtained during the quest".
+# Wiki: https://oldschool.runescape.wiki/w/Cloudy_grey_potion?oldid=15254404
+# Wiki: https://oldschool.runescape.wiki/w/Cold_bluish-white_potion?oldid=15254407
+# Wiki: https://oldschool.runescape.wiki/w/Thick_red_potion?oldid=15254406
+# Wiki: https://oldschool.runescape.wiki/w/Weightless_black_potion?oldid=15254405
+# These four shelf potions exist only as pieces of the Blood Moon refiner puzzle.
+# Wiki: https://oldschool.runescape.wiki/w/Code_converter?oldid=15191498
+# Used with the magic lantern to decode one Desert Treasure II vault password.
+# Wiki: https://oldschool.runescape.wiki/w/Crocodile_emblem?oldid=15190910
+# Quest emblem obtained for the Beneath Cursed Sands progression puzzle.
+# Wiki: https://oldschool.runescape.wiki/w/Decoder_strips?oldid=14906664
+# Used with the code key to open The Curse of Arrav's vault.
+# Wiki: https://oldschool.runescape.wiki/w/Dream_potion?oldid=15184994
+# Consumed by the two recorded quest dream sequences; no post-quest use is listed.
+# Wiki: https://oldschool.runescape.wiki/w/Drinking_flask?oldid=14764548
+# Death on the Isle evidence item whose liquid cannot be identified or consumed.
+# Wiki: https://oldschool.runescape.wiki/w/Dwarf_brew?oldid=15185538
+# Used to burn Iban's tomb; Kamen's offered drink only drains Agility.
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_bear?oldid=15185653
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_beef?oldid=15185656
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_chicken?oldid=15185654
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_rat?oldid=15185655
+# Each meat is "used only in Druidic Ritual" and cannot be made again after the quest.
+# Wiki: https://oldschool.runescape.wiki/w/Explosive_potion_(Song_of_the_Elves)?oldid=15189412
+# Prepared by Elena solely to reinforce holes during Song of the Elves.
+# Wiki: https://oldschool.runescape.wiki/w/Fresh_monkfish?oldid=15184848
+# Quest-specific stock fish: only 1 Fishing XP and 1 Hitpoint when eaten.
+# Wiki: https://oldschool.runescape.wiki/w/Giant_carp?oldid=15185614
+# Raw giant carp "can only be caught" before receiving the Fishing Contest trophy.
+# Wiki: https://oldschool.runescape.wiki/w/Karambwan_paste?oldid=15184059
+# Raw and cooked paste "cannot be used to poison weaponry"; only ID 3153 remains functional.
+# Wiki: https://oldschool.runescape.wiki/w/Karambwanji?oldid=15183757
+# After its quest step, cooking it reports "You don't feel that would be useful now."
+# Wiki: https://oldschool.runescape.wiki/w/Karambwanji_paste?oldid=15185107
+# Raw paste is a quest ingredient; cooked paste is explicitly "useless".
+# Wiki: https://oldschool.runescape.wiki/w/Khali_brew?oldid=15184623
+# Cannot be drunk; it only intoxicates the Fight Arena head guard.
+# Wiki: https://oldschool.runescape.wiki/w/Magic_ogre_potion?oldid=15184411
+# "cannot be made after the quest" and the wizard confiscates retained copies.
+# Wiki: https://oldschool.runescape.wiki/w/Map_piece?oldid=15188595
+# The 24 pieces combine into Dragon Slayer II's one Lithkren map.
+# Wiki: https://oldschool.runescape.wiki/w/Piece_of_railing?oldid=15185534
+# Used once to break the Underground Pass unicorn cage.
+# Wiki: https://oldschool.runescape.wiki/w/Potion_(Watchtower)?oldid=15185888
+# ID 2394 can be remade later but "has no further use".
+# Wiki: https://oldschool.runescape.wiki/w/Potion_(A_Taste_of_Hope)?oldid=15188846
+# ID 22409 is used only on Serafina's door.
+# Wiki: https://oldschool.runescape.wiki/w/Potion_note?oldid=15191529
+# A Desert Treasure II desk clue, not a consumable potion.
+# Wiki: https://oldschool.runescape.wiki/w/Potion_of_sealegs?oldid=15188445
+# Made for and handed to Bone Voyage's Lead Navigator.
+# Wiki: https://oldschool.runescape.wiki/w/Red_herring?oldid=15185671
+# Quest puzzle item; its later one-off conversion to ordinary herring is not a repeatable recipe.
+# Wiki: https://oldschool.runescape.wiki/w/Reduced_cadava_potion?oldid=15188965
+# Calibrated once for the Wise Old Man during Making Friends with My Arm.
+# Wiki: https://oldschool.runescape.wiki/w/Revitalisation_potion_(Dragon_Slayer_II)?oldid=15188654
+# Only heals injured Fremennik warriors during the Ungael voyage.
+# Wiki: https://oldschool.runescape.wiki/w/Scarred_scraps?oldid=15191481
+# "CANNOT be taken out of the Scar" and is removed when a quest level completes.
+# Wiki: https://oldschool.runescape.wiki/w/Seasoned_chompy?oldid=15185551
+# Cooked for and handed to Rantz to complete Big Chompy Bird Hunting.
+# Wiki: https://oldschool.runescape.wiki/w/Seasoned_sardine?oldid=15186279
+# "serves no further use after the quest".
+# Wiki: https://oldschool.runescape.wiki/w/Sheep_bones_(1)?oldid=15187374
+# Wiki: https://oldschool.runescape.wiki/w/Sheep_bones_(2)?oldid=15187375
+# Wiki: https://oldschool.runescape.wiki/w/Sheep_bones_(3)?oldid=15187376
+# Each colour is "used only in Sheep Herder" and cannot be buried.
+# Wiki: https://oldschool.runescape.wiki/w/Shielding_potion?oldid=15190236
+# Used once to reinforce the Doors of Dinh.
+# Wiki: https://oldschool.runescape.wiki/w/Smelly_kebab?oldid=15254427
+# Realm-limited quest supply that cannot be consumed in the normal world.
+# Wiki: https://oldschool.runescape.wiki/w/Strange_potion?oldid=15185281
+# ID 4836 can only transform Sithik during Zogre Flesh Eaters.
+# Wiki: https://oldschool.runescape.wiki/w/Strange_potion_(Desert_Treasure_II)?oldid=15191528
+# ID 28383 is drunk once to enter the Stranglewood during Desert Treasure II.
+# Wiki: https://oldschool.runescape.wiki/w/Strangler_serum?oldid=15191524
+# Prevents quest infection while traversing the Stranglewood.
+# Wiki: https://oldschool.runescape.wiki/w/Strong_cup_of_tea?oldid=15190855
+# A regular tea relabelled and delivered to Herbert during Temple of the Eye.
+# Wiki: https://oldschool.runescape.wiki/w/Stuffed_snake?oldid=15232804
+# Ingredients cannot be procured after the subquest; only existing leftovers can be cooked.
+# Wiki: https://oldschool.runescape.wiki/w/Sulphur_potion?oldid=15190237
+# Quest intermediate enchanted into the one-use shielding potion.
+# Wiki: https://oldschool.runescape.wiki/w/Test_kebab?oldid=14764698
+# Two identical quest-stage samples delivered during Meat and Greet.
+# Wiki: https://oldschool.runescape.wiki/w/Tome_of_experience_(Darkness_of_Hallowvale)?oldid=15185702
+# Three one-use chapters; the tome "cannot be banked" and crumbles after reading.
+# Wiki: https://oldschool.runescape.wiki/w/Troll_potion?oldid=15185541
+# After the quest it "can no longer be created": "You don't need to make any more."
+# Wiki: https://oldschool.runescape.wiki/w/Unfinished_serum?oldid=15191525
+# Kasonde's quest intermediate for the Strangler serum.
+# Wiki: https://oldschool.runescape.wiki/w/Wine_labels?oldid=14764724
+# Death on the Isle evidence used to identify the cellar's wine jugs.
+5591	CLEANUP	quest-item
+29539	CLEANUP	quest-item
+29542	CLEANUP	quest-item
+29551	CLEANUP	quest-item
+29545	CLEANUP	quest-item
+29544	CLEANUP	quest-item
+29540	CLEANUP	quest-item
+29548	CLEANUP	quest-item
+23806	CLEANUP	quest-item
+29550	CLEANUP	quest-item
+29547	CLEANUP	quest-item
+29546	CLEANUP	quest-item
+29541	CLEANUP	quest-item
+29543	CLEANUP	quest-item
+33797	CLEANUP	quest-item
+10841	CLEANUP	quest-item
+28351	CLEANUP	quest-item
+28355	CLEANUP	quest-item
+28353	CLEANUP	quest-item
+28350	CLEANUP	quest-item
+28352	CLEANUP	quest-item
+28354	CLEANUP	quest-item
+22407	CLEANUP	quest-item
+739	CLEANUP	quest-item
+756	CLEANUP	quest-item
+7542	CLEANUP	quest-item
+30950	CLEANUP	quest-item
+6766	CLEANUP	quest-item
+33769	CLEANUP	quest-item
+33772	CLEANUP	quest-item
+33771	CLEANUP	quest-item
+33770	CLEANUP	quest-item
+28425	CLEANUP	quest-item
+26959	CLEANUP	quest-item
+30317	CLEANUP	quest-item
+11154	CLEANUP	quest-item
+29925	CLEANUP	quest-item
+1501	CLEANUP	quest-item
+524	CLEANUP	quest-item
+522	CLEANUP	quest-item
+525	CLEANUP	quest-item
+523	CLEANUP	quest-item
+23818	CLEANUP	quest-item
+7942	CLEANUP	quest-item
+7943	CLEANUP	quest-item
+337	CLEANUP	quest-item
+3152	CLEANUP	quest-item
+3154	CLEANUP	quest-item
+21394	CLEANUP	quest-item
+3155	CLEANUP	quest-item
+3156	CLEANUP	quest-item
+77	CLEANUP	quest-item
+2395	CLEANUP	quest-item
+22009	CLEANUP	quest-item
+22010	CLEANUP	quest-item
+22011	CLEANUP	quest-item
+22012	CLEANUP	quest-item
+22013	CLEANUP	quest-item
+22014	CLEANUP	quest-item
+22015	CLEANUP	quest-item
+22016	CLEANUP	quest-item
+22017	CLEANUP	quest-item
+22018	CLEANUP	quest-item
+22019	CLEANUP	quest-item
+22020	CLEANUP	quest-item
+22021	CLEANUP	quest-item
+22022	CLEANUP	quest-item
+22023	CLEANUP	quest-item
+22024	CLEANUP	quest-item
+22025	CLEANUP	quest-item
+22026	CLEANUP	quest-item
+22027	CLEANUP	quest-item
+22028	CLEANUP	quest-item
+22029	CLEANUP	quest-item
+22030	CLEANUP	quest-item
+22031	CLEANUP	quest-item
+22032	CLEANUP	quest-item
+1486	CLEANUP	quest-item
+2394	CLEANUP	quest-item
+22409	CLEANUP	quest-item
+28382	CLEANUP	quest-item
+21531	CLEANUP	quest-item
+3742	CLEANUP	quest-item
+22589	CLEANUP	quest-item
+22096	CLEANUP	quest-item
+28443	CLEANUP	quest-item
+2882	CLEANUP	quest-item
+1552	CLEANUP	quest-item
+280	CLEANUP	quest-item
+281	CLEANUP	quest-item
+282	CLEANUP	quest-item
+283	CLEANUP	quest-item
+25813	CLEANUP	quest-item
+33820	CLEANUP	quest-item
+4836	CLEANUP	quest-item
+28383	CLEANUP	quest-item
+28388	CLEANUP	quest-item
+26904	CLEANUP	quest-item
+7579	CLEANUP	quest-item
+25812	CLEANUP	quest-item
+29898	CLEANUP	quest-item
+29899	CLEANUP	quest-item
+9656	CLEANUP	quest-item
+9657	CLEANUP	quest-item
+9658	CLEANUP	quest-item
+3265	CLEANUP	quest-item
+28386	CLEANUP	quest-item
+28387	CLEANUP	quest-item
+29928	CLEANUP	quest-item
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_lyre?oldid=15263869
+# "After the quest" it remains a rechargeable teleport to several Fremennik destinations.
+3691	TELEPORT	teleport
+6125	TELEPORT	teleport
+6126	TELEPORT	teleport
+6127	TELEPORT	teleport
+# Wiki: https://oldschool.runescape.wiki/w/Ground_cod?oldid=15183709
+# Repeatably made Cooking ingredient used to produce fishcakes.
+# Wiki: https://oldschool.runescape.wiki/w/Olive_oil?oldid=15185750
+# Repeatably bought minigame material converted into sacred oil for pyre logs.
+7528	SKILLING	resource
+3422	SKILLING	resource
+3424	SKILLING	resource
+3426	SKILLING	resource
+3428	SKILLING	resource
+# Wiki: https://oldschool.runescape.wiki/w/Holy_water?oldid=15242493
+# Repeatably craftable demonbane Ranged weapon with a 60% damage multiplier.
+732	GEAR	thrown-weapon
+# Wiki: https://oldschool.runescape.wiki/w/Rod_of_ivandis?oldid=15252513
+# Charged silver staff, autocasting weapon, and tier-2 vampyre weapon after the quest.
+7637	GEAR	weapon	Silvthrill rod
+7638	GEAR	weapon	Enchanted Silvthrill rod
+7639	GEAR	weapon
+7640	GEAR	weapon
+7641	GEAR	weapon
+7642	GEAR	weapon
+7643	GEAR	weapon
+7644	GEAR	weapon
+7645	GEAR	weapon
+7646	GEAR	weapon
+7647	GEAR	weapon
+7648	GEAR	weapon
+# Wiki: https://oldschool.runescape.wiki/w/Magnet_(Recruitment_Drive)?oldid=15188932
+# The Recruitment Drive copies are deleted after their one-time puzzle use.
+# Wiki: https://oldschool.runescape.wiki/w/Cupric_ore_powder?oldid=15186923
+# Wiki: https://oldschool.runescape.wiki/w/Tin_ore_powder?oldid=15186924
+# Used only to solve the Recruitment Drive chemistry puzzle.
+# Wiki: https://oldschool.runescape.wiki/w/Fishing_pass?oldid=15239594
+# Wiki: https://oldschool.runescape.wiki/w/Fishing_trophy?oldid=15185693
+# Wiki: https://oldschool.runescape.wiki/w/Raw_giant_carp?oldid=15185613
+# Fishing Contest-only access, proof, and catch; the carp cannot be caught afterward.
+# Wiki: https://oldschool.runescape.wiki/w/Rose-tinted_lens?oldid=15250402
+# The Hand in the Sand evidence chain has no repeatable post-quest workflow.
+# Wiki: https://oldschool.runescape.wiki/w/Orb_of_light?oldid=15185532
+# Wiki: https://oldschool.runescape.wiki/w/Orb_of_light_(Song_of_the_Elves)?oldid=15189428
+# Quest-puzzle objects that are destroyed or consumed while opening their route.
+# Wiki: https://oldschool.runescape.wiki/w/Magic_gold_feather?oldid=15183365
+# The Holy Grail trail marker explicitly has no use after the quest.
+# Wiki: https://oldschool.runescape.wiki/w/Silver_necklace?oldid=15183215
+# Murder Mystery evidence pieces are used only to identify the culprit.
+# Wiki: https://oldschool.runescape.wiki/w/Burnt_fishcake?oldid=15188252
+# The burnt result explicitly has no use.
+# Wiki: https://oldschool.runescape.wiki/w/Keg_(The_Great_Brain_Robbery)?oldid=15186953
+# The quest keg cannot be picked up after completion; the second ID is a dummy copy.
+# Wiki: https://oldschool.runescape.wiki/w/Metal_feather?oldid=15183683
+# Rendered useless by the Eagles' Peak mechanism and not re-obtainable afterward.
+# Wiki: https://oldschool.runescape.wiki/w/Mysterious_orb_(Client_of_Kourend)?oldid=15188336
+# Client of Kourend-only locator; extra copies are removed after the quest.
+# Wiki: https://oldschool.runescape.wiki/w/Vial_(jangerberries_and_guam_leaf)?oldid=15186989
+# Watchtower potion intermediates have no further use after the quest.
+# Wiki: https://oldschool.runescape.wiki/w/Display_cabinet_key?oldid=15185909
+# The museum puzzle key is explicitly useless after the quest.
+# Wiki: https://oldschool.runescape.wiki/w/Waxwood_log?oldid=15189856
+# Wiki: https://oldschool.runescape.wiki/w/Waxwood_plank?oldid=15189857
+# Daddy's Home-only processing materials; duplicate logs cannot be obtained.
+# Wiki: https://oldschool.runescape.wiki/w/Golden_feather_(Priest_in_Peril)?oldid=15186885
+# ID 2950 is the Priest in Peril trail item and has no post-quest use.
+# Wiki: https://oldschool.runescape.wiki/w/Barrel_bomb?oldid=15238286
+# Regicide explosives and their intermediates are only used by the quest chain.
+# Wiki: https://oldschool.runescape.wiki/w/Ana_in_a_barrel?oldid=15238258
+# The barrel is the one-time Tourist Trap rescue transport.
+# Wiki: https://oldschool.runescape.wiki/w/Ardougne_knight_tabard?oldid=15189341
+# Song of the Elves disguise material, consumed by the quest workflow.
+# Wiki: https://oldschool.runescape.wiki/w/Axe_head?oldid=15185054
+# The Dorgesh-Kaan quest specimen has no normal axe/resource use.
+# Wiki: https://oldschool.runescape.wiki/w/Selected_iron?oldid=15183695
+# Wiki: https://oldschool.runescape.wiki/w/Bar_magnet?oldid=15183696
+# Animal Magnetism-only magnetisation intermediates.
+# Wiki: https://oldschool.runescape.wiki/w/Bone_key_(Ghosts_Ahoy)?oldid=15185195
+# The Ghosts Ahoy key is explicitly useless after the quest.
+# Wiki: https://oldschool.runescape.wiki/w/Bone_beads?oldid=15185259
+# Wiki: https://oldschool.runescape.wiki/w/Bone_shard_(Shilo_Village)?oldid=15185260
+# Shilo Village quest-stage remains and necklace components.
+# Wiki: https://oldschool.runescape.wiki/w/Bone_charm?oldid=15188444
+# The Great Brain Robbery navigation charm is a one-time quest object.
+# Wiki: https://oldschool.runescape.wiki/w/Cannon_barrel_(Cabin_Fever)?oldid=15184798
+# Cabin Fever repair material, not a functional dwarf multicannon part.
+# Wiki: https://oldschool.runescape.wiki/w/Clay_head?oldid=15189933
+# Destroyed during Getting Ahead and unavailable after mounting the replacement.
+# Wiki: https://oldschool.runescape.wiki/w/Dwarven_battleaxe?oldid=15183724
+# Quest/animation states, not usable battleaxes.
+# Wiki: https://oldschool.runescape.wiki/w/Fishbowl_and_net?oldid=15185826
+# Sea Slug quest capture object; it only untangles back into ordinary components.
+# Wiki: https://oldschool.runescape.wiki/w/Ground_charcoal?oldid=15184009
+# A quest-only ingredient for the Watchtower and Zogre Flesh Eaters chains.
+# Wiki: https://oldschool.runescape.wiki/w/Iban's_ashes?oldid=15185539
+# Underground Pass-only remains used to enchant the doll.
+# Wiki: https://oldschool.runescape.wiki/w/Orb_of_protection?oldid=15183408
+# Fight Arena-only protection object with no post-quest workflow.
+# Wiki: https://oldschool.runescape.wiki/w/Prototype_dart_tip?oldid=15185562
+# Tourist Trap quest prototype rather than a normal Fletching component.
+# Wiki: https://oldschool.runescape.wiki/w/Raw_guide_cake?oldid=15185651
+# Recipe for Disaster quest intermediate, not repeatable food production.
+# Wiki: https://oldschool.runescape.wiki/w/Custom_bow_string?oldid=15186838
+# Fremennik Trials merchant-chain barter objects.
+# Wiki: https://oldschool.runescape.wiki/w/Weapon_store_key?oldid=15185730
+# The Grand Tree quest access key has no documented repeatable function.
+# Wiki: https://oldschool.runescape.wiki/w/Battleaxe_(The_Blood_Moon_Rises)?oldid=15255255
+# Blood Moon realm/quest-only construction, combat, and puzzle objects.
+# Wiki: https://oldschool.runescape.wiki/w/Bone_in_vinegar?oldid=15186165
+# Rag and Bone Man II museum specimens and prepared states have only the wishlist use.
+# Wiki: https://oldschool.runescape.wiki/w/Cave_goblin_skull?oldid=15186330
+# Hopespear's Will leader remains are buried once in the goblin crypt.
+# Wiki: https://oldschool.runescape.wiki/w/Pulley_beam?oldid=15184592
+# Elemental Workshop II machine-repair components.
+# Wiki: https://oldschool.runescape.wiki/w/Fishing_dolmen?oldid=15192549
+# One-time Twilight's Promise trial object.
+# Wiki: https://oldschool.runescape.wiki/w/Strange_icon?oldid=15236739
+# Disintegrates after the miniquest offering.
+# Wiki: https://oldschool.runescape.wiki/w/Gooey_note?oldid=15191459
+# Desert Treasure II puzzle notes explicitly report no further need on destruction.
+# Wiki: https://oldschool.runescape.wiki/w/Feathered_journal?oldid=15185357
+# Wiki: https://oldschool.runescape.wiki/w/Astronomy_book?oldid=15182703
+# Wiki: https://oldschool.runescape.wiki/w/Book_of_spyology?oldid=15187475
+# Quest books whose permanent readable copies can be stored in a POH bookcase.
+# Wiki: https://oldschool.runescape.wiki/w/Old_note_(Sins_of_the_Father)?oldid=15189785
+# Wiki: https://oldschool.runescape.wiki/w/Mucky_note?oldid=15191569
+# Completed quest-puzzle notes with no repeatable material function.
+2410	CLEANUP	quest-item
+3718	CLEANUP	quest-item
+5604	CLEANUP	quest-item
+5584	CLEANUP	quest-item
+5583	CLEANUP	quest-item
+27	CLEANUP	quest-item
+26	CLEANUP	quest-item
+338	CLEANUP	quest-item
+6956	CLEANUP	quest-item
+6947	CLEANUP	quest-item
+6958	CLEANUP	quest-item
+6954	CLEANUP	quest-item
+6948	CLEANUP	quest-item
+6950	CLEANUP	quest-item
+6951	CLEANUP	quest-item
+6946	CLEANUP	quest-item
+6953	CLEANUP	quest-item
+6945	CLEANUP	quest-item
+6952	CLEANUP	quest-item
+6957	CLEANUP	quest-item
+1481	CLEANUP	quest-item
+1482	CLEANUP	quest-item
+1483	CLEANUP	quest-item
+1484	CLEANUP	quest-item
+23812	CLEANUP	quest-item
+18	CLEANUP	quest-item
+1797	CLEANUP	quest-item
+1799	CLEANUP	quest-item
+1801	CLEANUP	quest-item
+1803	CLEANUP	quest-item
+7531	CLEANUP	quest-item
+10885	CLEANUP	quest-item
+10898	CLEANUP	quest-item
+10174	CLEANUP	quest-item
+21261	CLEANUP	quest-item
+2389	CLEANUP	quest-item
+2390	CLEANUP	quest-item
+4617	CLEANUP	quest-item
+24938	CLEANUP	quest-item
+24939	CLEANUP	quest-item
+2950	CLEANUP	quest-item
+3218	CLEANUP	quest-item
+3219	CLEANUP	quest-item
+3220	CLEANUP	quest-item
+3221	CLEANUP	quest-item
+3215	CLEANUP	quest-item
+6095	CLEANUP	quest-item
+3222	CLEANUP	quest-item
+3223	CLEANUP	quest-item
+6093	CLEANUP	quest-item
+1842	CLEANUP	quest-item
+23791	CLEANUP	quest-item
+11050	CLEANUP	quest-item
+10488	CLEANUP	quest-item
+10489	CLEANUP	quest-item
+4272	CLEANUP	quest-item
+618	CLEANUP	quest-item
+604	CLEANUP	quest-item
+609	CLEANUP	quest-item
+610	CLEANUP	quest-item
+21530	CLEANUP	quest-item
+7145	CLEANUP	quest-item
+25145	CLEANUP	quest-item
+5056	CLEANUP	quest-item
+5057	CLEANUP	quest-item
+5058	CLEANUP	quest-item
+5059	CLEANUP	quest-item
+5060	CLEANUP	quest-item
+5061	CLEANUP	quest-item
+6673	CLEANUP	quest-item
+704	CLEANUP	quest-item
+1502	CLEANUP	quest-item
+587	CLEANUP	quest-item
+1853	CLEANUP	quest-item
+7543	CLEANUP	quest-item
+3702	CLEANUP	quest-item
+3703	CLEANUP	quest-item
+3704	CLEANUP	quest-item
+3705	CLEANUP	quest-item
+759	CLEANUP	quest-item
+28390	CLEANUP	quest-item
+33759	CLEANUP	quest-item
+33791	CLEANUP	quest-item
+33743	CLEANUP	quest-item
+33765	CLEANUP	quest-item
+33766	CLEANUP	quest-item
+33790	CLEANUP	quest-item
+33792	CLEANUP	quest-item
+33793	CLEANUP	quest-item
+33794	CLEANUP	quest-item
+7812	CLEANUP	quest-item
+7813	CLEANUP	quest-item
+7814	CLEANUP	quest-item
+7815	CLEANUP	quest-item
+7816	CLEANUP	quest-item
+7817	CLEANUP	quest-item
+7818	CLEANUP	quest-item
+7819	CLEANUP	quest-item
+7820	CLEANUP	quest-item
+7821	CLEANUP	quest-item
+7822	CLEANUP	quest-item
+7823	CLEANUP	quest-item
+7824	CLEANUP	quest-item
+7825	CLEANUP	quest-item
+7826	CLEANUP	quest-item
+7827	CLEANUP	quest-item
+7828	CLEANUP	quest-item
+7829	CLEANUP	quest-item
+7830	CLEANUP	quest-item
+7831	CLEANUP	quest-item
+7832	CLEANUP	quest-item
+7833	CLEANUP	quest-item
+7834	CLEANUP	quest-item
+7835	CLEANUP	quest-item
+7836	CLEANUP	quest-item
+7837	CLEANUP	quest-item
+7838	CLEANUP	quest-item
+7839	CLEANUP	quest-item
+7840	CLEANUP	quest-item
+7841	CLEANUP	quest-item
+7842	CLEANUP	quest-item
+7843	CLEANUP	quest-item
+7844	CLEANUP	quest-item
+7845	CLEANUP	quest-item
+7846	CLEANUP	quest-item
+7847	CLEANUP	quest-item
+7848	CLEANUP	quest-item
+7849	CLEANUP	quest-item
+7850	CLEANUP	quest-item
+7851	CLEANUP	quest-item
+7852	CLEANUP	quest-item
+7853	CLEANUP	quest-item
+7854	CLEANUP	quest-item
+7855	CLEANUP	quest-item
+7856	CLEANUP	quest-item
+7857	CLEANUP	quest-item
+7858	CLEANUP	quest-item
+7859	CLEANUP	quest-item
+7860	CLEANUP	quest-item
+7861	CLEANUP	quest-item
+7862	CLEANUP	quest-item
+7863	CLEANUP	quest-item
+7864	CLEANUP	quest-item
+7865	CLEANUP	quest-item
+7866	CLEANUP	quest-item
+7867	CLEANUP	quest-item
+7868	CLEANUP	quest-item
+7869	CLEANUP	quest-item
+7870	CLEANUP	quest-item
+7871	CLEANUP	quest-item
+7872	CLEANUP	quest-item
+7873	CLEANUP	quest-item
+7874	CLEANUP	quest-item
+7875	CLEANUP	quest-item
+7876	CLEANUP	quest-item
+7877	CLEANUP	quest-item
+7878	CLEANUP	quest-item
+7879	CLEANUP	quest-item
+7880	CLEANUP	quest-item
+7881	CLEANUP	quest-item
+7882	CLEANUP	quest-item
+7883	CLEANUP	quest-item
+7884	CLEANUP	quest-item
+7885	CLEANUP	quest-item
+7886	CLEANUP	quest-item
+7887	CLEANUP	quest-item
+7888	CLEANUP	quest-item
+7889	CLEANUP	quest-item
+7890	CLEANUP	quest-item
+7891	CLEANUP	quest-item
+7892	CLEANUP	quest-item
+7893	CLEANUP	quest-item
+7894	CLEANUP	quest-item
+7895	CLEANUP	quest-item
+7896	CLEANUP	quest-item
+7897	CLEANUP	quest-item
+7898	CLEANUP	quest-item
+7899	CLEANUP	quest-item
+7900	CLEANUP	quest-item
+7901	CLEANUP	quest-item
+7902	CLEANUP	quest-item
+7903	CLEANUP	quest-item
+7904	CLEANUP	quest-item
+7905	CLEANUP	quest-item
+7906	CLEANUP	quest-item
+7907	CLEANUP	quest-item
+7908	CLEANUP	quest-item
+7909	CLEANUP	quest-item
+7910	CLEANUP	quest-item
+7911	CLEANUP	quest-item
+7912	CLEANUP	quest-item
+7913	CLEANUP	quest-item
+7914	CLEANUP	quest-item
+7915	CLEANUP	quest-item
+7916	CLEANUP	quest-item
+26589	CLEANUP	quest-item
+26590	CLEANUP	quest-item
+26591	CLEANUP	quest-item
+26592	CLEANUP	quest-item
+26593	CLEANUP	quest-item
+7967	CLEANUP	quest-item
+7969	CLEANUP	quest-item
+7970	CLEANUP	quest-item
+7971	CLEANUP	quest-item
+29549	CLEANUP	quest-item
+28130	CLEANUP	quest-item
+28468	CLEANUP	quest-item
+28469	CLEANUP	quest-item
+28470	CLEANUP	quest-item
+10179	CLEANUP	quest-item
+600	CLEANUP	quest-item
+19515	CLEANUP	quest-item
+24682	CLEANUP	quest-item
+28401	CLEANUP	quest-item
+# Wiki: https://oldschool.runescape.wiki/w/Raw_fishcake?oldid=15184847
+# Repeatably produced Cooking intermediate; remains a Fishing/Cooking resource.
+7529	SKILLING	resource
+# Wiki: https://oldschool.runescape.wiki/w/Cooked_fishcake?oldid=15183721
+# Repeatably cooked food that heals 11 hitpoints.
+7530	POTION	food
+# Wiki: https://oldschool.runescape.wiki/w/Panning_tray?oldid=15238922
+# Both normal tray states support repeatable panning for Mining/Fishing rewards.
+678	TOOL	skilling-utility
+679	TOOL	skilling-utility
+# Wiki: https://oldschool.runescape.wiki/w/Bone_key_(Shilo_Village)?oldid=15236887
+# Repeatable access to Rashiliyia's tomb; can also be stored on the key ring.
+605	TOOL	quest-utility
+# Wiki: https://oldschool.runescape.wiki/w/The_fisher's_flute?oldid=15188540
+# Wiki: https://oldschool.runescape.wiki/w/Kharedst's_memoirs?oldid=15240499
+# This torn page is consumed into the memoirs: it unlocks Port Piscarilius,
+# adds 20 teleport charges, and raises the book's maximum by 20.
+21764	TELEPORT	teleport-charge
+# One-time quest/puzzle materials with no repeatable normal-bank function.
+# Sources: https://oldschool.runescape.wiki/w/Ancient_roots?oldid=14960565
+# https://oldschool.runescape.wiki/w/Bark_sample?oldid=15185187
+# https://oldschool.runescape.wiki/w/Barrel_(The_Tourist_Trap)?oldid=15238260
+# https://oldschool.runescape.wiki/w/Bone_(A_Kingdom_Divided)?oldid=15190251
+# Perilous Moons request, Eagles' Peak door feathers, and completed chore list.
+# https://oldschool.runescape.wiki/w/Bream_scales?oldid=15192354
+# https://oldschool.runescape.wiki/w/Golden_feather_(Eagles'_Peak)?oldid=15185630
+# https://oldschool.runescape.wiki/w/Chores?oldid=15185466
+# Quest containers, repair fibres, dust, tea states, and Castle Drakan materials.
+# https://oldschool.runescape.wiki/w/Crate_(In_Aid_of_the_Myreque)?oldid=15185575
+# https://oldschool.runescape.wiki/w/Crimson_fibre?oldid=15191463
+# https://oldschool.runescape.wiki/w/Crystal_dust_(Song_of_the_Elves)?oldid=15189420
+# https://oldschool.runescape.wiki/w/Cup_of_tea_(Ghosts_Ahoy)?oldid=15185786
+# https://oldschool.runescape.wiki/w/Daeyalt_ore_(The_Blood_Moon_Rises)?oldid=15248692
+# Explicitly exhausted quest-stage planks, tools, nerves, books, and intermediates.
+# https://oldschool.runescape.wiki/w/Damp_planks?oldid=15184220
+# https://oldschool.runescape.wiki/w/Dinh's_hammer?oldid=15189075
+# https://oldschool.runescape.wiki/w/Dust_nerve?oldid=15191466
+# https://oldschool.runescape.wiki/w/Dwarven_lore?oldid=15184938
+# https://oldschool.runescape.wiki/w/Enchanted_bar?oldid=15185537
+# Watchtower evidence, quest feathers, notes, bark, barronite, and orb intermediate.
+# https://oldschool.runescape.wiki/w/Fingernails?oldid=15184409
+# https://oldschool.runescape.wiki/w/Fire_feather?oldid=15183799
+# https://oldschool.runescape.wiki/w/Griffin_feather?oldid=15184997
+# https://oldschool.runescape.wiki/w/Ground_bat_bones?oldid=15183771
+# https://oldschool.runescape.wiki/w/Herbalist's_notes?oldid=15192389
+# https://oldschool.runescape.wiki/w/Imbued_barronite?oldid=15192250
+# https://oldschool.runescape.wiki/w/Inert_locator_orb?oldid=15188651
+# The Final Dawn, Current Affairs, Tower of Life, Fremennik, and Devious Minds objects.
+# https://oldschool.runescape.wiki/w/Kuhu_essence?oldid=15208315
+# https://oldschool.runescape.wiki/w/Mayoral_fishbowl?oldid=15119517
+# https://oldschool.runescape.wiki/w/Metal_bar?oldid=15185712
+# https://oldschool.runescape.wiki/w/Molten_glass_(i)?oldid=15189545
+# https://oldschool.runescape.wiki/w/Orb_(Devious_Minds)?oldid=15184946
+# Additional copies are deleted, or the item only creates a quest-specific result.
+# https://oldschool.runescape.wiki/w/Orbs_of_protection?oldid=15183616
+# https://oldschool.runescape.wiki/w/Phoenix_feather?oldid=15183702
+# https://oldschool.runescape.wiki/w/Raw_stuffed_snake?oldid=15184439
+# https://oldschool.runescape.wiki/w/Red_mahogany_log?oldid=15184568
+# Cabin Fever/Olaf repair parts and re-creatable but quest-only dust/sand.
+# https://oldschool.runescape.wiki/w/Repair_plank?oldid=15184804
+# https://oldschool.runescape.wiki/w/Rotten_barrel?oldid=15185728
+# https://oldschool.runescape.wiki/w/Rune_dust?oldid=15185622
+# https://oldschool.runescape.wiki/w/Sandbag?oldid=15183842
+# Final Dawn purse, post-quest-useless keys/leather, and quest-instance supplies.
+# https://oldschool.runescape.wiki/w/Coin_purse?oldid=14963097
+# https://oldschool.runescape.wiki/w/Storeroom_key?oldid=15185703
+# https://oldschool.runescape.wiki/w/Suqah_leather?oldid=15185039
+# https://oldschool.runescape.wiki/w/Swamp_paste_(Dragon_Slayer_II)?oldid=15190523
+# Lore pages, NPC-planted teleorbs, quest fur/crest/vials, and final quest materials.
+# https://oldschool.runescape.wiki/w/Tatty_page?oldid=15191519
+# https://oldschool.runescape.wiki/w/Teleorb?oldid=15192569
+# https://oldschool.runescape.wiki/w/Vial_of_water_(Lunar_Diplomacy)?oldid=15188389
+# https://oldschool.runescape.wiki/w/Whitefish?oldid=15190755
+# https://oldschool.runescape.wiki/w/Wood_carving?oldid=15191135
+30963	CLEANUP	quest-item
+783	CLEANUP	quest-item
+1841	CLEANUP	quest-item
+3216	CLEANUP	quest-item
+25794	CLEANUP	quest-item
+28970	CLEANUP	quest-item
+10177	CLEANUP	quest-item
+10175	CLEANUP	quest-item
+10176	CLEANUP	quest-item
+6545	CLEANUP	quest-item
+7630	CLEANUP	quest-item
+28462	CLEANUP	quest-item
+28463	CLEANUP	quest-item
+23804	CLEANUP	quest-item
+4245	CLEANUP	quest-item
+4246	CLEANUP	quest-item
+33777	CLEANUP	quest-item
+33776	CLEANUP	quest-item
+11031	CLEANUP	quest-item
+22761	CLEANUP	quest-item
+28458	CLEANUP	quest-item
+4568	CLEANUP	quest-item
+4007	CLEANUP	quest-item
+2384	CLEANUP	quest-item
+1583	CLEANUP	quest-item
+11196	CLEANUP	quest-item
+2391	CLEANUP	quest-item
+29427	CLEANUP	quest-item
+25968	CLEANUP	quest-item
+28806	CLEANUP	quest-item
+22079	CLEANUP	quest-item
+30962	CLEANUP	quest-item
+31330	CLEANUP	quest-item
+10876	CLEANUP	quest-item
+24260	CLEANUP	quest-item
+6821	CLEANUP	quest-item
+588	CLEANUP	quest-item
+4621	CLEANUP	quest-item
+7577	CLEANUP	quest-item
+4445	CLEANUP	quest-item
+7121	CLEANUP	quest-item
+7148	CLEANUP	quest-item
+11045	CLEANUP	quest-item
+6467	CLEANUP	quest-item
+9943	CLEANUP	quest-item
+30943	CLEANUP	quest-item
+3269	CLEANUP	quest-item
+29906	CLEANUP	quest-item
+9080	CLEANUP	quest-item
+9081	CLEANUP	quest-item
+22095	CLEANUP	quest-item
+28394	CLEANUP	quest-item
+28395	CLEANUP	quest-item
+28396	CLEANUP	quest-item
+28397	CLEANUP	quest-item
+28398	CLEANUP	quest-item
+28399	CLEANUP	quest-item
+28400	CLEANUP	quest-item
+29536	CLEANUP	quest-item
+29537	CLEANUP	quest-item
+28982	CLEANUP	quest-item
+28973	CLEANUP	quest-item
+9086	CLEANUP	quest-item
+33774	CLEANUP	quest-item
+26579	CLEANUP	quest-item
+11035	CLEANUP	quest-item
+27525	CLEANUP	quest-item
+# Non-bankable, instance-only, or cache/failsafe objects.
+# https://oldschool.runescape.wiki/w/Dream_log?oldid=15185033
+# https://oldschool.runescape.wiki/w/Dusty_lamp?oldid=15191414
+# https://oldschool.runescape.wiki/w/Knight_of_varlamore_(item)?oldid=15192781
+# https://oldschool.runescape.wiki/w/Mudskipper_hide?oldid=15184200
+# https://oldschool.runescape.wiki/w/Raw_moss_lizard?oldid=15192428
+# https://oldschool.runescape.wiki/w/Rope_(animation_item)?oldid=15190426
+9067	CLEANUP	junk
+28132	CLEANUP	junk
+28977	CLEANUP	junk
+7532	CLEANUP	junk
+29076	CLEANUP	junk
+4498	CLEANUP	junk
+# Repeatably produced secondary for blamish oil and the reusable oily rod.
+# https://oldschool.runescape.wiki/w/Blamish_snail_slime?oldid=15185853
+1581	HERBLORE	secondary
+# Drinkable Sailing XP reward and repeatably cookable food.
+# https://oldschool.runescape.wiki/w/Bottle_of_fish_bladder_stout?oldid=15193076
+# https://oldschool.runescape.wiki/w/Steak_sandwich?oldid=15190178
+31833	POTION	food
+25631	POTION	food
+# Persistent Sailing task/chart tracker and repeatable sea-charting crowbar.
+# https://oldschool.runescape.wiki/w/Captain's_log?oldid=15239575
+# https://oldschool.runescape.wiki/w/Crowbar?oldid=15193098
+31985	TOOL	sailing-utility
+31807	TOOL	sailing-utility
+# Retained quest utilities with an explicit ongoing contact, unlock, or access use.
+# https://oldschool.runescape.wiki/w/Commorb?oldid=15184055
+# https://oldschool.runescape.wiki/w/Commorb_v2?oldid=15186980
+# https://oldschool.runescape.wiki/w/Crypt_map?oldid=15191413
+# https://oldschool.runescape.wiki/w/Very_long_rope?oldid=15191543
+# https://oldschool.runescape.wiki/w/Varlamore_envoy?oldid=15188536
+6635	TOOL	quest-utility
+9681	TOOL	quest-utility
+28133	TOOL	quest-utility
+28363	TOOL	quest-utility
+21756	TOOL	quest-utility
+# Repeatable Crafting materials for additional eagle capes and lyres.
+# https://oldschool.runescape.wiki/w/Eagle_feather?oldid=15185631
+# https://oldschool.runescape.wiki/w/Golden_wool?oldid=15184097
+10167	SKILLING	crafting-material
+3694	SKILLING	crafting-material
+# Repeatably gathered Cooking ingredient for nettle tea.
+# https://oldschool.runescape.wiki/w/Nettles?oldid=15184037
+4241	SKILLING	cooking-material
+# Post-quest pet/costume pieces with explicit cosmetic storage/use.
+# https://oldschool.runescape.wiki/w/Humphrey_Dumphrey?oldid=15197495
+# https://oldschool.runescape.wiki/w/Emissary_sandals?oldid=15192741
+30970	CLUE	cosmetic
+29874	CLUE	cosmetic
+# Repeatable Mage Arena II component for later Guthix cape imbues.
+# https://oldschool.runescape.wiki/w/Ent's_roots?oldid=15188752
+21798	UNIQUE	equipment-upgrade
+# Required by both Ernest the Chicken and the Robes of Ruin clue hunt.
+# https://oldschool.runescape.wiki/w/Poisoned_fish_food?oldid=15183936
+274	CLUE	treasure-trail
+# Remains obtainable and usable after the quest to revisit Lucien's camp.
+# https://oldschool.runescape.wiki/w/Strange_teleorb?oldid=15192565
+29535	TELEPORT	teleport
+# Repeatable Digsite and Varrock Museum excavation/cleaning tool.
+# https://oldschool.runescape.wiki/w/Trowel?oldid=15183902
+676	TOOL	skilling-utility
+# Repeatably fletched component for functional ogre arrows.
+# https://oldschool.runescape.wiki/w/Wolfbone_arrowtips?oldid=15186067
+2861	SKILLING	ammo-component
+# Wiki: https://oldschool.runescape.wiki/w/Lens_mould?oldid=15185521
+# Wiki: https://oldschool.runescape.wiki/w/Ancient_talisman?oldid=15182682
+# Wiki: https://oldschool.runescape.wiki/w/Silver_needle?oldid=15186811
+# Wiki: https://oldschool.runescape.wiki/w/Criminal's_thread?oldid=15184054
+# Wiki: https://oldschool.runescape.wiki/w/Golden_tinderbox?oldid=15187397
+# Wiki: https://oldschool.runescape.wiki/w/Golden_hammer?oldid=15187399
+# Wiki: https://oldschool.runescape.wiki/w/Golden_needle?oldid=15187400
+# Wiki: https://oldschool.runescape.wiki/w/Spiked_boots?oldid=15239316
+# Wiki: https://oldschool.runescape.wiki/w/Hunters'_talisman?oldid=15184168
+# The Draugen objective is one-time; additional talismans have no repeatable function.
+# Wiki: https://oldschool.runescape.wiki/w/Blue_thread?oldid=15185670
+# Wiki: https://oldschool.runescape.wiki/w/Conductor_mould?oldid=15184048
+# Wiki: https://oldschool.runescape.wiki/w/Blunt_axe?oldid=15183865
+# Wiki: https://oldschool.runescape.wiki/w/Sharpened_axe?oldid=15185589
+# Wiki: https://oldschool.runescape.wiki/w/Metal_spade?oldid=15188927
+# Wiki: https://oldschool.runescape.wiki/w/Chisel_(Recruitment_Drive)?oldid=15188928
+# Wiki: https://oldschool.runescape.wiki/w/Knife_(Recruitment_Drive)?oldid=15188930
+# Wiki: https://oldschool.runescape.wiki/w/Bucket_of_water_(Rum_Deal)?oldid=15184577
+# Wiki: https://oldschool.runescape.wiki/w/Demonic_sigil_mould?oldid=15185192
+# Wiki: https://oldschool.runescape.wiki/w/Camel_mould_(p)?oldid=15184452
+# Wiki: https://oldschool.runescape.wiki/w/Queen's_secateurs?oldid=15184661
+# Wiki: https://oldschool.runescape.wiki/w/Anger_battleaxe?oldid=15182770
+# Wiki: https://oldschool.runescape.wiki/w/A_special_tiara?oldid=15185032
+# Wiki: https://oldschool.runescape.wiki/w/Scarab_mould?oldid=15190914
+# Wiki: https://oldschool.runescape.wiki/w/Knife_(Desert_Treasure_II)?oldid=15191510
+# Wiki: https://oldschool.runescape.wiki/w/Chisel_(Desert_Treasure_II)?oldid=15191509
+# Wiki: https://oldschool.runescape.wiki/w/Lockpick_(Desert_Treasure_II)?oldid=15191508
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_water_talisman?oldid=15232314
+# Wiki: https://oldschool.runescape.wiki/w/Enchanted_earth_talisman?oldid=15232315
+# Wiki: https://oldschool.runescape.wiki/w/Infused_water_talisman?oldid=15192401
+# Wiki: https://oldschool.runescape.wiki/w/Infused_earth_talisman?oldid=15192400
+# Wiki: https://oldschool.runescape.wiki/w/Arrav's_axe?oldid=14798554
+# Wiki: https://oldschool.runescape.wiki/w/Acatzin's_axe?oldid=15131634
+602	CLEANUP	quest-item
+681	CLEANUP	quest-item
+1804	CLEANUP	quest-item
+1805	CLEANUP	quest-item
+1808	CLEANUP	quest-item
+1809	CLEANUP	quest-item
+1810	CLEANUP	quest-item
+2946	CLEANUP	quest-item
+2949	CLEANUP	quest-item
+2951	CLEANUP	quest-item
+3107	CLEANUP	quest-item
+3696	CLEANUP	quest-item
+3697	CLEANUP	quest-item
+3719	CLEANUP	quest-item
+4200	CLEANUP	quest-item
+4415	CLEANUP	quest-item
+4444	CLEANUP	quest-item
+5586	CLEANUP	quest-item
+5587	CLEANUP	quest-item
+5601	CLEANUP	quest-item
+5605	CLEANUP	quest-item
+6712	CLEANUP	quest-item
+6747	CLEANUP	quest-item
+7001	CLEANUP	quest-item
+7410	CLEANUP	quest-item
+9020	CLEANUP	quest-item
+7807	CLEANUP	quest-item
+9103	CLEANUP	quest-item
+26952	CLEANUP	quest-item
+28413	CLEANUP	quest-item
+28414	CLEANUP	quest-item
+28415	CLEANUP	quest-item
+28964	CLEANUP	quest-item
+28965	CLEANUP	quest-item
+28966	CLEANUP	quest-item
+28967	CLEANUP	quest-item
+30320	CLEANUP	quest-item
+30989	CLEANUP	quest-item
+30990	CLEANUP	quest-item
+# Wiki: https://oldschool.runescape.wiki/w/Prayer_potion_(Last_Man_Standing)?oldid=15209257
+# Wiki: https://oldschool.runescape.wiki/w/Super_energy_(Last_Man_Standing)?oldid=15239453
+# Wiki: https://oldschool.runescape.wiki/w/Super_combat_potion_(Last_Man_Standing)?oldid=15239452
+# Wiki: https://oldschool.runescape.wiki/w/Ranging_potion_(Last_Man_Standing)?oldid=15214947
+# Wiki: https://oldschool.runescape.wiki/w/Sanfew_serum_(Last_Man_Standing)?oldid=15214946
+# Wiki: https://oldschool.runescape.wiki/w/Super_restore_(Last_Man_Standing)?oldid=15239451
+# Wiki: https://oldschool.runescape.wiki/w/Saradomin_brew_(Last_Man_Standing)?oldid=15214944
+# Wiki: https://oldschool.runescape.wiki/w/Stamina_potion_(Last_Man_Standing)?oldid=15239456
+20393	CLEANUP	junk
+20394	CLEANUP	junk
+20395	CLEANUP	junk
+20396	CLEANUP	junk	Prayer potion (LMS)
+20548	CLEANUP	junk
+20549	CLEANUP	junk
+20550	CLEANUP	junk
+20551	CLEANUP	junk	Super energy (LMS)
+23543	CLEANUP	junk
+23545	CLEANUP	junk
+23547	CLEANUP	junk
+23549	CLEANUP	junk	Super combat potion (LMS)
+23551	CLEANUP	junk
+23553	CLEANUP	junk
+23555	CLEANUP	junk
+23557	CLEANUP	junk	Ranging potion (LMS)
+23559	CLEANUP	junk
+23561	CLEANUP	junk
+23563	CLEANUP	junk
+23565	CLEANUP	junk	Sanfew serum (LMS)
+23567	CLEANUP	junk
+23569	CLEANUP	junk
+23571	CLEANUP	junk
+23573	CLEANUP	junk	Super restore (LMS)
+23575	CLEANUP	junk
+23577	CLEANUP	junk
+23579	CLEANUP	junk
+23581	CLEANUP	junk	Saradomin brew (LMS)
+23583	CLEANUP	junk
+23585	CLEANUP	junk
+23587	CLEANUP	junk
+23589	CLEANUP	junk	Stamina potion (LMS)
+# Wiki: https://oldschool.runescape.wiki/w/Robe_of_elidinis_(top)?oldid=15184480
+# Wiki: https://oldschool.runescape.wiki/w/Robe_of_elidinis_(bottom)?oldid=15184479
+# Wiki: https://oldschool.runescape.wiki/w/Ram_skull_helm?oldid=15183173
+# Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1)?oldid=15189530
+# Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(10)?oldid=15189531
+# Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(50)?oldid=15189532
+# Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(100)?oldid=15189533
+# Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(500)?oldid=15189534
+# Wiki: https://oldschool.runescape.wiki/w/Victor's_cape_(1000)?oldid=15189665
+6786	CLUE	cosmetic
+6787	CLUE	cosmetic
+7917	CLUE	cosmetic
+24207	CLUE	cosmetic
+24209	CLUE	cosmetic
+24211	CLUE	cosmetic
+24213	CLUE	cosmetic
+24215	CLUE	cosmetic
+24520	CLUE	cosmetic
+# Wiki: https://oldschool.runescape.wiki/w/Explosive_potion?oldid=15187163
+# Wiki: https://oldschool.runescape.wiki/w/Deadman_teleport_tablet?oldid=15188858
+# Wiki: https://oldschool.runescape.wiki/w/Shark_(Last_Man_Standing)?oldid=15208878
+# Wiki: https://oldschool.runescape.wiki/w/Ancient_magicks_tablet?oldid=15211531
+# Wiki: https://oldschool.runescape.wiki/w/Survival_token?oldid=15187813
+# Wiki: https://oldschool.runescape.wiki/w/Amulet_of_glory_(Last_Man_Standing)?oldid=15208961
+# Wiki: https://oldschool.runescape.wiki/w/Cooked_karambwan_(Last_Man_Standing)?oldid=15208877
+# Wiki: https://oldschool.runescape.wiki/w/Ghrazi_rapier_(Last_Man_Standing)?oldid=15208833
+# Wiki: https://oldschool.runescape.wiki/w/Rune_pouch_(Last_Man_Standing)?oldid=15208869
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_spike?oldid=15189350
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_teleport_crystal?oldid=15189491
+# Wiki: https://oldschool.runescape.wiki/w/Mithril_seeds_(Last_Man_Standing)?oldid=15208871
+# Wiki: https://oldschool.runescape.wiki/w/Trailblazer_teleport_scroll?oldid=15239427
+# Wiki: https://oldschool.runescape.wiki/w/Fairy_mushroom?oldid=15205871
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_of_echoes?oldid=15192898
+# Wiki: https://oldschool.runescape.wiki/w/Shattered_teleport_scroll?oldid=15239819
+# Wiki: https://oldschool.runescape.wiki/w/Portable_waystone?oldid=15190745
+# Wiki: https://oldschool.runescape.wiki/w/Spiked_manacles_(Last_Man_Standing)?oldid=15208846
+# Wiki: https://oldschool.runescape.wiki/w/Trailblazer_reloaded_home_teleport_scroll?oldid=15191661
+# Wiki: https://oldschool.runescape.wiki/w/Banker's_briefcase?oldid=15192895
+# Wiki: https://oldschool.runescape.wiki/w/Clue_compass_(item)?oldid=15192896
+# Wiki: https://oldschool.runescape.wiki/w/Echo_home_teleport_scroll?oldid=15214892
+# Wiki: https://oldschool.runescape.wiki/w/Raging_echoes_portal_scroll?oldid=15214888
+# Wiki: https://oldschool.runescape.wiki/w/Corrupted_shark?oldid=15237663
+# Wiki: https://oldschool.runescape.wiki/w/Flask_of_fervour_(item)?oldid=15231324
+4045	CLEANUP	junk	Castle Wars-only gameplay item
+13666	CLEANUP	junk	Deadman Mode-only teleport
+20390	CLEANUP	junk	Last Man Standing-only food
+20430	CLEANUP	junk	Last Man Standing-only spellbook tablet
+20527	CLEANUP	junk	Last Man Standing-only currency
+20586	CLEANUP	junk	Last Man Standing-only jewellery
+23533	CLEANUP	junk	Last Man Standing-only food
+23628	CLEANUP	junk	Last Man Standing-only weapon
+23650	CLEANUP	junk	Last Man Standing-only rune pouch
+23831	CLEANUP	junk	Corrupted Gauntlet-only weapon component
+23858	CLEANUP	junk	Corrupted Gauntlet-only teleport
+24534	CLEANUP	junk	Last Man Standing-only seed copy
+25087	CLEANUP	junk	Trailblazer League-only unlock
+25102	CLEANUP	junk	Trailblazer League-only teleport
+25104	CLEANUP	junk	Trailblazer League-only teleport
+26500	CLEANUP	junk	Shattered Relics League-only unlock
+26549	CLEANUP	junk	Shattered Relics League-only teleport
+27178	CLEANUP	junk	Last Man Standing-only equipment
+28705	CLEANUP	junk	Trailblazer Reloaded League-only unlock
+30361	CLEANUP	junk	Raging Echoes League-only teleport
+30363	CLEANUP	junk	Raging Echoes League-only teleport
+30453	CLEANUP	junk	Raging Echoes League-only unlock
+30461	CLEANUP	junk	Raging Echoes League-only unlock
+31174	CLEANUP	junk	Gridmaster League-only food
+33239	CLEANUP	junk
+33241	CLEANUP	junk	Demonic Pacts League-only flask states
+# Wiki: https://oldschool.runescape.wiki/w/3rd_age_range_coif_(Last_Man_Standing)?oldid=15208853
+# Wiki: https://oldschool.runescape.wiki/w/3rd_age_range_legs_(Last_Man_Standing)?oldid=15208852
+# Wiki: https://oldschool.runescape.wiki/w/3rd_age_robe_(Last_Man_Standing)?oldid=15208848
+# Wiki: https://oldschool.runescape.wiki/w/3rd_age_robe_top_(Last_Man_Standing)?oldid=15208847
+# Wiki: https://oldschool.runescape.wiki/w/Abyssal_whip_(Last_Man_Standing)?oldid=15208958
+# Wiki: https://oldschool.runescape.wiki/w/Ahrim's_robeskirt_(Last_Man_Standing)?oldid=15208957
+# Wiki: https://oldschool.runescape.wiki/w/Ahrim's_robetop_(Last_Man_Standing)?oldid=15208959
+# Wiki: https://oldschool.runescape.wiki/w/Ahrim's_staff_(Last_Man_Standing)?oldid=15208960
+# Wiki: https://oldschool.runescape.wiki/w/Adamant_arrow_pack?oldid=15209160
+# Wiki: https://oldschool.runescape.wiki/w/Amulet_of_fury_(Last_Man_Standing)?oldid=15208927
+# Wiki: https://oldschool.runescape.wiki/w/Amulet_of_torture_(Last_Man_Standing)?oldid=15208928
+# Wiki: https://oldschool.runescape.wiki/w/Ancestral_robe_bottom_(Last_Man_Standing)?oldid=15262630
+# Wiki: https://oldschool.runescape.wiki/w/Ancestral_robe_top_(Last_Man_Standing)?oldid=15208861
+# Wiki: https://oldschool.runescape.wiki/w/Ancient_godsword_(Last_Man_Standing)?oldid=15208940
+# Wiki: https://oldschool.runescape.wiki/w/Ancient_staff_(Last_Man_Standing)?oldid=15208963
+# Wiki: https://oldschool.runescape.wiki/w/Aranea_boots_(Last_Man_Standing)?oldid=15208879
+# Wiki: https://oldschool.runescape.wiki/w/Armadyl_crossbow_(Last_Man_Standing)?oldid=15208914
+# Wiki: https://oldschool.runescape.wiki/w/Armadyl_godsword_(Last_Man_Standing)?oldid=15208941
+# Wiki: https://oldschool.runescape.wiki/w/Atlatl_dart_(Last_Man_Standing)?oldid=15239574
+# Wiki: https://oldschool.runescape.wiki/w/Bandos_tassets_(Last_Man_Standing)?oldid=15208837
+# Wiki: https://oldschool.runescape.wiki/w/Barrows_gloves_(Last_Man_Standing)?oldid=15208965
+# Wiki: https://oldschool.runescape.wiki/w/Berserker_helm_(Last_Man_Standing)?oldid=15208966
+# Wiki: https://oldschool.runescape.wiki/w/Berserker_ring_(i)_(Last_Man_Standing)?oldid=15237292
+# Wiki: https://oldschool.runescape.wiki/w/Black_d'hide_body_(Last_Man_Standing)?oldid=15208968
+# Wiki: https://oldschool.runescape.wiki/w/Black_d'hide_chaps_(Last_Man_Standing)?oldid=15208969
+# Wiki: https://oldschool.runescape.wiki/w/Blessed_spirit_shield_(Last_Man_Standing)?oldid=15208929
+# Wiki: https://oldschool.runescape.wiki/w/Blood_moon_chestplate_(Last_Man_Standing)?oldid=15208930
+# Wiki: https://oldschool.runescape.wiki/w/Blood_moon_helm_(Last_Man_Standing)?oldid=15208932
+# Wiki: https://oldschool.runescape.wiki/w/Blood_moon_tassets_(Last_Man_Standing)?oldid=15208933
+# Wiki: https://oldschool.runescape.wiki/w/Blue_moon_chestplate_(Last_Man_Standing)?oldid=15208880
+# Wiki: https://oldschool.runescape.wiki/w/Blue_moon_helm_(Last_Man_Standing)?oldid=15208881
+# Wiki: https://oldschool.runescape.wiki/w/Blue_moon_spear_(Last_Man_Standing)?oldid=15208893
+# Wiki: https://oldschool.runescape.wiki/w/Blue_moon_tassets_(Last_Man_Standing)?oldid=15208882
+# Wiki: https://oldschool.runescape.wiki/w/Bow_of_faerdhinen_(c)_(Last_Man_Standing)?oldid=15208916
+# Wiki: https://oldschool.runescape.wiki/w/Climbing_boots_(Last_Man_Standing)?oldid=15208979
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_body_(Last_Man_Standing)?oldid=15208899
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_helm_(Last_Man_Standing)?oldid=15208901
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_legs_(Last_Man_Standing)?oldid=15208900
+# Wiki: https://oldschool.runescape.wiki/w/Dark_bow_(Last_Man_Standing)?oldid=15208917
+# Wiki: https://oldschool.runescape.wiki/w/Dharok's_greataxe_(Last_Man_Standing)?oldid=15208944
+# Wiki: https://oldschool.runescape.wiki/w/Dharok's_helm_(Last_Man_Standing)?oldid=15208934
+# Wiki: https://oldschool.runescape.wiki/w/Dharok's_platebody_(Last_Man_Standing)?oldid=15208935
+# Wiki: https://oldschool.runescape.wiki/w/Dharok's_platelegs_(Last_Man_Standing)?oldid=15208936
+# Wiki: https://oldschool.runescape.wiki/w/Diamond_bolts_(e)_(Last_Man_Standing)?oldid=15208978
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_crossbow_(Last_Man_Standing)?oldid=15239569
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_dagger_(Last_Man_Standing)?oldid=15208977
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_defender_(Last_Man_Standing)?oldid=15208976
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_javelin_(Last_Man_Standing)?oldid=15208919
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_knife_(Last_Man_Standing)?oldid=15208920
+# Wiki: https://oldschool.runescape.wiki/w/Dragon_scimitar_(Last_Man_Standing)?oldid=15208975
+# Wiki: https://oldschool.runescape.wiki/w/Dragonfire_shield_(Last_Man_Standing)?oldid=15208937
+# Wiki: https://oldschool.runescape.wiki/w/Eclipse_atlatl_(Last_Man_Standing)?oldid=15208921
+# Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_chestplate_(Last_Man_Standing)?oldid=15208902
+# Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_helm_(Last_Man_Standing)?oldid=15208903
+# Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_tassets_(Last_Man_Standing)?oldid=15208905
+# Wiki: https://oldschool.runescape.wiki/w/Elder_chaos_hood_(Last_Man_Standing)?oldid=15208883
+# Wiki: https://oldschool.runescape.wiki/w/Elder_chaos_robe_(Last_Man_Standing)?oldid=15208884
+# Wiki: https://oldschool.runescape.wiki/w/Elder_maul_(Last_Man_Standing)?oldid=15208947
+# Wiki: https://oldschool.runescape.wiki/w/Eternal_boots_(Last_Man_Standing)?oldid=15208862
+# Wiki: https://oldschool.runescape.wiki/w/Ghostly_hood_(Last_Man_Standing)?oldid=15208974
+# Wiki: https://oldschool.runescape.wiki/w/Ghostly_robe_(top)_(Last_Man_Standing)?oldid=15208972
+# Wiki: https://oldschool.runescape.wiki/w/Ghostly_robe_(bottom)_(Last_Man_Standing)?oldid=15208973
+# Wiki: https://oldschool.runescape.wiki/w/Granite_maul_(Last_Man_Standing)?oldid=15208948
+# Wiki: https://oldschool.runescape.wiki/w/Guthan's_helm_(Last_Man_Standing)?oldid=15208839
+# Wiki: https://oldschool.runescape.wiki/w/Guthix_chaps_(Last_Man_Standing)?oldid=15208906
+# Wiki: https://oldschool.runescape.wiki/w/Helm_of_neitiznot_(Last_Man_Standing)?oldid=15208971
+# Wiki: https://oldschool.runescape.wiki/w/Imbued_guthix_cape_(Last_Man_Standing)?oldid=15208970
+# Wiki: https://oldschool.runescape.wiki/w/Imbued_saradomin_cape_(Last_Man_Standing)?oldid=15190461
+# Wiki: https://oldschool.runescape.wiki/w/Imbued_zamorak_cape_(Last_Man_Standing)?oldid=15190462
+# Wiki: https://oldschool.runescape.wiki/w/Infernal_cape_(Last_Man_Standing)?oldid=15208938
+# Wiki: https://oldschool.runescape.wiki/w/Infinity_boots_(Last_Man_Standing)?oldid=15208863
+# Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_great_helm_(Last_Man_Standing)?oldid=15208842
+# Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_hauberk_(Last_Man_Standing)?oldid=15208843
+# Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_mace_(Last_Man_Standing)?oldid=15208834
+# Wiki: https://oldschool.runescape.wiki/w/Inquisitor's_plateskirt_(Last_Man_Standing)?oldid=15208844
+# Wiki: https://oldschool.runescape.wiki/w/Karil's_leathertop_(Last_Man_Standing)?oldid=15208980
+# Wiki: https://oldschool.runescape.wiki/w/Kodai_wand_(Last_Man_Standing)?oldid=15208894
+# Wiki: https://oldschool.runescape.wiki/w/Lightbearer_(Last_Man_Standing)?oldid=15208870
+# Wiki: https://oldschool.runescape.wiki/w/Magus_ring_(Last_Man_Standing)?oldid=15208888
+# Wiki: https://oldschool.runescape.wiki/w/Masori_body_(f)_(Last_Man_Standing)?oldid=15208907
+# Wiki: https://oldschool.runescape.wiki/w/Masori_chaps_(f)_(Last_Man_Standing)?oldid=15208908
+# Wiki: https://oldschool.runescape.wiki/w/Mithril_gloves_(Last_Man_Standing)?oldid=15208981
+# Wiki: https://oldschool.runescape.wiki/w/Morrigan's_javelin_(Last_Man_Standing)?oldid=15208924
+# Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_bottom_(Last_Man_Standing)?oldid=15208983
+# Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_bottom_(dark)_(Last_Man_Standing)?oldid=15239544
+# Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_bottom_(light)_(Last_Man_Standing)?oldid=15239543
+# Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_top_(Last_Man_Standing)?oldid=15208986
+# Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_top_(dark)_(Last_Man_Standing)?oldid=15239546
+# Wiki: https://oldschool.runescape.wiki/w/Mystic_robe_top_(light)_(Last_Man_Standing)?oldid=15239545
+# Wiki: https://oldschool.runescape.wiki/w/Necklace_of_anguish_(Last_Man_Standing)?oldid=15208909
+# Wiki: https://oldschool.runescape.wiki/w/Noxious_halberd_(Last_Man_Standing)?oldid=15218677
+# Wiki: https://oldschool.runescape.wiki/w/Oathplate_helm_(Last_Man_Standing)?oldid=15239571
+# Wiki: https://oldschool.runescape.wiki/w/Occult_necklace_(Last_Man_Standing)?oldid=15208889
+# Wiki: https://oldschool.runescape.wiki/w/Opal_dragon_bolts_(e)_(Last_Man_Standing)?oldid=15208925
+# Wiki: https://oldschool.runescape.wiki/w/Purging_staff_(Last_Man_Standing)?oldid=15208895
+# Wiki: https://oldschool.runescape.wiki/w/Rune_crossbow_(Last_Man_Standing)?oldid=15208989
+# Wiki: https://oldschool.runescape.wiki/w/Rune_defender_(Last_Man_Standing)?oldid=15208990
+# Wiki: https://oldschool.runescape.wiki/w/Rune_arrow_pack?oldid=15209260
+# Wiki: https://oldschool.runescape.wiki/w/Rune_platelegs_(Last_Man_Standing)?oldid=15208991
+# Wiki: https://oldschool.runescape.wiki/w/Saradomin_chaps_(Last_Man_Standing)?oldid=15208910
+# Wiki: https://oldschool.runescape.wiki/w/Seers_ring_(i)_(Last_Man_Standing)?oldid=15208864
+# Wiki: https://oldschool.runescape.wiki/w/Spear_(Last_Man_Standing)?oldid=15187811
+# Wiki: https://oldschool.runescape.wiki/w/Spirit_shield_(Last_Man_Standing)?oldid=15239457
+# Wiki: https://oldschool.runescape.wiki/w/Staff_of_the_dead_(Last_Man_Standing)?oldid=15237641
+# Wiki: https://oldschool.runescape.wiki/w/Statius's_warhammer_(Last_Man_Standing)?oldid=15208951
+# Wiki: https://oldschool.runescape.wiki/w/Torag's_helm_(Last_Man_Standing)?oldid=15239442
+# Wiki: https://oldschool.runescape.wiki/w/Torag's_platelegs_(Last_Man_Standing)?oldid=15208994
+# Wiki: https://oldschool.runescape.wiki/w/Tormented_bracelet_(Last_Man_Standing)?oldid=15208890
+# Wiki: https://oldschool.runescape.wiki/w/Torva_platelegs_(Last_Man_Standing)?oldid=15208939
+# Wiki: https://oldschool.runescape.wiki/w/Ultor_ring_(Last_Man_Standing)?oldid=15208952
+# Wiki: https://oldschool.runescape.wiki/w/Verac's_brassard_(Last_Man_Standing)?oldid=15208857
+# Wiki: https://oldschool.runescape.wiki/w/Verac's_flail_(Last_Man_Standing)?oldid=15208836
+# Wiki: https://oldschool.runescape.wiki/w/Verac's_helm_(Last_Man_Standing)?oldid=15239369
+# Wiki: https://oldschool.runescape.wiki/w/Verac's_plateskirt_(Last_Man_Standing)?oldid=15208855
+# Wiki: https://oldschool.runescape.wiki/w/Vesta's_longsword_(Last_Man_Standing)?oldid=15208953
+# Wiki: https://oldschool.runescape.wiki/w/Virtus_robe_bottom_(Last_Man_Standing)?oldid=15208891
+# Wiki: https://oldschool.runescape.wiki/w/Virtus_robe_top_(Last_Man_Standing)?oldid=15208892
+# Wiki: https://oldschool.runescape.wiki/w/Volatile_nightmare_staff_(Last_Man_Standing)?oldid=15208897
+# Wiki: https://oldschool.runescape.wiki/w/Wizard_boots_(Last_Man_Standing)?oldid=15208865
+# Wiki: https://oldschool.runescape.wiki/w/Zamorak_chaps_(Last_Man_Standing)?oldid=15208913
+# Wiki: https://oldschool.runescape.wiki/w/Zaryte_crossbow_(Last_Man_Standing)?oldid=15208926
+# Wiki: https://oldschool.runescape.wiki/w/Zuriel's_staff_(Last_Man_Standing)?oldid=15234702
+27201	CLEANUP	junk	3rd age range coif [BR_3A_RANGER_COIF]
+27200	CLEANUP	junk	3rd age range legs [BR_3A_RANGER_LEGS]
+20577	CLEANUP	junk	3rd age robe [BR_3A_MAGE_LEGS]
+20576	CLEANUP	junk	3rd age robe top [BR_3A_MAGE_BODY]
+20405	CLEANUP	junk	Abyssal whip [BR_ABYSSAL_WHIP]
+20599	CLEANUP	junk	Ahrim's robeskirt [BR_AHRIM_LEGS]
+20598	CLEANUP	junk	Ahrim's robetop [BR_AHRIM_BODY]
+23653	CLEANUP	junk	Ahrim's staff [BR_BARROWS_AHRIM_WEAPON]
+20525	CLEANUP	junk	Adamant arrow pack [BR_ADAMANT_ARROWPACK]
+23640	CLEANUP	junk	Amulet of fury [BR_ENCHANTED_ONYX_AMULET]
+27173	CLEANUP	junk	Amulet of torture [BR_TORTURE_AMULET]
+27194	CLEANUP	junk	Ancestral robe bottom [BR_ANCESTRAL_BOTTOM]
+27193	CLEANUP	junk	Ancestral robe top [BR_ANCESTRAL_TOP]
+27184	CLEANUP	junk	Ancient godsword [BR_ANCIENT_GODSWORD]
+20431	CLEANUP	junk	Ancient staff [BR_ANCIENT_STAFF]
+33202	CLEANUP	junk	Aranea boots [BR_ARANEA_BOOTS]
+23611	CLEANUP	junk	Armadyl crossbow [BR_ACB]
+20593	CLEANUP	junk	Armadyl godsword [BR_AGS]
+29852	CLEANUP	junk	Atlatl dart [BR_ATLATL_DART]
+23646	CLEANUP	junk	Bandos tassets [BR_BANDOS_SKIRT]
+23593	CLEANUP	junk	Barrows gloves [BR_HUNDRED_GAUNTLETS_LEVEL_10]
+27169	CLEANUP	junk	Berserker helm [BR_BERSERKER_HELM]
+23595	CLEANUP	junk	Berserker ring (i) [BR_BERZERKER_RING]
+20423	CLEANUP	junk	Black d'hide body [BR_BLACKDHIDE_BODY]
+20424	CLEANUP	junk	Black d'hide chaps [BR_BLACKDHIDE_CHAPS]
+23642	CLEANUP	junk	Blessed spirit shield [BR_BLESSED_SPIRIT_SHIELD]
+29846	CLEANUP	junk	Blood moon chestplate [BR_BLOOD_MOON_CHESTPLATE]
+29848	CLEANUP	junk	Blood moon helm [BR_BLOOD_MOON_HELM]
+29847	CLEANUP	junk	Blood moon tassets [BR_BLOOD_MOON_TASSETS]
+29843	CLEANUP	junk	Blue moon chestplate [BR_FROST_MOON_CHESTPLATE]
+29845	CLEANUP	junk	Blue moon helm [BR_FROST_MOON_HELM]
+29849	CLEANUP	junk	Blue moon spear [BR_FROSTMOON_SPEAR]
+29844	CLEANUP	junk	Blue moon tassets [BR_FROST_MOON_TASSETS]
+27187	CLEANUP	junk	Bow of faerdhinen (c) [BR_BOW_OF_FAERDHINEN]
+20578	CLEANUP	junk	Climbing boots [BR_CLIMBING_BOOTS]
+33166	CLEANUP	junk	Crystal body [BR_CRYSTAL_CHESTPLATE]
+33170	CLEANUP	junk	Crystal helm [BR_CRYSTAL_HELMET]
+33168	CLEANUP	junk	Crystal legs [BR_CRYSTAL_PLATELEGS]
+20408	CLEANUP	junk	Dark bow [BR_DARKBOW]
+25516	CLEANUP	junk	Dharok's greataxe [BR_BARROWS_DHAROK_WEAPON]
+23639	CLEANUP	junk	Dharok's helm [BR_BARROWS_DHAROK_HEAD]
+25515	CLEANUP	junk	Dharok's platebody [BR_BARROWS_DHAROK_BODY]
+23633	CLEANUP	junk	Dharok's platelegs [BR_BARROWS_DHAROK_LEGS]
+23649	CLEANUP	junk	Diamond bolts (e) [BR_DSTONE_BOLTS_E]
+33460	CLEANUP	junk	Dragon crossbow [BR_XBOWS_CROSSBOW_DRAGON]
+20407	CLEANUP	junk	Dragon dagger [BR_DRAGON_DAGGER]
+23597	CLEANUP	junk	Dragon defender [BR_DRAGON_PARRYINGDAGGER]
+23648	CLEANUP	junk	Dragon javelin [BR_DRAGON_JAVELIN]
+27157	CLEANUP	junk	Dragon knife [BR_DRAGON_KNIFE]
+20406	CLEANUP	junk	Dragon scimitar [BR_DRAGON_SCIMITAR]
+33186	CLEANUP	junk	Dragonfire shield [BR_DRAGONFIRE_SHIELD]
+29851	CLEANUP	junk	Eclipse atlatl [BR_ECLIPSE_ATLATL]
+29840	CLEANUP	junk	Eclipse moon chestplate [BR_ECLIPSE_MOON_CHESTPLATE]
+29842	CLEANUP	junk	Eclipse moon helm [BR_ECLIPSE_MOON_HELM]
+29841	CLEANUP	junk	Eclipse moon tassets [BR_ECLIPSE_MOON_TASSETS]
+27176	CLEANUP	junk	Elder chaos hood [BR_ELDERCHAOS_HOOD]
+27175	CLEANUP	junk	Elder chaos robe [BR_ELDERCHAOS_BOTTOM]
+21205	CLEANUP	junk	Elder maul [BR_ELDER_MAUL]
+23644	CLEANUP	junk	Eternal boots [BR_ETERNAL_BOOTS]
+27166	CLEANUP	junk	Ghostly hood [BR_SECRET_GHOST_HAT]
+27167	CLEANUP	junk	Ghostly robe [BR_SECRET_GHOST_TOP]
+27168	CLEANUP	junk	Ghostly robe [BR_SECRET_GHOST_BOTTOM]
+20557	CLEANUP	junk	Granite maul [BR_GRANITE_MAUL]
+23638	CLEANUP	junk	Guthan's helm [BR_BARROWS_GUTHAN_HEAD]
+27180	CLEANUP	junk	Guthix chaps [BR_GUTHIX_CHAPS]
+23591	CLEANUP	junk	Helm of neitiznot [BR_FRIS_KINGLY_HELM]
+23603	CLEANUP	junk	Imbued guthix cape [BR_MA2_GUTHIX_CAPE]
+23607	CLEANUP	junk	Imbued saradomin cape [BR_MA2_SARADOMIN_CAPE]
+23605	CLEANUP	junk	Imbued zamorak cape [BR_MA2_ZAMORAK_CAPE]
+23622	CLEANUP	junk	Infernal cape [BR_INFERNAL_CAPE]
+27170	CLEANUP	junk	Infinity boots [BR_INFINITY_BOOTS]
+27195	CLEANUP	junk	Inquisitor's great helm [BR_INQUISITORS_HELM]
+27196	CLEANUP	junk	Inquisitor's hauberk [BR_INQUISITORS_BODY]
+27198	CLEANUP	junk	Inquisitor's mace [BR_INQUISITORS_MACE]
+27197	CLEANUP	junk	Inquisitor's plateskirt [BR_INQUISITORS_SKIRT]
+23632	CLEANUP	junk	Karil's leathertop [BR_BARROWS_KARIL_BODY]
+23626	CLEANUP	junk	Kodai wand [BR_KODAI_WAND]
+27870	CLEANUP	junk	Lightbearer [BR_LIGHTBEARER]
+33180	CLEANUP	junk	Magus ring [BR_MAGUS_RING]
+33190	CLEANUP	junk	Masori body (f) [BR_MASORI_BODY_FORTIFIED]
+33192	CLEANUP	junk	Masori chaps (f) [BR_MASORI_CHAPS_FORTIFIED]
+20581	CLEANUP	junk	Mithril gloves [BR_MITHRIL_GLOVES]
+23619	CLEANUP	junk	Morrigan's javelin [BR_MORRIGANS_JAVELIN]
+20426	CLEANUP	junk	Mystic robe bottom [BR_MYSTIC_LEGS]
+27159	CLEANUP	junk	Mystic robe bottom (dark) [BR_MYSTIC_LEGS_DARK]
+27161	CLEANUP	junk	Mystic robe bottom (light) [BR_MYSTIC_LEGS_LIGHT]
+20425	CLEANUP	junk	Mystic robe top [BR_MYSTIC_BODY]
+27158	CLEANUP	junk	Mystic robe top (dark) [BR_MYSTIC_BODY_DARK]
+27160	CLEANUP	junk	Mystic robe top (light) [BR_MYSTIC_BODY_LIGHT]
+27172	CLEANUP	junk	Necklace of anguish [BR_ANGUISH_NECKLACE]
+33178	CLEANUP	junk	Noxious halberd [BR_NOXIOUS_HALBERD]
+33462	CLEANUP	junk	Oathplate helm [BR_OATHPLATE_HELM]
+23654	CLEANUP	junk	Occult necklace [BR_OCCULT_NECKLACE]
+27192	CLEANUP	junk	Opal dragon bolts (e) [BR_DRAGON_BOLTS_ENCHANTED_OPAL]
+33184	CLEANUP	junk	Purging staff [BR_PURGING_STAFF]
+23601	CLEANUP	junk	Rune crossbow [BR_XBOWS_CROSSBOW_RUNITE]
+27185	CLEANUP	junk	Rune defender [BR_RUNE_PARRYINGDAGGER]
+20607	CLEANUP	junk	Rune arrow pack [BR_RUNE_ARROWPACK]
+20422	CLEANUP	junk	Rune platelegs [BR_RUNE_PLATELEGS]
+27182	CLEANUP	junk	Saradomin chaps [BR_SARADOMIN_CHAPS]
+23624	CLEANUP	junk	Seers ring (i) [BR_NZONE_SEER_RING]
+20397	CLEANUP	junk	Spear [BR_HALBERD]
+23599	CLEANUP	junk	Spirit shield [BR_SPIRIT_SHIELD]
+23613	CLEANUP	junk	Staff of the dead [BR_SOTD]
+23620	CLEANUP	junk	Statius's warhammer [BR_STATIUS_WARHAMMER]
+23637	CLEANUP	junk	Torag's helm [BR_BARROWS_TORAG_HEAD]
+23634	CLEANUP	junk	Torag's platelegs [BR_BARROWS_TORAG_LEGS]
+27171	CLEANUP	junk	Tormented bracelet [BR_TORMENTED_BRACELET]
+33194	CLEANUP	junk	Torva platelegs [BR_TORVA_LEGS]
+33182	CLEANUP	junk	Ultor ring [BR_ULTOR_RING]
+27190	CLEANUP	junk	Verac's brassard [BR_BARROWS_VERAC_BODY]
+27189	CLEANUP	junk	Verac's flail [BR_BARROWS_VERAC_WEAPON]
+23636	CLEANUP	junk	Verac's helm [BR_BARROWS_VERAC_HEAD]
+23635	CLEANUP	junk	Verac's plateskirt [BR_BARROWS_VERAC_LEGS]
+23615	CLEANUP	junk	Vesta's longsword [BR_VESTAS_LONGSWORD]
+33198	CLEANUP	junk	Virtus robe bottom [BR_VIRTUS_LEGS]
+33196	CLEANUP	junk	Virtus robe top [BR_VIRTUS_TOP]
+25517	CLEANUP	junk	Volatile nightmare staff [BR_NIGHTMARE_STAFF_VOLATILE]
+27162	CLEANUP	junk	Wizard boots [BR_WIZARD_BOOTS]
+27181	CLEANUP	junk	Zamorak chaps [BR_ZAMORAK_CHAPS]
+27186	CLEANUP	junk	Zaryte crossbow [BR_ZARYTE_XBOW]
+23617	CLEANUP	junk	Zuriel's staff [BR_ZURIELS_STAFF]
+# Wiki: https://oldschool.runescape.wiki/w/Eclipse_moon_tassets?oldid=15211425
+# Wiki: https://oldschool.runescape.wiki/w/Blue_moon_tassets?oldid=15211422
+# Wiki: https://oldschool.runescape.wiki/w/Blood_moon_tassets?oldid=15211419
+29052	GEAR	legs	Eclipse moon tassets (broken): repairable combat equipment
+29061	GEAR	legs	Blue moon tassets (broken): repairable combat equipment
+29070	GEAR	legs	Blood moon tassets (broken): repairable combat equipment
+# Permanent, normally banked Dwarf multicannon components.
+# Wiki: https://oldschool.runescape.wiki/w/Cannon_base?oldid=15184076
+# Wiki: https://oldschool.runescape.wiki/w/Cannon_stand?oldid=15184078
+# The furnace was missing from this list, so three quarters of the
+# cannon sat in combat gear and the fourth part in storage cleanup.
+# Wiki: https://oldschool.runescape.wiki/w/Cannon_furnace?oldid=15184080
+6	GEAR	cannon-part
+8	GEAR	cannon-part
+12	GEAR	cannon-part
+8839	GEAR	body	Void knight top
+13072	GEAR	body	Elite void top
+15737	GEAR	body	Elite void top, duplicate cache record
+20465	GEAR	body	Void knight top (broken)
+20467	GEAR	body	Elite void top (broken)
+20468	GEAR	body	Elite void top (broken), duplicate cache record
+24177	GEAR	body	Void knight top (l)
+24178	GEAR	body	Elite void top (l)
+26463	GEAR	body	Void knight top (or)
+26469	GEAR	body	Elite void top (or)
+27000	GEAR	body	Void knight top (l)(or)
+27003	GEAR	body	Elite void top (l)(or)
+33476	GEAR	body	Void knight top (l) (broken)
+33478	GEAR	body	Void knight top (l) (mangled)
+33480	GEAR	body	Elite void top (l) (broken)
+33481	GEAR	body	Elite void top (l) (broken), duplicate cache record
+33482	GEAR	body	Elite void top (l) (mangled)
+33483	GEAR	body	Elite void top (l) (mangled), duplicate cache record
+# Repeatable post-quest instructions and holy-water production tools.
+# Wiki: https://oldschool.runescape.wiki/w/Battered_book?oldid=15261995
+# Wiki: https://oldschool.runescape.wiki/w/Slashed_book?oldid=15261994
+# Wiki: https://oldschool.runescape.wiki/w/Gold_bowl?oldid=15184879
+# Wiki: https://oldschool.runescape.wiki/w/Blessed_gold_bowl?oldid=15184880
+# Wiki: https://oldschool.runescape.wiki/w/Golden_bowl?oldid=15184878
+# The sketch remains useful after the quest because omitting it adds a failure chance.
+# Wiki: https://oldschool.runescape.wiki/w/Sketch?oldid=15186564
+2886	TOOL	quest-utility
+9715	TOOL	quest-utility
+721	TOOL	quest-utility
+722	TOOL	quest-utility
+723	TOOL	quest-utility
+724	TOOL	quest-utility
+725	TOOL	quest-utility
+726	TOOL	quest-utility
+720	TOOL	quest-utility
+# Repeatable utility, food, and skilling workflows that win over quest origin.
+# Wiki: https://oldschool.runescape.wiki/w/Damaged_dagger?oldid=15184405
+# Wiki: https://oldschool.runescape.wiki/w/Cowbell_amulet?oldid=15242265
+2387	TOOL	skilling-utility	Can still slash webs after Watchtower
+33103	TOOL	skilling-utility
+33104	TOOL	skilling-utility	Repeatable faster milking, Brutus respawn, and charged teleport utility
+# Wiki: https://oldschool.runescape.wiki/w/Damiana_tea?oldid=15218655
+# Wiki: https://oldschool.runescape.wiki/w/Nettle_tea?oldid=15218650
+30981	POTION	food
+4239	POTION	food
+# Wiki: https://oldschool.runescape.wiki/w/Damiana_water?oldid=15194001
+# Wiki: https://oldschool.runescape.wiki/w/Nettle-water?oldid=15184386
+30979	SKILLING	cooking-material
+4237	SKILLING	cooking-material
+# Wiki: https://oldschool.runescape.wiki/w/Flighted_ogre_arrow?oldid=15185590
+2865	SKILLING	ammo-component
+# Discontinued state still has an explicit Activate conversion into the current ring.
+# Wiki: https://oldschool.runescape.wiki/w/Ring_of_endurance_(discontinued)?oldid=15190517
+24735	UNIQUE	equipment-upgrade
+# The two Xerician pieces without base stats; the robe classifies
+# as gear, and a set never splits across tabs.
+# Wiki: https://oldschool.runescape.wiki/w/Xerician_hat
+# Wiki: https://oldschool.runescape.wiki/w/Xerician_top?oldid=15187772
+13385	GEAR	gear
+13387	GEAR	gear
+# Catalogued as the Plague Outfit cosmetic set; classifying the
+# pieces with it keeps them on the cosmetics tag instead of the
+# clues catch-all their quest-item subcategory falls into.
+# Wiki: https://oldschool.runescape.wiki/w/Plague_jacket
+# Wearable/re-obtainable costumes with no combat role.
+# Wiki: https://oldschool.runescape.wiki/w/Black_desert_robe?oldid=15185624
+# The other half of the black desert set classifies with the robe
+# above; a set never splits across tabs.
+# Wiki: https://oldschool.runescape.wiki/w/Black_desert_shirt?oldid=15185626
+# Zero-stat costume family; the ripped state is directly repairable
+# into the costume-room-storable repaired trousers.
+# Wiki: https://oldschool.runescape.wiki/w/Ripped_mourner_trousers?oldid=15238152
+# Wiki: https://oldschool.runescape.wiki/w/Mourner_trousers?oldid=15238157
+# Wiki: https://oldschool.runescape.wiki/w/Eagle_cape?oldid=15185043
+# Wiki: https://oldschool.runescape.wiki/w/Emissary_hood?oldid=15192738
+# Wiki: https://oldschool.runescape.wiki/w/Emissary_robe_top?oldid=15192740
+# Wiki: https://oldschool.runescape.wiki/w/Emissary_robe_bottom?oldid=15192739
+# Craftable and wearable, but explicitly has no use or stat bonuses.
+# Wiki: https://oldschool.runescape.wiki/w/'perfect'_ring?oldid=15186796
+284	CLUE	cosmetic
+285	CLUE	cosmetic
+6752	CLUE	cosmetic
+6750	CLUE	cosmetic
+6066	CLUE	cosmetic
+6067	CLUE	cosmetic
+10171	CLUE	cosmetic
+29868	CLUE	cosmetic
+29870	CLUE	cosmetic
+29872	CLUE	cosmetic
+773	CLUE	cosmetic
+# Exact quest-stage objects whose full pages record no normal repeatable function.
+# Wiki: https://oldschool.runescape.wiki/w/A_stone_bowl?oldid=15182661
+# Wiki: https://oldschool.runescape.wiki/w/Amulet_of_doomion?oldid=15182758
+# Wiki: https://oldschool.runescape.wiki/w/Amulet_of_holthion?oldid=15182762
+# Wiki: https://oldschool.runescape.wiki/w/Amulet_of_othanian?oldid=15182766
+# Wiki: https://oldschool.runescape.wiki/w/Ancestral_dagger?oldid=15252880
+# Wiki: https://oldschool.runescape.wiki/w/Ancient_armour_(item)?oldid=15189739
+# Wiki: https://oldschool.runescape.wiki/w/Ancient_shield_(The_Blood_Moon_Rises)?oldid=15252942
+# Wiki: https://oldschool.runescape.wiki/w/Armour_shard?oldid=15182694
+# Wiki: https://oldschool.runescape.wiki/w/Beaten_book?oldid=15261975
+# Wiki: https://oldschool.runescape.wiki/w/Black_knight_helm?oldid=15187005
+# The one Builder's outfit piece with stats; the shirt, trousers and
+# hard hat classify here already, and a set never splits across tabs.
+# Wiki: https://oldschool.runescape.wiki/w/Builder's_boots?oldid=15226469
+# Wiki: https://oldschool.runescape.wiki/w/Bloody_knife?oldid=15190246
+# Wiki: https://oldschool.runescape.wiki/w/Bolt_cutters?oldid=15254416
+# Wiki: https://oldschool.runescape.wiki/w/Book_(Shield_of_Arrav)?oldid=15186895
+# Wiki: https://oldschool.runescape.wiki/w/Bow-sword?oldid=15184944
+# Wiki: https://oldschool.runescape.wiki/w/Broken_shield?oldid=15221167
+# Wiki: https://oldschool.runescape.wiki/w/Cannon_ball_(Between_a_Rock...)?oldid=15184937
+# Wiki: https://oldschool.runescape.wiki/w/Criminal's_dagger?oldid=15186576
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_(Watchtower)?oldid=15184426
+# Wiki: https://oldschool.runescape.wiki/w/Cultist_robe?oldid=15190245
+# Wiki: https://oldschool.runescape.wiki/w/Dirty_robe?oldid=15184216
+# Wiki: https://oldschool.runescape.wiki/w/Empty_syringe?oldid=15254396
+# Wiki: https://oldschool.runescape.wiki/w/Full_syringe?oldid=15245958
+# Wiki: https://oldschool.runescape.wiki/w/Exquisite_boots?oldid=15185571
+# Wiki: https://oldschool.runescape.wiki/w/Eye_amulet?oldid=15190854
+# Wiki: https://oldschool.runescape.wiki/w/Fever_spider_body?oldid=15183893
+# Wiki: https://oldschool.runescape.wiki/w/Gilded_cross?oldid=15184410
+# Wiki: https://oldschool.runescape.wiki/w/Helmet_fragment?oldid=15184981
+# Wiki: https://oldschool.runescape.wiki/w/Infused_wand?oldid=15184925
+# Wiki: https://oldschool.runescape.wiki/w/Knife_blade?oldid=14960790
+# Wiki: https://oldschool.runescape.wiki/w/Legs?oldid=15183874
+# Wiki: https://oldschool.runescape.wiki/w/Mace_(H.A.M.)?oldid=15189007
+# Wiki: https://oldschool.runescape.wiki/w/Mace_(The_Blood_Moon_Rises)?oldid=15255253
+# Wiki: https://oldschool.runescape.wiki/w/Mystical_robes?oldid=15185505
+# Wiki: https://oldschool.runescape.wiki/w/Old_robe?oldid=15184414
+# Wiki: https://oldschool.runescape.wiki/w/Ornate_knife?oldid=15247354
+# Wiki: https://oldschool.runescape.wiki/w/Pipe_ring?oldid=15185710
+# Wiki: https://oldschool.runescape.wiki/w/Prototype_dart?oldid=15185563
+# Wiki: https://oldschool.runescape.wiki/w/Robert_bust?oldid=15188656
+# Wiki: https://oldschool.runescape.wiki/w/Rupert's_helmet?oldid=15183196
+# Wiki: https://oldschool.runescape.wiki/w/Sandstone_(20kg)?oldid=15184460
+# Wiki: https://oldschool.runescape.wiki/w/Sandstone_(32kg)?oldid=15184461
+# Wiki: https://oldschool.runescape.wiki/w/Sandstone_body?oldid=15184463
+# Wiki: https://oldschool.runescape.wiki/w/Sandstone_base?oldid=15184462
+# Wiki: https://oldschool.runescape.wiki/w/Shaman_robe?oldid=15186911
+# Wiki: https://oldschool.runescape.wiki/w/Sharp_knife?oldid=15254393
+# Wiki: https://oldschool.runescape.wiki/w/Shield_fragment?oldid=15184980
+# Wiki: https://oldschool.runescape.wiki/w/Shield_of_arrav_(item)?oldid=15192251
+# Wiki: https://oldschool.runescape.wiki/w/Shield_with_symbol?oldid=15252940
+# Wiki: https://oldschool.runescape.wiki/w/Smouldering_pot?oldid=15185822
+# Wiki: https://oldschool.runescape.wiki/w/Spear_(The_Blood_Moon_Rises)?oldid=15255254
+# Wiki: https://oldschool.runescape.wiki/w/Staff_of_armadyl?oldid=15185386
+# Wiki: https://oldschool.runescape.wiki/w/Stolen_amulet?oldid=15192438
+# Wiki: https://oldschool.runescape.wiki/w/Stone_ball?oldid=15183566
+# Wiki: https://oldschool.runescape.wiki/w/Sturdy_boots?oldid=15186835
+# Wiki: https://oldschool.runescape.wiki/w/Sword_(The_Blood_Moon_Rises)?oldid=15255252
+# Wiki: https://oldschool.runescape.wiki/w/Sword_fragment?oldid=15184982
+# Wiki: https://oldschool.runescape.wiki/w/Sword_pommel?oldid=15185265
+# Wiki: https://oldschool.runescape.wiki/w/Torn_robe_(top)?oldid=15185490
+# Wiki: https://oldschool.runescape.wiki/w/Torn_robe_(bottom)?oldid=15185491
+# Wiki: https://oldschool.runescape.wiki/w/Syringe_needle?oldid=15247407
+# Wiki: https://oldschool.runescape.wiki/w/Syringe_barrel?oldid=15247404
+# Wiki: https://oldschool.runescape.wiki/w/Syringe_plunger?oldid=15247405
+# Wiki: https://oldschool.runescape.wiki/w/Unusual_armour?oldid=15184424
+# Wiki: https://oldschool.runescape.wiki/w/Wand_(What_Lies_Below)?oldid=15184926
+# Wiki: https://oldschool.runescape.wiki/w/Washing_bowl?oldid=15204117
+# Wiki: https://oldschool.runescape.wiki/w/Crone-made_amulet?oldid=15183398
+# Wiki: https://oldschool.runescape.wiki/w/Killer's_knife?oldid=15188034
+# Wiki: https://oldschool.runescape.wiki/w/Pendant_of_lucien?oldid=15183161
+# Wiki: https://oldschool.runescape.wiki/w/Prop_sword_(Death_on_the_Isle)?oldid=15251600
+2888	CLEANUP	quest-item
+2889	CLEANUP	quest-item
+1498	CLEANUP	quest-item
+1499	CLEANUP	quest-item
+1497	CLEANUP	quest-item
+33762	CLEANUP	quest-item
+24688	CLEANUP	quest-item
+33738	CLEANUP	quest-item
+11048	CLEANUP	quest-item
+9717	CLEANUP	quest-item
+10865	CLEANUP	quest-item
+11678	CLEANUP	quest-item
+25799	CLEANUP	quest-item
+33787	CLEANUP	quest-item
+757	CLEANUP	quest-item
+6818	CLEANUP	quest-item
+763	CLEANUP	quest-item
+765	CLEANUP	quest-item
+4579	CLEANUP	quest-item
+1813	CLEANUP	quest-item
+1814	CLEANUP	quest-item
+2380	CLEANUP	quest-item
+2381	CLEANUP	quest-item
+2382	CLEANUP	quest-item
+2383	CLEANUP	quest-item
+25800	CLEANUP	quest-item
+3267	CLEANUP	quest-item
+33754	CLEANUP	quest-item
+33755	CLEANUP	quest-item
+5064	CLEANUP	quest-item
+26903	CLEANUP	quest-item
+6718	CLEANUP	quest-item
+4674	CLEANUP	quest-item
+11052	CLEANUP	quest-item
+11013	CLEANUP	quest-item
+30965	CLEANUP	quest-item
+4196	CLEANUP	quest-item
+11058	CLEANUP	quest-item
+33760	CLEANUP	quest-item
+4247	CLEANUP	quest-item
+2385	CLEANUP	quest-item
+33740	CLEANUP	quest-item
+10872	CLEANUP	quest-item
+1849	CLEANUP	quest-item
+22083	CLEANUP	quest-item
+11199	CLEANUP	quest-item
+6985	CLEANUP	quest-item
+6986	CLEANUP	quest-item
+6987	CLEANUP	quest-item
+6988	CLEANUP	quest-item
+2397	CLEANUP	quest-item
+33749	CLEANUP	quest-item
+11054	CLEANUP	quest-item
+28807	CLEANUP	quest-item
+33739	CLEANUP	quest-item
+6772	CLEANUP	quest-item
+33758	CLEANUP	quest-item
+84	CLEANUP	quest-item
+28976	CLEANUP	quest-item
+3109	CLEANUP	quest-item
+3110	CLEANUP	quest-item
+3111	CLEANUP	quest-item
+3112	CLEANUP	quest-item
+3113	CLEANUP	quest-item
+3700	CLEANUP	quest-item
+33757	CLEANUP	quest-item
+11056	CLEANUP	quest-item
+623	CLEANUP	quest-item
+6788	CLEANUP	quest-item
+6789	CLEANUP	quest-item
+33751	CLEANUP	quest-item
+33752	CLEANUP	quest-item
+33753	CLEANUP	quest-item
+2386	CLEANUP	quest-item
+11012	CLEANUP	quest-item
+2964	CLEANUP	quest-item
+10500	CLEANUP	quest-item
+20781	CLEANUP	quest-item
+21059	CLEANUP	quest-item
+86	CLEANUP	quest-item
+29911	CLEANUP	quest-item
+# Non-bankable, scrapped, failsafe, or discontinued quest/cache objects.
+# Wiki: https://oldschool.runescape.wiki/w/Elysian_spirit_shield_(Monkey_Madness_II)?oldid=15187512
+# Wiki: https://oldschool.runescape.wiki/w/Offering_bouquet?oldid=15194077
+# Wiki: https://oldschool.runescape.wiki/w/Silif_(item)?oldid=15192561
+# Wiki: https://oldschool.runescape.wiki/w/Deep_sea_helmet?oldid=15213596
+# Wiki: https://oldschool.runescape.wiki/w/Deep_sea_helmet_(The_Red_Reef)?oldid=15218399
+# Given by Juna only inside Tears of Guthix and deleted on leaving the area.
+# Wiki: https://oldschool.runescape.wiki/w/Stone_bowl?oldid=15184533
+19559	CLEANUP	junk
+31400	CLEANUP	junk
+29572	CLEANUP	junk
+31298	CLEANUP	junk
+31401	CLEANUP	junk
+4704	CLEANUP	junk
+# The inventory/worn IDs are two representations of the same durable
+# weight-reduction utility; ID 88 was already classified identically.
+# Wiki: https://oldschool.runescape.wiki/w/Boots_of_lightness?oldid=15182914
+89	TOOL	skilling-utility
+# Persistent communication, access, and travel utilities rather than combat gear.
+# Wiki: https://oldschool.runescape.wiki/w/Catspeak_amulet?oldid=15182936
+# Wiki: https://oldschool.runescape.wiki/w/Ghostspeak_amulet?oldid=15183035
+# Wiki: https://oldschool.runescape.wiki/w/Ring_of_charos?oldid=15217181
+4677	TOOL	quest-utility
+4250	TOOL	quest-utility
+4202	TOOL	quest-utility
+# Complete player-facing M'speak family plus the repeatable Lunar access seal.
+# Wiki: https://oldschool.runescape.wiki/w/M'speak_amulet?oldid=15183584
+# Wiki: https://oldschool.runescape.wiki/w/Seal_of_passage
+4021	TOOL	quest-utility
+4022	TOOL	quest-utility
+9083	TOOL	quest-utility
+# Ongoing desert-heat protection, but no combat bonuses.
+# Wiki: https://oldschool.runescape.wiki/w/Slave_robe?oldid=15183223
+# Wiki: https://oldschool.runescape.wiki/w/Slave_boots?oldid=15183222
+1845	TOOL	skilling-utility
+1846	TOOL	skilling-utility
+# The Star amulet unlocks the cave during the quest. Afterwards the
+# cave is permanently entered by pushing the easternmost memorial;
+# using another Star amulet only makes this chain unobtainable.
+# Wiki: https://oldschool.runescape.wiki/w/Marble_amulet?oldid=15183880
+# "if a star amulet is used ... again ... the marble amulet will no longer be obtainable."
+# Wiki: https://oldschool.runescape.wiki/w/Obsidian_amulet?oldid=15183881
+# "if a star amulet is used ... again ... the obsidian amulet will no longer be obtainable."
+# Wiki: https://oldschool.runescape.wiki/w/Star_amulet?oldid=15183534
+# Wiki: https://oldschool.runescape.wiki/w/Experiment_cave?oldid=15234162
+# "By pushing the easternmost memorial, players may enter the experiment caves below."
+4187	CLEANUP	quest-item
+4188	CLEANUP	quest-item
+4183	CLEANUP	quest-item
+# Quest-instance weapons that cannot enter a normal bank.
+# Wiki: https://oldschool.runescape.wiki/w/Anger_sword?oldid=15182773
+# Wiki: https://oldschool.runescape.wiki/w/Anger_mace?oldid=15182771
+# Wiki: https://oldschool.runescape.wiki/w/Anger_spear?oldid=15182772
+# Removed from the inventory when its Blood Moon quest segment ends.
+# Wiki: https://oldschool.runescape.wiki/w/Silvthrill_javelin?oldid=15254523
+7806	CLEANUP	junk
+7808	CLEANUP	junk
+7809	CLEANUP	junk
+33801	CLEANUP	junk
+# Historical gradual-degradation crystal bows. Song of the Elves
+# reverted every existing copy into a weapon seed; only cache records remain.
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_bow_(historical)?oldid=15221194
+# The old Nightmare Zone imbued family is likewise unobtainable
+# after the 2019 conversion/removal of crystal imbuing.
+# Wiki: https://oldschool.runescape.wiki/w/Crystal_bow_(i)?oldid=15187529
+4212	CLEANUP	junk
+4214	CLEANUP	junk
+4215	CLEANUP	junk
+4216	CLEANUP	junk
+4217	CLEANUP	junk
+4218	CLEANUP	junk
+4219	CLEANUP	junk
+4220	CLEANUP	junk
+4221	CLEANUP	junk
+4222	CLEANUP	junk
+4223	CLEANUP	junk
+11748	CLEANUP	junk
+11749	CLEANUP	junk
+11750	CLEANUP	junk
+11751	CLEANUP	junk
+11752	CLEANUP	junk
+11753	CLEANUP	junk
+11754	CLEANUP	junk
+11755	CLEANUP	junk
+11756	CLEANUP	junk
+11757	CLEANUP	junk
+11758	CLEANUP	junk
+# Focused corrections from the 757-item Ironman blueprint review.
+# Wiki: https://oldschool.runescape.wiki/w/Bone_spear?oldid=14797773
+5016	GEAR	weapon	Equipable melee weapon, not a bone/resource material
+# Wiki: https://oldschool.runescape.wiki/w/Collection_log?oldid=15161984
+22711	CLUE	collection-trophy
+# Wiki: https://oldschool.runescape.wiki/w/Long_kebbit_spike
+10107	SKILLING	ammo-component	Chiselled into long kebbit bolts for Fletching XP
+# Wiki: https://oldschool.runescape.wiki/w/Impling
+# Wiki: https://oldschool.runescape.wiki/w/Small_fur_pouch
+11260	TOOL	resource-container	Required to retain caught implings in Puro-Puro
+29466	TOOL	resource-container	Open small fur pouch remains a reusable Hunter container
+# Wiki: https://oldschool.runescape.wiki/w/Potions
+10109	HERBLORE	secondary	Ground into the secondary for Hunter potions
+# Repeatable Farming, Firemaking and cave-light utilities.
+# Wiki: https://oldschool.runescape.wiki/w/Shears
+1735	TOOL	tool
+# Wiki: https://oldschool.runescape.wiki/w/Bruma_torch
+# Wiki: https://oldschool.runescape.wiki/w/Bullseye_lantern
+20720	TOOL	light-source
+4550	TOOL	light-source
+# Wiki: https://oldschool.runescape.wiki/w/Purple_sweets
+10476	POTION	food
+# Repeatably grown Farming produce, not Cleanup review items.
+1955	FARMING	produce	Cooking apple
+1982	FARMING	produce	Tomato
+5986	FARMING	produce	Sweetcorn
+5291	FARMING	herb-seed	Guam seed belongs to the Herblore recipe workflow
+# Complete Recipe for Disaster spice-dose families: cooking ingredients, not potions.
+# Wiki: https://oldschool.runescape.wiki/w/Orange_spice?oldid=15241475
+7480	SKILLING	cooking-material
+7481	SKILLING	cooking-material
+7482	SKILLING	cooking-material
+7483	SKILLING	cooking-material	Red spice, 4 -> 1
+7484	SKILLING	cooking-material
+7485	SKILLING	cooking-material
+7486	SKILLING	cooking-material
+7487	SKILLING	cooking-material	Orange spice, 4 -> 1
+7488	SKILLING	cooking-material
+7489	SKILLING	cooking-material
+7490	SKILLING	cooking-material
+7491	SKILLING	cooking-material	Brown spice, 4 -> 1
+7492	SKILLING	cooking-material
+7493	SKILLING	cooking-material
+7494	SKILLING	cooking-material
+7495	SKILLING	cooking-material	Yellow spice, 4 -> 1
+# Complete kyatt, larupia, and graahk hunter-fur outfit family.
+10035	GEAR	gear
+10037	GEAR	gear
+10039	GEAR	gear
+10041	GEAR	gear
+10043	GEAR	gear
+10045	GEAR	gear
+10047	GEAR	gear
+10049	GEAR	gear
+10051	GEAR	gear
+10595	TOOL	quest-utility	Clockwork suit, unwound
+10596	TOOL	quest-utility	Clockwork suit, wound
+5350	FARMING	farming-supply	Empty plant pot; later plant-pot stages were already FARMING
+6311	FARMING	produce	Gout tuber
+11095	TOOL	runecrafting-utility	Abyssal bracelet(5)
+11097	TOOL	runecrafting-utility	Abyssal bracelet(4)
+11099	TOOL	runecrafting-utility	Abyssal bracelet(3)
+11101	TOOL	runecrafting-utility	Abyssal bracelet(2)
+11103	TOOL	runecrafting-utility	Abyssal bracelet(1)
+# Standalone player-facing partyhat cosmetics.
+1038	CLUE	cosmetic
+1040	CLUE	cosmetic
+1042	CLUE	cosmetic
+1044	CLUE	cosmetic
+1046	CLUE	cosmetic
+1048	CLUE	cosmetic
+11862	CLUE	cosmetic	Black partyhat
+11863	CLUE	cosmetic	Rainbow partyhat
+27828	CLUE	cosmetic	Silver partyhat
+# Standalone player-facing santa hat cosmetics, the same family of
+# holiday rares as the partyhats above.
+# Wiki: https://oldschool.runescape.wiki/w/Santa_hat
+1050	CLUE	cosmetic
+13343	CLUE	cosmetic	Black santa hat
+13344	CLUE	cosmetic	Inverted santa hat
+# Complete player-facing metal/chromatic dragon-mask family.
+12363	CLUE	cosmetic
+12365	CLUE	cosmetic
+12367	CLUE	cosmetic
+12369	CLUE	cosmetic
+12371	CLUE	cosmetic
+12518	CLUE	cosmetic
+12520	CLUE	cosmetic
+12522	CLUE	cosmetic
+12524	CLUE	cosmetic
+23270	CLUE	cosmetic
+23273	CLUE	cosmetic
+12249	CLUE	cosmetic	Imp mask
+21211	CLUE	cosmetic	4th birthday hat
+27820	CLUE	cosmetic	10th birthday balloons
+1794	SKILLING	crafting-material	Bronze wire
+1933	SKILLING	cooking-material	Pot of flour
+# Complete player-facing bird-house tier run.
+21512	SKILLING	resource
+21515	SKILLING	resource
+21518	SKILLING	resource
+21521	SKILLING	resource
+22192	SKILLING	resource
+22195	SKILLING	resource
+22198	SKILLING	resource
+22201	SKILLING	resource
+22204	SKILLING	resource
+# All current player-facing uncharged trident states.
+11908	GEAR	weapon
+22290	GEAR	weapon
+33328	GEAR	weapon
+33434	GEAR	weapon
+# Complete page runs for all six god-book families.
+3827	CLUE	treasure-trail
+3828	CLUE	treasure-trail
+3829	CLUE	treasure-trail
+3830	CLUE	treasure-trail
+3831	CLUE	treasure-trail
+3832	CLUE	treasure-trail
+3833	CLUE	treasure-trail
+3834	CLUE	treasure-trail
+3835	CLUE	treasure-trail
+3836	CLUE	treasure-trail
+3837	CLUE	treasure-trail
+3838	CLUE	treasure-trail
+12613	CLUE	treasure-trail
+12614	CLUE	treasure-trail
+12615	CLUE	treasure-trail
+12616	CLUE	treasure-trail
+12617	CLUE	treasure-trail
+12618	CLUE	treasure-trail
+12619	CLUE	treasure-trail
+12620	CLUE	treasure-trail
+12621	CLUE	treasure-trail
+12622	CLUE	treasure-trail
+12623	CLUE	treasure-trail
+12624	CLUE	treasure-trail
+3840	GEAR	magic-offhand	Holy book
+3842	GEAR	magic-offhand	Unholy book
+3844	GEAR	magic-offhand	Book of balance
+12608	GEAR	magic-offhand	Book of war
+12610	GEAR	magic-offhand	Book of law
+12612	GEAR	magic-offhand	Book of darkness
+12863	GEAR	cannon-part	Dwarf cannon set
+# Player-facing ballista weapons and previously unclassified assembly stages.
+19478	GEAR	weapon	Light ballista
+19481	GEAR	weapon	Heavy ballista
+26712	GEAR	weapon	Heavy ballista (or)
+19586	SKILLING	ammo-component	Light frame
+19589	SKILLING	ammo-component	Heavy frame
+19592	SKILLING	ammo-component	Ballista limbs
+19595	SKILLING	ammo-component	Incomplete light ballista
+19598	SKILLING	ammo-component	Incomplete heavy ballista
+19601	SKILLING	ammo-component	Ballista spring
+19610	SKILLING	ammo-component	Monkey tail
+# Complete current player-facing prayer-scroll family.
+21034	UNIQUE	equipment-upgrade	Dexterous prayer scroll
+21047	UNIQUE	equipment-upgrade	Torn prayer scroll
+21079	UNIQUE	equipment-upgrade	Arcane prayer scroll
+30626	UNIQUE	equipment-upgrade	Deadeye prayer scroll
+30627	UNIQUE	equipment-upgrade	Mystic vigour prayer scroll
+21804	UNIQUE	equipment-upgrade	Ancient crystal
+33	TOOL	light-source	Lit candle
+36	TOOL	light-source	Candle
+# Complete candle-lantern state family, including both candle colours.
+4527	TOOL	light-source
+4529	TOOL	light-source
+4531	TOOL	light-source
+4532	TOOL	light-source
+4534	TOOL	light-source
+2025	TOOL	cooking-tool	Cocktail shaker
+2574	CLUE	treasure-trail	Treasure Trails sextant
+989	UNIQUE	reward-key	Crystal key
+23951	UNIQUE	reward-key	Enhanced crystal key
+# Complete bronze/steel/black/silver/gold Shade key matrix.
+3450	UNIQUE	boss-access-key
+3451	UNIQUE	boss-access-key
+3452	UNIQUE	boss-access-key
+3453	UNIQUE	boss-access-key
+3454	UNIQUE	boss-access-key
+3455	UNIQUE	boss-access-key
+3456	UNIQUE	boss-access-key
+3457	UNIQUE	boss-access-key
+3458	UNIQUE	boss-access-key
+3459	UNIQUE	boss-access-key
+3460	UNIQUE	boss-access-key
+3461	UNIQUE	boss-access-key
+3462	UNIQUE	boss-access-key
+3463	UNIQUE	boss-access-key
+3464	UNIQUE	boss-access-key
+3465	UNIQUE	boss-access-key
+3466	UNIQUE	boss-access-key
+3467	UNIQUE	boss-access-key
+3468	UNIQUE	boss-access-key
+3469	UNIQUE	boss-access-key
+25424	UNIQUE	boss-access-key
+25426	UNIQUE	boss-access-key
+25428	UNIQUE	boss-access-key
+25430	UNIQUE	boss-access-key
+25432	UNIQUE	boss-access-key
+# Bullseye-lantern components remain resources; usable states are tools.
+4542	SKILLING	crafting-material	Lantern lens
+4544	SKILLING	crafting-material	Bullseye lantern (unf)
+4546	TOOL	light-source	Bullseye lantern (empty)
+4548	TOOL	light-source	Bullseye lantern (unlit)
+# Complete player-facing elegant clothing family.
+10400	CLUE	cosmetic
+10402	CLUE	cosmetic
+10404	CLUE	cosmetic
+10406	CLUE	cosmetic
+10408	CLUE	cosmetic
+10410	CLUE	cosmetic
+10412	CLUE	cosmetic
+10414	CLUE	cosmetic
+10416	CLUE	cosmetic
+10418	CLUE	cosmetic
+10420	CLUE	cosmetic
+10422	CLUE	cosmetic
+10424	CLUE	cosmetic
+10426	CLUE	cosmetic
+10428	CLUE	cosmetic
+10430	CLUE	cosmetic
+10432	CLUE	cosmetic
+10434	CLUE	cosmetic
+10436	CLUE	cosmetic
+10438	CLUE	cosmetic
+12315	CLUE	cosmetic
+12317	CLUE	cosmetic
+12339	CLUE	cosmetic
+12341	CLUE	cosmetic
+12343	CLUE	cosmetic
+12345	CLUE	cosmetic
+12347	CLUE	cosmetic
+12349	CLUE	cosmetic
+9666	GEAR	gear	Proselyte harness (male pack)
+9668	GEAR	gear	Initiate harness (male pack)
+9670	GEAR	gear	Proselyte harness (female pack)
+11891	CLUE	cosmetic	Saradomin banner
+11892	CLUE	cosmetic	Zamorak banner
+# Complete six-god book page-set family.
+13149	CLUE	treasure-trail
+13151	CLUE	treasure-trail
+13153	CLUE	treasure-trail
+13155	CLUE	treasure-trail
+13157	CLUE	treasure-trail
+13159	CLUE	treasure-trail
+# Complete unidentified and identified Fossil Island remains family.
+21562	SKILLING	prayer-resource
+21564	SKILLING	prayer-resource
+21566	SKILLING	prayer-resource
+21568	SKILLING	prayer-resource
+21570	SKILLING	prayer-resource
+21572	SKILLING	prayer-resource
+21574	SKILLING	prayer-resource
+21576	SKILLING	prayer-resource
+21578	SKILLING	prayer-resource
+21580	SKILLING	prayer-resource
+21582	SKILLING	prayer-resource
+21584	SKILLING	prayer-resource
+21586	SKILLING	prayer-resource
+21588	SKILLING	prayer-resource
+21600	SKILLING	prayer-resource
+21602	SKILLING	prayer-resource
+21604	SKILLING	prayer-resource
+21606	SKILLING	prayer-resource
+21608	SKILLING	prayer-resource
+21610	SKILLING	prayer-resource
+21612	SKILLING	prayer-resource
+21614	SKILLING	prayer-resource
+21616	SKILLING	prayer-resource
+21618	SKILLING	prayer-resource
+21620	SKILLING	prayer-resource
+# Wiki: https://oldschool.runescape.wiki/w/Soiled_page
+21820	UNIQUE	equipment-charge	Revenant ether
+30068	UNIQUE	equipment-charge	Soiled page, the earth-tome charge page; duplicate 30069 stays fail-closed
+19939	CLUE	treasure-trail	Master clue strange device
+23183	CLUE	treasure-trail	Beginner clue strange device
+22494	CLUE	cosmetic
+22496	CLUE	cosmetic
+22498	CLUE	cosmetic
+22500	CLUE	cosmetic
+22502	CLUE	cosmetic	Sinhaza shroud tiers 1-5
+# Thammaron's and accursed sceptres: charged/uncharged and upgraded states.
+22552	GEAR	weapon
+22555	GEAR	weapon
+27662	GEAR	weapon
+27665	GEAR	weapon
+27676	GEAR	weapon
+27679	GEAR	weapon
+27785	GEAR	weapon
+27788	GEAR	weapon
+23911	CLUE	cosmetic
+23913	CLUE	cosmetic
+23915	CLUE	cosmetic
+23917	CLUE	cosmetic
+23919	CLUE	cosmetic
+23921	CLUE	cosmetic
+23923	CLUE	cosmetic
+23925	CLUE	cosmetic	Eight crystal crown colours
+# Current repairable broken ancient-sceptre and trouver states.
+28238	GEAR	weapon
+28240	GEAR	weapon
+28242	GEAR	weapon
+28244	GEAR	weapon
+33504	GEAR	weapon
+33508	GEAR	weapon
+33512	GEAR	weapon
+33516	GEAR	weapon
+33827	GEAR	weapon
+# Complete Dizana's quiver lifecycle, including locked and broken states.
+28826	GEAR	gear
+28828	GEAR	gear
+28947	GEAR	gear
+28949	GEAR	gear
+28951	GEAR	gear
+28953	GEAR	gear
+28955	GEAR	gear
+28957	GEAR	gear
+33524	GEAR	gear
+33526	GEAR	gear
+33528	GEAR	gear
+33530	GEAR	gear
+29084	GEAR	weapon	Sulphur blades
+29224	SKILLING	resource	Blue butterfly wing
+29227	SKILLING	resource	White butterfly wing
+29230	SKILLING	resource	Black butterfly wing
+29482	CURRENCY	currency	Brimhaven voucher
+20020	CLUE	cosmetic	Lesser demon mask
+20023	CLUE	cosmetic	Greater demon mask
+20026	CLUE	cosmetic	Black demon mask
+25712	CLUE	cosmetic
+25714	CLUE	cosmetic
+25715	CLUE	cosmetic
+25716	CLUE	cosmetic
+25717	CLUE	cosmetic
+25718	CLUE	cosmetic
+25719	CLUE	cosmetic
+25720	CLUE	cosmetic	Complete player-facing clan cloak colour family
+# Complete six-god Treasure Trails coif family.
+10374	CLUE	cosmetic
+10382	CLUE	cosmetic
+10390	CLUE	cosmetic
+12496	CLUE	cosmetic
+12504	CLUE	cosmetic
+12512	CLUE	cosmetic
+# Complete six-god Treasure Trails crozier family.
+10440	CLUE	cosmetic
+10442	CLUE	cosmetic
+10444	CLUE	cosmetic
+12199	CLUE	cosmetic
+12263	CLUE	cosmetic
+12275	CLUE	cosmetic
+# Complete six-god Treasure Trails cloak family.
+10446	CLUE	cosmetic
+10448	CLUE	cosmetic
+10450	CLUE	cosmetic
+12197	CLUE	cosmetic
+12261	CLUE	cosmetic
+12273	CLUE	cosmetic
+# Complete six-god Treasure Trails mitre family.
+10452	CLUE	cosmetic
+10454	CLUE	cosmetic
+10456	CLUE	cosmetic
+12203	CLUE	cosmetic
+12259	CLUE	cosmetic
+12271	CLUE	cosmetic
+# Complete six-god Treasure Trails robe-top family.
+10458	CLUE	cosmetic
+10460	CLUE	cosmetic
+10462	CLUE	cosmetic
+12193	CLUE	cosmetic
+12253	CLUE	cosmetic
+12265	CLUE	cosmetic
+# Complete six-god Treasure Trails robe-bottom family.
+10464	CLUE	cosmetic
+10466	CLUE	cosmetic
+10468	CLUE	cosmetic
+12195	CLUE	cosmetic
+12255	CLUE	cosmetic
+12267	CLUE	cosmetic
+# Complete six-god Treasure Trails stole family.
+10470	CLUE	cosmetic
+10472	CLUE	cosmetic
+10474	CLUE	cosmetic
+12201	CLUE	cosmetic
+12257	CLUE	cosmetic
+12269	CLUE	cosmetic
+# Complete Treasure Trails metal-cane family.
+12373	CLUE	cosmetic
+12375	CLUE	cosmetic
+12377	CLUE	cosmetic
+12379	CLUE	cosmetic
+# Complete Treasure Trails headband colour family.
+2645	CLUE	cosmetic
+2647	CLUE	cosmetic
+2649	CLUE	cosmetic
+12299	CLUE	cosmetic
+12301	CLUE	cosmetic
+12303	CLUE	cosmetic
+12305	CLUE	cosmetic
+12307	CLUE	cosmetic
+# Complete Treasure Trails boater colour family.
+7319	CLUE	cosmetic
+7321	CLUE	cosmetic
+7323	CLUE	cosmetic
+7325	CLUE	cosmetic
+7327	CLUE	cosmetic
+12309	CLUE	cosmetic
+12311	CLUE	cosmetic
+12313	CLUE	cosmetic
+# Complete Treasure Trails cavalier colour family.
+2639	CLUE	cosmetic
+2641	CLUE	cosmetic
+2643	CLUE	cosmetic
+12321	CLUE	cosmetic
+12323	CLUE	cosmetic
+12325	CLUE	cosmetic
+# Complete Treasure Trails beret colour family.
+2633	CLUE	cosmetic
+2635	CLUE	cosmetic
+2637	CLUE	cosmetic
+12247	CLUE	cosmetic
+# Player-facing standalone Treasure Trails novelty clothing.
+10392	CLUE	cosmetic	Powdered wig
+10394	CLUE	cosmetic	Flared trousers
+10396	CLUE	cosmetic	Pantaloons
+10398	CLUE	cosmetic	Sleeping cap
+12430	CLUE	cosmetic	Afro
+# Complete Chompy-bird kill-count hat family.
+2978	CLUE	collection-trophy
+2979	CLUE	collection-trophy
+2980	CLUE	collection-trophy
+2981	CLUE	collection-trophy
+2982	CLUE	collection-trophy
+2983	CLUE	collection-trophy
+2984	CLUE	collection-trophy
+2985	CLUE	collection-trophy
+2986	CLUE	collection-trophy
+2987	CLUE	collection-trophy
+2988	CLUE	collection-trophy
+2989	CLUE	collection-trophy
+2990	CLUE	collection-trophy
+2991	CLUE	collection-trophy
+2992	CLUE	collection-trophy
+2993	CLUE	collection-trophy
+2994	CLUE	collection-trophy
+2995	CLUE	collection-trophy
+# Complete player-facing Fremennik cloak colour family.
+3759	CLUE	cosmetic
+3761	CLUE	cosmetic
+3763	CLUE	cosmetic
+3765	CLUE	cosmetic
+3777	CLUE	cosmetic
+3779	CLUE	cosmetic
+3781	CLUE	cosmetic
+3783	CLUE	cosmetic
+3785	CLUE	cosmetic
+3787	CLUE	cosmetic
+3789	CLUE	cosmetic
+# Complete Temple Trekking/Burgh de Rott skill-tome family.
+7779	SKILLING	resource
+7780	SKILLING	resource
+7781	SKILLING	resource
+7782	SKILLING	resource
+7783	SKILLING	resource
+7784	SKILLING	resource
+7785	SKILLING	resource
+7786	SKILLING	resource
+7787	SKILLING	resource
+7788	SKILLING	resource
+7789	SKILLING	resource
+7790	SKILLING	resource
+7791	SKILLING	resource
+7792	SKILLING	resource
+7793	SKILLING	resource
+7794	SKILLING	resource
+7795	SKILLING	resource
+7796	SKILLING	resource
+7797	SKILLING	resource
+7798	SKILLING	resource
+7799	SKILLING	resource
+# Complete wood, jungle, desert, and polar camouflage outfit family.
+10053	TOOL	skilling-outfit
+10055	TOOL	skilling-outfit
+10057	TOOL	skilling-outfit
+10059	TOOL	skilling-outfit
+10061	TOOL	skilling-outfit
+10063	TOOL	skilling-outfit
+10065	TOOL	skilling-outfit
+10067	TOOL	skilling-outfit
+12596	GEAR	gear	Rangers' tunic
+23249	GEAR	gear	Rangers' tights
+12640	SKILLING	resource	Amylase crystal
+12641	SKILLING	resource	Amylase pack
+# Complete normal-game Voidwaker component and assembled family.
+27681	UNIQUE	equipment-upgrade
+27684	UNIQUE	equipment-upgrade
+27687	UNIQUE	equipment-upgrade
+27690	GEAR	weapon
+# Remaining repeatable Rod of Ivandis production states.
+7636	SKILLING	crafting-material	Rod dust
+7649	TOOL	tool	Rod mould
+# Complete cocktail-spirit family.
+2015	POTION	food	Vodka
+2017	POTION	food	Whisky
+2019	POTION	food	Gin
+2021	POTION	food	Brandy
+# Complete usable and premade Gnome cocktail family.
+2028	POTION	food
+2030	POTION	food
+2032	POTION	food
+2034	POTION	food
+2036	POTION	food
+2038	POTION	food
+2040	POTION	food
+2048	POTION	food
+2054	POTION	food
+2064	POTION	food
+2074	POTION	food
+2080	POTION	food
+2084	POTION	food
+2092	POTION	food
+# Complete unfinished Gnome cocktail workflow.
+2042	SKILLING	cooking-material
+2044	SKILLING	cooking-material
+2046	SKILLING	cooking-material
+2050	SKILLING	cooking-material
+2052	SKILLING	cooking-material
+2056	SKILLING	cooking-material
+2058	SKILLING	cooking-material
+2060	SKILLING	cooking-material
+2062	SKILLING	cooking-material
+2066	SKILLING	cooking-material
+2068	SKILLING	cooking-material
+2070	SKILLING	cooking-material
+2072	SKILLING	cooking-material
+2076	SKILLING	cooking-material
+2078	SKILLING	cooking-material
+2082	SKILLING	cooking-material
+2086	SKILLING	cooking-material
+2088	SKILLING	cooking-material
+2090	SKILLING	cooking-material
+2094	CLEANUP	junk
+2096	CLEANUP	junk
+2098	CLEANUP	junk
+2100	CLEANUP	junk	Spoilt cocktail states
+# Complete usable and premade Gnome bowl family.
+2185	POTION	food
+2187	POTION	food
+2191	POTION	food
+2195	POTION	food
+2229	POTION	food
+2231	POTION	food
+2233	POTION	food
+2235	POTION	food
+# Complete unfinished Gnome bowl workflow.
+2177	SKILLING	cooking-material
+2178	SKILLING	cooking-material
+2179	SKILLING	cooking-material
+2181	SKILLING	cooking-material
+2183	SKILLING	cooking-material
+2189	SKILLING	cooking-material
+2193	SKILLING	cooking-material
+2173	CLEANUP	junk	Spoilt gnomebowl
+2175	CLEANUP	junk	Burnt gnomebowl
+# Complete usable and premade Gnome crunchies family.
+2205	POTION	food
+2209	POTION	food
+2213	POTION	food
+2217	POTION	food
+2237	POTION	food
+2239	POTION	food
+2241	POTION	food
+2243	POTION	food
+# Complete unfinished Gnome crunchies workflow.
+2201	SKILLING	cooking-material
+2202	SKILLING	cooking-material
+2203	SKILLING	cooking-material
+2207	SKILLING	cooking-material
+2211	SKILLING	cooking-material
+2215	SKILLING	cooking-material
+2197	CLEANUP	junk	Spoilt crunchies
+2199	CLEANUP	junk	Burnt crunchies
+# Complete usable and premade Gnome batta family.
+2219	POTION	food
+2221	POTION	food
+2223	POTION	food
+2225	POTION	food
+2227	POTION	food
+2253	POTION	food
+2255	POTION	food
+2259	POTION	food
+2277	POTION	food
+2281	POTION	food
+# Complete unfinished Gnome batta workflow.
+2249	SKILLING	cooking-material
+2250	SKILLING	cooking-material
+2251	SKILLING	cooking-material
+2257	SKILLING	cooking-material
+2261	SKILLING	cooking-material
+2263	SKILLING	cooking-material
+2265	SKILLING	cooking-material
+2267	SKILLING	cooking-material
+2269	SKILLING	cooking-material
+2271	SKILLING	cooking-material
+2273	SKILLING	cooking-material
+2275	SKILLING	cooking-material
+2279	SKILLING	cooking-material
+2245	CLEANUP	junk	Spoilt batta
+2247	CLEANUP	junk	Burnt batta
+# Complete player-facing POH barrel drink family.
+7740	POTION	food
+7744	POTION	food
+7746	POTION	food
+7750	POTION	food
+7752	POTION	food
+7754	POTION	food
+7742	TOOL	cooking-tool	Empty beer glass
+# Complete Keldagrim shirt and trouser colour family.
+5030	CLUE	cosmetic
+5032	CLUE	cosmetic
+5034	CLUE	cosmetic
+5036	CLUE	cosmetic
+5038	CLUE	cosmetic
+5040	CLUE	cosmetic
+# Complete player-facing Tower of Life satchel family.
+10877	CLUE	cosmetic
+10878	CLUE	cosmetic
+10879	CLUE	cosmetic
+10880	CLUE	cosmetic
+10881	CLUE	cosmetic
+10882	CLUE	cosmetic
+# Charged jewellery slice 1: exact player-facing states route independently of ordering.
+2552	TELEPORT	teleport
+2554	TELEPORT	teleport
+2556	TELEPORT	teleport
+2558	TELEPORT	teleport
+2560	TELEPORT	teleport
+2562	TELEPORT	teleport
+2564	TELEPORT	teleport
+2566	TELEPORT	teleport	Ring of dueling, 8 -> 1
+3853	TELEPORT	teleport
+3855	TELEPORT	teleport
+3857	TELEPORT	teleport
+3859	TELEPORT	teleport
+3861	TELEPORT	teleport
+3863	TELEPORT	teleport
+3865	TELEPORT	teleport
+3867	TELEPORT	teleport	Games necklace, 8 -> 1
+21166	TELEPORT	teleport
+21169	TELEPORT	teleport
+21171	TELEPORT	teleport
+21173	TELEPORT	teleport
+21175	TELEPORT	teleport	Burning amulet, 5 -> 1
+21146	TELEPORT	teleport
+21149	TELEPORT	teleport
+21151	TELEPORT	teleport
+21153	TELEPORT	teleport
+21155	TELEPORT	teleport	Necklace of passage, 5 -> 1
+11968	TELEPORT	teleport
+11970	TELEPORT	teleport
+11105	TELEPORT	teleport
+11107	TELEPORT	teleport
+11109	TELEPORT	teleport
+11111	TELEPORT	teleport
+11113	TELEPORT	teleport	Skills necklace, 6 -> 1 plus uncharged
+19707	TELEPORT	teleport	Amulet of eternal glory
+11978	TELEPORT	teleport
+11976	TELEPORT	teleport
+1712	TELEPORT	teleport
+1710	TELEPORT	teleport
+1708	TELEPORT	teleport
+1706	TELEPORT	teleport
+1704	TELEPORT	teleport	Standard amulet of glory, 6 -> 1 plus uncharged
+11964	TELEPORT	teleport
+11966	TELEPORT	teleport
+10354	TELEPORT	teleport
+10356	TELEPORT	teleport
+10358	TELEPORT	teleport
+10360	TELEPORT	teleport
+10362	TELEPORT	teleport	Trimmed amulet of glory, 6 -> 1 plus uncharged
+# Charged jewellery slice 2: exact player-facing states route independently of ordering.
+11972	TELEPORT	teleport
+11974	TELEPORT	teleport
+11118	TELEPORT	teleport
+11120	TELEPORT	teleport
+11122	TELEPORT	teleport
+11124	TELEPORT	teleport
+11126	TELEPORT	teleport	Combat bracelet, 6 -> 1 plus uncharged
+11194	TELEPORT	teleport
+11193	TELEPORT	teleport
+11192	TELEPORT	teleport
+11191	TELEPORT	teleport
+11190	TELEPORT	teleport	Digsite pendant, 5 -> 1; final use destroys the pendant
+20786	TELEPORT	teleport
+20787	TELEPORT	teleport
+20788	TELEPORT	teleport
+20789	TELEPORT	teleport
+20790	TELEPORT	teleport
+12785	TELEPORT	teleport	Imbued ring of wealth, 5 -> 1 plus uncharged
+11980	TELEPORT	teleport
+11982	TELEPORT	teleport
+11984	TELEPORT	teleport
+11986	TELEPORT	teleport
+11988	TELEPORT	teleport
+2572	TELEPORT	teleport	Standard ring of wealth, 5 -> 1 plus uncharged
+21268	TELEPORT	teleport	Eternal slayer ring
+11866	TELEPORT	teleport
+11867	TELEPORT	teleport
+11868	TELEPORT	teleport
+11869	TELEPORT	teleport
+11870	TELEPORT	teleport
+11871	TELEPORT	teleport
+11872	TELEPORT	teleport
+11873	TELEPORT	teleport	Slayer ring, 8 -> 1; final use destroys the ring
+1555	CLUE	cosmetic
+1556	CLUE	cosmetic
+1557	CLUE	cosmetic
+1558	CLUE	cosmetic
+1559	CLUE	cosmetic
+1560	CLUE	cosmetic	Kitten colour states
+1561	CLUE	cosmetic
+1562	CLUE	cosmetic
+1563	CLUE	cosmetic
+1564	CLUE	cosmetic
+1565	CLUE	cosmetic
+1566	CLUE	cosmetic	Grown cat colour states
+1567	CLUE	cosmetic
+1568	CLUE	cosmetic
+1569	CLUE	cosmetic
+1570	CLUE	cosmetic
+1571	CLUE	cosmetic
+1572	CLUE	cosmetic	Overgrown cat colour states
+6549	CLUE	cosmetic
+6550	CLUE	cosmetic
+6551	CLUE	cosmetic
+6552	CLUE	cosmetic
+6553	CLUE	cosmetic
+6554	CLUE	cosmetic	Lazy cat colour states
+6555	CLUE	cosmetic
+6556	CLUE	cosmetic
+6557	CLUE	cosmetic
+6558	CLUE	cosmetic
+6559	CLUE	cosmetic
+6560	CLUE	cosmetic	Wily cat colour states
+7581	CLUE	cosmetic	Overgrown hellcat
+7582	CLUE	cosmetic	Hell cat
+7583	CLUE	cosmetic	Hell-kitten
+7584	CLUE	cosmetic	Lazy hell cat
+7585	CLUE	cosmetic	Wily hellcat
+6199	UNIQUE	reward-drop	Random-event mystery box
