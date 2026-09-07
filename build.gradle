@@ -80,6 +80,39 @@ tasks.register('aggregateCleanupReview', JavaExec) {
 	)
 }
 
+tasks.register('verifySimulationBaselines') {
+	group = 'verification'
+	description = 'Refuses unreviewed changes to the four fixed-seed simulation reports.'
+	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
+	doLast {
+		def expected = [
+			'report.tsv': '7e7a061c5875a4b742f1b17197fc16d15666f96c1f9c1072ceefba71abd3d296',
+			'cleanup-review.tsv': '057d94ed6bc1d49c071e86f8ebb4399caf5f1fa2dcaab41e29ce65d99c57fc93',
+			'aggregate/cleanup-review.tsv': '6eb5605a1f5aea20617c5c663ab7f0f12121a7aa4c4fff2d334af35c0f291a9f',
+			'aggregate/metadata.tsv': '5d8d18018a67d9ae76c6ff4bbda575e24c0729fe1111e0f1c641182633fe39c0'
+		]
+		def customParameters = ['simBanks', 'simSeed', 'simMinItems', 'simMaxItems', 'simOutput', 'aggregateOutput']
+		if (customParameters.any { project.hasProperty(it) }) {
+			throw new GradleException('Baseline verification requires default simulation parameters; run custom simulations separately.')
+		}
+		expected.each { name, hash ->
+			def report = file("build/reports/bank-simulation/${name}")
+			if (!report.isFile()) throw new GradleException("Missing baseline report: ${name}")
+			// The reference checkout is CRLF. Canonicalize only line endings for other OSes.
+			def bytes = report.getText('UTF-8').replace('\r\n', '\n').replace('\n', '\r\n').getBytes('UTF-8')
+			def actual = java.security.MessageDigest.getInstance('SHA-256').digest(bytes).encodeHex().toString()
+			if (actual != hash) {
+				throw new GradleException("Simulation baseline changed: ${name}\nExpected: ${hash}\nActual:   ${actual}\nReview the behavior change; do not regenerate the baseline automatically.")
+			}
+			logger.lifecycle("Baseline OK: ${name}")
+		}
+	}
+}
+
+tasks.named('check') {
+	dependsOn tasks.named('verifySimulationBaselines')
+}
+
 tasks.register('generateRealBankFixture', JavaExec) {
 	group = 'verification'
 	description = 'Deliberately regenerates the ID-only real-bank routing regression fixture.'

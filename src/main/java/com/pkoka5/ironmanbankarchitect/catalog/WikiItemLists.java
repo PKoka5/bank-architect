@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -23,10 +24,22 @@ public final class WikiItemLists
 
 	public static final WikiItemLists INSTANCE = new WikiItemLists();
 
-	private final Set<String> specialAttackWeapons;
-	private final Set<String> questItems;
+	private final RequiredResource<Set<String>> specialAttackWeapons =
+		new RequiredResource<>("special attack weapon", WikiItemLists::loadWeapons);
+	private final RequiredResource<Set<String>> questItems =
+		new RequiredResource<>("quest item", () -> loadNames(QUEST_ITEMS_PATH));
 
 	private WikiItemLists()
+	{
+	}
+
+	public void requireAvailable()
+	{
+		specialAttackWeapons.get();
+		questItems.get();
+	}
+
+	private static Set<String> loadWeapons()
 	{
 		Set<String> weapons = new LinkedHashSet<>();
 		for (String name : loadNames(SPECIAL_ATTACK_WEAPONS_PATH))
@@ -34,8 +47,7 @@ public final class WikiItemLists
 			weapons.add(name);
 			weapons.add(baseName(name));
 		}
-		this.specialAttackWeapons = Collections.unmodifiableSet(weapons);
-		this.questItems = Collections.unmodifiableSet(new LinkedHashSet<>(loadNames(QUEST_ITEMS_PATH)));
+		return Collections.unmodifiableSet(weapons);
 	}
 
 	/**
@@ -44,7 +56,7 @@ public final class WikiItemLists
 	 */
 	public boolean isSpecialAttackWeapon(String displayName)
 	{
-		return displayName != null && specialAttackWeapons.contains(baseName(displayName.toLowerCase()));
+		return displayName != null && specialAttackWeapons.get().contains(baseName(displayName.toLowerCase(Locale.ROOT)));
 	}
 
 	/**
@@ -54,7 +66,7 @@ public final class WikiItemLists
 	 */
 	public boolean isQuestItem(String displayName)
 	{
-		return displayName != null && questItems.contains(displayName.toLowerCase().trim());
+		return displayName != null && questItems.get().contains(displayName.toLowerCase(Locale.ROOT).trim());
 	}
 
 	static String baseName(String name)
@@ -71,10 +83,14 @@ public final class WikiItemLists
 
 	private static Set<String> loadNames(String resourcePath)
 	{
-		InputStream stream = WikiItemLists.class.getResourceAsStream(resourcePath);
+		return loadNames(WikiItemLists.class.getResourceAsStream(resourcePath));
+	}
+
+	static Set<String> loadNames(InputStream stream)
+	{
 		if (stream == null)
 		{
-			throw new IllegalStateException("Missing wiki item list resource: " + resourcePath);
+			throw new IllegalStateException("Missing wiki item list resource");
 		}
 
 		Set<String> names = new LinkedHashSet<>();
@@ -83,24 +99,21 @@ public final class WikiItemLists
 			String line;
 			while ((line = reader.readLine()) != null)
 			{
-				String trimmed = line.trim();
+				String trimmed = (!line.isEmpty() && line.charAt(0) == '\uFEFF' ? line.substring(1) : line).trim();
 				if (trimmed.isEmpty() || trimmed.startsWith("#"))
 				{
 					continue;
 				}
-				if (!trimmed.isEmpty() && trimmed.charAt(0) == '\uFEFF')
-				{
-					trimmed = trimmed.substring(1);
-				}
-
-				names.add(trimmed.toLowerCase());
+				if (trimmed.indexOf('\t') >= 0) throw new IllegalStateException("Invalid wiki item name: " + line);
+				names.add(trimmed.toLowerCase(Locale.ROOT));
 			}
 		}
 		catch (IOException ex)
 		{
-			throw new IllegalStateException("Failed to load wiki item list: " + resourcePath, ex);
+			throw new IllegalStateException("Failed to load wiki item list", ex);
 		}
 
+		if (names.isEmpty()) throw new IllegalStateException("Empty wiki item list");
 		return Collections.unmodifiableSet(names);
 	}
 }

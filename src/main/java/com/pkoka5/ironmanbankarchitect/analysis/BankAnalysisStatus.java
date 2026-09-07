@@ -82,6 +82,11 @@ public final class BankAnalysisStatus
 		return FAILED_STATUS;
 	}
 
+	public static BankAnalysisStatus failed(String message)
+	{
+		return new BankAnalysisStatus(Kind.FAILED, null, null, message, message);
+	}
+
 	public Kind kind()
 	{
 		return kind;

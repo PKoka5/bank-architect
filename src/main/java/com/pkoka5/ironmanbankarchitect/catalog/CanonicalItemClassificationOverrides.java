@@ -33,21 +33,41 @@ final class CanonicalItemClassificationOverrides
 {
 	private static final String RESOURCE_PATH = "canonical-item-classification-overrides.tsv";
 	private static final String SCHEMA_HEADER = "# schema=1";
-	private static final Map<Integer, ItemClassificationRefiner.Classification> OVERRIDES = load();
+	static final CanonicalItemClassificationOverrides INSTANCE = new CanonicalItemClassificationOverrides(
+		CanonicalItemClassificationOverrides.class.getResourceAsStream(RESOURCE_PATH));
+	private Map<Integer, ItemClassificationRefiner.Classification> overrides = Collections.emptyMap();
+	private CatalogUnavailableException failure;
 
-	private CanonicalItemClassificationOverrides()
+	CanonicalItemClassificationOverrides(InputStream stream)
 	{
+		try
+		{
+			overrides = load(stream);
+		}
+		catch (IllegalStateException | IllegalArgumentException ex)
+		{
+			failure = new CatalogUnavailableException(ex);
+		}
+	}
+
+	void requireAvailable()
+	{
+		if (failure != null) throw failure;
 	}
 
 	static Optional<ItemClassificationRefiner.Classification> find(int itemId)
 	{
-		return Optional.ofNullable(OVERRIDES.get(itemId));
+		return INSTANCE.lookup(itemId);
 	}
 
-	private static Map<Integer, ItemClassificationRefiner.Classification> load()
+	Optional<ItemClassificationRefiner.Classification> lookup(int itemId)
 	{
-		InputStream stream = CanonicalItemClassificationOverrides.class
-			.getResourceAsStream(RESOURCE_PATH);
+		requireAvailable();
+		return Optional.ofNullable(overrides.get(itemId));
+	}
+
+	private static Map<Integer, ItemClassificationRefiner.Classification> load(InputStream stream)
+	{
 		if (stream == null)
 		{
 			throw new IllegalStateException("Missing override table: " + RESOURCE_PATH);
@@ -58,7 +78,7 @@ final class CanonicalItemClassificationOverrides
 			new InputStreamReader(stream, StandardCharsets.UTF_8)))
 		{
 			String header = reader.readLine();
-			if (header == null || !header.startsWith(SCHEMA_HEADER))
+			if (!SCHEMA_HEADER.equals(header))
 			{
 				throw new IllegalStateException("Unexpected override table schema: " + header);
 			}
@@ -95,6 +115,7 @@ final class CanonicalItemClassificationOverrides
 		{
 			throw new IllegalStateException("Failed to read the override table", e);
 		}
+		if (overrides.isEmpty()) throw new IllegalStateException("Empty override table");
 		return Collections.unmodifiableMap(overrides);
 	}
 }

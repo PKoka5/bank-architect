@@ -7,10 +7,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Item category membership from the Old School RuneScape Wiki
@@ -75,11 +77,12 @@ final class WikiItemCategories
 
 	static final WikiItemCategories INSTANCE = new WikiItemCategories();
 
-	private final Map<Integer, Mapping> mappingsById;
+	private final RequiredResource<Map<Integer, Mapping>> mappingsById;
 
 	private WikiItemCategories()
 	{
-		this.mappingsById = Collections.unmodifiableMap(load());
+		this.mappingsById = new RequiredResource<>("wiki category",
+			() -> Collections.unmodifiableMap(load(WikiItemCategories.class.getResourceAsStream(RESOURCE_PATH))));
 	}
 
 	/**
@@ -88,7 +91,7 @@ final class WikiItemCategories
 	 */
 	Optional<ItemClassificationRefiner.Classification> overrideFor(int itemId, ItemCategory current)
 	{
-		Mapping mapping = mappingsById.get(itemId);
+		Mapping mapping = mappingsById.get().get(itemId);
 		if (mapping == null || !overrules(current, mapping.category, mapping.functional))
 		{
 			return Optional.empty();
@@ -100,7 +103,7 @@ final class WikiItemCategories
 
 	int size()
 	{
-		return mappingsById.size();
+		return mappingsById.get().size();
 	}
 
 	/**
@@ -158,15 +161,15 @@ final class WikiItemCategories
 			|| category == ItemCategory.UNKNOWN;
 	}
 
-	private static Map<Integer, Mapping> load()
+	static Map<Integer, Mapping> load(InputStream stream)
 	{
-		InputStream stream = WikiItemCategories.class.getResourceAsStream(RESOURCE_PATH);
 		if (stream == null)
 		{
 			throw new IllegalStateException("Missing wiki category resource: " + RESOURCE_PATH);
 		}
 
 		Map<Integer, Mapping> mappings = new LinkedHashMap<>();
+		Set<Integer> seen = new HashSet<>();
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
 		{
 			String line;
@@ -182,7 +185,7 @@ final class WikiItemCategories
 				}
 
 				String[] fields = line.split("\t", -1);
-				if (fields.length < 3)
+				if (fields.length != 3)
 				{
 					throw new IllegalStateException("Invalid wiki category line: " + line);
 				}
@@ -197,6 +200,10 @@ final class WikiItemCategories
 					throw new IllegalStateException("Invalid wiki category item id: " + line, ex);
 				}
 
+				if (itemId <= 0 || !seen.add(itemId) || fields[1].trim().isEmpty() || fields[2].trim().isEmpty())
+				{
+					throw new IllegalStateException("Invalid or duplicate wiki category row: " + line);
+				}
 				List<String> wikiCategories = Arrays.asList(fields[2].trim().split(","));
 				int id = itemId;
 				classify(wikiCategories).ifPresent(mapping -> mappings.put(id, mapping));
@@ -207,6 +214,7 @@ final class WikiItemCategories
 			throw new IllegalStateException("Failed to load wiki category resource", ex);
 		}
 
+		if (seen.isEmpty()) throw new IllegalStateException("Empty wiki category resource");
 		return mappings;
 	}
 

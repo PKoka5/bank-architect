@@ -6,6 +6,10 @@ public interface ItemCatalog
 {
 	Optional<CatalogItem> findById(int itemId);
 
+	default void requireAvailable()
+	{
+	}
+
 	default CatalogItem describeOrUnknown(int itemId)
 	{
 		return findById(itemId).orElseGet(() -> CatalogItem.unknown(itemId));

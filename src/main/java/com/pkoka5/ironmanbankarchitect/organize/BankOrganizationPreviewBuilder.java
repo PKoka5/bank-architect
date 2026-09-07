@@ -229,6 +229,7 @@ public final class BankOrganizationPreviewBuilder
 				}
 			}
 			MutableCategoryPreview preview;
+			BankTag routedTag = pinnedTag;
 			if (plan == null)
 			{
 				preview = previewsByCategory.get(category.getKey());
@@ -246,6 +247,7 @@ public final class BankOrganizationPreviewBuilder
 				BankTag tag = pinnedTag != null ? pinnedTag
 					: partDoseAsPotion ? BankTags.byKey("potions")
 					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
+				routedTag = tag;
 				if (!bankItem.isPlaceholder())
 				{
 					Integer counted = tagCounts.get(tag.getKey());
@@ -267,6 +269,10 @@ public final class BankOrganizationPreviewBuilder
 			}
 
 			preview.add(toLayoutEntry(bankItem, catalogItem));
+			if (routedTag != null)
+			{
+				preview.routedTags.put(catalogItem.getItemId(), routedTag.getKey());
+			}
 		}
 
 		if (plan != null)
@@ -607,6 +613,7 @@ public final class BankOrganizationPreviewBuilder
 		private final boolean herbloreRecipeRows;
 		private final BankLayoutOptions options;
 		private final List<LayoutEntry> entries = new ArrayList<>();
+		private final Map<Integer, String> routedTags = new LinkedHashMap<>();
 		private final Map<String, List<BankBlockDescriptor>> blockDescriptors = new LinkedHashMap<>();
 
 		private final List<String> destinationTags;
@@ -652,6 +659,11 @@ public final class BankOrganizationPreviewBuilder
 			{
 				return sorted;
 			}
+			// A correction joins the tag's existing run. Keep native members first;
+			// an explicit block arrangement, applied afterward, still wins.
+			sorted = new ArrayList<>(sorted);
+			sorted.sort(java.util.Comparator.comparing(item ->
+				!tagKeyOf(item).equals(inferredTagKeyOf(item))));
 			List<BankPreviewItem> regrouped = new ArrayList<>(sorted.size());
 			for (String tagKey : destinationTags)
 			{
@@ -837,6 +849,16 @@ public final class BankOrganizationPreviewBuilder
 
 		private String tagKeyOf(BankPreviewItem item)
 		{
+			String routed = routedTags.get(item.getItemId());
+			if (routed != null)
+			{
+				return routed;
+			}
+			return inferredTagKeyOf(item);
+		}
+
+		private String inferredTagKeyOf(BankPreviewItem item)
+		{
 			String subcategory = item.getSubcategory() == null ? ""
 				: item.getSubcategory().trim().toLowerCase();
 			if (options.potionDoses() == PotionDoseOrder.BY_FAMILY
@@ -938,7 +960,7 @@ public final class BankOrganizationPreviewBuilder
 				// Each set reads as one run, strongest first, loose gear
 				// flowing after like text.
 				plainRun = true;
-				return new ArrayList<>(recordBlocks(honorBlockOrder(GearItemSorter.bySet(items, gearStats))));
+				return new ArrayList<>(recordBlocks(honorBlockOrder(honorTagOrder(GearItemSorter.bySet(items, gearStats)))));
 			}
 			if (options.gearLayout() == GearLayout.GRID_SETS || !options.fillGearRows())
 			{

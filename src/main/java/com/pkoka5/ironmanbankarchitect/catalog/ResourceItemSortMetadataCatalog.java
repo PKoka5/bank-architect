@@ -30,35 +30,36 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 	public static final ResourceItemSortMetadataCatalog INSTANCE =
 		new ResourceItemSortMetadataCatalog();
 
-	private final Map<Integer, ItemSortMetadata> metadataById;
-	private final Set<String> sourceKeys;
+	private final RequiredResource<Map<Integer, ItemSortMetadata>> metadataById;
+	private final RequiredResource<Set<String>> sourceKeys;
 
 	private ResourceItemSortMetadataCatalog()
 	{
-		this.sourceKeys = Collections.unmodifiableSet(loadSourceKeys(openRequired(SOURCES_RESOURCE_PATH)));
-		this.metadataById = Collections.unmodifiableMap(
-			loadMetadata(openRequired(METADATA_RESOURCE_PATH), sourceKeys));
+		this.sourceKeys = new RequiredResource<>("item metadata sources",
+			() -> Collections.unmodifiableSet(loadSourceKeys(openRequired(SOURCES_RESOURCE_PATH))));
+		this.metadataById = new RequiredResource<>("item sort metadata",
+			() -> Collections.unmodifiableMap(loadMetadata(openRequired(METADATA_RESOURCE_PATH), sourceKeys.get())));
 	}
 
 	@Override
 	public Optional<ItemSortMetadata> findById(int itemId)
 	{
-		return Optional.ofNullable(metadataById.get(itemId));
+		return Optional.ofNullable(metadataById.get().get(itemId));
 	}
 
 	public int size()
 	{
-		return metadataById.size();
+		return metadataById.get().size();
 	}
 
 	Collection<ItemSortMetadata> entries()
 	{
-		return metadataById.values();
+		return metadataById.get().values();
 	}
 
 	Set<String> sourceKeys()
 	{
-		return sourceKeys;
+		return sourceKeys.get();
 	}
 
 	static Map<Integer, ItemSortMetadata> loadMetadata(InputStream stream, Set<String> knownSourceKeys)
@@ -144,6 +145,7 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 		{
 			throw new IllegalStateException("Failed to read item sort metadata", ex);
 		}
+		if (result.isEmpty()) throw new IllegalStateException("Empty required metadata table");
 		return result;
 	}
 
@@ -235,6 +237,7 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 		{
 			throw new IllegalStateException("Failed to read item sort metadata sources", ex);
 		}
+		if (result.isEmpty()) throw new IllegalStateException("Empty required metadata table");
 		return result;
 	}
 

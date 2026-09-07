@@ -272,6 +272,32 @@ Run the tests:
 .\gradlew.bat test
 ```
 
+Run the full regression gate before releasing:
+
+```powershell
+.\gradlew.bat check
+```
+
+`check` (and therefore `build`) runs the tests and `verifySimulationBaselines`.
+The latter regenerates the fixed-seed simulation reports and checks all four
+reviewed SHA-256 fingerprints. Only line endings are canonicalized to the CRLF
+reference, so the check also works with LF checkouts. A mismatch fails the build;
+inspect the behavior change rather than automatically replacing the hashes.
+Run simulations with custom `-Psim...` parameters separately from this gate.
+
+The potion, farming, gear, tool/outfit, and resource layout families are ordered TSV resources under
+`src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/`. Their row and
+member order is part of the shipped layout. Extraction regression tests also
+check fingerprints of the original Java tables, independently of simulations.
+Barrows rows preserve equipment-part and degradation-state order. Tool and resource
+groups deliberately allow overlap across rows, while duplicate IDs within a row
+are rejected. Layout geometry remains in Java.
+
+Required catalog and item-set resources load on first use and retain a clear
+analysis failure if missing or invalid, instead of poisoning static initialization.
+Empty tables and malformed or duplicate records are rejected; parser tests cover
+these failure paths. All data stays bundled locally; no runtime downloads occur.
+
 Start the local RuneLite development client:
 
 ```powershell
