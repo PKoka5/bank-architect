@@ -186,7 +186,12 @@ manual action is reassessed only when exact item-multiplicity and tab-count
 deltas prove one non-destructive drag; a foreign item then becomes a local
 recovery step.
 An unexpected tab removal or state that would require structural collapse is
-paused as `MANUAL_RECOVERY_REQUIRED`.
+paused as `MANUAL_RECOVERY_REQUIRED`. A snapshot whose item multiplicities no
+longer match the plan (a deposit, a withdrawal, a released placeholder) is
+reported as `RESCAN_REQUIRED` instead: nothing was dragged, so there is nothing
+to undo, and the pinned move resumes if the item comes back. Under the
+auto-guide setting the plugin analyzes again as soon as the bank's item set
+changes, so the guide carries on from the new plan.
 
 ## Required live mechanics probe before release
 

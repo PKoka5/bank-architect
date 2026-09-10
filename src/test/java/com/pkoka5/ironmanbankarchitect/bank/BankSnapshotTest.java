@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.bank;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
 
@@ -103,5 +104,20 @@ public class BankSnapshotTest
 		assertEquals(true, snapshot.getItems().get(0).isPlaceholder());
 		assertEquals(Arrays.asList(0, 0),
 			snapshot.getItems().get(0).getPhysicalSlotQuantities());
+	}
+
+	/**
+	 * Which items the bank holds, placeholders included, is what tells a
+	 * deposit or withdrawal apart from items merely changing places.
+	 */
+	@Test
+	public void itemIdsNameEveryDistinctItemOnceIncludingPlaceholders()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(209, 3, 0),
+			new BankItemSnapshot(221, 0, 1, true),
+			new BankItemSnapshot(209, 2, 2)));
+
+		assertEquals(new LinkedHashSet<>(Arrays.asList(209, 221)), snapshot.itemIds());
 	}
 }
