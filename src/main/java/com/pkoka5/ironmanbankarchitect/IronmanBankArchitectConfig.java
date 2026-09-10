@@ -119,7 +119,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = guidanceSection,
 		position = 3,
 		name = "Guide on bank open",
-		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
+		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, and analyze again whenever an item is deposited or withdrawn, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
 	)
 	default boolean autoGuide()
 	{

@@ -3,9 +3,11 @@ package com.pkoka5.ironmanbankarchitect.bank;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import net.runelite.api.gameval.ItemID;
 
 public final class BankSnapshot
@@ -87,5 +89,15 @@ public final class BankSnapshot
 	public boolean isEmpty()
 	{
 		return items.isEmpty();
+	}
+
+	/**
+	 * Every distinct item the bank holds, placeholders included, in first-seen
+	 * order. Two snapshots with equal sets differ only in quantities or
+	 * positions: the bank was rearranged, not added to or taken from.
+	 */
+	public Set<Integer> itemIds()
+	{
+		return Collections.unmodifiableSet(new LinkedHashSet<>(totalQuantityByItemId.keySet()));
 	}
 }

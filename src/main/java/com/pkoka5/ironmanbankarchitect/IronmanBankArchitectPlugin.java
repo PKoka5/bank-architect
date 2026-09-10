@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
@@ -46,8 +47,10 @@ import net.runelite.api.ItemComposition;
 import net.runelite.api.Menu;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -110,6 +113,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private BankCategoryOverlay categoryOverlay;
 	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
 	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
+	/** The items the latest analysis request saw; null until a bank was captured. */
+	private Set<Integer> analyzedBankItemIds;
 
 	@Override
 	protected void startUp()
@@ -183,6 +188,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		guideController = null;
 		panel = null;
 		itemIcons.clear();
+		analyzedBankItemIds = null;
 	}
 
 	/**
@@ -543,6 +549,33 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		analyzeBank();
 	}
 
+	/**
+	 * Under the auto-guide setting, a bank that gains or loses an item is
+	 * analyzed again on the spot. The plan only knows the items it was built
+	 * from, so a deposit or withdrawal would otherwise stall the guide on
+	 * "contents changed" until the sidebar was used. Items merely changing
+	 * places leave the item set alone and never trigger this, so a move the
+	 * guide is verifying is not reset from under it.
+	 */
+	@Subscribe
+	public void onItemContainerChanged(ItemContainerChanged event)
+	{
+		if (event.getContainerId() != InventoryID.BANK || !config.autoGuide())
+		{
+			return;
+		}
+		BankGuideController controller = guideController;
+		if (controller == null || !controller.isBankOpen())
+		{
+			return;
+		}
+		Optional<BankSnapshot> snapshot = BankSnapshotReader.readOpenBank(client);
+		if (snapshot.isPresent() && !snapshot.get().itemIds().equals(analyzedBankItemIds))
+		{
+			analyzeBank();
+		}
+	}
+
 	private void analyzeBank()
 	{
 		BankAnalysis analysis = bankAnalysis;
@@ -562,6 +595,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		}
 
 		BankSnapshot bankSnapshot = snapshot.get();
+		analyzedBankItemIds = bankSnapshot.itemIds();
 		return Optional.of(new BankAnalysisRequest(bankSnapshot,
 			collectGearStats(bankSnapshot), collectAlchValues(bankSnapshot),
 			categoryOverrides.asMap(), activePlan(), activeOptions()));
