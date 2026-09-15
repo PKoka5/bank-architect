@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.organize.IronmanQuickToolSelector;
+import com.pkoka5.ironmanbankarchitect.organize.BankTags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,21 @@ public final class MainQuickAccessSemanticRuleSet
 	public static LayoutRequest forEntries(List<LayoutEntry> entries)
 	{
 		Objects.requireNonNull(entries, "entries");
+		List<LayoutEntry> nativeEntries = new ArrayList<>();
+		List<LayoutEntry> reassigned = new ArrayList<>();
+		for (LayoutEntry entry : entries)
+		{
+			(BankTags.hasDifferentMainTag(entry.getItem()) ? reassigned : nativeEntries).add(entry);
+		}
+		if (!reassigned.isEmpty())
+		{
+			// Retagged runes/tools must not be pulled back into their old
+			// geometry. They remain real entries placed by the effective order.
+			LayoutRequest nativeRequest = forEntries(nativeEntries);
+			List<LayoutEntry> combined = new ArrayList<>(nativeRequest.getEntries());
+			combined.addAll(reassigned);
+			return new LayoutRequest(combined, nativeRequest.getRules());
+		}
 		List<LayoutEntry> anchored = anchorReviewedTargets(entries);
 		List<SemanticRule> rules = new ArrayList<>(
 			AchievementDiarySemanticRuleSet.forEntries(anchored).getRules());

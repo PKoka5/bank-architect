@@ -167,6 +167,19 @@ final class IronmanMainItemSorter
 
 	private static int rank(BankPreviewItem item)
 	{
+		if (BankTags.hasDifferentMainTag(item))
+		{
+			// A manual destination is also a sorting role. Keep native quick
+			// tools first, then the player's extra quick-access items.
+			switch (item.getLayoutTagKey())
+			{
+				case "frequently-used": return 25;
+				case "runes": return 30;
+				case "teleports": return 40;
+				case "currency": return 100;
+				default: break;
+			}
+		}
 		if (item.getItemId() == 995) return 0;
 		if (IronmanQuickToolSelector.isTieredTool(item.getItemId())
 			|| IronmanMainTabPolicy.isRunePouch(item)) return 10;

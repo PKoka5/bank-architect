@@ -1,8 +1,11 @@
 package com.pkoka5.ironmanbankarchitect.bank;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
 
@@ -103,5 +106,42 @@ public class BankSnapshotTest
 		assertEquals(true, snapshot.getItems().get(0).isPlaceholder());
 		assertEquals(Arrays.asList(0, 0),
 			snapshot.getItems().get(0).getPhysicalSlotQuantities());
+	}
+
+	/**
+	 * Reordering cannot invalidate analysis, including when equal-ID copies
+	 * have different quantities or one of them is a placeholder.
+	 */
+	@Test
+	public void contentsIgnorePositionsButKeepEveryPhysicalQuantity()
+	{
+		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(209, 3, 0),
+			new BankItemSnapshot(221, 0, 1, true),
+			new BankItemSnapshot(209, 2, 2)));
+
+		BankSnapshot reordered = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(209, 2, 0),
+			new BankItemSnapshot(209, 3, 1),
+			new BankItemSnapshot(221, 0, 2, true)));
+		assertEquals(Map.of(209, List.of(2, 3), 221, List.of(0)), snapshot.contents());
+		assertEquals(snapshot.contents(), reordered.contents());
+	}
+
+	@Test
+	public void contentsDetectChangesThatAnItemIdSetWouldMiss()
+	{
+		BankSnapshot original = new BankSnapshot(List.of(new BankItemSnapshot(209, 2, 0)));
+		for (BankSnapshot changed : List.of(
+			new BankSnapshot(List.of(new BankItemSnapshot(209, 3, 0))),
+			new BankSnapshot(List.of(new BankItemSnapshot(209, 0, 0, true))),
+			new BankSnapshot(List.of(new BankItemSnapshot(209, 1, 0),
+				new BankItemSnapshot(209, 1, 1))),
+			new BankSnapshot(List.of(new BankItemSnapshot(209, 2, 0),
+				new BankItemSnapshot(209, 0, 1, true))),
+			new BankSnapshot(List.of())))
+		{
+			assertNotEquals(original.contents(), changed.contents());
+		}
 	}
 }

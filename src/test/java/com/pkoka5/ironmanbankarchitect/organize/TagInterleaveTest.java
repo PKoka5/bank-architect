@@ -117,6 +117,55 @@ public class TagInterleaveTest
 	}
 
 	/**
+	 * A corrected item weaves under the tag the player put it on, not the one
+	 * its subcategory implies. Raised by an external review of the merged work.
+	 */
+	@Test
+	public void aCorrectedItemWeavesUnderTheTagThePlayerChose()
+	{
+		BankSnapshot bank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(ADAMANT_FULL_HELM, 1, 0),
+			new BankItemSnapshot(ROTTEN_FOOD, 4, 1),
+			new BankItemSnapshot(BRONZE_ARROW, 32, 2)));
+		BankLayoutPlan plan = BankLayoutPlan.parse(BankPresets.IRONMAN, BankLayoutShareCode.decode(
+			"BAv1~Corrected~currency+frequently-used|ammunition+cleanup+gear|food+potions+potion-doses"
+				+ "|runes+teleports|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|"
+				+ WOVEN_TAB + "|clues+cosmetics+collection-log|quest-items|boss-loot").get().getPlan());
+		int tab = plan.destinationOf("ammunition");
+		CategoryOverrideSource helmAsAmmunition = itemId ->
+			itemId == ADAMANT_FULL_HELM
+				? java.util.Optional.of("ammunition") : java.util.Optional.empty();
+
+		// Both ammunition-tagged items lead, because the player wrote that order.
+		assertEquals(Arrays.asList(BRONZE_ARROW, ADAMANT_FULL_HELM, ROTTEN_FOOD),
+			idsOn(build(bank, GEAR_AS_LIST, plan, helmAsAmmunition), tab));
+	}
+
+	@Test
+	public void correctedTagOwnsItsDescriptorsAndExplicitBlockOrderWins()
+	{
+		BankSnapshot bank = new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(ADAMANT_FULL_HELM, 1, 0),
+			new BankItemSnapshot(ROTTEN_FOOD, 4, 1),
+			new BankItemSnapshot(BRONZE_ARROW, 32, 2)));
+		BankLayoutPlan plan = BankLayoutPlan.parse(BankPresets.IRONMAN,
+			"currency+frequently-used|ammunition+cleanup+gear|food+potions+potion-doses"
+				+ "|runes+teleports|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|"
+				+ WOVEN_TAB + "|clues+cosmetics+collection-log|quest-items|boss-loot");
+		CategoryOverrideSource correction = id -> id == ADAMANT_FULL_HELM
+			? java.util.Optional.of("ammunition") : java.util.Optional.empty();
+		BankOrganizationPreview preview = build(bank, GEAR_AS_LIST, plan, correction);
+		List<BankBlockDescriptor> blocks = preview.getBlockDescriptors().get("ammunition");
+		assertEquals(2, blocks.size());
+		assertEquals(false, preview.getBlockDescriptors().containsKey("gear"));
+		BankLayoutOptions arranged = GEAR_AS_LIST.withBlockArrangements(
+			BlockArrangements.EMPTY.withTag("ammunition",
+				Arrays.asList(blocks.get(1).getBlockKey(), blocks.get(0).getBlockKey())));
+		assertEquals(Arrays.asList(ADAMANT_FULL_HELM, BRONZE_ARROW, ROTTEN_FOOD),
+			idsOn(build(bank, arranged, plan, correction), plan.destinationOf("ammunition")));
+	}
+
+	/**
 	 * Weaving is not a herblore special case: gear on its List layout weaves
 	 * with cleanup just the same, while the gear grid keeps the tab stacked.
 	 */

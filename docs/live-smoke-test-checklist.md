@@ -10,6 +10,45 @@ you are willing to reorganize (or after noting your current arrangement).
 
 ## Preconditions
 
+### September 15 reliability update — live verification still pending
+
+- [ ] With Guide on bank open enabled, deposit a new item, change an existing
+      stack, withdraw to a placeholder and release a placeholder. Confirm analysis
+      refreshes and the next advice matches the new bank. Repeat with rapid changes.
+- [ ] With that setting disabled, deposit a new item during a pinned move. Expect
+      a request to analyze again, not an instruction to undo a drag. Remove the
+      deposited item and check the original advice can resume.
+- [ ] Rearrange items without changing contents in Swap and Insert modes: analysis
+      should not restart for each drag. A wrong structural move still pauses safely.
+- [ ] Keep a dragon pickaxe/axe placeholder alongside a lower-tier tool. The better
+      tool's placeholder remains in Frequently Used; returning the item keeps its
+      position. Release the placeholder and check the fallback. Check gathering
+      disabled and manual category assignments as well.
+- [ ] Keep two used Blue Moon sets. Preview and guidance retain every physical
+      copy. Depositing another copy requests reanalysis, not removal of real gear.
+- [ ] Fillers at the beginning, middle and end produce BANK FILLERS FOUND with a
+      count and manual recovery guidance, rather than indefinite SYNCING BANK.
+      Clear them manually and confirm guidance can resume after analysis.
+
+### September 15 placement update — check after the implementation sequence
+
+- [ ] Assign platinum tokens to Frequently Used with Currency and Teleports on
+      the same tab. Check the tooltip, tag count and ordering in Grid and List.
+      Move Frequently Used to another tab and verify the tokens follow it.
+- [ ] Restart with the saved correction; then use automatic classification on
+      the tokens and confirm they return to Currency. Export the blueprint and
+      verify `layoutTag` distinguishes the chosen tag from catalogue metadata.
+- [ ] Assign mystic hat and black wizard hat to Combat Gear. Check that mystic
+      leads the weaker hat, including the main mage row when the bank has enough
+      other gear to build that row.
+- [ ] Check Crystal, Blood/Blue/Eclipse Moon sets in Best in slot, Sets together
+      and List. Record the layout mode and export for any remaining split; the
+      best-in-slot matrix intentionally differs from set grouping.
+- [ ] Assign the reported clue platebodies to Clues and confirm the override
+      survives analysis without changing other useful combat gear.
+
+### General preconditions
+
 - [ ] Build from the current main commit; `./gradlew test`, the fixed 50-bank simulation
       (150/150 COMPLETED), and `./gradlew build` all pass locally.
 - [ ] RuneLite client with the plugin installed from that local build.
@@ -75,3 +114,30 @@ Read-only confirmation: yes/no
 A failed step is recorded, fixed, and the affected steps re-run before the session counts as the
 Phase 6A record. Classification observations are input for later curation; they do not fail the
 smoke test unless a plan is not dense/valid.
+# September 15: blueprint editor (pending live checks)
+
+- Open the sidebar with no acknowledged release: What's new appears. Close and
+  reopen without dismissing: it remains unread. Click Got it - continue: normal
+  controls appear. Reopen/restart: the same release notice stays dismissed.
+
+Maintainer confirmed that the click-selection and Swap/Insert editor interaction
+works well in game. Other checks below remain pending unless separately confirmed.
+
+- Click an item: a green selection border appears. Click it again to deselect.
+  Choose Swap and click another item: their positions exchange. Choose Insert:
+  the selected item ends at the clicked slot, shifting intervening items. Test
+  left/right moves, Undo, Cancel and Save. Tab changes clear the selection.
+
+- Open Show My Bank, Edit this tab, put coins first and platinum tokens second.
+  Check insertion before/after, a second row, scrolling, Undo and Cancel.
+- Save, analyze again and restart RuneLite: order survives; export and guide agree.
+- Drop one duplicate item onto another tab header. Choose a tag if prompted, then
+  reorder in that tab. Verify only one physical copy moves in the proposal.
+- Undo a cross-tab move and Cancel a draft spanning several tabs; nothing persists.
+- Save a cross-tab move, switch profiles and return. Reset the destination tab;
+  incoming moves are released and bank-menu category corrections remain intact.
+- Withdraw/deposit during Edit or change profile/layout; stale Save is rejected.
+- Remove an item completely and return it later; saved order resumes. New items append.
+- Move a destination tag to another tab: old individual destination becomes inactive.
+- Check dark-theme contrast, mouse insertion markers and multi-tag selection in RuneLite.
+- Confirm all real bank moves still require the player's own manual actions.

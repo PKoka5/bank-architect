@@ -28,19 +28,16 @@ public final class GearTierCatalog
 
 	public static final GearTierCatalog INSTANCE = new GearTierCatalog();
 
-	private final Map<Integer, Integer> stageById;
-	private final Map<String, Integer> stageByNormalizedName;
+	private final RequiredResource<CatalogData> data = new RequiredResource<>("gear tier",
+		() -> load(openRequired(RESOURCE_PATH)));
 
 	private GearTierCatalog()
 	{
-		CatalogData data = load(openRequired(RESOURCE_PATH));
-		this.stageById = Collections.unmodifiableMap(data.stageById);
-		this.stageByNormalizedName = Collections.unmodifiableMap(data.stageByNormalizedName);
 	}
 
 	public OptionalInt tierOf(int itemId)
 	{
-		Integer stage = stageById.get(itemId);
+		Integer stage = data.get().stageById.get(itemId);
 		return stage == null ? OptionalInt.empty() : OptionalInt.of(stage);
 	}
 
@@ -52,16 +49,16 @@ public final class GearTierCatalog
 		{
 			return exact;
 		}
-		Integer stage = stageByNormalizedName.get(normalizeTierName(displayName));
+		Integer stage = data.get().stageByNormalizedName.get(normalizeTierName(displayName));
 		return stage == null ? OptionalInt.empty() : OptionalInt.of(stage);
 	}
 
 	public int size()
 	{
-		return stageById.size();
+		return data.get().stageById.size();
 	}
 
-	private static CatalogData load(InputStream stream)
+	static CatalogData load(InputStream stream)
 	{
 		Map<Integer, Integer> stages = new LinkedHashMap<>();
 		Map<String, Integer> normalizedStages = new LinkedHashMap<>();
@@ -82,7 +79,7 @@ public final class GearTierCatalog
 					continue;
 				}
 				String[] columns = line.split("\t", -1);
-				if (columns.length < 3)
+				if (columns.length != 3)
 				{
 					throw new IllegalStateException("Malformed gear tier catalog row: " + line);
 				}
@@ -97,6 +94,7 @@ public final class GearTierCatalog
 					throw new IllegalStateException("Duplicate gear tier catalog itemId: " + itemId);
 				}
 				String normalizedName = normalizeTierName(columns[2]);
+				if (normalizedName.isEmpty()) throw new IllegalStateException("Empty gear tier name");
 				Integer earlierStage = normalizedStages.putIfAbsent(normalizedName, stage);
 				if (earlierStage != null && earlierStage != stage)
 				{
@@ -108,6 +106,7 @@ public final class GearTierCatalog
 		{
 			throw new IllegalStateException("Failed to read gear tier catalog", e);
 		}
+		if (stages.isEmpty()) throw new IllegalStateException("Empty gear tier catalog");
 		for (String ambiguousName : ambiguousNames)
 		{
 			normalizedStages.remove(ambiguousName);

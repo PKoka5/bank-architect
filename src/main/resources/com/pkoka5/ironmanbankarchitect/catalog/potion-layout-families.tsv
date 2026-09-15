@@ -1,0 +1,24 @@
+# schema=1
+# family_key	item_ids (dose 4,3,2,1)
+potion.anti_venom	12905,12907,12909,12911
+potion.anti_venom_plus	12913,12915,12917,12919
+potion.antifire	2452,2454,2456,2458
+potion.antipoison	2446,175,177,179
+potion.attack	2428,121,123,125
+potion.combat	9739,9741,9743,9745
+potion.defence	2432,133,135,137
+potion.energy	3008,3010,3012,3014
+potion.magic	3040,3042,3044,3046
+potion.prayer	2434,139,141,143
+potion.ranging	2444,169,171,173
+potion.restore	2430,127,129,131
+potion.saradomin_brew	6685,6687,6689,6691
+potion.stamina	12625,12627,12629,12631
+potion.strength	113,115,117,119
+potion.super_attack	2436,145,147,149
+potion.super_combat	12695,12697,12699,12701
+potion.super_defence	2442,163,165,167
+potion.super_energy	3016,3018,3020,3022
+potion.super_restore	3024,3026,3028,3030
+potion.super_strength	2440,157,159,161
+potion.superantipoison	2448,181,183,185

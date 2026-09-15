@@ -1,5 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
+import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,11 +22,21 @@ public final class ItemSetCatalog
 		"/com/pkoka5/ironmanbankarchitect/organize/item-set-catalog.tsv";
 	private static final String SCHEMA_HEADER = "# schema=1";
 	private static final String COSMETIC_FAMILY_DOMAIN = "cosmetic-family";
-	private static final Map<String, List<SetDefinition>> SETS_BY_DOMAIN = load();
-	private static final Map<Integer, String> DOMAIN_BY_ITEM_ID = indexDomains();
-	private static final Map<Integer, String> COSMETIC_FAMILY_BY_ITEM_ID = indexCosmeticFamilies();
-	private static final Map<Integer, Integer> COSMETIC_FAMILY_RANK_BY_ITEM_ID = indexCosmeticFamilyRanks();
-	private static final Map<Integer, SetDefinition> SET_BY_ITEM_ID = indexSets();
+	private static final RequiredResource<Map<String, List<SetDefinition>>> SETS_BY_DOMAIN =
+		new RequiredResource<>("item set", () -> load(ItemSetCatalog.class.getResourceAsStream(RESOURCE_PATH)));
+	private static final RequiredResource<Map<Integer, String>> DOMAIN_BY_ITEM_ID =
+		new RequiredResource<>("item set", ItemSetCatalog::indexDomains);
+	private static final RequiredResource<Map<Integer, String>> COSMETIC_FAMILY_BY_ITEM_ID =
+		new RequiredResource<>("item set", ItemSetCatalog::indexCosmeticFamilies);
+	private static final RequiredResource<Map<Integer, Integer>> COSMETIC_FAMILY_RANK_BY_ITEM_ID =
+		new RequiredResource<>("item set", ItemSetCatalog::indexCosmeticFamilyRanks);
+	private static final RequiredResource<Map<Integer, SetDefinition>> SET_BY_ITEM_ID =
+		new RequiredResource<>("item set", ItemSetCatalog::indexSets);
+
+	public static void requireAvailable()
+	{
+		DOMAIN_BY_ITEM_ID.get();
+	}
 
 	private ItemSetCatalog()
 	{
@@ -38,7 +49,7 @@ public final class ItemSetCatalog
 	 */
 	public static Optional<String> cosmeticFamilyOf(int itemId)
 	{
-		return Optional.ofNullable(COSMETIC_FAMILY_BY_ITEM_ID.get(itemId));
+		return Optional.ofNullable(COSMETIC_FAMILY_BY_ITEM_ID.get().get(itemId));
 	}
 
 	/**
@@ -48,28 +59,28 @@ public final class ItemSetCatalog
 	 */
 	public static int cosmeticFamilyRankOf(int itemId)
 	{
-		Integer rank = COSMETIC_FAMILY_RANK_BY_ITEM_ID.get(itemId);
+		Integer rank = COSMETIC_FAMILY_RANK_BY_ITEM_ID.get().get(itemId);
 		return rank == null ? Integer.MAX_VALUE : rank;
 	}
 
 	/** The catalogued set key the item belongs to, across every domain. */
 	public static Optional<String> setKeyOf(int itemId)
 	{
-		SetDefinition definition = SET_BY_ITEM_ID.get(itemId);
+		SetDefinition definition = SET_BY_ITEM_ID.get().get(itemId);
 		return definition == null ? Optional.empty() : Optional.of(definition.key);
 	}
 
 	/** The catalogued set's display name for the item, across every domain. */
 	public static Optional<String> setNameOf(int itemId)
 	{
-		SetDefinition definition = SET_BY_ITEM_ID.get(itemId);
+		SetDefinition definition = SET_BY_ITEM_ID.get().get(itemId);
 		return definition == null ? Optional.empty() : Optional.of(definition.name);
 	}
 
 	private static Map<Integer, SetDefinition> indexSets()
 	{
 		Map<Integer, SetDefinition> byId = new LinkedHashMap<>();
-		for (List<SetDefinition> domain : SETS_BY_DOMAIN.values())
+		for (List<SetDefinition> domain : SETS_BY_DOMAIN.get().values())
 		{
 			for (SetDefinition definition : domain)
 			{
@@ -111,19 +122,19 @@ public final class ItemSetCatalog
 
 	static List<SetDefinition> sets(String domain)
 	{
-		List<SetDefinition> sets = SETS_BY_DOMAIN.get(domain);
+		List<SetDefinition> sets = SETS_BY_DOMAIN.get().get(domain);
 		return sets == null ? Collections.emptyList() : sets;
 	}
 
 	public static Optional<String> domainOf(int itemId)
 	{
-		return Optional.ofNullable(DOMAIN_BY_ITEM_ID.get(itemId));
+		return Optional.ofNullable(DOMAIN_BY_ITEM_ID.get().get(itemId));
 	}
 
 	private static Map<Integer, String> indexDomains()
 	{
 		Map<Integer, String> domains = new LinkedHashMap<>();
-		for (Map.Entry<String, List<SetDefinition>> domain : SETS_BY_DOMAIN.entrySet())
+		for (Map.Entry<String, List<SetDefinition>> domain : SETS_BY_DOMAIN.get().entrySet())
 		{
 			for (SetDefinition definition : domain.getValue())
 			{
@@ -146,9 +157,8 @@ public final class ItemSetCatalog
 		return new SetDefinition(domain, key, name, new ArrayList<>(itemIds));
 	}
 
-	private static Map<String, List<SetDefinition>> load()
+	static Map<String, List<SetDefinition>> load(InputStream stream)
 	{
-		InputStream stream = ItemSetCatalog.class.getResourceAsStream(RESOURCE_PATH);
 		if (stream == null)
 		{
 			throw new IllegalStateException("Missing item set catalog resource: " + RESOURCE_PATH);
@@ -199,6 +209,7 @@ public final class ItemSetCatalog
 			throw new IllegalStateException("Failed to read item set catalog", e);
 		}
 
+		if (byKey.isEmpty()) throw new IllegalStateException("Empty item set catalog");
 		Map<String, List<SetDefinition>> domains = new LinkedHashMap<>();
 		Map<String, Set<Integer>> idsByDomain = new LinkedHashMap<>();
 		for (MutableSet mutable : byKey.values())

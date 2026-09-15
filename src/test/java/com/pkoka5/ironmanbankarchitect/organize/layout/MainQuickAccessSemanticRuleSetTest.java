@@ -289,6 +289,27 @@ public class MainQuickAccessSemanticRuleSetTest
 			.anyMatch(rule -> "main.quick-tools".equals(rule.getRuleKey())));
 	}
 
+	@Test
+	public void retaggedRuneIsNotLockedBackIntoItsAutomaticRuneRow()
+	{
+		List<LayoutEntry> entries = new ArrayList<>();
+		entries.add(entry(995, "Coins", ItemCategory.CURRENCY, "currency"));
+		entries.add(entry(2347, "Hammer", ItemCategory.TOOL, "tool"));
+		LayoutEntry rune = entry(563, "Law rune", ItemCategory.RUNE, "rune");
+		entries.add(LayoutEntry.of(rune.getItem().withLayoutTag("frequently-used"), 2));
+		for (int index = 0; index < 20; index++)
+		{
+			entries.add(entry(930000 + index, "Other " + index, ItemCategory.CURRENCY, "currency"));
+		}
+		LayoutRequest request = MainQuickAccessSemanticRuleSet.forEntries(entries);
+		assertTrue(request.getEntries().stream()
+			.anyMatch(e -> e.getItem().getItemId() == 563 && !e.hasLockedTarget()));
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(request,
+			entries.stream().map(e -> e.getItem().getItemId()).collect(Collectors.toList()));
+		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertEquals(entries.size(), result.getPlacements().size());
+	}
+
 	private static int targetFor(LayoutResult result, int itemId)
 	{
 		for (LayoutPlacement placement : result.getPlacements())

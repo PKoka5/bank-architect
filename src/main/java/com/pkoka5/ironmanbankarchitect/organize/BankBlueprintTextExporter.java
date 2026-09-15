@@ -46,8 +46,12 @@ public final class BankBlueprintTextExporter
 					.append(" | quantity=").append(item.getQuantity())
 					.append(" | placeholder=").append(item.isPlaceholder())
 					.append(" | catalogCategory=").append(item.getItemCategory())
-					.append(" | subcategory=").append(item.getSubcategory())
-					.append('\n');
+					.append(" | subcategory=").append(item.getSubcategory());
+				if (item.getLayoutTagKey() != null)
+				{
+					builder.append(" | layoutTag=").append(item.getLayoutTagKey());
+				}
+				builder.append('\n');
 			}
 
 			tabNumber++;

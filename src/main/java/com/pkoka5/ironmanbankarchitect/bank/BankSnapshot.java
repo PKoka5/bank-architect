@@ -88,4 +88,21 @@ public final class BankSnapshot
 	{
 		return items.isEmpty();
 	}
+
+	/**
+	 * Order-independent contents for deciding whether analysis is stale. Keep
+	 * every physical quantity (zero means placeholder): an ID set alone misses
+	 * extra charged copies, stack changes and items replacing placeholders.
+	 */
+	public Map<Integer, List<Integer>> contents()
+	{
+		Map<Integer, List<Integer>> contents = new LinkedHashMap<>();
+		for (BankItemSnapshot item : items)
+		{
+			List<Integer> quantities = new ArrayList<>(item.getPhysicalSlotQuantities());
+			Collections.sort(quantities);
+			contents.put(item.getItemId(), Collections.unmodifiableList(quantities));
+		}
+		return Collections.unmodifiableMap(contents);
+	}
 }

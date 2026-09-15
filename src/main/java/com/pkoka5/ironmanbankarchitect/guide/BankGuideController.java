@@ -303,7 +303,7 @@ public final class BankGuideController
 		}
 		if (analysis.kind() == BankAnalysisStatus.Kind.FAILED)
 		{
-			return ANALYSIS_FAILED_STATUS;
+			return analysis.organizationPreviewText();
 		}
 		if (analysis.kind() != BankAnalysisStatus.Kind.SUCCESS)
 		{

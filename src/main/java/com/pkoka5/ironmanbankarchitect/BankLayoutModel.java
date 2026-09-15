@@ -19,6 +19,27 @@ import java.util.List;
  */
 interface BankLayoutModel
 {
+	default String editingContext() { return matchingProfile() + "|" + plan().serialize(); }
+
+	default void saveItemOrder(int tab, List<Integer> itemIds,
+		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
+		String expectedContext, java.util.function.Consumer<Boolean> completed)
+	{
+		completed.accept(false);
+	}
+
+	default void saveBlueprintEdit(java.util.Map<Integer, List<Integer>> orders,
+		java.util.Map<String, com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders.Destination> transfers,
+		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
+		String expectedContext, java.util.function.Consumer<Boolean> completed)
+	{
+		if (transfers.isEmpty() && orders.size() == 1)
+		{
+			java.util.Map.Entry<Integer, List<Integer>> entry = orders.entrySet().iterator().next();
+			saveItemOrder(entry.getKey(), entry.getValue(), expected, expectedContext, completed);
+		}
+		else completed.accept(false);
+	}
 	/** The preset's own arrangement, with saving ignored. Used when no config is wired up. */
 	BankLayoutModel DEFAULT = new BankLayoutModel()
 	{

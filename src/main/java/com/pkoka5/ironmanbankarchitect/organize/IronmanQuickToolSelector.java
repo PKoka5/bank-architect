@@ -29,7 +29,9 @@ public final class IronmanQuickToolSelector
 		Set<Integer> owned = new LinkedHashSet<>();
 		for (BankItemSnapshot item : snapshot.getItems())
 		{
-			if (!item.isPlaceholder()) owned.add(item.getItemId());
+			// A bank placeholder preserves the player's tool choice while the
+			// item is out of the bank. No inventory/equipment read is needed.
+			owned.add(item.getItemId());
 		}
 		Set<Integer> selected = new LinkedHashSet<>();
 		if (owned.contains(HAMMER)) selected.add(HAMMER);

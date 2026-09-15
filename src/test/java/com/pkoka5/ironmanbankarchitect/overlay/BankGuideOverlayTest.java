@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.Item;
 import org.junit.Test;
 
 public class BankGuideOverlayTest
@@ -232,16 +233,16 @@ public class BankGuideOverlayTest
 	@Test
 	public void duplicateItemsMessageShowsOneName()
 	{
-		assertEquals("Duplicate items detected:\nFeather"
-				+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.",
+		assertEquals("Bank contains extra copies:\nFeather"
+				+ "\nRun Analyze My Bank again.",
 			BankGuideOverlay.duplicateItemsMessage(List.of("Feather")));
 	}
 
 	@Test
 	public void duplicateItemsMessageShowsThreeNamesWithoutARemainder()
 	{
-		assertEquals("Duplicate items detected:\nFeather, Hammer, Lobster"
-				+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.",
+		assertEquals("Bank contains extra copies:\nFeather, Hammer, Lobster"
+				+ "\nRun Analyze My Bank again.",
 			BankGuideOverlay.duplicateItemsMessage(
 				List.of("Feather", "Hammer", "Lobster")));
 	}
@@ -249,8 +250,8 @@ public class BankGuideOverlayTest
 	@Test
 	public void duplicateItemsMessageLimitsFiveNamesAndReportsTheRemainder()
 	{
-		assertEquals("Duplicate items detected:\nFeather, Hammer, Lobster (+2 more)"
-				+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.",
+		assertEquals("Bank contains extra copies:\nFeather, Hammer, Lobster (+2 more)"
+				+ "\nRun Analyze My Bank again.",
 			BankGuideOverlay.duplicateItemsMessage(
 				List.of("Feather", "Hammer", "Lobster", "Needle", "Pot")));
 	}
@@ -329,6 +330,23 @@ public class BankGuideOverlayTest
 		assertTrue(message.contains("12"));
 		assertTrue(message.contains("Clear all item fillers"));
 		assertFalse(message.contains("SYNCING BANK"));
+	}
+
+	@Test
+	public void fillersAreDetectedAtEveryPositionAndChargedCopiesAreNotFillers()
+	{
+		assertEquals(0, BankGuideOverlay.countBankFillers(null));
+		Item chargedHelm = new Item(29041, 1);
+		assertEquals(0, BankGuideOverlay.countBankFillers(new Item[]{chargedHelm, chargedHelm}));
+		for (int position = 0; position < 3; position++)
+		{
+			Item[] items = {chargedHelm, null, chargedHelm};
+			items[position] = new Item(ItemID.BANK_FILLER, 1);
+			assertEquals(1, BankGuideOverlay.countBankFillers(items));
+		}
+		assertEquals(3, BankGuideOverlay.countBankFillers(new Item[]{
+			new Item(ItemID.BANK_FILLER, 1), chargedHelm,
+			new Item(ItemID.BANK_FILLER, 1), new Item(ItemID.BANK_FILLER, 1)}));
 	}
 
 	@Test

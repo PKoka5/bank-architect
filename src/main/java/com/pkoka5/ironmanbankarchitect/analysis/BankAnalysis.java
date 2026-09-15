@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.analysis;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.CatalogUnavailableException;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
@@ -97,6 +98,7 @@ public final class BankAnalysis implements AutoCloseable
 	{
 		try
 		{
+			itemCatalog.requireAvailable();
 			BankCatalogSummary summary = BankCatalogSummarizer.summarize(
 				analysisRequest.bankSnapshot(), itemCatalog, bankPreset);
 			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
@@ -115,7 +117,9 @@ public final class BankAnalysis implements AutoCloseable
 	private void publishFailure(long requestGeneration, RuntimeException failure)
 	{
 		log.error("Bank analysis failed", failure);
-		publishAnalysisIfLatest(requestGeneration, BankAnalysisStatus.failed());
+		publishAnalysisIfLatest(requestGeneration, failure instanceof CatalogUnavailableException
+			? BankAnalysisStatus.failed(failure.getMessage())
+			: BankAnalysisStatus.failed());
 	}
 
 	private synchronized boolean isLatestRequest(long requestGeneration)

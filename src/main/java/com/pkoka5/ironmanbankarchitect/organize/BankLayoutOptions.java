@@ -34,6 +34,7 @@ public final class BankLayoutOptions
 	private final TeleportOrder teleportOrder;
 	private final boolean gatherFrequentlyUsed;
 	private BlockArrangements blockArrangements = BlockArrangements.EMPTY;
+	private BlueprintItemOrders itemOrders = BlueprintItemOrders.EMPTY;
 
 	public BankLayoutOptions(boolean fillGearRows, boolean fillHerbloreRows, boolean alchPile)
 	{
@@ -79,8 +80,18 @@ public final class BankLayoutOptions
 		BankLayoutOptions copy = new BankLayoutOptions(fillGearRows, fillHerbloreRows, alchPile,
 			tabOrders, gearLayout, potionDoses, runeOrder, teleportOrder, gatherFrequentlyUsed);
 		copy.blockArrangements = Objects.requireNonNull(arrangements, "arrangements");
+		copy.itemOrders = itemOrders;
 		return copy;
 	}
+
+	public BankLayoutOptions withItemOrders(BlueprintItemOrders orders)
+	{
+		BankLayoutOptions copy = withBlockArrangements(blockArrangements);
+		copy.itemOrders = Objects.requireNonNull(orders, "orders");
+		return copy;
+	}
+
+	public BlueprintItemOrders itemOrders() { return itemOrders; }
 
 	/** The player's saved block orders; empty means every curated order stands. */
 	public BlockArrangements blockArrangements()

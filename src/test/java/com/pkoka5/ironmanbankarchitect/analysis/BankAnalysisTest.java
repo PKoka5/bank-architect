@@ -212,6 +212,24 @@ public class BankAnalysisTest
 	}
 
 	@Test
+	public void burstOfRequestsCapturesOnlyTheLatestBank()
+	{
+		ControlledExecutor clientExecutor = new ControlledExecutor();
+		AtomicInteger captures = new AtomicInteger();
+		List<BankAnalysisStatus> statuses = new ArrayList<>();
+		BankAnalysis analysis = new BankAnalysis(clientExecutor, Runnable::run,
+			() ->
+			{
+				captures.incrementAndGet();
+				return Optional.of(request(209));
+			}, statuses::add, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
+		for (int event = 0; event < 3; event++) analysis.analyzeBank();
+		for (int event = 0; event < 3; event++) clientExecutor.runNext();
+		assertEquals(1, captures.get());
+		assertEquals(BankAnalysisStatus.Kind.SUCCESS, last(statuses).kind());
+	}
+
+	@Test
 	public void closePreventsQueuedClientCapture()
 	{
 		ControlledExecutor clientExecutor = new ControlledExecutor();

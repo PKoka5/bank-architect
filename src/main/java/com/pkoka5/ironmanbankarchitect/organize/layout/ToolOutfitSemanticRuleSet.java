@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import net.runelite.api.gameval.ItemID;
+import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
+import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,55 +19,22 @@ public final class ToolOutfitSemanticRuleSet
 	private static final String SKILL_RUN_RULE_KEY = "tool.primary-skill-runs";
 	private static final Set<Integer> ALL_WIDTHS = Collections.unmodifiableSet(
 		new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
-	private static final List<Integer> RUNECRAFTING_PRIORITY = Collections.unmodifiableList(Arrays.asList(
-		1438, 1444, 1442, 5529, 1456, 1462, 1458,
-		1448, 1440, 1446, 1454, 1452, 1450, 1460, 22118,
-		5527, 5531, 5533, 5535, 5537, 5539, 5541, 5543, 5545, 5547, 26801,
-		ItemID.RCU_POUCH_SMALL, ItemID.RCU_POUCH_MEDIUM, ItemID.RCU_POUCH_MEDIUM_DEGRADE,
-		ItemID.RCU_POUCH_LARGE, ItemID.RCU_POUCH_LARGE_DEGRADE,
-		ItemID.RCU_POUCH_GIANT, ItemID.RCU_POUCH_GIANT_DEGRADE,
-		ItemID.RCU_POUCH_COLOSSAL, ItemID.RCU_POUCH_COLOSSAL_DEGRADE,
-		ItemID.MAGIC_EMERALD_NECKLACE));
-	private static final List<Integer> IRONMAN_CONTAINER_PRIORITY = Collections.unmodifiableList(Arrays.asList(
-		11941, 22586, 13226, 24478, 13639, 24482, 19634,
-		12019, 12020, 24481, 25582, 25584, 28140, 28142, 24882));
-	private static final List<OutfitFact> OUTFITS = buildOutfits();
-	private static final List<ToolFamilyFact> TOOL_FAMILIES = Collections.unmodifiableList(Arrays.asList(
-		tools("tool.mining", 25539, 11920, 5013, 776, 12019, 24481),
-		tools("tool.woodcutting", 10491, 6739, 6313, 10132, 28136, 28142),
-		tools("tool.fishing", 10129, 11323, 305, 307, 309, 3159, 301, 1585, 303, 25584),
-		tools("tool.farming", 5340, 5325, 7409, 5341, 5343, 22997, 24482),
-		tools("tool.construction", 9625, 2347, 8794, 24882),
-		tools("tool.crafting", 1785, 1733, 946),
-		tools("tool.hunter", 10006, 10008, 10010, 10150, 10031, 10029, 29303, 29297),
-		tools("tool.thieving", 29325, 1523, 24740, 4600),
-		tools("tool.light-firemaking", 9065, 590, 596, 20712),
-		tools("tool.cooking", 1887, 775),
-		tools("tool.herblore", 233, 24478),
-		tools("tool.runecrafting", RUNECRAFTING_PRIORITY),
-		tools("tool.utility-containers", 11941, 22586, 13226, 13639, 12020,
-			25582, 28140, 19634),
-		tools("tool.sailing", 31733, 31989, 31986, 31745, 31757)));
+	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
+		ToolOutfitSemanticRuleSet.class.getResourceAsStream(
+			"/com/pkoka5/ironmanbankarchitect/catalog/tool-layout-families.tsv"), 0, false);
+	private static final RequiredResource<List<OutfitFact>> OUTFITS =
+		new RequiredResource<>("tool outfits", ToolOutfitSemanticRuleSet::buildOutfits);
+	private static final RequiredResource<List<ToolFamilyFact>> TOOL_FAMILIES = new RequiredResource<>("tool families", () ->
+	{
+		List<ToolFamilyFact> families = new ArrayList<>();
+		TABLE.group("families").forEach((key, ids) -> families.add(tools(key, ids)));
+		return Collections.unmodifiableList(families);
+	});
 
 	private static List<OutfitFact> buildOutfits()
 	{
-		List<OutfitFact> outfits = new ArrayList<>(Arrays.asList(
-		outfit("outfit.angler", 13258, 13259, 13260, 13261),
-		outfit("outfit.carpenter", 24872, 24874, 24876, 24878),
-		outfit("outfit.farmer-male", 13646, 13642, 13640, 13644),
-		outfit("outfit.farmer-female", 13647, 13643, 13641, 13645),
-		outfit("outfit.graceful", 11850, 11852, 11854, 11856, 11858, 11860),
-		outfit("outfit.lumberjack", 10941, 10939, 10940, 10933),
-		outfit("outfit.prospector", 12013, 12014, 12015, 12016),
-		outfit("outfit.pyromancer", 20708, 20704, 20706, 20710),
-		outfit("outfit.raiments-eye", 26850, 26852, 26854, 26856),
-		outfit("outfit.raiments-eye-red", 26858, 26860, 26862),
-		outfit("outfit.raiments-eye-green", 26864, 26866, 26868),
-		outfit("outfit.raiments-eye-blue", 26870, 26872, 26874),
-		outfit("outfit.rogue", 5554, 5553, 5555, 5556, 5557),
-		outfit("outfit.smiths", 27023, 27025, 27027, 27029),
-		outfit("outfit.spirit-angler", 25592, 25594, 25596, 25598),
-		outfit("outfit.zealot", 25438, 25434, 25436, 25440)));
+		List<OutfitFact> outfits = new ArrayList<>();
+		TABLE.group("outfits").forEach((key, ids) -> outfits.add(outfit(key, ids.stream().mapToInt(Integer::intValue).toArray())));
 
 		Set<Integer> reserved = new LinkedHashSet<>();
 		for (OutfitFact outfit : outfits)
@@ -112,7 +80,7 @@ public final class ToolOutfitSemanticRuleSet
 		{
 			rules.add(outfitRule);
 		}
-		SemanticRule skillRuns = buildPresentRows(anchored, SKILL_RUN_RULE_KEY, TOOL_FAMILIES);
+		SemanticRule skillRuns = buildPresentRows(anchored, SKILL_RUN_RULE_KEY, TOOL_FAMILIES.get());
 		if (skillRuns != null)
 		{
 			rules.add(skillRuns);
@@ -135,7 +103,7 @@ public final class ToolOutfitSemanticRuleSet
 		Map<Integer, Integer> lockedTargets = new LinkedHashMap<>();
 		int outfitColumn = 0;
 		int maxOutfitHeight = 0;
-		for (OutfitFact outfit : OUTFITS)
+		for (OutfitFact outfit : OUTFITS.get())
 		{
 			List<Integer> owned = presentIds(outfit.itemIds, present);
 			if (owned.size() < 2 || outfitColumn >= 8)
@@ -147,17 +115,17 @@ public final class ToolOutfitSemanticRuleSet
 		}
 
 		int priorityRow = maxOutfitHeight;
-		int runecraftingRows = lockPriorityRows(RUNECRAFTING_PRIORITY, present,
+		int runecraftingRows = lockPriorityRows(TABLE.ids("RUNECRAFTING_PRIORITY"), present,
 			priorityRow, entries.size(), lockedTargets);
 		priorityRow += runecraftingRows;
 		int containerRows = present.contains(19634)
-			? lockPriorityRows(IRONMAN_CONTAINER_PRIORITY, present, priorityRow,
+			? lockPriorityRows(TABLE.ids("IRONMAN_CONTAINER_PRIORITY"), present, priorityRow,
 				entries.size(), lockedTargets)
 			: 0;
 
 		if (runecraftingRows == 0 && containerRows == 0)
 		{
-			for (ToolFamilyFact family : TOOL_FAMILIES)
+			for (ToolFamilyFact family : TOOL_FAMILIES.get())
 			{
 				List<Integer> owned = presentIds(family.itemIds, present);
 				if (owned.size() >= 2)
@@ -225,8 +193,8 @@ public final class ToolOutfitSemanticRuleSet
 
 	private static SemanticRule buildOutfitRule(List<LayoutEntry> entries)
 	{
-		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>(OUTFITS.size());
-		for (OutfitFact outfit : OUTFITS)
+		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>(OUTFITS.get().size());
+		for (OutfitFact outfit : OUTFITS.get())
 		{
 			List<Integer> itemIds = new ArrayList<>(outfit.itemIds.length);
 			for (int itemId : outfit.itemIds) itemIds.add(itemId);
@@ -289,10 +257,6 @@ public final class ToolOutfitSemanticRuleSet
 		return new OutfitFact(key, itemIds);
 	}
 
-	private static ToolFamilyFact tools(String key, Integer... itemIds)
-	{
-		return new ToolFamilyFact(key, Collections.unmodifiableList(Arrays.asList(itemIds)));
-	}
 
 	private static ToolFamilyFact tools(String key, List<Integer> itemIds)
 	{

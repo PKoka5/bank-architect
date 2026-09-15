@@ -1,6 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
+import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
+import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,70 +29,57 @@ public final class ResourceSemanticRuleSet
 	private static final Set<Integer> ALL_WIDTHS = Collections.unmodifiableSet(
 		new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
 
-	private static final List<RowFact> METAL_ROWS = Collections.unmodifiableList(Arrays.asList(
-		row("metal.ores-base", 436, 438, 440, 453),
-		row("metal.ores-tier", 442, 444, 447, 449, 451),
-		row("metal.bars", 2349, 2351, 2353, 2355, 2357, 2359, 2361, 2363)));
-	private static final List<FamilyFact> METAL_FAMILIES = Collections.unmodifiableList(Arrays.asList(
-		family("metal.iron", 440, 2351),
-		family("metal.silver", 442, 2355),
-		family("metal.gold", 444, 2357),
-		family("metal.mithril", 447, 2359),
-		family("metal.adamantite", 449, 2361),
-		family("metal.runite", 451, 2363)));
-	private static final List<Integer> METAL_SPILLOVER_ORES =
-		Collections.unmodifiableList(Arrays.asList(436, 438, 453));
-	private static final List<Integer> METAL_SPILLOVER_BARS =
-		Collections.unmodifiableList(Arrays.asList(2349, 2353));
-	private static final List<Integer> SAILING_ORES =
-		Collections.singletonList(31719);
-	private static final List<Integer> SAILING_PROCESSED_METALS =
-		Collections.singletonList(32892);
-	private static final List<Integer> SUPPLEMENTAL_MINING_MATERIALS = Collections.unmodifiableList(
-		Arrays.asList(22603, 21543, 13573, 21545, 13421, 21622));
+	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
+		ResourceSemanticRuleSet.class.getResourceAsStream(
+			"/com/pkoka5/ironmanbankarchitect/catalog/resource-layout-families.tsv"), 0, false);
+	private static final RequiredResource<Data> DATA = new RequiredResource<>("resource layout", Data::new);
 
-	private static final FamilyFact OPAL_FAMILY = family("gem.opal", 1625, 1609);
-	private static final List<FamilyFact> GEM_FAMILIES = Collections.unmodifiableList(Arrays.asList(
-		family("gem.sapphire", 1623, 1607),
-		family("gem.emerald", 1621, 1605),
-		family("gem.ruby", 1619, 1603),
-		family("gem.diamond", 1617, 1601),
-		family("gem.dragonstone", 1631, 1615)));
+	private static final class Data
+	{
+		private final List<RowFact> metalRows = rows("METAL_ROWS");
+		private final List<FamilyFact> metalFamilies = families("METAL_FAMILIES");
+		private final List<Integer> metalSpilloverOres = TABLE.ids("METAL_SPILLOVER_ORES");
+		private final List<Integer> metalSpilloverBars = TABLE.ids("METAL_SPILLOVER_BARS");
+		private final List<Integer> sailingOres = TABLE.ids("SAILING_ORES");
+		private final List<Integer> sailingProcessedMetals = TABLE.ids("SAILING_PROCESSED_METALS");
+		private final List<Integer> supplementalMiningMaterials = TABLE.ids("SUPPLEMENTAL_MINING_MATERIALS");
 
-	private static final List<RowFact> WOOD_ROWS = Collections.unmodifiableList(Arrays.asList(
-		row("wood.logs.normal", 1511, 1521, 1519, 1517, 1515, 1513, 19669),
-		row("wood.logs.construction", 6333, 6332, 32904, 32907, 32910),
-		row("wood.special-materials", 10810, 24691, 22935, 28134),
-		row("wood.planks", 960, 8778, 8780, 8782, 31432, 31435, 31438)));
+		private final FamilyFact opalFamily = families("OPAL_FAMILY").get(0);
+		private final List<FamilyFact> gemFamilies = families("GEM_FAMILIES");
 
-	private static final List<RowFact> CRAFTING_ROWS = Collections.unmodifiableList(Arrays.asList(
-		row("crafting.jewellery.rings", 1635, 1637, 1639, 1641, 1643, 1645, 6575, 19538),
-		row("crafting.jewellery.necklaces", 1654, 1656, 1658, 1660, 1662, 1664, 6577, 19535),
-		row("crafting.jewellery.bracelets", 11069, 11072, 11076, 11085, 11092, 11115, 11130, 19532),
-		row("crafting.jewellery.amulets-unstrung", 1673, 1675, 1677, 1679, 1681, 1683, 6579, 19501),
-		row("crafting.glass-workflow", 21504, 401, 1781, 1783, 1775, 4542, 567, 229),
-		row("crafting.textile-inputs", 1779, 1759, 1734, 5931),
-		row("crafting.textile-fabrics", 31475, 8790, 31472, 31746, 31758, 31734),
-		row("construction.nails", 4819, 4820, 1539, 4822, 4823, 4824)));
+		private final List<RowFact> woodRows = rows("WOOD_ROWS");
 
-	private static final List<RowFact> FLETCHING_ROWS = Collections.unmodifiableList(Arrays.asList(
-		row("fletching.arrow-production", 52, 314, 53),
-		row("fletching.arrowtips", 39, 40, 41, 42, 43, 44, 21350, 11237),
-		row("fletching.dart-tips", 819, 820, 821, 822, 823, 824, 25853),
-		row("fletching.crossbow-limbs", 9420, 9422, 9423, 9425, 9427, 9429, 9431),
-		row("fletching.unstrung-shortbows", 50, 54, 60, 64, 68, 72),
-		row("fletching.unstrung-longbows", 48, 56, 58, 62, 66, 70)));
-	private static final List<Integer> FLETCHING_STRING_COMPONENTS =
-		Collections.singletonList(1777);
-	private static final List<Integer> FLETCHING_SPECIAL_COMPONENTS =
-		Collections.unmodifiableList(Arrays.asList(9416, 29311));
+		private final List<RowFact> craftingRows = rows("CRAFTING_ROWS");
 
-	private static final List<SemanticRule> RULES = Collections.unmodifiableList(Arrays.asList(
-		stageMatrix(METAL_RULE_KEY, METAL_FAMILIES, null),
-		stageMatrix(GEM_RULE_KEY, GEM_FAMILIES, SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED),
-		rowGroupMatrix(WOOD_RULE_KEY, WOOD_ROWS),
-		rowGroupMatrix(CRAFTING_RULE_KEY, CRAFTING_ROWS),
-		horizontalRuns(FLETCHING_RULE_KEY, FLETCHING_ROWS)));
+		private final List<RowFact> fletchingRows = rows("FLETCHING_ROWS");
+		private final List<Integer> fletchingStringComponents = TABLE.ids("FLETCHING_STRING_COMPONENTS");
+		private final List<Integer> fletchingSpecialComponents = TABLE.ids("FLETCHING_SPECIAL_COMPONENTS");
+
+		private final List<SemanticRule> rules = Collections.unmodifiableList(Arrays.asList(
+			stageMatrix(METAL_RULE_KEY, metalFamilies, null),
+			stageMatrix(GEM_RULE_KEY, gemFamilies, SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED),
+			rowGroupMatrix(WOOD_RULE_KEY, woodRows),
+			rowGroupMatrix(CRAFTING_RULE_KEY, craftingRows),
+			horizontalRuns(FLETCHING_RULE_KEY, fletchingRows)));
+	}
+
+	private static List<RowFact> rows(String group)
+	{
+		List<RowFact> rows = new ArrayList<>();
+		TABLE.group(group).forEach((key, ids) -> rows.add(new RowFact(key, ids)));
+		return Collections.unmodifiableList(rows);
+	}
+
+	private static List<FamilyFact> families(String group)
+	{
+		List<FamilyFact> families = new ArrayList<>();
+		TABLE.group(group).forEach((key, ids) ->
+		{
+			if (ids.size() != 2) throw new IllegalStateException("Invalid resource family: " + key);
+			families.add(new FamilyFact(key, ids.get(0), ids.get(1)));
+		});
+		return Collections.unmodifiableList(families);
+	}
 
 	private ResourceSemanticRuleSet()
 	{
@@ -103,12 +92,12 @@ public final class ResourceSemanticRuleSet
 	public static LayoutRequest forEntries(List<LayoutEntry> entries)
 	{
 		Objects.requireNonNull(entries, "entries");
-		validateRows(METAL_ROWS);
-		validateMetadata(Collections.singletonList(OPAL_FAMILY));
-		validateMetadata(GEM_FAMILIES);
-		validateRows(WOOD_ROWS);
-		validateRows(CRAFTING_ROWS);
-		validateRows(FLETCHING_ROWS);
+		validateRows(DATA.get().metalRows);
+		validateMetadata(Collections.singletonList(DATA.get().opalFamily));
+		validateMetadata(DATA.get().gemFamilies);
+		validateRows(DATA.get().woodRows);
+		validateRows(DATA.get().craftingRows);
+		validateRows(DATA.get().fletchingRows);
 		return new LayoutRequest(anchoredEntries(entries), rulesForEntries(entries));
 	}
 
@@ -123,12 +112,12 @@ public final class ResourceSemanticRuleSet
 	public static LayoutRequest forZoneEntries(List<LayoutEntry> entries)
 	{
 		Objects.requireNonNull(entries, "entries");
-		validateRows(METAL_ROWS);
-		validateMetadata(Collections.singletonList(OPAL_FAMILY));
-		validateMetadata(GEM_FAMILIES);
-		validateRows(WOOD_ROWS);
-		validateRows(CRAFTING_ROWS);
-		validateRows(FLETCHING_ROWS);
+		validateRows(DATA.get().metalRows);
+		validateMetadata(Collections.singletonList(DATA.get().opalFamily));
+		validateMetadata(DATA.get().gemFamilies);
+		validateRows(DATA.get().woodRows);
+		validateRows(DATA.get().craftingRows);
+		validateRows(DATA.get().fletchingRows);
 		return new LayoutRequest(anchoredEntries(entries),
 			decoupleRowGroupMatrices(rulesForEntries(entries)));
 	}
@@ -179,25 +168,25 @@ public final class ResourceSemanticRuleSet
 				return entries;
 			}
 		}
-		if (Collections.disjoint(present, SUPPLEMENTAL_MINING_MATERIALS))
+		if (Collections.disjoint(present, DATA.get().supplementalMiningMaterials))
 		{
 			return entries;
 		}
 
 		List<Integer> anchorOrder = new ArrayList<>();
-		for (FamilyFact family : METAL_FAMILIES)
+		for (FamilyFact family : DATA.get().metalFamilies)
 		{
 			anchorOrder.add(family.rawItemId);
 		}
-		for (FamilyFact family : METAL_FAMILIES)
+		for (FamilyFact family : DATA.get().metalFamilies)
 		{
 			anchorOrder.add(family.processedItemId);
 		}
-		anchorOrder.addAll(METAL_SPILLOVER_ORES);
-		anchorOrder.addAll(METAL_SPILLOVER_BARS);
-		anchorOrder.addAll(SAILING_ORES);
-		anchorOrder.addAll(SAILING_PROCESSED_METALS);
-		anchorOrder.addAll(SUPPLEMENTAL_MINING_MATERIALS);
+		anchorOrder.addAll(DATA.get().metalSpilloverOres);
+		anchorOrder.addAll(DATA.get().metalSpilloverBars);
+		anchorOrder.addAll(DATA.get().sailingOres);
+		anchorOrder.addAll(DATA.get().sailingProcessedMetals);
+		anchorOrder.addAll(DATA.get().supplementalMiningMaterials);
 		for (Integer anchorItemId : anchorOrder)
 		{
 			if (!present.contains(anchorItemId))
@@ -222,13 +211,13 @@ public final class ResourceSemanticRuleSet
 		{
 			present.add(entry.getItem().getItemId());
 		}
-		if (Collections.disjoint(present, SUPPLEMENTAL_MINING_MATERIALS))
+		if (Collections.disjoint(present, DATA.get().supplementalMiningMaterials))
 		{
-			return RULES;
+			return DATA.get().rules;
 		}
 
 		List<SemanticRule> rules = new ArrayList<>();
-		rules.add(stageMatrix(METAL_RULE_KEY, METAL_FAMILIES, null));
+		rules.add(stageMatrix(METAL_RULE_KEY, DATA.get().metalFamilies, null));
 		rules.add(presentMaterialRule(present));
 		return Collections.unmodifiableList(rules);
 	}
@@ -236,17 +225,17 @@ public final class ResourceSemanticRuleSet
 	private static SemanticRule presentMaterialRule(Set<Integer> present)
 	{
 		List<SemanticAtom> atoms = new ArrayList<>();
-		addPresentChunks(atoms, "metal.ores-spillover", METAL_SPILLOVER_ORES, present);
-		addPresentChunks(atoms, "metal.bars-spillover", METAL_SPILLOVER_BARS, present);
-		addPresentChunks(atoms, "sailing.ores", SAILING_ORES, present);
-		addPresentChunks(atoms, "sailing.processed-metals", SAILING_PROCESSED_METALS, present);
-		addPresentChunks(atoms, "mining.supplemental", SUPPLEMENTAL_MINING_MATERIALS, present);
-		for (RowFact row : WOOD_ROWS)
+		addPresentChunks(atoms, "metal.ores-spillover", DATA.get().metalSpilloverOres, present);
+		addPresentChunks(atoms, "metal.bars-spillover", DATA.get().metalSpilloverBars, present);
+		addPresentChunks(atoms, "sailing.ores", DATA.get().sailingOres, present);
+		addPresentChunks(atoms, "sailing.processed-metals", DATA.get().sailingProcessedMetals, present);
+		addPresentChunks(atoms, "mining.supplemental", DATA.get().supplementalMiningMaterials, present);
+		for (RowFact row : DATA.get().woodRows)
 		{
 			addPresentChunks(atoms, row.familyKey, row.itemIds, present);
 		}
 		addPresentGemStages(atoms, present);
-		for (RowFact row : CRAFTING_ROWS)
+		for (RowFact row : DATA.get().craftingRows)
 		{
 			addPresentChunks(atoms, row.familyKey, row.itemIds, present);
 		}
@@ -264,14 +253,14 @@ public final class ResourceSemanticRuleSet
 	private static void addCompactPresentFletchingRows(List<SemanticAtom> atoms, Set<Integer> present)
 	{
 		List<List<Integer>> families = Arrays.asList(
-			FLETCHING_ROWS.get(0).itemIds,
-			FLETCHING_STRING_COMPONENTS,
-			FLETCHING_ROWS.get(1).itemIds,
-			FLETCHING_ROWS.get(2).itemIds,
-			FLETCHING_ROWS.get(3).itemIds,
-			FLETCHING_SPECIAL_COMPONENTS,
-			FLETCHING_ROWS.get(4).itemIds,
-			FLETCHING_ROWS.get(5).itemIds);
+			DATA.get().fletchingRows.get(0).itemIds,
+			DATA.get().fletchingStringComponents,
+			DATA.get().fletchingRows.get(1).itemIds,
+			DATA.get().fletchingRows.get(2).itemIds,
+			DATA.get().fletchingRows.get(3).itemIds,
+			DATA.get().fletchingSpecialComponents,
+			DATA.get().fletchingRows.get(4).itemIds,
+			DATA.get().fletchingRows.get(5).itemIds);
 		List<Integer> packedRow = new ArrayList<>();
 		int rowIndex = 0;
 		for (List<Integer> family : families)
@@ -308,11 +297,11 @@ public final class ResourceSemanticRuleSet
 
 	private static void addPresentGemStages(List<SemanticAtom> atoms, Set<Integer> present)
 	{
-		List<Integer> raw = new ArrayList<>(GEM_FAMILIES.size() + 1);
-		List<Integer> processed = new ArrayList<>(GEM_FAMILIES.size() + 1);
-		raw.add(OPAL_FAMILY.rawItemId);
-		processed.add(OPAL_FAMILY.processedItemId);
-		for (FamilyFact family : GEM_FAMILIES)
+		List<Integer> raw = new ArrayList<>(DATA.get().gemFamilies.size() + 1);
+		List<Integer> processed = new ArrayList<>(DATA.get().gemFamilies.size() + 1);
+		raw.add(DATA.get().opalFamily.rawItemId);
+		processed.add(DATA.get().opalFamily.processedItemId);
+		for (FamilyFact family : DATA.get().gemFamilies)
 		{
 			raw.add(family.rawItemId);
 			processed.add(family.processedItemId);
@@ -444,15 +433,6 @@ public final class ResourceSemanticRuleSet
 		}
 	}
 
-	private static FamilyFact family(String familyKey, int rawItemId, int processedItemId)
-	{
-		return new FamilyFact(familyKey, rawItemId, processedItemId);
-	}
-
-	private static RowFact row(String familyKey, Integer... itemIds)
-	{
-		return new RowFact(familyKey, Collections.unmodifiableList(Arrays.asList(itemIds)));
-	}
 
 	private static final class RowFact
 	{

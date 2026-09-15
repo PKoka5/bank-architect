@@ -24,32 +24,52 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 	public static final ResourceItemRegistry INSTANCE = new ResourceItemRegistry();
 
-	private final Map<Integer, CatalogItem> itemsById;
+	private final RequiredResource<Map<Integer, CatalogItem>> itemsById;
+	private final CanonicalItemClassificationOverrides overrides;
 
 	private ResourceItemRegistry()
 	{
-		this.itemsById = Collections.unmodifiableMap(loadItems());
+		this(CanonicalItemClassificationOverrides.INSTANCE);
+	}
+
+	ResourceItemRegistry(CanonicalItemClassificationOverrides overrides)
+	{
+		this.overrides = overrides;
+		this.itemsById = new RequiredResource<>("item registry",
+			() -> Collections.unmodifiableMap(loadItems(ResourceItemRegistry.class.getResourceAsStream(RESOURCE_PATH), overrides)));
+	}
+
+	@Override
+	public void requireAvailable()
+	{
+		overrides.requireAvailable();
+		itemsById.get();
+		GearTierCatalog.INSTANCE.size();
+		WikiItemLists.INSTANCE.requireAvailable();
+		com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog.requireAvailable();
 	}
 
 	@Override
 	public Optional<CatalogItem> findById(int itemId)
 	{
-		return Optional.ofNullable(itemsById.get(itemId));
+		requireAvailable();
+		return Optional.ofNullable(itemsById.get().get(itemId));
 	}
 
 	public boolean containsId(int itemId)
 	{
-		return itemsById.containsKey(itemId);
+		requireAvailable();
+		return itemsById.get().containsKey(itemId);
 	}
 
 	public int size()
 	{
-		return itemsById.size();
+		requireAvailable();
+		return itemsById.get().size();
 	}
 
-	private static Map<Integer, CatalogItem> loadItems()
+	static Map<Integer, CatalogItem> loadItems(InputStream stream, CanonicalItemClassificationOverrides overrides)
 	{
-		InputStream stream = ResourceItemRegistry.class.getResourceAsStream(RESOURCE_PATH);
 		if (stream == null)
 		{
 			throw new IllegalStateException("Missing item registry resource: " + RESOURCE_PATH);
@@ -67,7 +87,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 				}
 
 				String[] fields = line.split("\t", -1);
-				if (fields.length < 2)
+				if (fields.length != 4)
 				{
 					throw new IllegalStateException("Invalid item registry line: " + line);
 				}
@@ -80,6 +100,10 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 				int itemId = Integer.parseInt(itemIdText);
 				String displayName = fields[1];
+				if (itemId <= 0 || displayName.trim().isEmpty() || items.containsKey(itemId))
+				{
+					throw new IllegalStateException("Invalid or duplicate item registry row: " + line);
+				}
 				ItemCategory explicitCategory = parseRegistryCategory(fields.length >= 3 ? fields[2] : "");
 				String constantName = fields.length >= 4 ? fields[3] : "";
 				ItemCategory legacyCategory = resolveCategory(displayName, constantName, explicitCategory);
@@ -125,7 +149,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 					subcategory = wikiClassification.get().getSubcategory();
 				}
 				Optional<ItemClassificationRefiner.Classification> canonicalOverride =
-					CanonicalItemClassificationOverrides.find(itemId);
+					overrides.lookup(itemId);
 				if (canonicalOverride.isPresent())
 				{
 					// Exact item-ID overrides for canonical equipment run last, so cert,
@@ -143,6 +167,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 			throw new IllegalStateException("Failed to load item registry resource", ex);
 		}
 
+		if (items.isEmpty()) throw new IllegalStateException("Empty item registry");
 		return items;
 	}
 

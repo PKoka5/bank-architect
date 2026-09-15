@@ -35,19 +35,17 @@ public class BankOrganizationPreviewBuilderTest
 	@Test
 	public void separateChargedCopiesRemainSeparatePhysicalBlueprintSlots()
 	{
-		int usedEclipseMoonChestplate = 29031;
-		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(usedEclipseMoonChestplate, 1, 4),
-			new BankItemSnapshot(usedEclipseMoonChestplate, 1, 19)
-		));
-
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
-			snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
-
-		long physicalSlots = BankTabPlan.fromPreview(preview).getFlattenedItems().stream()
-			.filter(item -> item.getItemId() == usedEclipseMoonChestplate)
-			.count();
-		assertEquals(2, physicalSlots);
+		// Used Eclipse chestplate and all three used Blue Moon pieces.
+		for (int itemId : new int[]{29031, 29041, 29037, 29039})
+		{
+			BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+				new BankItemSnapshot(itemId, 1, 4), new BankItemSnapshot(itemId, 1, 19)));
+			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+				snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
+			long physicalSlots = BankTabPlan.fromPreview(preview).getFlattenedItems().stream()
+				.filter(item -> item.getItemId() == itemId).count();
+			assertEquals(2, physicalSlots);
+		}
 	}
 
 	@Test
@@ -1167,6 +1165,34 @@ public class BankOrganizationPreviewBuilderTest
 		expectedClues.add(300001);
 		assertEquals(expectedClues,
 			new HashSet<>(itemIds(category(preview, "clues-cosmetics").getItems())));
+	}
+
+	@Test
+	public void dragonPlaceholderKeepsMainPositionAndManualAssignmentStillWins()
+	{
+		List<CatalogItem> tools = Arrays.asList(
+			catalogItem(1275, "Rune pickaxe", ItemCategory.TOOL, "tool"),
+			catalogItem(11920, "Dragon pickaxe", ItemCategory.TOOL, "tool"));
+		List<Integer> placeholderMain = null;
+		for (int quantity : new int[]{0, 1})
+		{
+			BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
+				new BankItemSnapshot(1275, 1, 0),
+				new BankItemSnapshot(11920, quantity, 1, quantity == 0)));
+			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+				snapshot, catalog(tools), BankPresets.IRONMAN);
+			List<Integer> main = itemIds(category(preview, "currency-utilities").getItems());
+			assertTrue(main.contains(11920));
+			assertFalse(main.contains(1275));
+			if (placeholderMain != null) assertEquals(placeholderMain, main);
+			placeholderMain = main;
+			BankOrganizationPreview overridden = BankOrganizationPreviewBuilder.build(
+				snapshot, catalog(tools), BankPresets.IRONMAN,
+				GearStatsSource.NONE, ItemValueSource.NONE,
+				id -> id == 11920 ? Optional.of("tools") : Optional.empty());
+			assertFalse(itemIds(category(overridden, "currency-utilities").getItems()).contains(11920));
+			assertTrue(itemIds(category(overridden, "skilling-tools").getItems()).contains(11920));
+		}
 	}
 
 	@Test

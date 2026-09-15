@@ -25,8 +25,15 @@ public final class CompositeItemCatalog implements ItemCatalog
 	}
 
 	@Override
+	public void requireAvailable()
+	{
+		for (ItemCatalog catalog : catalogs) catalog.requireAvailable();
+	}
+
+	@Override
 	public Optional<CatalogItem> findById(int itemId)
 	{
+		requireAvailable();
 		for (ItemCatalog catalog : catalogs)
 		{
 			Optional<CatalogItem> item = catalog.findById(itemId);

@@ -769,6 +769,14 @@ public final class TabRouteAdvisor
 			}
 			Assessment alternative = TabRouteAdvisor.assess(actualItemIds, plan, tabCounts,
 				focusTabNumber, mode);
+			if (isContentsMismatch(alternative))
+			{
+				// The bank gained or lost an item: a deposit, a withdrawal or a
+				// released placeholder. No drag happened that the player could
+				// undo, so say the plan is stale. The pinned move stays, so
+				// putting the item back resumes it.
+				return alternative;
+			}
 			if (isSafeAlternative(alternative)
 				&& matchesSafeManualTransition(pinnedActualItemIds, pinnedTabCounts,
 					actualItemIds, tabCounts, mode))
@@ -778,6 +786,12 @@ public final class TabRouteAdvisor
 			}
 			return Assessment.blocked(Status.MANUAL_RECOVERY_REQUIRED,
 				pinnedAssessment.getProgress(), List.of());
+		}
+
+		private static boolean isContentsMismatch(Assessment assessment)
+		{
+			return assessment.getStatus() == Status.RESCAN_REQUIRED
+				|| assessment.getStatus() == Status.DUPLICATE_ITEMS;
 		}
 
 		private static boolean isSafeAlternative(Assessment assessment)

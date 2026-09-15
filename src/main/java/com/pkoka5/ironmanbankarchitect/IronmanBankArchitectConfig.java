@@ -119,7 +119,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = guidanceSection,
 		position = 3,
 		name = "Guide on bank open",
-		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
+		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, and analyze again whenever an item is deposited or withdrawn, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
 	)
 	default boolean autoGuide()
 	{
@@ -433,6 +433,12 @@ public interface IronmanBankArchitectConfig extends Config
 	)
 	void setBlockOrdersByProfile(String serialized);
 
+	@ConfigItem(keyName = "blueprintOrdersByProfile", name = "", description = "", hidden = true)
+	default String blueprintOrdersByProfile() { return ""; }
+
+	@ConfigItem(keyName = "blueprintOrdersByProfile", name = "", description = "")
+	void setBlueprintOrdersByProfile(String serialized);
+
 	/**
 	 * The player's saved tab layouts, stored locally as {@code name~plan} pairs.
 	 * Hidden because they are created by saving, importing and switching in the
@@ -473,4 +479,10 @@ public interface IronmanBankArchitectConfig extends Config
 		description = ""
 	)
 	void setActiveLayoutProfile(String name);
+
+	@ConfigItem(keyName = "lastSeenRelease", name = "", description = "", hidden = true)
+	default String lastSeenRelease() { return ""; }
+
+	@ConfigItem(keyName = "lastSeenRelease", name = "", description = "")
+	void setLastSeenRelease(String releaseId);
 }

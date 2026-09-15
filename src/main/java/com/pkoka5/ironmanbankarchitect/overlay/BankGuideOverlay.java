@@ -534,18 +534,23 @@ public final class BankGuideOverlay extends Overlay
 
 	/**
 	 * Bank fillers hold a slot without being a real item. Every stage downstream treats that slot
-	 * as a hole, so the guide can only run once they are deposited.
+	 * as a hole, so the guide can only run once they are cleared manually.
 	 */
 	private int countBankFillers()
 	{
 		ItemContainer bank = client.getItemContainer(InventoryID.BANK);
-		if (bank == null)
+		return countBankFillers(bank == null ? null : bank.getItems());
+	}
+
+	static int countBankFillers(Item[] items)
+	{
+		if (items == null)
 		{
 			return 0;
 		}
 
 		int fillers = 0;
-		for (Item item : bank.getItems())
+		for (Item item : items)
 		{
 			if (item != null && item.getId() == ItemID.BANK_FILLER)
 			{
@@ -732,9 +737,9 @@ public final class BankGuideOverlay extends Overlay
 			return tabBlockedMessage(TabRouteAdvisor.Status.DUPLICATE_ITEMS);
 		}
 
-		return "Duplicate items detected:\n"
+		return "Bank contains extra copies:\n"
 			+ summarizedNames(names)
-			+ "\nRelease duplicate placeholders,\nthen run Analyze My Bank again.";
+			+ "\nRun Analyze My Bank again.";
 	}
 
 	static String duplicateItemsOpenAllMessage(List<String> names)

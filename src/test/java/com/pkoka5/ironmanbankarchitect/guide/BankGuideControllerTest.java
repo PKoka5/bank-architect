@@ -342,6 +342,18 @@ public class BankGuideControllerTest
 	}
 
 	@Test
+	public void unavailableCatalogExplainsWhyGuidanceHasNoPreview()
+	{
+		controller.publishBankAnalysis(success(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(5297, 1, 0)))));
+		String message = com.pkoka5.ironmanbankarchitect.catalog.CatalogUnavailableException.PLAYER_MESSAGE;
+		controller.publishBankAnalysis(BankAnalysisStatus.failed(message));
+		assertEquals(message, controller.getGuideProgressText());
+		assertEquals(null, controller.organizationPreview());
+		assertEquals(-1, controller.getGuideProgressPercent());
+	}
+
+	@Test
 	public void bankClosedAnalysisClearsSelectedBlockResultAndCatalogOverview()
 	{
 		controller.selectBlock("irit-super-attack");

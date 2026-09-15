@@ -64,6 +64,36 @@ the bundles were split still work. **Reset Corrections** clears
 them all; choosing **Use automatic classification** clears a single item.
 Corrections apply to the real item, so making one on a placeholder works too.
 
+The blueprint tooltip shows the effective tag. In the main tab, assigning an
+item to Frequently Used also changes its sorting role, even when its original
+classification is Currency. A tag selects a group; it does not fix an exact slot.
+
+## Editing individual blueprint items
+
+After an update, the first sidebar opening shows **What's new**. Select
+**Got it - continue** to return to the normal plugin. This is remembered locally
+for that release; release notes are bundled with the plugin and require no network request.
+
+Open **Show My Bank**, select a tab, then **Edit this tab**. Click an item to select
+it with a green border, choose **Swap** or **Insert**, then click the target slot.
+Swap exchanges the two items. Insert puts the selected item at the clicked slot
+and shifts the items between them. Click the selected item again to deselect it.
+For example, place coins first and platinum tokens second. To move one item between tabs, drag it onto
+the destination tab's header, then select its position there. If that tab holds
+multiple tags, choose the destination tag; an empty tab needs a tag assigned in Layout first.
+
+**Undo** reverses a draft move, **Cancel** discards the draft, and **Save** stores
+all changes together for the active profile. Export and guidance use the saved
+blueprint. A changed bank or profile requires reopening Edit before saving.
+You still move every real bank item manually.
+
+Manual item order takes priority over automatic shapes and block arrangements.
+Absent items keep their saved relative positions for when they return; new items
+append. **Reset tab order** restores automatic ordering and releases individual
+items moved into that tab. It preserves category corrections made through the bank
+menu. A saved cross-tab destination becomes inactive if you change that item's
+category correction or move its destination tag to another tab.
+
 ## Choosing your tab layout
 
 The blueprint fills the bank's main section and nine tabs. You decide which
@@ -271,6 +301,32 @@ Run the tests:
 ```powershell
 .\gradlew.bat test
 ```
+
+Run the full regression gate before releasing:
+
+```powershell
+.\gradlew.bat check
+```
+
+`check` (and therefore `build`) runs the tests and `verifySimulationBaselines`.
+The latter regenerates the fixed-seed simulation reports and checks all four
+reviewed SHA-256 fingerprints. Only line endings are canonicalized to the CRLF
+reference, so the check also works with LF checkouts. A mismatch fails the build;
+inspect the behavior change rather than automatically replacing the hashes.
+Run simulations with custom `-Psim...` parameters separately from this gate.
+
+The potion, farming, gear, tool/outfit, and resource layout families are ordered TSV resources under
+`src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/`. Their row and
+member order is part of the shipped layout. Extraction regression tests also
+check fingerprints of the original Java tables, independently of simulations.
+Barrows rows preserve equipment-part and degradation-state order. Tool and resource
+groups deliberately allow overlap across rows, while duplicate IDs within a row
+are rejected. Layout geometry remains in Java.
+
+Required catalog and item-set resources load on first use and retain a clear
+analysis failure if missing or invalid, instead of poisoning static initialization.
+Empty tables and malformed or duplicate records are rejected; parser tests cover
+these failure paths. All data stays bundled locally; no runtime downloads occur.
 
 Start the local RuneLite development client:
 

@@ -14,7 +14,7 @@ public class GearTierCatalogTest
 	{
 		GearTierCatalog catalog = GearTierCatalog.INSTANCE;
 
-		assertEquals(325, catalog.size());
+		assertEquals(326, catalog.size());
 		assertEquals(OptionalInt.of(5), catalog.tierOf(26382)); // Torva full helm, End
 		assertEquals(OptionalInt.of(4), catalog.tierOf(11832)); // Bandos chestplate, Late
 		assertEquals(OptionalInt.of(3), catalog.tierOf(1275)); // Rune pickaxe, Mid

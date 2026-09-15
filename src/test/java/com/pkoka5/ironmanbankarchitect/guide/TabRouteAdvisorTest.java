@@ -728,9 +728,82 @@ public class TabRouteAdvisorTest
 		assertEquals(1, changed.getMove().get().getSourceTab());
 	}
 
+	/**
+	 * A deposit adds an item the plan never saw. That is a stale plan, not a
+	 * drag gone wrong, so the guide must not ask the player to undo it.
+	 */
+	@Test
+	public void sessionReportsChangedContentsRatherThanAnUnexpectedMoveAfterADeposit()
+	{
+		BankTabPlan plan = plan(items(9), items(1, 2), items(3));
+		Session session = new Session();
+		Assessment advised = session.assess(new int[]{2, 1, 3, 9}, plan, counts(2, 1));
+		assertEquals(MoveType.SWAP_SECTION, advised.getMove().get().getType());
+
+		int[] afterDeposit = {2, 1, 3, 9, 7};
+		assertEquals(Status.WAITING_FOR_BANK,
+			session.assess(afterDeposit, plan, counts(2, 1)).getStatus());
+		Assessment settled = session.assess(afterDeposit, plan, counts(2, 1));
+
+		assertEquals(Status.RESCAN_REQUIRED, settled.getStatus());
+		assertFalse(settled.getMove().isPresent());
+	}
+
+	@Test
+	public void sessionResumesThePinnedMoveOnceADepositedItemIsWithdrawnAgain()
+	{
+		BankTabPlan plan = plan(items(9), items(1, 2), items(3));
+		Session session = new Session();
+		Move advised = session.assess(new int[]{2, 1, 3, 9}, plan, counts(2, 1)).getMove().get();
+		int[] afterDeposit = {2, 1, 3, 9, 7};
+		session.assess(afterDeposit, plan, counts(2, 1));
+		assertEquals(Status.RESCAN_REQUIRED,
+			session.assess(afterDeposit, plan, counts(2, 1)).getStatus());
+
+		Assessment resumed = session.assess(new int[]{2, 1, 3, 9}, plan, counts(2, 1));
+
+		assertMove(resumed, advised.getType(), advised.getItemId(), advised.getFromSlot(),
+			advised.getToSlot(), advised.getTargetTab(), advised.getBlueprintTabNumber());
+	}
+
 	private static void assertTerminates(BankTabPlan plan, ModelBank bank)
 	{
 		assertTerminates(plan, bank, RearrangeMode.SWAP);
+	}
+
+	@Test
+	public void sessionReportsWithdrawalAndAdditionalCopiesAsContentsChangesInBothModes()
+	{
+		for (RearrangeMode mode : RearrangeMode.values())
+		{
+			for (int[] changed : new int[][]{{2, 1, 3}, {2, 1, 3, 9, 9}})
+			{
+				BankTabPlan plan = plan(items(9), items(1, 2), items(3));
+				Session session = new Session();
+				session.assess(new int[]{2, 1, 3, 9}, plan, counts(2, 1), 1, 0, mode);
+				assertEquals(Status.WAITING_FOR_BANK,
+					session.assess(changed, plan, counts(2, 1), 2, 0, mode).getStatus());
+				Status expected = changed.length == 3 ? Status.RESCAN_REQUIRED : Status.DUPLICATE_ITEMS;
+				assertEquals(expected,
+					session.assess(changed, plan, counts(2, 1), 3, 0, mode).getStatus());
+				assertEquals(Status.READY,
+					session.assess(new int[]{2, 1, 3, 9}, plan, counts(2, 1), 4, 0, mode).getStatus());
+			}
+		}
+	}
+
+	@Test
+	public void twoChargedBlueMoonSetsCanBeSortedInBothModes()
+	{
+		BankTabPlan plan = plan(items(995),
+			items(29041, 29037, 29039, 29041, 29037, 29039), items(2347));
+		for (RearrangeMode mode : RearrangeMode.values())
+		{
+			ModelBank bank = new ModelBank(
+				new int[]{29039, 29041, 29037, 29039, 29041, 29037, 2347, 995}, counts(6, 1));
+			assertTerminates(plan, bank, mode);
+			assertEquals(Arrays.asList(29041, 29037, 29039, 29041, 29037, 29039, 2347, 995), bank.items);
+		}
 	}
 
 	private static void assertTerminates(BankTabPlan plan, ModelBank bank, RearrangeMode mode)

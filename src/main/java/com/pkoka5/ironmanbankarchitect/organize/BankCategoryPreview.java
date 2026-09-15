@@ -9,9 +9,16 @@ public final class BankCategoryPreview
 {
 	private final BankCategory category;
 	private final List<BankPreviewItem> items;
+	private final boolean manualOrder;
 
 	public BankCategoryPreview(BankCategory category, List<BankPreviewItem> items)
 	{
+		this(category, items, false);
+	}
+
+	public BankCategoryPreview(BankCategory category, List<BankPreviewItem> items, boolean manualOrder)
+	{
+		this.manualOrder = manualOrder;
 		this.category = Objects.requireNonNull(category, "category");
 		this.items = Collections.unmodifiableList(new ArrayList<>(Objects.requireNonNull(items, "items")));
 	}
@@ -32,6 +39,8 @@ public final class BankCategoryPreview
 	{
 		return category;
 	}
+
+	public boolean hasManualOrder() { return manualOrder; }
 
 	public int getItemCount()
 	{

@@ -1,5 +1,16 @@
 # Plugin Hub submission checklist
 
+## September 15 update candidate
+
+The July record below is historical and does not approve the new blueprint editor.
+Current candidate: **0.6.0-SNAPSHOT**, 1,088 passing tests, 1,950 completed simulations,
+four unchanged baselines, jar contents checked. Live smoke tests and Hub CI/review
+are pending. See [the release preparation](release-0.6.0.md) for contributor credit,
+current packaging evidence and the existing-marker update handoff. No candidate
+commit, push, Hub PR or publication has been performed.
+
+## Historical initial submission
+
 Reviewed locally: 2026-07-19
 
 This checklist records the RuneLite Plugin Hub requirements as locally
