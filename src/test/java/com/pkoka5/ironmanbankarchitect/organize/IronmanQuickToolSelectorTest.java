@@ -22,8 +22,25 @@ public class IronmanQuickToolSelectorTest
 			new BankItemSnapshot(6739, 3, 6),
 			new BankItemSnapshot(23680, 0, 7, true)));
 
-		assertEquals(new HashSet<>(Arrays.asList(2347, 11920, 6739)),
+		assertEquals(new HashSet<>(Arrays.asList(2347, 23680, 6739)),
 			IronmanQuickToolSelector.select(snapshot));
+	}
+
+	@Test
+	public void placeholdersKeepToolChoicesUntilReleased()
+	{
+		BankItemSnapshot runePickaxe = new BankItemSnapshot(1275, 1, 0);
+		BankItemSnapshot runeAxe = new BankItemSnapshot(1359, 1, 1);
+		for (int quantity : new int[]{0, 1})
+		{
+			BankSnapshot bank = new BankSnapshot(Arrays.asList(runePickaxe, runeAxe,
+				new BankItemSnapshot(11920, quantity, 2, quantity == 0),
+				new BankItemSnapshot(6739, quantity, 3, quantity == 0)));
+			assertEquals(new HashSet<>(Arrays.asList(11920, 6739)),
+				IronmanQuickToolSelector.select(bank));
+		}
+		assertEquals(new HashSet<>(Arrays.asList(1275, 1359)),
+			IronmanQuickToolSelector.select(new BankSnapshot(Arrays.asList(runePickaxe, runeAxe))));
 	}
 
 	@Test

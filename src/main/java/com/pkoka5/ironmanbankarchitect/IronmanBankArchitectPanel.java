@@ -67,7 +67,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.JTabbedPane;
 import javax.swing.Timer;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
@@ -155,13 +154,28 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JPanel detailsPanel;
 	private final List<DestinationCell> destinationCells = new ArrayList<>();
 	private final Timer statusTimer;
-	private BankOrganizationPreview renderedOrganizationPreview;
 	private BankOrganizationPreview renderedDestinations;
 	private BankOrganizationPreview renderedLayoutPreview;
 	private String arrangeOpenTagKey;
 	private JDialog bankDialog;
-	private JTabbedPane bankTabs;
+	private BlueprintEditorPanel blueprintEditor;
 	private JButton exportBlueprintButton;
+	private ReleaseNoticePanel releaseNotice;
+
+	void configureReleaseNotice(java.util.function.Supplier<String> lastSeen,
+		java.util.function.Consumer<String> acknowledge)
+	{
+		JComponent normal = (JComponent) ((BorderLayout) getLayout()).getLayoutComponent(BorderLayout.CENTER);
+		remove(normal);
+		releaseNotice = new ReleaseNoticePanel(normal, lastSeen, acknowledge);
+		add(releaseNotice, BorderLayout.CENTER);
+	}
+
+	@Override
+	public void onActivate()
+	{
+		if (releaseNotice != null) releaseNotice.opened();
+	}
 
 	IronmanBankArchitectPanel(BankGuideController guideController)
 	{
@@ -1676,10 +1690,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void showBankDialog(int categoryIndex)
 	{
 		showBankDialog();
-		if (bankTabs != null && categoryIndex >= 0 && categoryIndex < bankTabs.getTabCount())
-		{
-			bankTabs.setSelectedIndex(categoryIndex);
-		}
+		if (blueprintEditor != null) blueprintEditor.selectTab(categoryIndex);
 	}
 
 	private void showBankDialog()
@@ -1696,14 +1707,19 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			bankDialog = new JDialog(owner instanceof Frame ? (Frame) owner : null, "Bank Blueprint", false);
 			bankDialog.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
 			bankDialog.setLocationRelativeTo(this);
-			bankTabs = new JTabbedPane();
-			bankTabs.setTabPlacement(JTabbedPane.LEFT);
-			bankTabs.setBackground(BANK_BG);
-			bankTabs.setForeground(Color.WHITE);
 			exportBlueprintButton = new JButton("Copy Blueprint Export");
 			exportBlueprintButton.addActionListener(event -> copyBlueprintExport());
-			bankDialog.add(bankTabs, BorderLayout.CENTER);
+			blueprintEditor = new BlueprintEditorPanel(bankLayoutModel, this::itemCell,
+				editing -> exportBlueprintButton.setEnabled(!editing));
+			bankDialog.add(blueprintEditor, BorderLayout.CENTER);
 			bankDialog.add(exportBlueprintButton, BorderLayout.SOUTH);
+			bankDialog.addWindowListener(new java.awt.event.WindowAdapter()
+			{
+				@Override public void windowClosing(java.awt.event.WindowEvent event)
+				{
+					blueprintEditor.cancelEdit();
+				}
+			});
 		}
 
 		refreshBankDialog(preview);
@@ -1725,104 +1741,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshBankDialog(BankOrganizationPreview preview)
 	{
-		if (bankTabs == null || preview == renderedOrganizationPreview)
-		{
-			return;
-		}
-
-		renderedOrganizationPreview = preview;
-		bankTabs.removeAll();
-		if (preview == null)
-		{
-			return;
-		}
-
-		int tabNumber = 1;
-		for (BankCategoryPreview category : preview.getCategories())
-		{
-			String placement = tabNumber == 1 ? "MAIN" : "TAB " + tabNumber;
-			String title = placement + "  " + shortCategoryName(category)
-				+ "  " + category.getItemCount();
-			bankTabs.addTab(title, categoryScrollPane(category));
-			tabNumber++;
-		}
-	}
-
-	private JScrollPane categoryScrollPane(BankCategoryPreview category)
-	{
-		JPanel wrapper = verticalPanel();
-		wrapper.setBackground(BANK_BG);
-		wrapper.setOpaque(true);
-		wrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-		wrapper.add(label(category.getCategory().getName() + " - " + category.getItemCount() + " planned item IDs"));
-		wrapper.add(Box.createVerticalStrut(8));
-		wrapper.add(categoryContent(category));
-
-		JScrollPane scrollPane = new JScrollPane(wrapper);
-		scrollPane.getViewport().setBackground(BANK_BG);
-		scrollPane.setBackground(BANK_BG);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		return scrollPane;
-	}
-
-	private JPanel categoryContent(BankCategoryPreview category)
-	{
-		if (!"storage-cleanup".equals(category.getCategory().getKey()))
-		{
-			return categoryGrid(category.getItems());
-		}
-
-		JPanel content = verticalPanel();
-		content.setBackground(BANK_BG);
-		content.setOpaque(true);
-		Map<String, List<BankPreviewItem>> itemsByLane = new LinkedHashMap<>();
-		for (BankPreviewItem item : category.getItems())
-		{
-			String label = PresetItemSorter.subgroupLabel(category.getCategory(), item);
-			itemsByLane.computeIfAbsent(label, ignored -> new ArrayList<>()).add(item);
-		}
-
-		if (itemsByLane.isEmpty())
-		{
-			content.add(categoryGrid(category.getItems()));
-			return content;
-		}
-
-		for (Map.Entry<String, List<BankPreviewItem>> entry : itemsByLane.entrySet())
-		{
-			content.add(label(entry.getKey() + " - " + entry.getValue().size()));
-			content.add(Box.createVerticalStrut(4));
-			content.add(categoryGrid(entry.getValue()));
-			content.add(Box.createVerticalStrut(10));
-		}
-
-		return content;
-	}
-
-	private JPanel categoryGrid(List<BankPreviewItem> items)
-	{
-		if (items.isEmpty())
-		{
-			return emptyCategoryPanel();
-		}
-
-		JPanel grid = new JPanel(new GridBagLayout());
-		grid.setBackground(BANK_BG);
-		grid.setOpaque(true);
-		grid.setAlignmentX(Component.LEFT_ALIGNMENT);
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.anchor = GridBagConstraints.NORTHWEST;
-		constraints.fill = GridBagConstraints.NONE;
-		constraints.insets = new Insets(0, 0, CELL_GAP, CELL_GAP);
-		for (int i = 0; i < items.size(); i++)
-		{
-			constraints.gridx = i % BANK_GRID_COLUMNS;
-			constraints.gridy = i / BANK_GRID_COLUMNS;
-			grid.add(itemCell(items.get(i)), constraints);
-		}
-
-		return grid;
+		if (blueprintEditor != null) blueprintEditor.setPreview(preview);
 	}
 
 	private JLabel itemCell(BankPreviewItem item)
@@ -1844,7 +1763,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		}
 
 		label.setText(Integer.toString(item.getItemId()));
-		label.setToolTipText(item.toCompactLabel());
+		label.setToolTipText(item.toCompactLabel() + (item.getLayoutTagKey() == null ? ""
+			: " — " + BankTags.byKey(item.getLayoutTagKey()).getName()));
 		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
 		itemIconRenderer.accept(item, label);
 		return label;

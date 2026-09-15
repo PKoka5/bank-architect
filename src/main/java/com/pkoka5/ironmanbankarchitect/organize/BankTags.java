@@ -96,6 +96,13 @@ public final class BankTags
 	{
 	}
 
+	/** Whether the effective main-tab tag overrides the catalogue-derived role. */
+	public static boolean hasDifferentMainTag(BankPreviewItem item)
+	{
+		return item.getLayoutTagKey() != null
+			&& !item.getLayoutTagKey().equals(tagFor("currency-utilities", item.getSubcategory()).getKey());
+	}
+
 	/** Every tag, grouped by the category it came from, in offer order. */
 	public static List<BankTag> all()
 	{

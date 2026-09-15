@@ -154,7 +154,8 @@ public class BankLayoutOptionsTest
 		BankSnapshot toolBank = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1355, 1, 0),   // Mithril axe - the best owned axe
 			new BankItemSnapshot(2347, 1, 1),   // Hammer
-			new BankItemSnapshot(1265, 1, 2))); // Bronze pickaxe
+			new BankItemSnapshot(1265, 1, 2),  // Bronze pickaxe
+			new BankItemSnapshot(11920, 0, 3, true))); // Dragon placeholder
 		BankLayoutOptions gatheringOff = new BankLayoutOptions(true, true, true,
 			new EnumMap<>(BankCategorySortMode.class), GearLayout.GRID_STYLES,
 			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL,
@@ -163,7 +164,12 @@ public class BankLayoutOptionsTest
 		assertTrue(BankLayoutOptions.DEFAULTS.gatherFrequentlyUsed());
 		assertTrue(tagCount(build(toolBank, BankLayoutOptions.DEFAULTS), "frequently-used") > 0);
 		assertEquals(0, tagCount(build(toolBank, gatheringOff), "frequently-used"));
+		// Tag counters count real items; the placeholder still occupies a
+		// physical blueprint slot in the Tools destination.
 		assertEquals(3, tagCount(build(toolBank, gatheringOff), "tools"));
+		int toolsTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN).destinationOf("tools");
+		assertTrue(build(toolBank, gatheringOff).getCategories().get(toolsTab).getItems().stream()
+			.anyMatch(item -> item.getItemId() == 11920 && item.isPlaceholder()));
 	}
 
 	@Test

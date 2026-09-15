@@ -268,7 +268,8 @@ public final class BankOrganizationPreviewBuilder
 				}
 			}
 
-			preview.add(toLayoutEntry(bankItem, catalogItem));
+			preview.add(toLayoutEntry(bankItem, catalogItem,
+				routedTag == null ? null : routedTag.getKey()));
 			if (routedTag != null)
 			{
 				preview.routedTags.put(catalogItem.getItemId(), routedTag.getKey());
@@ -284,7 +285,7 @@ public final class BankOrganizationPreviewBuilder
 			{
 				blockDescriptors.putAll(mutable.getBlockDescriptors());
 			}
-			return new BankOrganizationPreview(preset, destinations, tagCounts, blockDescriptors);
+			return options.itemOrders().apply(new BankOrganizationPreview(preset, destinations, tagCounts, blockDescriptors), plan);
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -293,7 +294,7 @@ public final class BankOrganizationPreviewBuilder
 			categories.add(preview.toImmutable(gearStats));
 		}
 
-		return new BankOrganizationPreview(preset, categories);
+		return options.itemOrders().apply(new BankOrganizationPreview(preset, categories));
 	}
 
 	/**
@@ -495,10 +496,16 @@ public final class BankOrganizationPreviewBuilder
 
 	static LayoutEntry toLayoutEntry(BankItemSnapshot bankItem, CatalogItem catalogItem)
 	{
+		return toLayoutEntry(bankItem, catalogItem, null);
+	}
+
+	private static LayoutEntry toLayoutEntry(BankItemSnapshot bankItem, CatalogItem catalogItem,
+		String tagKey)
+	{
 		Objects.requireNonNull(bankItem, "bankItem");
 		Objects.requireNonNull(catalogItem, "catalogItem");
 		return LayoutEntry.of(new BankPreviewItem(catalogItem, bankItem.getQuantity(),
-			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()), bankItem.getSlotIndex());
+			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey), bankItem.getSlotIndex());
 	}
 
 	/**

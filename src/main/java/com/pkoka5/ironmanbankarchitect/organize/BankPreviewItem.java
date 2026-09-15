@@ -21,6 +21,8 @@ public final class BankPreviewItem
 	private final Set<String> tags;
 	private final boolean placeholder;
 	private final List<Integer> physicalSlotQuantities;
+	private final String layoutTagKey;
+	private final int blueprintOccurrence;
 
 	public BankPreviewItem(int itemId, String displayName, int quantity)
 	{
@@ -50,6 +52,22 @@ public final class BankPreviewItem
 	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
 		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities)
 	{
+		this(itemId, displayName, quantity, itemCategory, subcategory, tags, placeholder,
+			physicalSlotQuantities, null);
+	}
+
+	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
+		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities,
+		String layoutTagKey)
+	{
+		this(itemId, displayName, quantity, itemCategory, subcategory, tags, placeholder,
+			physicalSlotQuantities, layoutTagKey, -1);
+	}
+
+	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
+		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities,
+		String layoutTagKey, int blueprintOccurrence)
+	{
 		if (quantity < 0 || (quantity == 0 && !placeholder))
 		{
 			throw new IllegalArgumentException("quantity must be positive unless the item is a placeholder");
@@ -64,6 +82,8 @@ public final class BankPreviewItem
 			? Collections.emptySet()
 			: Collections.unmodifiableSet(new LinkedHashSet<>(tags));
 		this.placeholder = placeholder;
+		this.layoutTagKey = layoutTagKey;
+		this.blueprintOccurrence = blueprintOccurrence;
 		this.physicalSlotQuantities = Collections.unmodifiableList(
 			new ArrayList<>(Objects.requireNonNull(physicalSlotQuantities,
 				"physicalSlotQuantities")));
@@ -131,6 +151,27 @@ public final class BankPreviewItem
 		return placeholder;
 	}
 
+	/** Effective planner tag, separate from the item's original catalogue metadata. */
+	public String getLayoutTagKey()
+	{
+		return layoutTagKey;
+	}
+
+	public BankPreviewItem withLayoutTag(String tagKey)
+	{
+		if (tagKey != null) BankTags.byKey(tagKey);
+		return new BankPreviewItem(itemId, displayName, quantity, itemCategory, subcategory,
+			tags, placeholder, physicalSlotQuantities, tagKey, blueprintOccurrence);
+	}
+
+	public int getBlueprintOccurrence() { return blueprintOccurrence; }
+
+	public BankPreviewItem withBlueprintOccurrence(int occurrence)
+	{
+		return new BankPreviewItem(itemId, displayName, quantity, itemCategory, subcategory,
+			tags, placeholder, physicalSlotQuantities, layoutTagKey, occurrence);
+	}
+
 	int physicalBankSlotCount()
 	{
 		return physicalSlotQuantities.size();
@@ -147,7 +188,7 @@ public final class BankPreviewItem
 		for (int slotQuantity : physicalSlotQuantities)
 		{
 			slots.add(new BankPreviewItem(itemId, displayName, slotQuantity, itemCategory,
-				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity)));
+				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity), layoutTagKey));
 		}
 		return slots;
 	}

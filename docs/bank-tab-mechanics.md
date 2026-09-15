@@ -186,7 +186,26 @@ manual action is reassessed only when exact item-multiplicity and tab-count
 deltas prove one non-destructive drag; a foreign item then becomes a local
 recovery step.
 An unexpected tab removal or state that would require structural collapse is
-paused as `MANUAL_RECOVERY_REQUIRED`.
+paused as `MANUAL_RECOVERY_REQUIRED`. A snapshot whose item multiplicities no
+longer match the plan (a deposit, a withdrawal, a released placeholder) is
+reported as `RESCAN_REQUIRED` instead: nothing was dragged, so there is nothing
+to undo, and the pinned move resumes if the item comes back. Under the
+auto-guide setting the plugin analyzes again when bank contents change, including
+stack quantities, repeated physical entries and items replacing placeholders.
+Pure rearrangements do not restart analysis. Only the latest analysis request may
+publish its result.
+
+Quick-tool selection includes bank placeholders: a dragon pickaxe placeholder
+keeps its quick-access position instead of promoting an owned rune pickaxe.
+Releasing that placeholder allows the next available tool to be selected. Manual
+category choices and the Frequently Used gathering switch still take precedence.
+
+The effective planner tag travels with preview items independently of catalogue
+classification. In the main-tab layout, retagging an item changes its sorting
+role and removes its old automatic rune/tool geometry. The preview tooltip names
+the effective tag; text exports include `layoutTag` beside original catalogue
+metadata. Clearing the item override restores automatic routing. Exact arbitrary
+item positions are not provided by a tag assignment.
 
 ## Required live mechanics probe before release
 
@@ -213,3 +232,33 @@ Use disposable items and record pre/post IDs, section sets and counts:
    other tabs remain unchanged.
 
 Guidance remains a development feature until this probe is recorded.
+# Local blueprint item editing
+
+Primary edit interaction: click an item to select it with a green border, choose
+Swap/Insert, then click a destination slot in that tab. Swap exchanges positions;
+Insert moves to the exact clicked index, shifting intervening items. Clicking the
+selected item again deselects it. Completion, Undo, Cancel and tab changes clear
+selection. Cross-tab moves remain available by dragging to the tab header.
+
+The blueprint dialog supports an explicit draft with insertion drags, cross-tab
+drops onto tab headers, Undo, Cancel and atomic Save. Cross-tab drops append one
+physical occurrence; the player can reorder it in its destination before saving.
+Multiple target tags require a choice. Empty unassigned tabs reject item drops.
+No Swing editor operation performs a game input or moves a real bank item.
+
+Versioned item orders and occurrence destinations are stored per saved layout
+profile in `blueprintOrdersByProfile`. Final preview resolution applies destinations
+before item orders, after automatic classification and physical occurrence expansion.
+Preview, text export and guidance share this resolved preview. Manual tabs suppress
+automatic block-arrangement descriptors because their explicit item order wins.
+Absent entries remain dormant; new occurrences append in automatic order.
+
+Destination overrides record the original effective tag and chosen target tag/tab.
+They apply only while both tag assignments still match. Changing an item's category
+correction or moving its target tag makes the old destination dormant. Resetting a
+tab clears its order and incoming occurrence destinations, without clearing bank-menu
+category corrections or outgoing destinations to other tabs.
+
+Save checks preview identity, active profile/layout/config context, current bank
+contents and physical item multiplicities before updating config and reanalyzing.
+The live RuneLite event wiring and user drag experience require the smoke checklist.
