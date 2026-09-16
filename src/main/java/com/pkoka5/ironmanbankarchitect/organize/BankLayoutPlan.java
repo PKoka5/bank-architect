@@ -7,32 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * The player's assignment of blueprint tags to bank destinations.
- *
- * <p>There are ten destinations: the bank's main section first, then the nine
- * tabs after it. A destination may hold any number of tags, so a player can put
- * runes and teleports on separate tabs or gather several bundles onto one, and
- * it may hold none, so the main section can be kept empty as a place to dump
- * loot.</p>
- *
- * <p>The plan is keyed by tag rather than by category so every part of a bundle
- * can be placed on its own. Items are still classified and laid out per
- * category, so splitting a bundle across tabs decides where things go without
- * changing what they are.</p>
- *
- * <p>A tag the player never places still has to put its items somewhere, or they
- * would silently vanish from the blueprint. Those tags join the destination
- * holding the fallback tag, which is where unsorted items already belong. If
- * that tag is itself unplaced, the last destination takes the remainder, so
- * there is always a defined home.</p>
- *
- * <p>Parsing is deliberately forgiving: an unrecognised key is dropped, a
- * repeated one keeps its first destination, and anything missing falls to the
- * fallback destination. Plans written before tags existed named categories, and
- * a category key is still read as all of its tags, so upgrading keeps the
- * arrangement the player already had.</p>
- */
+/** Maps tags to main and nine bank tabs. Missing tags use the cleanup destination, or the last tab. Parsing ignores unknown keys, keeps the first duplicate and expands legacy category keys. */
 public final class BankLayoutPlan
 {
 	/** The main section plus the nine tabs the bank can hold. */

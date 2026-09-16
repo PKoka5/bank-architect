@@ -8,19 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Splits each blueprint category into the parts a player can place separately.
- *
- * <p>The splits follow the subcategories the classification already records, so
- * a tag is a name for something the catalogue could always distinguish rather
- * than a new judgement about items. Every category ends with a catch-all tag, so
- * an item whose subcategory matches no split still lands somewhere and no part
- * of the bank can go missing when the catalogue gains a subcategory.</p>
- *
- * <p>Where a category is deliberately left whole it simply has one tag. Combat
- * gear is one idea to a player even though it spans every equipment slot, and
- * splitting it by slot would only produce tabs nobody asked for.</p>
- */
+/** Splits categories by catalog subcategory into independently placeable tags. Each category ends with a catch-all tag so unmatched items remain in the blueprint. */
 public final class BankTags
 {
 	private static final List<BankTag> TAGS;

@@ -5,21 +5,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * The layout choices that are a matter of taste rather than of placement.
- *
- * <p>Where a plan can say what the player wants, it does, and no option exists:
- * see {@link BankLayoutStyles}. These cannot be read from a plan, because none
- * of them is a statement about where something goes. They are statements about
- * which compromise the player would rather live with, and only they can answer
- * that.</p>
- *
- * <p>Row filling is asked separately for gear and for Herblore. They are the
- * same mechanism but not the same trade: a player may well want the four combat
- * columns straight while accepting that a short recipe row simply stops where
- * it stops. Tab order is asked per category for the same reason: preferring
- * the gear grid says nothing about how the teleports should read.</p>
- */
+/** Player preferences not inferred from tag placement: row filling, per-category sorting, gear layout and item/block orders. See BankLayoutStyles for inferred choices. */
 public final class BankLayoutOptions
 {
 	public static final BankLayoutOptions DEFAULTS = new BankLayoutOptions(true, true, true);

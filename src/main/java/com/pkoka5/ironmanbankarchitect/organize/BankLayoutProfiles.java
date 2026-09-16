@@ -7,20 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * The player's saved tab layouts, one of which is in use.
- *
- * <p>A profile is a named plan. The bundled Ironman layout is always the first
- * one and always the preset's own arrangement, so there is a way back to a
- * working bank no matter what an imported layout turns out to be. It cannot be
- * edited away or renamed; saving over it stores a copy under its own name
- * instead, which keeps "reset" meaning something.</p>
- *
- * <p>Stored as one string because the config holds strings. Parsing is forgiving
- * in the same way the plan's is: a malformed entry is skipped rather than
- * failing the whole set, so one bad import cannot cost the player every layout
- * they had.</p>
- */
+/** Named plans with a permanent bundled default. Saving over the default creates a named copy. Serialized config skips malformed entries without discarding other profiles. */
 public final class BankLayoutProfiles
 {
 	/** The bundled layout, always present and always the preset's own. */
