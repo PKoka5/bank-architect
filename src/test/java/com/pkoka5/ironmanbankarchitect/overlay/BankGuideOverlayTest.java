@@ -27,6 +27,21 @@ import org.junit.Test;
 public class BankGuideOverlayTest
 {
 	@Test
+	public void recoveryMessageFitsBesideTallBankWithoutCoveringFrameOrScrollbar()
+	{
+		Rectangle canvas = new Rectangle(0, 0, 1276, 1390);
+		Rectangle frame = new Rectangle(163, 105, 610, 1000);
+		Rectangle grid = new Rectangle(230, 200, 510, 850);
+		Rectangle bounds = BankGuideOverlay.statusBounds(canvas,
+			BankGuideOverlay.statusAnchor(grid, frame), 230, 75, true);
+		assertTrue(canvas.contains(bounds));
+		assertFalse(bounds.intersects(frame));
+		assertTrue(bounds.x >= frame.x + frame.width);
+		assertEquals(grid, BankGuideOverlay.statusAnchor(grid, null));
+		assertEquals(grid, BankGuideOverlay.statusAnchor(grid, new Rectangle(1, 1, 10, 10)));
+	}
+
+	@Test
 	public void slotValidationDetectsCorrectItem()
 	{
 		assertEquals(BankGuideOverlay.SlotValidationState.CORRECT,

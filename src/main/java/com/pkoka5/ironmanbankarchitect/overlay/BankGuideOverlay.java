@@ -1269,7 +1269,7 @@ public final class BankGuideOverlay extends Overlay
 
 	private void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text)
 	{
-		drawStatus(graphics, gridBounds, text, false, null, null);
+		drawStatus(graphics, gridBounds, text, true, null, null);
 	}
 
 	private void drawStatus(Graphics2D graphics, Rectangle gridBounds, String text,
@@ -1293,7 +1293,11 @@ public final class BankGuideOverlay extends Overlay
 			int height = lineHeight * lines.length + 10;
 			// The destination legend has already claimed its spot this frame, so
 			// the movable status panel is the one that gives way.
-			Rectangle statusBounds = statusBounds(statusGraphics.getClipBounds(), gridBounds,
+			Widget frame = client.getWidget(InterfaceID.Bankmain.FRAME);
+			Rectangle bankBounds = statusAnchor(gridBounds,
+				frame == null || frame.isHidden() ? null : frame.getBounds());
+			Rectangle canvas = new Rectangle(0, 0, client.getCanvasWidth(), client.getCanvasHeight());
+			Rectangle statusBounds = statusBounds(canvas, bankBounds,
 				width + 14, height, preferOutside, firstAvoid, secondAvoid,
 				reservations.getLegendBounds());
 			int x = statusBounds.x;
@@ -1311,6 +1315,11 @@ public final class BankGuideOverlay extends Overlay
 		{
 			statusGraphics.dispose();
 		}
+	}
+
+	static Rectangle statusAnchor(Rectangle grid, Rectangle frame)
+	{
+		return isSafeGeometry(frame) && frame.contains(grid) ? frame : grid;
 	}
 
 	static Rectangle statusBounds(Rectangle canvasBounds, Rectangle gridBounds,
