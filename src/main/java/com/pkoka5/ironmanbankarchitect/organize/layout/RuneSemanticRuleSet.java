@@ -18,7 +18,7 @@ public final class RuneSemanticRuleSet
 		row(559, 564, 561, 563),
 		row(9075, 566, 4699, 21880),
 		row(4695, 4696, 4698, 4697),
-		row(4694)));
+		row(4694, 28929, 30843)));
 
 	private RuneSemanticRuleSet()
 	{

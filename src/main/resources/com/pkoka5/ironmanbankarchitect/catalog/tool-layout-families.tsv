@@ -18,13 +18,13 @@ families/tool.utility-containers	11941,22586,13226,13639,12020,25582,28140,19634
 families/tool.sailing	31733,31989,31986,31745,31757
 outfits/outfit.angler	13258,13259,13260,13261
 outfits/outfit.carpenter	24872,24874,24876,24878
-outfits/outfit.farmer-male	13646,13642,13640,13644
-outfits/outfit.farmer-female	13647,13643,13641,13645
+outfits/outfit.farmer	13646,13647,13642,13643,13640,13641,13644,13645
 outfits/outfit.graceful	11850,11852,11854,11856,11858,11860
 outfits/outfit.lumberjack	10941,10939,10940,10933
 outfits/outfit.prospector	12013,12014,12015,12016
 outfits/outfit.pyromancer	20708,20704,20706,20710
-outfits/outfit.raiments-eye	26850,26852,26854,26856
+EYE_SHARED	26856,26822,26824,26826,26828,26830,26832,26834,26836,26838,26840,26842,26844,26846,26848
+outfits/outfit.raiments-eye	26850,26852,26854
 outfits/outfit.raiments-eye-red	26858,26860,26862
 outfits/outfit.raiments-eye-green	26864,26866,26868
 outfits/outfit.raiments-eye-blue	26870,26872,26874

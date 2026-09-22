@@ -15,6 +15,20 @@ import org.junit.Test;
 
 public class RuneSemanticRuleSetTest
 {
+	@Test public void sunfireAndAetherJoinTheCanonicalRuneRows()
+	{
+		List<Integer> ids = new ArrayList<>(Arrays.asList(556,555,557,554,558,562,560,565,
+			559,564,561,563,9075,566,4699,21880,4695,4696,4698,4697,4694,28929,30843));
+		for (int id = 980000; ids.size() < 48; id++) ids.add(id);
+		List<LayoutEntry> entries = new ArrayList<>();
+		for (int i = 0; i < ids.size(); i++) entries.add(entry(ids.get(i), i));
+		assertTrue(RuneSemanticRuleSet.mainRows(entries).stream()
+			.anyMatch(row -> row.contains(28929) && row.contains(30843)));
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(RuneSemanticRuleSet.forEntries(entries),
+			ids);
+		assertTrue(result.isSuccess());
+		assertEquals(Arrays.asList(4694, 28929, 30843), targetOrder(result).subList(40, 43));
+	}
 	@Test
 	public void ownedRuneFamiliesFormCanonicalFourWidePhysicalRows()
 	{

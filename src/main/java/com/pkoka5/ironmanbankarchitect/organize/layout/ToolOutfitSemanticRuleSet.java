@@ -103,7 +103,7 @@ public final class ToolOutfitSemanticRuleSet
 		Map<Integer, Integer> lockedTargets = new LinkedHashMap<>();
 		int outfitColumn = 0;
 		int maxOutfitHeight = 0;
-		for (OutfitFact outfit : OUTFITS.get())
+		for (OutfitFact outfit : outfitsFor(entries))
 		{
 			List<Integer> owned = presentIds(outfit.itemIds, present);
 			if (owned.size() < 2 || outfitColumn >= 8)
@@ -194,13 +194,40 @@ public final class ToolOutfitSemanticRuleSet
 	private static SemanticRule buildOutfitRule(List<LayoutEntry> entries)
 	{
 		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>(OUTFITS.get().size());
-		for (OutfitFact outfit : OUTFITS.get())
+		for (OutfitFact outfit : outfitsFor(entries))
 		{
 			List<Integer> itemIds = new ArrayList<>(outfit.itemIds.length);
 			for (int itemId : outfit.itemIds) itemIds.add(itemId);
 			definitions.add(ItemSetCatalog.definition("tools", outfit.key, outfit.key, itemIds));
 		}
 		return VerticalItemSetRuleFactory.build(OUTFIT_RULE_KEY, entries, definitions);
+	}
+
+	private static List<OutfitFact> outfitsFor(List<LayoutEntry> entries)
+	{
+		Set<Integer> present = new LinkedHashSet<>();
+		for (LayoutEntry entry : entries) present.add(entry.getItem().getItemId());
+		List<OutfitFact> outfits = new ArrayList<>(OUTFITS.get());
+		int best = -1;
+		int count = -1;
+		for (int i = 0; i < outfits.size(); i++)
+		{
+			OutfitFact outfit = outfits.get(i);
+			int owned = presentIds(outfit.itemIds, present).size();
+			if (outfit.key.startsWith("outfit.raiments-eye") && owned > count)
+			{
+				best = i;
+				count = owned;
+			}
+		}
+		if (best >= 0)
+		{
+			OutfitFact outfit = outfits.get(best);
+			List<Integer> ids = presentIds(outfit.itemIds, present);
+			ids.addAll(presentIds(TABLE.ids("EYE_SHARED"), present));
+			outfits.set(best, outfit(outfit.key, ids.stream().mapToInt(Integer::intValue).toArray()));
+		}
+		return outfits;
 	}
 
 	private static SemanticRule buildPresentRows(List<LayoutEntry> entries, String ruleKey,

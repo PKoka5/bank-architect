@@ -14,6 +14,27 @@ import static org.junit.Assert.assertTrue;
 
 public class ToolOutfitSemanticRuleSetTest
 {
+	@Test public void mixedFarmerVariantsStayTogether()
+	{
+		assertOutfit(Arrays.asList(13646, 13643, 13641, 13645));
+		assertOutfit(Arrays.asList(13647, 13642, 13640, 13644));
+	}
+
+	@Test public void sharedBootsAndLanternFollowEachEyeColour()
+	{
+		for (int hat : new int[]{26850, 26858, 26864, 26870})
+			for (int lantern : new int[]{26822, 26824, 26848})
+				assertOutfit(Arrays.asList(hat, hat + 2, hat + 4, 26856, lantern));
+	}
+
+	private static void assertOutfit(List<Integer> outfit)
+	{
+		List<Integer> input = new ArrayList<>(outfit);
+		for (int id = 900001; id < 900049; id++) input.add(id);
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(input), input);
+		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertVertical(result, outfit);
+	}
 	@Test
 	public void completeOutfitsBecomeSeparateHeadToFeetColumns()
 	{

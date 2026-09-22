@@ -18,6 +18,14 @@ import static org.junit.Assert.assertTrue;
 /** Small synthetic banks reproducing the reported choices, without private bank exports. */
 public class CommunityFeedbackPlacementTest
 {
+	@Test public void sunfireArmourRoutesToGearAndLitLanternsToTools()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		BankOrganizationPreview preview = build(bank(28933, 28936, 28939, 26822, 26824, 26848),
+			new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+		assertTrue(ids(preview, plan.destinationOf("gear")).containsAll(Arrays.asList(28933, 28936, 28939)));
+		assertTrue(ids(preview, plan.destinationOf("tools")).containsAll(Arrays.asList(26822, 26824, 26848)));
+	}
 	@Test
 	public void platinumAssignedToFrequentlyUsedPrecedesTeleportsInGridAndList()
 	{

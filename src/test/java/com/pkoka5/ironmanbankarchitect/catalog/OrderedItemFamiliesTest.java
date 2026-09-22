@@ -18,7 +18,8 @@ public class OrderedItemFamiliesTest
 		assertOriginal("potion", 4, 22, "30902cec1cf66b2e8807a265f6a367abd796203cabaf7e6da6e9154e4e1beb5f");
 		assertOriginal("farming", 0, 11, "b0d9cebddc4c4c19c2bf1ee30179f20424f5c1d77662280a9d50227ee50a65a1");
 		assertOriginal("gear", 0, 43, "45ca82269e019bda9b9f3d194485e5558ceb964de06354d73fcea5bd7fb52b82");
-		assertOriginal("tool", 0, 32, "eb44f6ecbe6c95096902e9a373b9494f984dcd08f16e5c76a02615fe5ac72f19");
+		// Reviewed September 22: mixed Farmer variants and shared Eye boots/lanterns.
+		assertOriginal("tool", 0, 32, "6c735796c72815e366e06d80b2f7dd3c18ad3a4862ff94820333ce6b93fac50c");
 		assertOriginal("resource", 0, 40, "8a8d2e0b5c704af9e462c61d3ee6d746d6de004db25ef573e82467d6e7b93a57");
 	}
 
