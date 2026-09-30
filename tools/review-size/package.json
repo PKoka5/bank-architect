@@ -1,0 +1,11 @@
+{
+  "name": "bank-architect-review-size",
+  "private": true,
+  "scripts": {
+    "check": "node check.cjs",
+    "test": "node --test normalize.test.cjs"
+  },
+  "dependencies": {
+    "gpt-tokenizer": "4.0.0"
+  }
+}

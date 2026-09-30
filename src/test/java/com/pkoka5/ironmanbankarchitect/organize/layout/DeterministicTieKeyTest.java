@@ -122,6 +122,21 @@ public class DeterministicTieKeyTest
 	}
 
 	@Test
+	public void laterBlockWidthOutranksEarlierBlockPosition()
+	{
+		PlacedBlock lateFirst = block("a", "one", 0, 2, ShapePrimitive.HORIZONTAL_RUN,
+			5, 0, row(0, 10, 11));
+		PlacedBlock earlyFirst = block("a", "one", 0, 2, ShapePrimitive.HORIZONTAL_RUN,
+			0, 0, row(0, 10, 11));
+		PlacedBlock narrowSecond = block("b", "two", 0, 2, ShapePrimitive.HORIZONTAL_RUN,
+			6, 0, row(0, 20, 21));
+		PlacedBlock wideSecond = block("b", "two", 0, 3, ShapePrimitive.HORIZONTAL_RUN,
+			6, 0, row(0, 20, 21));
+		assertTrue(key(Arrays.asList(lateFirst, narrowSecond), 10, 11, 20, 21)
+			.compareTo(key(Arrays.asList(earlyFirst, wideSecond), 10, 11, 20, 21)) < 0);
+	}
+
+	@Test
 	public void blockInputOrderIsCanonicalizedByStableIdentity()
 	{
 		PlacedBlock alpha = block("alpha.rule", "atom.one", 0, 2,

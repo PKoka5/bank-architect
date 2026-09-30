@@ -132,7 +132,7 @@ final class BoundedLayoutPacker
 				return result;
 			}
 			result = left.getRuleKey().compareTo(right.getRuleKey());
-			return result != 0 ? result : compareStringVectors(left.getAtomKeys(), right.getAtomKeys());
+			return result != 0 ? result : LayoutOrdering.compareValues(left.getAtomKeys(), right.getAtomKeys());
 		};
 	}
 
@@ -510,12 +510,12 @@ final class BoundedLayoutPacker
 		{
 			return result;
 		}
-		result = compareBlockVectors(left.canonicalBlocks, right.canonicalBlocks);
+		result = LayoutOrdering.compareBlockVectors(left.canonicalBlocks, right.canonicalBlocks);
 		if (result != 0)
 		{
 			return result;
 		}
-		return compareIntArrays(left.itemIdAtTarget, right.itemIdAtTarget);
+		return Arrays.compare(left.itemIdAtTarget, right.itemIdAtTarget);
 	}
 
 	private static int comparePendingChildren(PendingChild left, PendingChild right)
@@ -547,71 +547,14 @@ final class BoundedLayoutPacker
 		return Integer.compare(left.itemVectorSize(), right.itemVectorSize());
 	}
 
-	private static int compareBlockVectors(List<PlacedBlock> left, List<PlacedBlock> right)
-	{
-		int result = compareAlignedBlocks(left, right, BoundedLayoutPacker::compareBlockIdentity);
-		if (result != 0) return result;
-		result = compareAlignedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getWidthPreferenceRank(), b.getWidthPreferenceRank()));
-		if (result != 0) return result;
-		result = compareAlignedBlocks(left, right, (a, b) -> Integer.compare(a.getWidth(), b.getWidth()));
-		if (result != 0) return result;
-		result = compareAlignedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getShapePrimitive().ordinal(), b.getShapePrimitive().ordinal()));
-		if (result != 0) return result;
-		result = compareAlignedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getStartRow(), b.getStartRow()));
-		if (result != 0) return result;
-		result = compareAlignedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getStartColumn(), b.getStartColumn()));
-		if (result != 0) return result;
-		return compareAlignedBlocks(left, right,
-			(a, b) -> compareRows(a.getRows(), b.getRows()));
-	}
-
 	private static int compareProjectedBlockVectors(PendingChild left, PendingChild right)
 	{
-		int result = compareAlignedProjectedBlocks(left, right,
-			BoundedLayoutPacker::compareBlockIdentity);
-		if (result != 0) return result;
-		result = compareAlignedProjectedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getWidthPreferenceRank(), b.getWidthPreferenceRank()));
-		if (result != 0) return result;
-		result = compareAlignedProjectedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getWidth(), b.getWidth()));
-		if (result != 0) return result;
-		result = compareAlignedProjectedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getShapePrimitive().ordinal(), b.getShapePrimitive().ordinal()));
-		if (result != 0) return result;
-		result = compareAlignedProjectedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getStartRow(), b.getStartRow()));
-		if (result != 0) return result;
-		result = compareAlignedProjectedBlocks(left, right,
-			(a, b) -> Integer.compare(a.getStartColumn(), b.getStartColumn()));
-		if (result != 0) return result;
-		return compareAlignedProjectedBlocks(left, right,
-			(a, b) -> compareRows(a.getRows(), b.getRows()));
-	}
-
-	private static int compareBlockIdentity(PlacedBlock left, PlacedBlock right)
-	{
-		int result = left.getRuleKey().compareTo(right.getRuleKey());
-		return result != 0 ? result : compareStringVectors(left.getAtomKeys(), right.getAtomKeys());
-	}
-
-	private static int compareAlignedBlocks(List<PlacedBlock> left, List<PlacedBlock> right,
-		Comparator<PlacedBlock> comparator)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
+		for (Comparator<PlacedBlock> component : LayoutOrdering.COMPONENTS)
 		{
-			int result = comparator.compare(left.get(index), right.get(index));
-			if (result != 0)
-			{
-				return result;
-			}
+			int result = compareAlignedProjectedBlocks(left, right, component);
+			if (result != 0) return result;
 		}
-		return Integer.compare(left.size(), right.size());
+		return 0;
 	}
 
 	private static int compareAlignedProjectedBlocks(PendingChild left, PendingChild right,
@@ -627,52 +570,6 @@ final class BoundedLayoutPacker
 			}
 		}
 		return Integer.compare(left.blockCount(), right.blockCount());
-	}
-
-	private static int compareRows(List<LayoutCandidate.Row> left, List<LayoutCandidate.Row> right)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
-		{
-			int result = Integer.compare(left.get(index).getStartOffset(), right.get(index).getStartOffset());
-			if (result != 0) return result;
-			result = compareIntegerVectors(left.get(index).getItemIds(), right.get(index).getItemIds());
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.size(), right.size());
-	}
-
-	private static int compareStringVectors(List<String> left, List<String> right)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
-		{
-			int result = left.get(index).compareTo(right.get(index));
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.size(), right.size());
-	}
-
-	private static int compareIntegerVectors(List<Integer> left, List<Integer> right)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
-		{
-			int result = Integer.compare(left.get(index), right.get(index));
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.size(), right.size());
-	}
-
-	private static int compareIntArrays(int[] left, int[] right)
-	{
-		int shared = Math.min(left.length, right.length);
-		for (int index = 0; index < shared; index++)
-		{
-			int result = Integer.compare(left[index], right[index]);
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.length, right.length);
 	}
 
 	static final class Limits
@@ -925,7 +822,7 @@ final class BoundedLayoutPacker
 			List<PlacedBlock> nextBlocks = new ArrayList<>(canonicalBlocks);
 			int insertionIndex = 0;
 			while (insertionIndex < nextBlocks.size()
-				&& compareBlockIdentity(nextBlocks.get(insertionIndex), placedBlock) < 0)
+				&& LayoutOrdering.IDENTITY.compare(nextBlocks.get(insertionIndex), placedBlock) < 0)
 			{
 				insertionIndex++;
 			}
@@ -977,12 +874,12 @@ final class BoundedLayoutPacker
 				origin.baseRow, origin.startColumn);
 			int insertionIndex = 0;
 			while (insertionIndex < parent.canonicalBlocks.size()
-				&& compareBlockIdentity(parent.canonicalBlocks.get(insertionIndex), block) < 0)
+				&& LayoutOrdering.IDENTITY.compare(parent.canonicalBlocks.get(insertionIndex), block) < 0)
 			{
 				insertionIndex++;
 			}
 			if (insertionIndex < parent.canonicalBlocks.size()
-				&& compareBlockIdentity(parent.canonicalBlocks.get(insertionIndex), block) == 0)
+				&& LayoutOrdering.IDENTITY.compare(parent.canonicalBlocks.get(insertionIndex), block) == 0)
 			{
 				throw new IllegalStateException("duplicate placed-block identity during expansion");
 			}
@@ -1289,7 +1186,7 @@ final class BoundedLayoutPacker
 		@Override
 		public int compareTo(PartialScore other)
 		{
-			return compareIntArrays(components, other.components);
+			return Arrays.compare(components, other.components);
 		}
 	}
 

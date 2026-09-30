@@ -48,7 +48,7 @@ final class CompleteLayoutGeometryValidator
 		{
 			canonicalBlocks.add(Objects.requireNonNull(block, "blocks must not contain null"));
 		}
-		canonicalBlocks.sort(CompleteLayoutGeometryValidator::compareBlocks);
+		canonicalBlocks.sort(LayoutOrdering::compareBlocks);
 
 		int[] reconstructed = new int[request.size()];
 		int physicalStart = request.getGridStartColumn();
@@ -142,58 +142,4 @@ final class CompleteLayoutGeometryValidator
 		return block.getRuleKey() + "/" + block.getAtomKeys();
 	}
 
-	private static int compareBlocks(PlacedBlock left, PlacedBlock right)
-	{
-		int result = left.getRuleKey().compareTo(right.getRuleKey());
-		if (result != 0) return result;
-		result = compareStrings(left.getAtomKeys(), right.getAtomKeys());
-		if (result != 0) return result;
-		result = Integer.compare(left.getWidthPreferenceRank(), right.getWidthPreferenceRank());
-		if (result != 0) return result;
-		result = Integer.compare(left.getWidth(), right.getWidth());
-		if (result != 0) return result;
-		result = Integer.compare(left.getShapePrimitive().ordinal(), right.getShapePrimitive().ordinal());
-		if (result != 0) return result;
-		result = Integer.compare(left.getStartRow(), right.getStartRow());
-		if (result != 0) return result;
-		result = Integer.compare(left.getStartColumn(), right.getStartColumn());
-		if (result != 0) return result;
-		return compareRows(left.getRows(), right.getRows());
-	}
-
-	private static int compareRows(List<LayoutCandidate.Row> left, List<LayoutCandidate.Row> right)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
-		{
-			int result = Integer.compare(left.get(index).getStartOffset(),
-				right.get(index).getStartOffset());
-			if (result != 0) return result;
-			result = compareIntegers(left.get(index).getItemIds(), right.get(index).getItemIds());
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.size(), right.size());
-	}
-
-	private static int compareStrings(List<String> left, List<String> right)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
-		{
-			int result = left.get(index).compareTo(right.get(index));
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.size(), right.size());
-	}
-
-	private static int compareIntegers(List<Integer> left, List<Integer> right)
-	{
-		int shared = Math.min(left.size(), right.size());
-		for (int index = 0; index < shared; index++)
-		{
-			int result = Integer.compare(left.get(index), right.get(index));
-			if (result != 0) return result;
-		}
-		return Integer.compare(left.size(), right.size());
-	}
 }

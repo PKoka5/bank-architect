@@ -31,3 +31,6 @@ tools/research/item-classification-audit/cache/
 # Local research scratch (raw dumps, reference screenshots). Reviewed results
 # are tracked under tools/research/ and docs/research/.
 tmp/
+
+# Development-only review-size estimator dependencies.
+tools/review-size/node_modules/
