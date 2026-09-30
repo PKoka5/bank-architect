@@ -37,15 +37,17 @@ final class IronmanMainItemSorter
 	private static int compareMainItems(BankPreviewItem left, BankPreviewItem right,
 		RuneOrder runeOrder, TeleportOrder teleportOrder)
 	{
-		int byRank = Integer.compare(rank(left), rank(right));
+		int leftRank = rank(left);
+		int byRank = Integer.compare(leftRank, rank(right));
 		if (byRank != 0) return byRank;
 		if (runeOrder == RuneOrder.ELEMENTAL)
 		{
 			int byElemental = Integer.compare(elementalRank(left), elementalRank(right));
 			if (byElemental != 0) return byElemental;
 		}
-		if (left.getItemCategory() == ItemCategory.TELEPORT
-			&& right.getItemCategory() == ItemCategory.TELEPORT)
+		// Use one comparator for the entire effective band, including retagged gear.
+		// Switching ordering rules by pair can create cycles after a bank rescan.
+		if (leftRank == 40)
 		{
 			if (teleportOrder == TeleportOrder.SPELLBOOK_FIRST)
 			{
@@ -142,10 +144,6 @@ final class IronmanMainItemSorter
 	 */
 	private static int spellbookRank(BankPreviewItem item)
 	{
-		if (item.getItemCategory() != ItemCategory.TELEPORT)
-		{
-			return 0;
-		}
 		if (chargedJewelleryMetadata(item).isPresent())
 		{
 			return 90;

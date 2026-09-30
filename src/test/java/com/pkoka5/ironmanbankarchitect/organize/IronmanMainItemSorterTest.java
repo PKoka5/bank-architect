@@ -16,6 +16,29 @@ import static org.junit.Assert.assertTrue;
 public class IronmanMainItemSorterTest
 {
 	@Test
+	public void reassignedTeleportItemsHaveAnOrderIndependentOfBankSlots()
+	{
+		List<BankPreviewItem> items = Arrays.asList(
+			item(9084, "Lunar staff", ItemCategory.GEAR, "weapon").withLayoutTag("teleports"),
+			item(13393, "Xeric's talisman", ItemCategory.TELEPORT, "teleport"),
+			item(3853, "Games necklace(8)", ItemCategory.TELEPORT, "teleport"),
+			item(8013, "Teleport to house", ItemCategory.TELEPORT, "teleport-tablet"),
+			item(13660, "Chronicle", ItemCategory.TELEPORT, "teleport"));
+		for (TeleportOrder order : TeleportOrder.values())
+		{
+			List<String> expected = names(IronmanMainItemSorter.sort(items, RuneOrder.ALPHABETICAL, order));
+			for (int seed = 0; seed < 40; seed++)
+			{
+				List<BankPreviewItem> shuffled = new ArrayList<>(items);
+				Collections.shuffle(shuffled, new java.util.Random(seed));
+				List<BankPreviewItem> sorted = IronmanMainItemSorter.sort(shuffled, RuneOrder.ALPHABETICAL, order);
+				assertEquals(order + " seed " + seed, expected, names(sorted));
+				assertEquals(expected, names(IronmanMainItemSorter.sort(sorted, RuneOrder.ALPHABETICAL, order)));
+			}
+		}
+	}
+
+	@Test
 	public void mainDelegatesItsTeleportBandToTheTeleportWorkflow()
 	{
 		List<BankPreviewItem> sorted = IronmanMainItemSorter.sort(Arrays.asList(

@@ -18,6 +18,37 @@ import static org.junit.Assert.assertTrue;
 /** Small synthetic banks reproducing the reported choices, without private bank exports. */
 public class CommunityFeedbackPlacementTest
 {
+	@Test
+	public void completedMainWithLunarStaffStaysCompleteAfterReanalysis()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int[] original = {995, 6739, 11920, 2347, 1755, 952, 12791,
+			556, 558, 562, 554, 555, 559, 564, 557, 561, 563, 565, 560,
+			566, 9075, 21880, 9084, 13660, 13393, 3853, 4251, 8013, 21389,
+			11850, 11852, 11854, 11856, 11858, 11860};
+		for (String tag : Arrays.asList("frequently-used", "teleports"))
+		{
+			UserCategoryOverrides overrides = UserCategoryOverrides.parse("9084=" + tag);
+			BankLayoutOptions options = new BankLayoutOptions(true, true, true, Collections.emptyMap(),
+				GearLayout.GRID_STYLES, PotionDoseOrder.GRAB_AREA, RuneOrder.ELEMENTAL, TeleportOrder.SPELLBOOK_FIRST);
+			List<Integer> expected = null;
+			for (int seed = 0; seed < 12; seed++)
+			{
+				List<Integer> shuffled = Arrays.stream(original).boxed().collect(Collectors.toList());
+				Collections.shuffle(shuffled, new java.util.Random(seed));
+				BankOrganizationPreview preview = build(bank(shuffled.stream().mapToInt(Integer::intValue).toArray()),
+					overrides, plan, options);
+				List<Integer> ordered = preview.getCategories().stream().flatMap(tab -> tab.getItems().stream())
+					.filter(item -> !item.isBlank()).map(BankPreviewItem::getItemId).collect(Collectors.toList());
+				if (expected == null) expected = ordered;
+				assertEquals("shuffled input " + seed, expected, ordered);
+				BankOrganizationPreview reopened = build(bank(ordered.stream().mapToInt(Integer::intValue).toArray()),
+					overrides, plan, options);
+				assertEquals("reopened bank " + seed, ids(preview, 0), ids(reopened, 0));
+			}
+		}
+	}
+
 	@Test public void sunfireArmourRoutesToGearAndLitLanternsToTools()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
