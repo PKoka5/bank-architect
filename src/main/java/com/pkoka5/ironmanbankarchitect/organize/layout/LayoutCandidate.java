@@ -9,18 +9,9 @@ import java.util.Set;
 import net.runelite.api.gameval.ItemID;
 
 /**
- * One manually constructed canonical local shape for a rule: the rule key, the prescribed shape
- * primitive, one concrete width, the ordered atom keys it realizes, and its explicit immutable
- * rows. Each row carries a local start offset plus a non-empty contiguous item-ID vector, and
- * {@code startOffset + rowLength <= width} always holds.
- *
- * <p>Item IDs are positive and unique across the whole candidate; there are no blanks, Bank
- * Fillers, or phantom cells — a row cell exists only for a real owned item. Row boundaries and
- * offsets are part of the stable identity: the same flat item vector split into different rows is
- * a different candidate.</p>
- *
- * <p>Candidate generation itself is a later slice — 3A1 only models and validates hand-built
- * candidates.</p>
+ * Immutable local rule shape with ordered atoms and explicit rows. Each row has a start offset and
+ * nonempty contiguous IDs within width. IDs are positive, unique and real: no blanks, fillers or
+ * phantom cells. Row boundaries and offsets participate in identity.
  */
 public final class LayoutCandidate
 {

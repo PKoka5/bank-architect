@@ -4,16 +4,9 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.util.Objects;
 
 /**
- * One layout engine input entry: a real bank item plus the placement context that
- * {@link BankPreviewItem} does not carry.
- *
- * <p>The source flat bank slot never implies a dense category rank: before tab distribution the
- * category items may be spread across Main and several numbered tabs. A rank exists only when it
- * was explicitly proven and supplied. A locked target is a required final category-local target
- * index, not a promise that the item never moves during manual execution.</p>
- *
- * <p>Item content (blank, Bank Filler, non-positive or duplicate IDs) is deliberately not rejected
- * here; {@link LayoutRequestValidator} reports those as typed {@link LayoutConflict}s.</p>
+ * Bank item plus placement context. Flat source slots do not imply a dense category rank; ranks
+ * require explicit proof. Locks specify final category-local indices, not immobility during manual
+ * moves. LayoutRequestValidator reports invalid item content as typed conflicts.
  */
 public final class LayoutEntry
 {

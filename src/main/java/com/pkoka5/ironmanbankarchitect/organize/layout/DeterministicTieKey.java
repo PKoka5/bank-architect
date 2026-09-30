@@ -10,19 +10,10 @@ import java.util.Set;
 import net.runelite.api.gameval.ItemID;
 
 /**
- * The deterministic tie comparator of a complete plan. It lives outside the numeric
- * {@link LayoutScore} tuple and is consulted only when two plans have exactly equal scores.
- *
- * <p>A key holds the canonically ordered vector of {@link PlacedBlock} facts plus the complete
- * final target-order item-ID vector. Comparison walks the aligned block vectors one document
- * component at a time — first every block's complete stable identity (rule key plus atom keys),
- * then every width-preference rank, width, primitive ordinal, start row, start column, and explicit
- * row geometry, followed last by the complete item-ID vector. It never reduces a plan to one scalar
- * width/primitive/origin and never compares one block completely before looking at the next. A pure
- * fallback plan uses an empty block vector.</p>
- *
- * <p>Every component is a stable canonical fact of the plan, so the tie outcome never depends on
- * map or insertion iteration order.</p>
+ * Breaks equal LayoutScores using canonical block vectors, component by component: all identities,
+ * then width ranks, widths, primitives, origins and row geometry, then the final item-ID vector.
+ * Never compares entire blocks sequentially or collapses geometry to scalars. Fallback uses no
+ * blocks. Independent of map/insertion order.
  */
 public final class DeterministicTieKey implements Comparable<DeterministicTieKey>
 {

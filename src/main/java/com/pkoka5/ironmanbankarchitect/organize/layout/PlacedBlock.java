@@ -4,16 +4,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * One immutable placed-block fact of a complete plan: the stable block identity (rule key plus
- * ordered atom keys), the width-preference rank, the concrete width, the shape primitive, the
- * physical start row/column, and the explicit candidate-row geometry. All semantic and geometry
- * fields are derived from one {@link LayoutCandidate}; the width-preference rank is derived from
- * that candidate's validated {@link LayoutCandidateGroup}. Callers cannot combine one candidate's
- * identity or geometry with another candidate's evidence.
- *
- * <p>These facts feed the {@link DeterministicTieKey}. Equality covers every field, so two placed
- * blocks are equal exactly when they describe the same block in the same physical position with
- * the same internal geometry.</p>
+ * Immutable positioned candidate geometry and identity for DeterministicTieKey. Identity and
+ * geometry derive from one candidate; width rank derives from its validated group. Equality
+ * includes all fields, physical position and internal geometry.
  */
 public final class PlacedBlock
 {

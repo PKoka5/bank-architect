@@ -6,16 +6,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * One immutable layout request for a single planner category: the real entries, the applicable
- * semantic rules, and an optional proven complete dense category order.
- *
- * <p>The entry list and the dense-order list may contain invalid content (including {@code null}
- * elements) because {@link LayoutRequestValidator} must be able to report those as typed
- * {@link LayoutConflict}s. Rules are curated in code and may never be {@code null}.</p>
- *
- * <p>The dense order, when present, claims that the request items currently occupy that exact
- * category-local order. It is valid only as an exact unique permutation of all request item IDs;
- * flat source slots never imply it.</p>
+ * Immutable category request with entries, curated nonnull rules and optional proven dense order.
+ * Invalid entries, including nulls, are retained for typed validation conflicts. Dense order must
+ * be an exact unique permutation of request IDs; flat source slots do not establish it.
  */
 public final class LayoutRequest
 {

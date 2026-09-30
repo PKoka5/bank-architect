@@ -15,30 +15,11 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Item category membership from the Old School RuneScape Wiki
- * (oldschool.runescape.wiki, CC BY-NC-SA 3.0), baked in at build time so the
- * plugin never makes network calls at runtime. Refresh the snapshot with
- * {@code tools/fetch-wiki-item-categories.ps1}.
- *
- * The wiki records which categories an item page belongs to. What a category
- * means for a bank tab is decided here rather than in the data, because most
- * items sit in several at once: a pestle and mortar is Tools and Herblore, and
- * every potion is Potions and Herblore. The first mapping that matches wins, so
- * the order below is the ruling, from the most specific category to the
- * broadest.
- *
- * A mapping is either functional or topical. A functional category describes
- * what an item is for and may replace what the name rules concluded. A topical
- * one only groups pages by subject: Tools holds feathers and rope, and
- * Teleportation items holds every skillcape, so those may name an item the name
- * rules left in review but may never re-file one they already placed.
- *
- * Food and Fish are absent from the snapshot entirely. The wiki files raw meat
- * and raw fish as food and cooked fish as fish, while the bank splits them by
- * whether they are cooking material or something to eat, which the curated
- * {@link ItemSortMetadata} food flag already answers per item ID. Arrows and
- * Bolts are absent for the same reason, holding fletching parts such as
- * arrowtips alongside finished ammunition.
+ * Build-time OSRS Wiki categories (oldschool.runescape.wiki, CC BY-NC-SA 3.0); refresh with
+ * tools/fetch-wiki-item-categories.ps1. No runtime network calls. First matching mapping wins.
+ * Functional categories may override name rules; topical categories only resolve unclassified
+ * items. Food, Fish, Arrows and Bolts are excluded because their categories mix materials and
+ * finished items; curated metadata distinguishes them.
  */
 final class WikiItemCategories
 {

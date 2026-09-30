@@ -10,20 +10,11 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**
- * One immutable V1 semantic rule: a stable key, an explicit ordered semantic topology of
- * {@link SemanticAtom}s, a confidence tier, exactly one shape primitive, the allowed widths, an
- * optional evidence-backed width preference, and the rule keys whose spillover is explicitly
- * compatible.
- *
- * <p>The atoms carry the real structure — families, stage columns, or explicit row groups
- * depending on the primitive. {@link #getMemberItemIds()} is only a derived flat ID view used for
- * cross-rule overlap validation.</p>
- *
- * <p>Rules are curated in code, so malformed rules fail fast with
- * {@link IllegalArgumentException}: keys must be stable lowercase keys, atom keys unique within
- * the rule, item IDs positive and unique across all atoms, and Bank Filler is excluded by
- * {@link SemanticAtom.Member} itself. Cross-rule properties (duplicate keys, overlapping item
- * sets) are request-level typed conflicts reported by {@link LayoutRequestValidator}.</p>
+ * Immutable semantic topology, confidence, shape, widths and spillover compatibility. Atoms
+ * preserve structure; getMemberItemIds() is only a flat overlap-validation view. Invalid curated
+ * rules throw IllegalArgumentException: stable lowercase keys, unique atom keys and positive unique
+ * IDs are required; members exclude Bank Filler. LayoutRequestValidator reports cross-rule
+ * conflicts.
  */
 public final class SemanticRule
 {

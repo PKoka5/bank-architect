@@ -10,18 +10,10 @@ import java.util.TreeMap;
 import net.runelite.api.gameval.ItemID;
 
 /**
- * Validates one manually constructed complete plan against its {@link LayoutRequest}. A valid plan
- * contains exactly the request's item-ID multiset on target indices {@code 0..n-1}, preserves
- * every item's ID, quantity, and real OSRS placeholder state, respects every lock exactly, and
- * contains no null, Bank Filler, blank, or phantom item.
- *
- * <p>The result is immutable and never partial: any conflict yields a {@link LayoutResult} without
- * placements. Successful placements are rebuilt from the request's own immutable
- * {@link BankPreviewItem}s, so caller-supplied plan metadata can never leak into the result.</p>
- *
- * <p>Neither the request nor the plan list is mutated. Placements are aggregated per item ID
- * before validation and the final conflicts are sorted canonically, so the exact same conflict
- * list is produced for any plan list order.</p>
+ * Validates dense indices 0..n-1, the exact request item multiset, quantities, placeholders and
+ * locks; rejects null, filler and phantom items. Any conflict yields no placements. Success
+ * rebuilds placements from request metadata. Inputs remain unchanged; aggregation by ID and
+ * canonical conflict sorting make validation independent of plan order.
  */
 public final class LayoutPlanValidator
 {

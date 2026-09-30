@@ -11,23 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Exact item-ID overrides for canonical player-facing classification
- * exceptions (equipment, teleports, Herblore secondaries, and other
- * resources), not exclusively equipment.
- *
- * <p>Used only where a broad display-name rule would also sweep in cert,
- * placeholder, or Battle Royale duplicate records that share a display name
- * or constant family with the real item (for example "Avernic treads (max)"
- * at ID 31097 versus the unrelated Battle Royale duplicate at ID 33172, or
- * the three identically-named "Amethyst" records where only ID 21347 is the
- * real drop). Unknown item IDs receive no override.</p>
- *
- * <p>The table itself lives in {@code canonical-item-classification-overrides.tsv}
- * beside this class. It was 3,635 lines of case labels here until September
- * 2026: a lookup table wearing a switch statement, and by then a seventh of
- * every Java source in the plugin. The reasoning each entry carries - the wiki
- * revision it was read from, the duplicate it disambiguates - moved with it,
- * as comment lines and a trailing note column.</p>
+ * Exact canonical item-ID exceptions loaded from canonical-item-classification-overrides.tsv.
+ * Avoids matching cert, placeholder and Battle Royale duplicates by name. Unknown IDs have no
+ * override. Table comments and notes preserve per-entry evidence.
  */
 final class CanonicalItemClassificationOverrides
 {

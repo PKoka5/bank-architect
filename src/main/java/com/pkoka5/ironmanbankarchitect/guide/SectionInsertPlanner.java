@@ -5,18 +5,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Pure insert-mode planner for one dense bank section.
- *
- * <p>An insert drag removes the dragged item from its slot and reinserts it at
- * the drop slot index, so every slot between source and drop shifts by one. A
- * planned target slot index is therefore invalid the moment the player drags,
- * and each advised step is anchored to the item that currently occupies the
- * drop slot instead.</p>
- *
- * <p>Step selection keeps a longest increasing subsequence of the target
- * permutation in place and drags every other item exactly once, which is the
- * exact lower bound {@code n - LIS}. Items are served in target order, so the
- * section visibly fills in from the top.</p>
+ * Pure dense-section insert planner. Each manual insert shifts intervening slots, so guidance
+ * targets the current drop-slot occupant. Keeps a longest increasing subsequence and serves other
+ * items in target order, achieving exactly n - LIS moves.
  */
 public final class SectionInsertPlanner
 {
