@@ -14,12 +14,12 @@ public class ReleaseNoticePanelTest
 	@Test public void dismissedReleaseStaysDismissedAfterReopeningAndRestart() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			AtomicReference<String> seen = new AtomicReference<>("");
+			AtomicReference<String> seen = new AtomicReference<>("0.6.0");
 			JPanel normal = new JPanel();
 			ReleaseNoticePanel panel = new ReleaseNoticePanel(normal, seen::get, seen::set);
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("", seen.get());
+			assertEquals("0.6.0", seen.get());
 			panel.opened();
 			assertFalse(normal.isVisible());
 			button(panel).doClick();

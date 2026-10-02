@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
+
 import com.pkoka5.ironmanbankarchitect.catalog.GearTierCatalog;
 import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
 import java.util.ArrayList;
@@ -499,8 +501,7 @@ final class GearItemSorter
 	{
 		if (slotRankOf(item, gearStats) != 11) return 0;
 		String name = normalizedName(item.getDisplayName());
-		String[] tiers = {"diamond", "dragon", "amethyst", "rune", "adamant", "broad",
-			"mithril", "bone", "steel", "iron", "bronze"};
+		String[] tiers = ClassificationNames.group(71);
 		for (int i = 0; i < tiers.length; i++)
 		{
 			if (name.contains(tiers[i])) return i;
@@ -544,31 +545,31 @@ final class GearItemSorter
 
 	private static int slotRank(String name)
 	{
-		if (containsAny(name, "helmet", "helm", "coif", "hat", "mask", "hood"))
+		if (containsAny(name, ClassificationNames.group(48)))
 		{
 			return 0;
 		}
-		if (containsAny(name, "body", "platebody", "robe top", "hauberk", "torso", "chestplate"))
+		if (containsAny(name, ClassificationNames.group(49)))
 		{
 			return 1;
 		}
-		if (containsAny(name, "legs", "platelegs", "plateskirt", "chaps", "robe bottom", "skirt", "tassets"))
+		if (containsAny(name, ClassificationNames.group(50)))
 		{
 			return 2;
 		}
-		if (containsAny(name, "cape", "cloak", "ava's", "avas", "accumulator", "assembler"))
+		if (containsAny(name, ClassificationNames.group(51)))
 		{
 			return 3;
 		}
-		if (containsAny(name, "amulet", "necklace", "symbol", "stole"))
+		if (containsAny(name, ClassificationNames.group(52)))
 		{
 			return 4;
 		}
-		if (containsAny(name, "shield", "defender", "book", "ward", "offhand"))
+		if (containsAny(name, ClassificationNames.group(53)))
 		{
 			return 5;
 		}
-		if (containsAny(name, "gloves", "vambraces", "bracelet"))
+		if (containsAny(name, ClassificationNames.group(54)))
 		{
 			return 6;
 		}
@@ -576,21 +577,19 @@ final class GearItemSorter
 		{
 			return 7;
 		}
-		if (containsAny(name, "sword", "scimitar", "mace", "dagger", "spear", "halberd", "whip",
-			"maul", "warhammer", "battleaxe", "hasta", "rapier", "salamander", "flail"))
+		if (containsAny(name, ClassificationNames.group(55)))
 		{
 			return 8;
 		}
-		if (containsAny(name, "bow", "crossbow", "ballista", "blowpipe"))
+		if (containsAny(name, ClassificationNames.group(56)))
 		{
 			return 9;
 		}
-		if (containsAny(name, "staff", "wand", "trident", "sceptre", "scepter"))
+		if (containsAny(name, ClassificationNames.group(57)))
 		{
 			return 10;
 		}
-		if (containsAny(name, "arrow", "bolt", "dart", "javelin", "cannonball", "chinchompa",
-			"bolt rack", "grapple"))
+		if (containsAny(name, ClassificationNames.group(58)))
 		{
 			return 11;
 		}
@@ -622,30 +621,22 @@ final class GearItemSorter
 
 	private static boolean isPrayer(String name)
 	{
-		return containsAny(name, "proselyte", "initiate", "monk's", "holy symbol", "holy sandals");
+		return containsAny(name, ClassificationNames.group(59));
 	}
 
 	private static boolean isMelee(String name)
 	{
-		return containsAny(name, "rune", "dragon", "barrows", "bandos", "torva", "obsidian", "fighter",
-			"berserker", "defender", "scimitar", "whip", "mace", "spear", "halberd", "warhammer",
-			"battleaxe", "maul", "hasta", "rapier", "platebody", "platelegs", "plateskirt", "helm",
-			"neitiznot", "serpentine", "faceguard", "granite", "justiciar", "verac", "dharok", "guthan",
-			"torag", "karamja gloves", "barrows gloves");
+		return containsAny(name, ClassificationNames.group(60));
 	}
 
 	private static boolean isRanged(String name)
 	{
-		return containsAny(name, "bow", "crossbow", "ballista", "blowpipe", "arrow", "bolt", "dart",
-			"javelin", "chinchompa", "coif", "chaps", "vambraces", "leather", "d'hide", "dragonhide",
-			"karil", "armadyl", "ava's", "avas", "accumulator", "assembler");
+		return containsAny(name, ClassificationNames.group(61));
 	}
 
 	private static boolean isMagic(String name)
 	{
-		return containsAny(name, "staff", "wand", "trident", "sceptre", "scepter", "mystic", "ahrim",
-			"ancestral", "infinity", "wizard", "splitbark", "lunar", "xerician", "ghostly", "robe",
-			"occult", "tome");
+		return containsAny(name, ClassificationNames.group(62));
 	}
 
 	// Tier 1 (Starter) through tier 5 (End); keeps curated tiers within the pre-existing

@@ -29,6 +29,22 @@ import org.junit.Test;
  */
 public class ItemSetCategoryConsistencyTest
 {
+	@Test public void cosmeticOutfitsUseTheCosmeticsTagEvenWhenCluesHaveAnotherTab()
+	{
+		List<String> misplaced = new ArrayList<>();
+		for (Map.Entry<String, List<Integer>> set : catalogSets().entrySet())
+		{
+			if (!set.getKey().startsWith("cosmetics.")) continue;
+			for (int id : set.getValue())
+			{
+				CatalogItem item = CompositeItemCatalog.DEFAULT.describeOrUnknown(id);
+				BankCategory category = PresetCategoryMapper.map(BankPresets.IRONMAN, item);
+				String tag = BankTags.tagFor(category.getKey(), item.getSubcategory()).getKey();
+				if (!"cosmetics".equals(tag)) misplaced.add(id + " " + item.getDisplayName() + ": " + tag);
+			}
+		}
+		assertTrue(String.join("\n", misplaced), misplaced.isEmpty());
+	}
 	private static final String SET_CATALOG_PATH =
 		"/com/pkoka5/ironmanbankarchitect/organize/item-set-catalog.tsv";
 
@@ -45,12 +61,7 @@ public class ItemSetCategoryConsistencyTest
 		// The rune kiteshield is on the reviewed Ironman loot list
 		// (PresetCategoryMapper.IRONMAN_REVIEWED_LOOT_IDS) while the rest of
 		// the rune set counts as gear - an explicit upstream curation choice.
-		"gear.rune-armour",
-		// The mourner gloves and boots are pinned as functional gear by the
-		// combat-gear quest audit while the soft pieces are costumes; the
-		// clues and cosmetics tags share one tab in every bundled plan, so
-		// the split never separates the outfit in a real bank.
-		"cosmetics.mourner-outfit"));
+		"gear.rune-armour"));
 
 	@Test
 	public void everySetKeepsAllItsPiecesOnOneTab()

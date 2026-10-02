@@ -1,4 +1,38 @@
 # schema=1
+# Final clue/quest audit: docs/research/item-role-audit-final-october-2.md
+579	GEAR	head	Blue wizard hat: functional magic headwear
+7394	GEAR	head	Blue wizard hat (g): retain magic stats
+7396	GEAR	head	Blue wizard hat (t): retain magic stats
+1167	GEAR	head	Leather cowl: ranged headwear
+1833	CLUE	cosmetic	Desert shirt: clothing with an exact easy-clue use
+1949	TOOL	cooking-tool	Chef's hat: Cooking Guild access
+5525	RUNE	runecrafting-focus	Tiara: unbound Runecrafting focus and exact clue requirement
+2961	GEAR	weapon	Silver sickle: unblessed quest weapon, not a Bloom tool
+22433	TOOL	quest-utility	Emerald sickle (b): repeatable Bloom and quest stage
+24693	TOOL	quest-utility	Ruby sickle (b): repeatable Bloom and quest stage
+24695	TOOL	quest-utility	Enchanted ruby sickle (b): repeatable Bloom and quest stage
+24697	GEAR	weapon	Blisterwood sickle: functional quest weapon
+33709	GEAR	weapon	Diamond sickle (b): independently verified quest weapon
+33711	GEAR	weapon	Enchanted diamond sickle (b): independently verified quest weapon
+33713	GEAR	weapon	Blisterwood sickle (e): independently verified quest weapon
+24587	RUNE	rune-container	Rune pouch note: exchange entitlement, not an operational pouch
+# Repeatable utility audit: docs/research/item-role-audit-utility-storage-october-2.md
+22398	GEAR	weapon	Ivandis flail
+22986	GEAR	neck	Bonecrusher necklace
+25781	TOOL	skilling-utility	Ash sanctifier
+24416	RUNE	rune-container	Rune pouch (l)
+9433	GEAR	ammo	Bolt pouch: preserve reviewed Combat destination, group with ammunition
+2963	TOOL	quest-utility	Silver sickle (b): repeatable Bloom tool
+# Guild hunter outfit audit: docs/research/item-role-audit-skilling-october-2.md
+29263	TOOL	skilling-outfit	Guild hunter headwear
+29265	TOOL	skilling-outfit	Guild hunter top
+29267	TOOL	skilling-outfit	Guild hunter legs
+29269	TOOL	skilling-outfit	Guild hunter boots
+# Functional quest gear audit: docs/research/item-role-audit-functional-october-2.md
+2402	GEAR	weapon	Silverlight
+6745	GEAR	weapon	Dyed Silverlight
+6746	GEAR	weapon	Darklight
+6111	GEAR	cape	Ghostly cloak
 # Exact item-ID classification overrides, one row per item:
 #   itemId	category	subcategory	[note]
 # Moved out of Java in September 2026: the table was 3,635 lines of case
@@ -2096,7 +2130,7 @@
 # Wiki: https://oldschool.runescape.wiki/w/Impling
 # Wiki: https://oldschool.runescape.wiki/w/Small_fur_pouch
 11260	TOOL	resource-container	Required to retain caught implings in Puro-Puro
-29466	TOOL	resource-container	Open small fur pouch remains a reusable Hunter container
+29466	TOOL	hunter-tool	Open small fur pouch remains a reusable Hunter container
 # Wiki: https://oldschool.runescape.wiki/w/Potions
 10109	HERBLORE	secondary	Ground into the secondary for Hunter potions
 # Repeatable Farming, Firemaking and cave-light utilities.
@@ -2853,3 +2887,43 @@
 26844	TOOL	runecrafting-utility	Abyssal lantern (lit)
 26846	TOOL	runecrafting-utility	Abyssal lantern (lit)
 26848	TOOL	runecrafting-utility	Abyssal lantern (lit)
+
+# Hunter supplies: filled jars are consumables; an empty jar is hunting equipment.
+# https://oldschool.runescape.wiki/w/Butterfly_jar
+10012	TOOL	hunter-tool	Empty butterfly jar
+10014	POTION	potion	Black warlock
+10016	POTION	potion	Snowy knight
+10018	POTION	potion	Sapphire glacialis
+10020	POTION	potion	Ruby harvest
+28890	POTION	potion	Sunlight moth
+28893	POTION	potion	Moonlight moth
+# Exact functional equipment and blackjacks; verified Wiki IDs/slots in the July 15 snapshot; see final audit report.
+3095	GEAR	weapon	Bronze claws: reviewed exact functional item
+3096	GEAR	weapon	Iron claws: reviewed exact functional item
+3097	GEAR	weapon	Steel claws: reviewed exact functional item
+3098	GEAR	weapon	Black claws: reviewed exact functional item
+3099	GEAR	weapon	Mithril claws: reviewed exact functional item
+3100	GEAR	weapon	Adamant claws: reviewed exact functional item
+3101	GEAR	weapon	Rune claws: reviewed exact functional item
+6587	GEAR	weapon	White claws: reviewed exact functional item
+1017	GEAR	head	Wizard hat: reviewed exact functional item
+4089	GEAR	head	Mystic hat: reviewed exact functional item
+4099	GEAR	head	Mystic hat (dark): reviewed exact functional item
+4109	GEAR	head	Mystic hat (light): reviewed exact functional item
+23047	GEAR	head	Mystic hat (dusk): reviewed exact functional item
+1724	GEAR	neck	Unholy symbol: reviewed exact functional item
+4773	GEAR	ammo	Bronze brutal: reviewed exact functional item
+4778	GEAR	ammo	Iron brutal: reviewed exact functional item
+4783	GEAR	ammo	Steel brutal: reviewed exact functional item
+4788	GEAR	ammo	Black brutal: reviewed exact functional item
+4793	GEAR	ammo	Mithril brutal: reviewed exact functional item
+4798	GEAR	ammo	Adamant brutal: reviewed exact functional item
+4803	GEAR	ammo	Rune brutal: reviewed exact functional item
+4599	TOOL	thieving-tool	Oak blackjack: reviewed exact functional item
+6408	TOOL	thieving-tool	Oak blackjack(o): reviewed exact functional item
+6410	TOOL	thieving-tool	Oak blackjack(d): reviewed exact functional item
+6412	TOOL	thieving-tool	Willow blackjack(o): reviewed exact functional item
+6414	TOOL	thieving-tool	Willow blackjack(d): reviewed exact functional item
+6416	TOOL	thieving-tool	Maple blackjack: reviewed exact functional item
+6418	TOOL	thieving-tool	Maple blackjack(o): reviewed exact functional item
+6420	TOOL	thieving-tool	Maple blackjack(d): reviewed exact functional item

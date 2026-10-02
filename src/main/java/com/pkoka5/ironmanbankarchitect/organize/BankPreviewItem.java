@@ -146,6 +146,11 @@ public final class BankPreviewItem
 		return tags.contains(tag);
 	}
 
+	public Set<String> getUsageTags()
+	{
+		return tags;
+	}
+
 	public boolean isPlaceholder()
 	{
 		return placeholder;

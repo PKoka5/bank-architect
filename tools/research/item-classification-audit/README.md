@@ -24,3 +24,15 @@ source links belong under `docs/research/`.
 
 The report is a contradiction detector, not an automatic correction list. Missing or ambiguous
 source facts are marked `UNVERIFIED`; absence from a Wiki table is never treated as proof.
+
+For a strictly offline coverage pass against the existing identity snapshot:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\research\item-classification-audit\audit-cached-coverage.ps1
+```
+
+This joins every effective ID to the July 15 snapshot and writes a complete review ledger and
+aggregate summary under `build/`. It detects quest lifecycle, restricted namesakes and static
+equipment review candidates without changing classifications. Nonzero stat magnitude includes
+penalties: a candidate is not an automatic Gear correction. Source identity coverage is distinct
+from manually verified usage coverage or current disposal eligibility.

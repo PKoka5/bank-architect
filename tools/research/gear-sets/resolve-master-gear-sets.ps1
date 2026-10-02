@@ -345,6 +345,17 @@ $supplementalRows = @(
 	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.lunar-equipment"; CatalogSetName = "Lunar Equipment"; SlotRank = 9; ItemId = 9100 },
 	[pscustomobject] @{ Domain = "gear"; SetKey = "gear.lunar-equipment"; CatalogSetName = "Lunar Equipment"; SlotRank = 10; ItemId = 9104 },
 
+	# Independently reviewed cosmetic supplements; see item-role-audit-october-2.md.
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.lederhosen-outfit"; CatalogSetName = "Lederhosen Outfit"; SlotRank = 0; ItemId = 6182 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.lederhosen-outfit"; CatalogSetName = "Lederhosen Outfit"; SlotRank = 5; ItemId = 6180 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.lederhosen-outfit"; CatalogSetName = "Lederhosen Outfit"; SlotRank = 7; ItemId = 6181 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clown-outfit"; CatalogSetName = "Clown Outfit"; SlotRank = 0; ItemId = 22689 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clown-outfit"; CatalogSetName = "Clown Outfit"; SlotRank = 2; ItemId = 22692 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clown-outfit"; CatalogSetName = "Clown Outfit"; SlotRank = 5; ItemId = 22695 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clown-outfit"; CatalogSetName = "Clown Outfit"; SlotRank = 7; ItemId = 22698 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clown-outfit"; CatalogSetName = "Clown Outfit"; SlotRank = 9; ItemId = 22701 },
+	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.zombie-outfit"; CatalogSetName = "Zombie Outfit"; SlotRank = 0; ItemId = 7594 },
+
 	# Additional complete families found during the 757-item blueprint review.
 	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clue-hunter"; CatalogSetName = "Clue Hunter Outfit"; SlotRank = 0; ItemId = 19687 },
 	[pscustomobject] @{ Domain = "cosmetics"; SetKey = "cosmetics.clue-hunter"; CatalogSetName = "Clue Hunter Outfit"; SlotRank = 1; ItemId = 19697 },

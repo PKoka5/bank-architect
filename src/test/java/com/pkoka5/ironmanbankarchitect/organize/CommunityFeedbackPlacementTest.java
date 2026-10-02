@@ -18,6 +18,79 @@ import static org.junit.Assert.assertTrue;
 /** Small synthetic banks reproducing the reported choices, without private bank exports. */
 public class CommunityFeedbackPlacementTest
 {
+	@Test public void repeatableQuestAndPrayerUtilitiesAvoidCleanupAndRawResources()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int[] all = {22398, 22986, 25781, 24416, 9433, 2963, 5295, 5315, 5373, 5341};
+		BankOrganizationPreview preview = build(bank(all), new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+		assertTrue(ids(preview, plan.destinationOf("gear")).containsAll(Arrays.asList(22398, 22986)));
+		assertTrue(ids(preview, plan.destinationOf("tools")).containsAll(Arrays.asList(25781, 2963)));
+		assertTrue(ids(preview, plan.destinationOf("ammunition")).contains(9433));
+		assertTrue(ids(preview, plan.destinationOf("runes")).contains(24416));
+		BankOrganizationPreview pinned = build(bank(all), UserCategoryOverrides.parse("5341=frequently-used"),
+			plan, BankLayoutOptions.DEFAULTS);
+		assertTrue(ids(pinned, plan.destinationOf("frequently-used")).contains(5341));
+		assertFalse(ids(pinned, plan.destinationOf("tools")).contains(5341));
+	}
+
+	@Test public void functionalQuestGearAndUsageFactsPreserveDestinations()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int[] items = {2402, 6745, 6746, 6106, 6107, 6108, 6109, 6110, 6111, 4300, 19689, 772};
+		BankOrganizationPreview preview = build(bank(items), new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+		assertTrue(ids(preview, plan.destinationOf("gear")).containsAll(
+			Arrays.asList(2402, 6745, 6746, 6106, 6107, 6108, 6109, 6110, 6111)));
+		assertTrue(ids(preview, plan.destinationOf("cosmetics")).containsAll(Arrays.asList(4300, 19689)));
+		BankOrganizationPreview pinned = build(bank(items), UserCategoryOverrides.parse("772=frequently-used"),
+			plan, BankLayoutOptions.DEFAULTS);
+		BankPreviewItem staff = pinned.getCategories().stream().flatMap(tab -> tab.getItems().stream())
+			.filter(item -> item.getItemId() == 772).findFirst().get();
+		assertEquals("frequently-used", staff.getLayoutTagKey());
+		assertTrue(staff.hasTag("transport-access"));
+	}
+
+	@Test public void reviewedCosmeticOutfitsStayTogetherAndRespectManualAssignments()
+	{
+		int[][] outfits = {{6182, 6180, 6181}, {22689, 22692, 22695, 22698, 22701},
+			{7594, 19912, 7592, 7593, 7595, 7596}};
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int[] all = Arrays.stream(outfits).flatMapToInt(Arrays::stream).toArray();
+		BankOrganizationPreview preview = build(bank(all), new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+		List<Integer> cosmetics = ids(preview, plan.destinationOf("cosmetics"));
+		for (int[] outfit : outfits)
+		{
+			List<Integer> positions = new ArrayList<>();
+			for (int id : outfit)
+			{
+				assertEquals("cosmetic " + id, "cosmetic", CompositeItemCatalog.DEFAULT.describeOrUnknown(id).getSubcategory());
+				assertTrue("cosmetic " + id, cosmetics.contains(id));
+				positions.add(cosmetics.indexOf(id));
+			}
+			assertEquals("outfit must not be interleaved", outfit.length - 1,
+				Collections.max(positions) - Collections.min(positions));
+		}
+		BankOrganizationPreview manual = build(bank(all), UserCategoryOverrides.parse("6182=frequently-used"),
+			plan, BankLayoutOptions.DEFAULTS);
+		assertTrue(ids(manual, plan.destinationOf("frequently-used")).contains(6182));
+		assertFalse(ids(manual, plan.destinationOf("cosmetics")).contains(6182));
+		for (int id : new int[]{775, 776, 1580})
+			assertEquals("functional gauntlets " + id, "skilling-utility",
+				CompositeItemCatalog.DEFAULT.describeOrUnknown(id).getSubcategory());
+	}
+
+	@Test public void hunterConsumablesAndToolsUseTheirFunctionalTabs()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int[] consumables = {10014, 10016, 10018, 10020, 28890, 28893};
+		int[] tools = {10006, 10008, 10029, 10031, 10150, 10010, 11259, 10012, 29295, 29297, 29299, 29301, 29303,
+			29309, 29462, 29464, 29466, 29468, 29470};
+		for (int id : consumables)
+			assertEquals("consumable " + id, "potions-food", PresetCategoryMapper.map(BankPresets.IRONMAN,
+				CompositeItemCatalog.DEFAULT.describeOrUnknown(id)).getKey());
+		BankOrganizationPreview preview = build(bank(tools), new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+		for (int id : tools) assertTrue("hunter tool " + id, ids(preview, plan.destinationOf("tools")).contains(id));
+	}
+
 	@Test
 	public void completedMainWithLunarStaffStaysCompleteAfterReanalysis()
 	{

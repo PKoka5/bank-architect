@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -55,8 +57,7 @@ final class ToolItemSorter
 		int role = roleRank(item);
 		if (role == 0)
 		{
-			String[] outfits = {"angler", "carpenter", "farmer's", "graceful", "lumberjack", "prospector",
-				"pyromancer", "rogue"};
+			String[] outfits = ClassificationNames.group(70);
 			for (String outfit : outfits)
 			{
 				if (name.contains(outfit))
@@ -81,19 +82,15 @@ final class ToolItemSorter
 
 	private static int skillRank(String name)
 	{
-		if (containsAny(name, "pickaxe", "mining", "celestial ring", "coal bag", "gem bag",
-			"goldsmith gauntlets")) return 0;
-		if (containsAny(name, " axe", "machete", "forestry", "log basket", "strung rabbit foot")) return 1;
-		if (containsAny(name, "harpoon", "fishing", "lobster pot", "karambwan vessel",
-			"fish barrel", "barbarian rod") || name.endsWith(" fishing rod")) return 2;
-		if (containsAny(name, "rake", "spade", "seed dibber", "secateurs", "watering can", "trowel",
-			"seed box", "compost bucket")) return 3;
-		if (containsAny(name, "hammer", "saw", "plank sack")) return 4;
-		if (containsAny(name, "chisel", "glassblowing", "needle")) return 5;
-		if (containsAny(name, "snare", "trap", "butterfly net", "noose", "teasing",
-			"fur pouch", "meat pouch")) return 6;
+		if (containsAny(name, ClassificationNames.group(37))) return 0;
+		if (containsAny(name, ClassificationNames.group(38))) return 1;
+		if (containsAny(name, ClassificationNames.group(39)) || name.endsWith(" fishing rod")) return 2;
+		if (containsAny(name, ClassificationNames.group(40))) return 3;
+		if (containsAny(name, ClassificationNames.group(41))) return 4;
+		if (containsAny(name, ClassificationNames.group(42))) return 5;
+		if (containsAny(name, ClassificationNames.group(43))) return 6;
 		if (containsAny(name, "lockpick", "house keys")) return 7;
-		if (containsAny(name, "tinderbox", "warm gloves", "lantern", "torch")) return 8;
+		if (containsAny(name, ClassificationNames.group(44))) return 8;
 		if (containsAny(name, "cooking gauntlets", "cake tin")) return 9;
 		if (containsAny(name, "pestle and mortar", "herb sack")) return 10;
 		return 20;
@@ -107,9 +104,9 @@ final class ToolItemSorter
 			return 0;
 		}
 		String name = normalized(item.getDisplayName());
-		if (containsAny(name, "hat", "hood", "helmet", "mask")) return 0;
-		if (containsAny(name, "top", "garb", "jacket", "shirt")) return 1;
-		if (containsAny(name, "legs", "waders", "robe", "trousers")) return 2;
+		if (containsAny(name, ClassificationNames.group(45))) return 0;
+		if (containsAny(name, ClassificationNames.group(46))) return 1;
+		if (containsAny(name, ClassificationNames.group(47))) return 2;
 		if (containsAny(name, "gloves", "gauntlets")) return 3;
 		if (containsAny(name, "boots")) return 4;
 		if (containsAny(name, "cape")) return 5;

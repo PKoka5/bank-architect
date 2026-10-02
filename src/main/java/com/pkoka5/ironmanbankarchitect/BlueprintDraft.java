@@ -85,7 +85,9 @@ final class BlueprintDraft
 	void moveAcross(int sourceTab, int from, int destinationTab, int boundary, String tag)
 	{
 		if (sourceTab < 0 || sourceTab >= tabs.size() || destinationTab < 0 || destinationTab >= tabs.size()) return;
-		if (sourceTab == destinationTab) { selectTab(sourceTab); move(from, boundary); return; }
+		if (sourceTab == destinationTab && from >= 0 && from < tabs.get(sourceTab).size()
+			&& java.util.Objects.equals(tag, tabs.get(sourceTab).get(from).getLayoutTagKey()))
+		{ selectTab(sourceTab); move(from, boundary); return; }
 		if (from < 0 || from >= tabs.get(sourceTab).size() || boundary < 0
 			|| boundary > tabs.get(destinationTab).size()) return;
 		BankPreviewItem item = tabs.get(sourceTab).get(from);
@@ -97,7 +99,7 @@ final class BlueprintDraft
 		remember();
 		tabs.get(sourceTab).remove(from);
 		transfers.put(key, destination);
-		tabs.get(destinationTab).add(boundary, item.withLayoutTag(tag));
+		tabs.get(destinationTab).add(Math.min(boundary, tabs.get(destinationTab).size()), item.withLayoutTag(tag));
 		modified.add(sourceTab);
 		modified.add(destinationTab);
 	}

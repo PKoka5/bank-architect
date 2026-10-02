@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.6.0";
+	static final String RELEASE_ID = "0.7.0";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -40,14 +40,14 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Your blueprint, your order</h3>"
-			+ "<p>Click an item to select it in green, choose Swap or Insert, then click its new slot. "
-			+ "Undo, Cancel and Save keep you in control.</p>"
-			+ "<h3>Move items between tabs</h3>"
-			+ "<p>Drag an item onto a blueprint tab. Your saved layout stays with your profile.</p>"
-			+ "<h3>Smoother bank guidance</h3>"
-			+ "<p>Better recovery after deposits and withdrawals, placeholder-aware tool selection, "
-			+ "and improved Frequently Used placement.</p>"
+			+ "<h3>Clearer bank planning</h3>"
+			+ "<p>A simpler sidebar and blueprint editor. Choose an item's category directly in the editor. "
+			+ "Your saved placements still come first.</p>"
+			+ "<h3>Better item placement</h3>"
+			+ "<p>Improved hunter supplies, cosmetics, skilling outfits, quest tools and combat gear.</p>"
+			+ "<h3>Know why you keep it</h3>"
+			+ "<p>Item tooltips explain known uses and optional storage. Check clue and quest uses before removing items. "
+			+ "Items with known uses stay out of the automatic alch selection.</p>"
 			+ "<p>You still move every real bank item yourself.</p></div></html>");
 		notes.setForeground(Color.WHITE);
 		notes.setVerticalAlignment(JLabel.TOP);

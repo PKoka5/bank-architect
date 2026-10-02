@@ -31,3 +31,11 @@ The player always moves bank items manually.
 - Only one coding agent edits production files at a time.
 - Claude is implementation/tests; Codex is research/design/review.
 - Run tests after code changes and report warnings or failures.
+
+## Plugin Hub review token budget
+- Keep every Plugin Hub submission strictly below 200,000 review tokens. Treat this as a standing requirement for all future updates.
+- Preserve several thousand tokens of headroom; simplify repeated code as features grow without removing functionality or necessary tests.
+- Comments and JavaDoc are removed by the Hub before tokenization. Shortening them does not reduce the review token count.
+- Before publishing code updates, run the development-only estimator documented in `tools/review-size/README.md` and inspect changes outside its main-Java scope separately.
+- Local estimates are not the official Hub count. Use the highest estimate for planning, report uncertainty, and do not treat a passing build as token-limit approval.
+- When a maintainer provides a new count, record its exact source revision and use that pair to recalibrate subsequent estimates.

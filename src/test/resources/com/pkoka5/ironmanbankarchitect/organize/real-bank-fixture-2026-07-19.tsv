@@ -324,7 +324,7 @@ itemId	expectedTabKey
 4657	skilling-tools
 4675	combat-gear
 4699	currency-utilities
-4793	storage-cleanup
+4793	combat-gear
 4812	resources
 4819	resources
 4820	resources
@@ -438,7 +438,7 @@ itemId	expectedTabKey
 6729	resources
 6735	combat-gear
 6739	skilling-tools
-6746	storage-cleanup
+6746	combat-gear
 6786	clues-cosmetics
 6787	clues-cosmetics
 6889	storage-cleanup

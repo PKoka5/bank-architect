@@ -9,6 +9,21 @@ import org.junit.Test;
 
 public class ResourceItemRegistryTest
 {
+	@Test public void nameRulesRejectMissingOrMalformedData()
+	{
+		for (String data : new String[]{null, "# schema=2\nTOOL\tcontains\tnet\n",
+			"# schema=1\n", "# schema=1\nTOOL\tunknown\tnet\n",
+			"# schema=1\nINVALID\tcontains\tnet\n", "# schema=1\nTOOL\tcontains\t\n"})
+		{
+			try
+			{
+				ResourceItemRegistry.loadNameRules(data == null ? null : new java.io.ByteArrayInputStream(
+					data.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+				org.junit.Assert.fail("Invalid name rules accepted: " + data);
+			}
+			catch (IllegalStateException | IllegalArgumentException expected) { }
+		}
+	}
 	@Test
 	public void explicitGearCategoriesAreNotClobberedByCleanupNameRules()
 	{
@@ -841,7 +856,7 @@ public class ResourceItemRegistryTest
 	public void guildHunterOutfitStaysWithSkillingEquipment()
 	{
 		assertAuditFamily(new int[] {29263, 29265, 29267, 29269},
-			ItemCategory.TOOL, "skilling-equipment");
+			ItemCategory.TOOL, "skilling-outfit");
 	}
 
 	@Test
@@ -1726,10 +1741,10 @@ public class ResourceItemRegistryTest
 		for (int itemId : new int[] {
 			35, 78, 87, 428, 589, 667, 746, 747, 767, 777, 778, 1187, 1409,
 			1410, 1478, 1495, 2405, 2415, 2416, 2417, 2866, 2883, 2890, 2952,
-			3105, 4081, 4236, 4502, 5574, 5575, 6068, 6069, 6106, 6107, 6108,
+			3105, 4081, 4236, 4502, 5574, 5575, 6106, 6107, 6108,
 			6109, 6110, 6611, 7668, 9091, 9092, 9093, 9096, 9098, 9099, 9100,
 			9101, 9102, 9104, 9642, 9672, 9674, 9676, 9678, 9729, 9733, 10828,
-			10838, 10839, 10858, 10887, 10888, 11014, 11061, 11200, 12017,
+			10858, 10887, 10888, 11014, 11061, 11200, 12017,
 			23785, 23787, 23789, 23983, 23985, 23991, 23993, 24123, 24127,
 			24265, 24266, 24699, 25250, 26763, 28327, 28329, 29560, 29562,
 			29564, 29566, 29568, 29570, 30955, 33722
@@ -1751,7 +1766,7 @@ public class ResourceItemRegistryTest
 
 		assertClassification(1923, "Bowl", ItemCategory.TOOL, "cooking-tool");
 		assertClassification(1588, "Grip's keyring", ItemCategory.GEAR, "gear");
-		assertClassification(9433, "Bolt pouch", ItemCategory.GEAR, "gear");
+		assertClassification(9433, "Bolt pouch", ItemCategory.GEAR, "ammo");
 		assertClassification(25580, "Tackle box", ItemCategory.TOOL, "resource-container");
 		assertClassification(9419, "Mith grapple", ItemCategory.TOOL, "skilling-utility");
 		assertClassification(13116, "Bonecrusher", ItemCategory.TOOL, "skilling-utility");
@@ -1779,7 +1794,9 @@ public class ResourceItemRegistryTest
 		assertClassification(5016, "Bone spear", ItemCategory.GEAR, "weapon");
 		assertClassification(22711, "Collection log", ItemCategory.CLUE, "collection-trophy");
 		assertClassification(10107, "Long kebbit spike", ItemCategory.SKILLING, "ammo-component");
-		assertAuditFamily(new int[] {11260, 29466}, ItemCategory.TOOL, "resource-container");
+		assertAuditFamily(new int[] {11260}, ItemCategory.TOOL, "resource-container");
+		assertAuditFamily(new int[] {29466}, ItemCategory.TOOL, "hunter-tool");
+		assertAuditFamily(new int[] {6068, 6069, 10838, 10839}, ItemCategory.CLUE, "cosmetic");
 		assertClassification(10109, "Kebbit teeth", ItemCategory.HERBLORE, "secondary");
 		assertClassification(1735, "Shears", ItemCategory.TOOL, "tool");
 		assertAuditFamily(new int[] {20720, 4550}, ItemCategory.TOOL, "light-source");

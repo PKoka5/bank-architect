@@ -12,8 +12,7 @@ final class ItemClassificationRefiner
 		String constant = constantName.toLowerCase();
 		String searchable = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
 
-		if (containsAny(name, "clue scroll", "reward casket", "scroll box", "clue bottle",
-			"clue geode", "clue nest"))
+		if (containsAny(name, ClassificationNames.group(0)))
 		{
 			return new Classification(ItemCategory.CLUE, "treasure-trail");
 		}
@@ -78,12 +77,15 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TELEPORT, "teleport-charge");
 		}
-		if (containsAny(name, "rock hammer", "enchanted gem", "bug lantern"))
+		if (containsAny(name, ClassificationNames.group(1)))
 		{
 			return new Classification(ItemCategory.TOOL, "slayer-tool");
 		}
-		if (containsAny(name, "large fur pouch", "large meat pouch", "seed box", "herb sack",
-			"bottomless compost bucket"))
+		if (containsAny(name, ClassificationNames.group(2)))
+		{
+			return new Classification(ItemCategory.TOOL, "hunter-tool");
+		}
+		if (containsAny(name, ClassificationNames.group(3)))
 		{
 			return new Classification(ItemCategory.TOOL, "resource-container");
 		}
@@ -95,7 +97,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "skilling-utility");
 		}
-		if (containsAny(name, "diving apparatus", "druid pouch", "crystal chime", "gas mask")
+		if (containsAny(name, ClassificationNames.group(4))
 			|| name.startsWith("vyre noble "))
 		{
 			return new Classification(ItemCategory.TOOL, "quest-utility");
@@ -133,7 +135,7 @@ final class ItemClassificationRefiner
 			// and burnt bakes are not food and keep their own piles.
 			return new Classification(ItemCategory.POTION, "food");
 		}
-		if (containsAny(name, "dwarven stout", "wizard's mind bomb", "lizardkicker")
+		if (containsAny(name, ClassificationNames.group(5))
 			|| "jug of wine".equals(name) || "bandit's brew".equals(name))
 		{
 			return new Classification(ItemCategory.POTION, "drink");
@@ -172,7 +174,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.RUNE, "rune-container");
 		}
-		if (containsAny(name, "small pouch", "medium pouch", "large pouch", "giant pouch", "colossal pouch"))
+		if (containsAny(name, ClassificationNames.group(6)))
 		{
 			return new Classification(ItemCategory.RUNE, "rune-container");
 		}
@@ -184,7 +186,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "textile");
 		}
-		if (containsAny(name, "forestry kit", "fish barrel", "log basket", "plank sack")
+		if (containsAny(name, ClassificationNames.group(7))
 			|| (name.contains("coal bag") && constant.startsWith("coal_bag"))
 			|| (name.contains("gem bag") && constant.startsWith("gem_bag")))
 		{
@@ -194,22 +196,20 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "tool");
 		}
-		if (containsAny(name, "fighter torso", "mixed hide top", "barrelchest anchor"))
+		if (containsAny(name, ClassificationNames.group(8)))
 		{
 			return new Classification(ItemCategory.GEAR,
 				name.contains("anchor") ? "weapon" : "body");
 		}
 		if (isBarrowsWeaponFamily(name)
-			|| equalsAny(name, "zombie axe", "blisterwood flail", "eclipse atlatl", "emberlight",
-				"arkan blade", "abyssal bludgeon"))
+			|| equalsAny(name, ClassificationNames.group(9)))
 		{
 			// Confirmed unique weapons the generated registry either missed (no combat
 			// keyword in the name) or mislabelled as SKILLING/CLEANUP. Barrows weapons
 			// are matched at every 100/75/50/25/0 charge state, still the same weapon.
 			return new Classification(ItemCategory.GEAR, "weapon");
 		}
-		if (equalsAny(name, "occult necklace", "occult necklace (or)",
-			"necklace of anguish", "necklace of anguish (or)"))
+		if (equalsAny(name, ClassificationNames.group(10)))
 		{
 			// Exact names only: "Occult Necklace Ornament" shares a constant with
 			// "Occult necklace (or)" but is a separate, unproven record.
@@ -260,8 +260,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "skilling-outfit");
 		}
-		if (containsAny(name, "celestial ring", "mining helmet", "cooking gauntlets",
-			"goldsmith gauntlets", "noose wand", "steel key ring", "ice gloves"))
+		if (containsAny(name, ClassificationNames.group(11)))
 		{
 			return new Classification(ItemCategory.TOOL, "skilling-utility");
 		}
@@ -273,12 +272,11 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "tool");
 		}
-		if (containsAny(name, "bird snare", "rabbit snare", "box trap", "lockpick", "ogre bellows"))
+		if (containsAny(name, ClassificationNames.group(12)))
 		{
 			return new Classification(ItemCategory.TOOL, "tool");
 		}
-		if (containsAny(name, "facemask", "earmuffs", "nose peg", "reinforced goggles",
-			"ice cooler", "bag of salt"))
+		if (containsAny(name, ClassificationNames.group(13)))
 		{
 			return new Classification(ItemCategory.TOOL, "slayer-tool");
 		}
@@ -286,7 +284,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.UNIQUE, "weapon-upgrade");
 		}
-		if (containsAny(name, "pegasian crystal", "primordial crystal", "eternal crystal"))
+		if (containsAny(name, ClassificationNames.group(14)))
 		{
 			return new Classification(ItemCategory.UNIQUE, "equipment-upgrade");
 		}
@@ -316,8 +314,7 @@ final class ItemClassificationRefiner
 			return new Classification(ItemCategory.HERBLORE,
 				name.startsWith("grimy ") ? "grimy-herb" : "clean-herb");
 		}
-		if (containsAny(name, "bird nest", "crushed nest", "cactus spine", "potato cactus",
-			"snake weed"))
+		if (containsAny(name, ClassificationNames.group(15)))
 		{
 			return new Classification(ItemCategory.HERBLORE, "secondary");
 		}
@@ -331,7 +328,7 @@ final class ItemClassificationRefiner
 			return new Classification(ItemCategory.SKILLING, name.startsWith("uncut ") ? "uncut-gem" : "gem");
 		}
 		if ("vial".equals(name) || "vial of water".equals(name)
-			|| containsAny(name, "bucket of sand", "lantern lens", "molten glass"))
+			|| containsAny(name, ClassificationNames.group(16)))
 		{
 			return new Classification(ItemCategory.SKILLING, "glass-material");
 		}
@@ -340,8 +337,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "textile");
 		}
-		if (name.endsWith(" fur") || containsAny(name,
-			"crystal shard", "rope", "repair kit", "hull parts", "dynamite", "saltpetre"))
+		if (name.endsWith(" fur") || containsAny(name, ClassificationNames.group(17)))
 		{
 			return new Classification(ItemCategory.SKILLING, "resource");
 		}
@@ -349,9 +345,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "prayer-resource");
 		}
-		if (containsAny(name, "basalt", "calcite", "pyrophosphite", "efh salt", "te salt", "urt salt",
-			"unidentified small fossil", "unidentified medium fossil", "unidentified large fossil",
-			"unidentified rare fossil"))
+		if (containsAny(name, ClassificationNames.group(18)))
 		{
 			return new Classification(ItemCategory.SKILLING, "resource");
 		}
@@ -401,7 +395,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "utility-container");
 		}
-		if (containsAny(name, "pie dish", "pie shell", "orange spice", "sacred oil", "chocolate bar"))
+		if (containsAny(name, ClassificationNames.group(19)))
 		{
 			return new Classification(ItemCategory.SKILLING, "cooking-material");
 		}
@@ -413,7 +407,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.FARMING, "produce-container");
 		}
-		if (containsAny(name, "lobster pot", "karambwan vessel", "watering can")
+		if (containsAny(name, ClassificationNames.group(20))
 			|| "knife".equals(name) || "dull knife".equals(name))
 		{
 			return new Classification(ItemCategory.TOOL, "tool");
@@ -422,9 +416,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "ammo-component");
 		}
-		if (containsAny(name, "arrowtips", "arrowheads", "arrow shaft", "headless arrow",
-			"bolt tips", "dart tip", "dart shaft", "javelin tips", "javelin shaft",
-			"spear tips", "grapple tip", "crossbow limbs", "blurite limbs")
+		if (containsAny(name, ClassificationNames.group(21))
 			|| searchable.contains("crossbow limbs") || searchable.contains("crossbow stock")
 			|| (name.startsWith("broad bolt") && name.contains("unf")))
 		{
@@ -434,7 +426,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "crafting-mould");
 		}
-		if (containsAny(name, "bolt of canvas", "bolt of cloth", "bolt of linen"))
+		if (containsAny(name, ClassificationNames.group(22)))
 		{
 			return new Classification(ItemCategory.SKILLING, "textile");
 		}
@@ -442,16 +434,16 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "crafting-material");
 		}
-		if (containsAny(name, "chestplate", "platebody", "chainbody", "robe top", "hauberk"))
+		if (containsAny(name, ClassificationNames.group(23)))
 		{
 			return new Classification(ItemCategory.GEAR, "body");
 		}
-		if (containsAny(name, "platelegs", "plateskirt", "robe bottom", "chaps", "cuisse")
+		if (containsAny(name, ClassificationNames.group(24))
 			|| (name.contains("tassets") && !name.contains("broken")))
 		{
 			return new Classification(ItemCategory.GEAR, "legs");
 		}
-		if (containsAny(name, " helmet", "helm", "coif", "hood"))
+		if (containsAny(name, ClassificationNames.group(25)))
 		{
 			return new Classification(ItemCategory.GEAR, "head");
 		}
@@ -465,15 +457,15 @@ final class ItemClassificationRefiner
 
 	private static String gearSubcategory(String name)
 	{
-		if (containsAny(name, " boots", "shoes", "treads"))
+		if (containsAny(name, ClassificationNames.group(26)))
 		{
 			return "feet";
 		}
-		if (containsAny(name, " gloves", "gauntlets", "vambraces"))
+		if (containsAny(name, ClassificationNames.group(27)))
 		{
 			return "hands";
 		}
-		if (containsAny(name, " amulet", "necklace", "pendant"))
+		if (containsAny(name, ClassificationNames.group(28)))
 		{
 			return "neck";
 		}
@@ -481,7 +473,7 @@ final class ItemClassificationRefiner
 		{
 			return "ring";
 		}
-		if (containsAny(name, " arrow", " bolts", " dart", "cannonball", "grapple"))
+		if (containsAny(name, ClassificationNames.group(29)))
 		{
 			return "ammo";
 		}
@@ -490,9 +482,7 @@ final class ItemClassificationRefiner
 
 	private static String toolSubcategory(String name)
 	{
-		if (containsAny(name, "graceful", "angler", "prospector", "pyromancer", "lumberjack",
-			"carpenter", "farmer's strawhat", "farmer's jacket", "farmer's shirt",
-			"farmer's boro trousers", "farmer's boots", "rogue "))
+		if (containsAny(name, ClassificationNames.group(30)))
 		{
 			return "skilling-outfit";
 		}
@@ -516,10 +506,8 @@ final class ItemClassificationRefiner
 
 	private static boolean containsFishSpecies(String name)
 	{
-		String[] species = {"swordfish", "shark", "monkfish", "karambwan", "karambwanji", "eel",
-			"anglerfish", "harpoonfish", "lobster", "tuna", "salmon", "trout", "sturgeon",
-			"mackerel", "sardine", "herring", "anchovies", "shrimp", "cod", "pike", "bass"};
-		if (containsAny(name, "manta ray", "sea turtle", "dark crab"))
+		String[] species = ClassificationNames.group(68);
+		if (containsAny(name, ClassificationNames.group(31)))
 		{
 			return true;
 		}
@@ -551,8 +539,7 @@ final class ItemClassificationRefiner
 	private static boolean isUnenchantedJewellery(String name)
 	{
 		String base = name.endsWith(" (u)") ? name.substring(0, name.length() - 4) : name;
-		String[] materials = {"gold", "opal", "jade", "red topaz", "sapphire",
-			"emerald", "ruby", "diamond", "dragon", "dragonstone", "onyx", "zenyte"};
+		String[] materials = ClassificationNames.group(69);
 		String[] types = {"ring", "necklace", "bracelet", "amulet"};
 		for (String material : materials)
 		{
@@ -575,9 +562,7 @@ final class ItemClassificationRefiner
 	private static boolean isKnownHerb(String name)
 	{
 		String herb = name.startsWith("grimy ") ? name.substring("grimy ".length()) : name;
-		return containsAny(herb, "guam leaf", "marrentill", "tarromin", "harralander", "ranarr weed", "ranarr",
-			"toadflax", "irit leaf", "clean irit", "avantoe", "kwuarm", "snapdragon",
-			"cadantine", "lantadyme", "dwarf weed", "torstol");
+		return containsAny(herb, ClassificationNames.group(32));
 	}
 
 	private static boolean isGem(String name)
@@ -614,23 +599,11 @@ final class ItemClassificationRefiner
 
 	private static boolean isSkillCapeOrSkillingGear(String name)
 	{
-		if (name.contains("cape") && containsAny(name, "agility", "cooking", "construction", "crafting",
-			"farming", "firemaking", "fishing", "fletching", "herblore", "hunter", "mining",
-			"runecraft", "runecrafting", "slayer", "smithing", "thieving", "woodcutting"))
+		if (name.contains("cape") && containsAny(name, ClassificationNames.group(33)))
 		{
 			return true;
 		}
-		return equalsAny(name,
-			"angler hat", "angler top", "angler waders", "angler boots",
-			"spirit angler headband", "spirit angler top", "spirit angler waders", "spirit angler boots",
-			"prospector helmet", "prospector jacket", "prospector legs", "prospector boots",
-			"golden prospector helmet", "golden prospector jacket", "golden prospector legs",
-			"golden prospector boots",
-			"pyromancer hood", "pyromancer garb", "pyromancer robe", "pyromancer boots",
-			"lumberjack hat", "lumberjack top", "lumberjack legs", "lumberjack boots",
-			"carpenter's helmet", "carpenter's shirt", "carpenter's trousers", "carpenter's boots",
-			"farmer's strawhat", "farmer's jacket", "farmer's shirt", "farmer's boro trousers",
-			"farmer's boots", "rogue mask", "rogue top", "rogue trousers", "rogue gloves", "rogue boots")
+		return equalsAny(name, ClassificationNames.group(34))
 			|| name.startsWith("graceful hood") || name.startsWith("graceful top")
 			|| name.startsWith("graceful legs") || name.startsWith("graceful gloves")
 			|| name.startsWith("graceful boots") || name.startsWith("graceful cape");
@@ -661,13 +634,11 @@ final class ItemClassificationRefiner
 
 	private static boolean isStandardPotionFamily(String name)
 	{
-		if (containsAny(name, " mix", "sacred oil", "orange spice"))
+		if (containsAny(name, ClassificationNames.group(35)))
 		{
 			return false;
 		}
-		return containsAny(name, "potion", "brew", "restore", "antidote", "antifire",
-			"super attack", "super strength", "super defence", "super energy", "sanfew serum",
-			"relicym's balm");
+		return containsAny(name, ClassificationNames.group(36));
 	}
 
 	private static boolean containsAny(String value, String... needles)

@@ -20,9 +20,9 @@ Bank Architect has no separate installer, account, or external service.
 
 ## Ironman — All-Round Bank workflow
 
-1. **Scan:** open your bank and select **Analyze My Bank**. The plugin reads the
+1. **Scan:** open your bank and select **Analyze Bank**. The plugin reads the
    open bank through supported RuneLite APIs.
-2. **Review the blueprint:** select **Show My Bank** to inspect the proposed
+2. **Review the blueprint:** select **Open Blueprint** to inspect the proposed
    Main section and nine purpose-driven tabs. The blueprint preserves owned
    item IDs, quantities, and real placeholders; it does not invent missing
    items or blank slots. Your bank is also tinted in place: every item takes
@@ -32,7 +32,7 @@ Bank Architect has no separate installer, account, or external service.
 3. **Prepare the bank:** open the vanilla **All items** view and clear bank
    search and bank-tag filters. Either rearrange mode works; **Insert** mode
    usually needs fewer drags than **Swap** and the guide reports both counts.
-4. **Follow manual guidance:** select **Show Bank Guide**. The overlay describes
+4. **Follow manual guidance:** select **Sorting Guide**. The overlay describes
    one supported manual tab or item move at a time. You perform every collapse,
    drag, swap, and drop yourself.
 5. **Finish sorting:** the guide re-reads the bank after each manual action and
@@ -51,7 +51,7 @@ somewhere else, you can say so:
 1. Select **Assign Categories** in the sidebar.
 2. Right-click the item in your bank and choose **Bank Architect**, then the tag
    you want it on.
-3. Select **Analyze My Bank** again to rebuild the blueprint.
+3. Select **Analyze Bank** again to rebuild the blueprint.
 
 The menu lists tags rather than the ten bundles, so you can be exact: you can say
 an item is a *Secondary* rather than only that it is Herblore. The item then goes
@@ -64,7 +64,13 @@ the bundles were split still work. **Reset Corrections** clears
 them all; choosing **Use automatic classification** clears a single item.
 Corrections apply to the real item, so making one on a placeholder works too.
 
-The blueprint tooltip shows the effective tag. In the main tab, assigning an
+The blueprint tooltip shows the chosen placement and independently reviewed
+usage roles where available. Clue, quest and alternative-storage hints explain
+what to check before removing an item; Storage & Cleanup is a review destination,
+not a claim that an item is safe to discard. Items with known additional uses
+stay out of the automatic outclassed-gear selection. Your own assignments still win.
+
+In the main tab, assigning an
 item to Frequently Used also changes its sorting role, even when its original
 classification is Currency. A tag selects a group; it does not fix an exact slot.
 
@@ -74,7 +80,7 @@ After an update, the first sidebar opening shows **What's new**. Select
 **Got it - continue** to return to the normal plugin. This is remembered locally
 for that release; release notes are bundled with the plugin and require no network request.
 
-Open **Show My Bank**, select a tab, then **Edit this tab**. Click an item to select
+Open **Open Blueprint**, select a tab, then **Edit this tab**. Click an item to select
 it with a green border, choose **Swap** or **Insert**, then click the target slot.
 Swap exchanges the two items. Insert puts the selected item at the clicked slot
 and shifts the items between them. Click the selected item again to deselect it.

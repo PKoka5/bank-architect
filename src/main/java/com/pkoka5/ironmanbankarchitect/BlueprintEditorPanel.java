@@ -24,11 +24,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import net.runelite.client.ui.ColorScheme;
 
 /** Swing-only blueprint editor. Dragging updates a draft; Save updates local configuration. */
 final class BlueprintEditorPanel extends JPanel
 {
-	private static final Color BACKGROUND = new Color(35, 31, 25);
+	private static final Color BACKGROUND = ColorScheme.DARKER_GRAY_COLOR;
 	private final BankLayoutModel model;
 	private final Function<BankPreviewItem, JLabel> cellRenderer;
 	private final Consumer<Boolean> editingChanged;
@@ -38,9 +39,10 @@ final class BlueprintEditorPanel extends JPanel
 	private final JButton cancel = new JButton("Cancel");
 	private final JButton save = new JButton("Save");
 	private final JButton reset = new JButton("Reset tab order");
+	private final JButton assign = new JButton("Assign category...");
 	private final javax.swing.JComboBox<String> moveMode = new javax.swing.JComboBox<>(new String[]{"Swap", "Insert"});
 	private int selectedItem = -1;
-	private final JLabel status = new JLabel("Analyze your bank to begin.");
+	private final javax.swing.JTextArea status = new javax.swing.JTextArea("Analyze your bank to begin.", 2, 0);
 	private BankOrganizationPreview latest;
 	private BankOrganizationPreview source;
 	private BlueprintDraft draft;
@@ -60,13 +62,39 @@ final class BlueprintEditorPanel extends JPanel
 		this.model = model;
 		this.cellRenderer = renderer;
 		this.editingChanged = editingChanged;
+		setBackground(ColorScheme.DARK_GRAY_COLOR);
+		setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		tabs.setBackground(ColorScheme.DARK_GRAY_COLOR);
+		tabs.setForeground(ColorScheme.TEXT_COLOR);
+		tabs.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
 		JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		for (JButton button : new JButton[]{edit, undo, cancel, save, reset}) controls.add(button);
-		controls.add(new JLabel("Move mode:"));
-		controls.add(moveMode);
+		controls.setOpaque(false);
+		for (JButton button : new JButton[]{edit, undo, cancel, save, reset, assign})
+		{
+			button.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
+			if (button != assign) controls.add(button);
+		}
+		JPanel movement = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		movement.setOpaque(false);
+		JLabel modeLabel = new JLabel("Move mode:");
+		modeLabel.setForeground(ColorScheme.TEXT_COLOR);
+		movement.add(modeLabel);
+		movement.add(moveMode);
+		movement.add(assign);
+		moveMode.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		moveMode.setForeground(ColorScheme.TEXT_COLOR);
 		moveMode.setToolTipText("Swap exchanges items; Insert moves the selected item to the clicked slot.");
 		JPanel footer = new JPanel(new BorderLayout());
+		footer.setBackground(ColorScheme.DARK_GRAY_COLOR);
+		footer.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
 		footer.add(controls, BorderLayout.NORTH);
+		footer.add(movement, BorderLayout.CENTER);
+		status.setForeground(ColorScheme.TEXT_COLOR);
+		status.setOpaque(false);
+		status.setEditable(false);
+		status.setLineWrap(true);
+		status.setWrapStyleWord(true);
+		status.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
 		footer.add(status, BorderLayout.SOUTH);
 		add(tabs, BorderLayout.CENTER);
 		add(footer, BorderLayout.SOUTH);
@@ -75,6 +103,17 @@ final class BlueprintEditorPanel extends JPanel
 		cancel.addActionListener(event -> cancelEdit());
 		save.addActionListener(event -> saveDraft());
 		reset.addActionListener(event -> resetTab());
+		assign.addActionListener(event -> {
+			String[] names = com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
+				.filter(tag -> model.plan().destinationOf(tag.getKey()) >= 0)
+				.map(tag -> tag.getName()).toArray(String[]::new);
+			String chosen = (String) javax.swing.JOptionPane.showInputDialog(this,
+				"Choose a category for the selected item. Save to keep this change.", "Assign blueprint category",
+				javax.swing.JOptionPane.QUESTION_MESSAGE, null, names,
+				com.pkoka5.ironmanbankarchitect.organize.BankTags.byKey(draft.items().get(selectedItem).getLayoutTagKey()).getName());
+			com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
+				.filter(tag -> tag.getName().equals(chosen)).findFirst().ifPresent(tag -> assignSelectedCategory(tag.getKey()));
+		});
 		tabs.addChangeListener(event -> {
 			if (draft != null && tabs.getSelectedIndex() >= 0) {
 				selectedItem = -1;
@@ -109,6 +148,19 @@ final class BlueprintEditorPanel extends JPanel
 		draft = new BlueprintDraft(source, model.options().itemOrders(), editedTab);
 		selectedItem = -1;
 		editingChanged.accept(true);
+		renderDraft();
+	}
+
+	void assignSelectedCategory(String tag)
+	{
+		if (draft == null || selectedItem < 0 || saving || source == null || latest != source
+			|| !model.editingContext().equals(context)) return;
+		int target = model.plan().destinationOf(tag);
+		if (target < 0 || draft.items().get(selectedItem).isBlank()
+			|| tag.equals(draft.items().get(selectedItem).getLayoutTagKey())) return;
+		draft.moveAcross(editedTab, selectedItem, target, draft.itemCount(target), tag);
+		selectedItem = -1;
+		tabs.setSelectedIndex(target);
 		renderDraft();
 	}
 
@@ -192,6 +244,10 @@ final class BlueprintEditorPanel extends JPanel
 		for (int index = 0; index < items.size(); index++)
 		{
 			JLabel cell = cellRenderer.apply(items.get(index));
+			cell.setOpaque(true);
+			cell.setBackground(ColorScheme.DARK_GRAY_COLOR);
+			cell.setForeground(ColorScheme.TEXT_COLOR);
+			cell.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER_COLOR));
 			grid.add(cell);
 			if (editable)
 			{
@@ -231,7 +287,7 @@ final class BlueprintEditorPanel extends JPanel
 						Point tabPoint = javax.swing.SwingUtilities.convertPoint(cell, event.getPoint(), tabs);
 						dropTab = tabs.indexAtLocation(tabPoint.x, tabPoint.y);
 						boundary = insertionBoundary(point);
-						for (JLabel label : draftCells) label.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+						for (JLabel label : draftCells) label.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER_COLOR));
 						if (boundary >= 0 && !draftCells.isEmpty())
 						{
 							boolean end = boundary == draftCells.size();
@@ -271,9 +327,12 @@ final class BlueprintEditorPanel extends JPanel
 		}
 		JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		wrapper.setBackground(BACKGROUND);
-		wrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+		wrapper.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		wrapper.add(grid);
-		return new JScrollPane(wrapper);
+		JScrollPane scroll = new JScrollPane(wrapper);
+		scroll.setBorder(BorderFactory.createEmptyBorder());
+		scroll.getViewport().setBackground(BACKGROUND);
+		return scroll;
 	}
 
 	private int insertionBoundary(Point point)
@@ -298,11 +357,12 @@ final class BlueprintEditorPanel extends JPanel
 		save.setEnabled(editing && !stale && !saving);
 		reset.setEnabled(ready && !editing && latest.getCategories().get(tabs.getSelectedIndex()).hasManualOrder());
 		moveMode.setEnabled(editing && !stale && !saving);
+		assign.setEnabled(editing && selectedItem >= 0 && !draft.items().get(selectedItem).isBlank() && !stale && !saving);
 		if (saving) status.setText("Saving local blueprint...");
 		else if (stale) status.setText("Bank or layout changed. Cancel to load the latest preview.");
 		else if (editing) status.setText(selectedItem >= 0
-			? "Item selected (green). Click a target slot, or click the item again to deselect."
-			: "Click an item, then a target slot. Choose Swap or Insert. Drag to a tab to move between tabs.");
+			? "Selected (green): click a target slot or Assign category. Save keeps changes; Cancel discards them."
+			: "Select an item, then a target slot (Swap/Insert). Save updates the plan; move bank items manually.");
 		else if (ready)
 		{
 			BankCategoryPreview selected = latest.getCategories().get(tabs.getSelectedIndex());

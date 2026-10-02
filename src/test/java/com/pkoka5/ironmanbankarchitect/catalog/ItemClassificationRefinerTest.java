@@ -39,7 +39,7 @@ public class ItemClassificationRefinerTest
 		assertClassification("Lit bug lantern", ItemCategory.CLEANUP,
 			ItemCategory.TOOL, "slayer-tool");
 		assertClassification("Large fur pouch", ItemCategory.CLEANUP,
-			ItemCategory.TOOL, "resource-container");
+			ItemCategory.TOOL, "hunter-tool");
 		assertClassification("Soul bearer", ItemCategory.CLEANUP,
 			ItemCategory.TOOL, "utility-container");
 		assertClassification("Diving apparatus", ItemCategory.CLEANUP,

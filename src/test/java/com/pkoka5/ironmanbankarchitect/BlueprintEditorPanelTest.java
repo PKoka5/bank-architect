@@ -20,6 +20,61 @@ import static org.junit.Assert.*;
 
 public class BlueprintEditorPanelTest
 {
+	@Test public void assigningCategoryWithinSameTabCanBeUndoneCancelledAndSaved() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			BlueprintEditorPanel panel = assignmentPanel(model);
+			panel.beginEdit();
+			assertFalse(button(panel, "Assign category...").isEnabled());
+			click(panel, "13204");
+			assertTrue(button(panel, "Assign category...").isEnabled());
+			panel.assignSelectedCategory("frequently-used");
+			assertTrue(button(panel, "Undo").isEnabled());
+			assertEquals(0, model.saves);
+			button(panel, "Undo").doClick();
+			click(panel, "13204");
+			panel.assignSelectedCategory("potions");
+			panel.cancelEdit();
+			assertEquals(0, model.saves);
+			panel.selectTab(0);
+			panel.beginEdit();
+			click(panel, "13204");
+			panel.assignSelectedCategory("frequently-used");
+			panel.saveDraft();
+			assertEquals("frequently-used", model.routes.get("13204#0").tag);
+			assertEquals("currency", model.routes.get("13204#0").originalTag);
+			assertEquals(0, model.routes.get("13204#0").tab);
+			assertEquals(1, model.saves);
+			BlueprintItemOrders stored = BlueprintItemOrders.parse(BlueprintItemOrders.EMPTY
+				.withDestinations(model.routes).serialize());
+			BankOrganizationPreview restored = stored.apply(previewForAssignment(), model.plan());
+			assertEquals("frequently-used", restored.getCategories().get(0).getItems().stream()
+				.filter(item -> item.getItemId() == 13204).findFirst().get().getLayoutTagKey());
+		});
+	}
+
+	@Test public void assigningCategoryToAnotherTabPersistsDestinationAndRejectsStalePreview() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			BlueprintEditorPanel panel = assignmentPanel(model);
+			panel.beginEdit();
+			click(panel, "13204");
+			model.context = "changed";
+			panel.assignSelectedCategory("potions");
+			assertFalse(button(panel, "Undo").isEnabled());
+			panel.cancelEdit();
+			panel.beginEdit();
+			click(panel, "13204");
+			panel.assignSelectedCategory("potions");
+			panel.saveDraft();
+			assertEquals("potions", model.routes.get("13204#0").tag);
+			assertEquals(model.plan().destinationOf("potions"), model.routes.get("13204#0").tab);
+			assertFalse(model.orders.get(0).contains(13204));
+		});
+	}
+
 	@Test public void clickingSelectsGreenThenSwapsAndUndoRestoresOrder() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
@@ -240,6 +295,19 @@ public class BlueprintEditorPanelTest
 			{
 				Files.createDirectories(Paths.get("build/reports/blueprint-editor"));
 				ImageIO.write(image, "png", Paths.get("build/reports/blueprint-editor/editor.png").toFile());
+				panel.setSize(560, 500);
+				layout(panel);
+				for (String name : new String[]{"Edit this tab", "Undo", "Cancel", "Save", "Reset tab order", "Assign category..."})
+				{
+					Component button = find(panel, name);
+					java.awt.Rectangle bounds = SwingUtilities.convertRectangle(button.getParent(), button.getBounds(), panel);
+					assertTrue(name + " exceeds editor width", bounds.x >= 0 && bounds.x + bounds.width <= panel.getWidth());
+				}
+				image = new BufferedImage(560, 500, BufferedImage.TYPE_INT_ARGB);
+				graphics = image.createGraphics();
+				panel.paint(graphics);
+				graphics.dispose();
+				ImageIO.write(image, "png", Paths.get("build/reports/blueprint-editor/editor-narrow.png").toFile());
 			}
 			catch (java.io.IOException ex) { throw new RuntimeException(ex); }
 		});
@@ -253,6 +321,21 @@ public class BlueprintEditorPanelTest
 		panel.setSize(760, 500);
 		panel.setPreview(preview());
 		return panel;
+	}
+	private static BlueprintEditorPanel assignmentPanel(Model model)
+	{
+		BlueprintEditorPanel panel = panel(model);
+		panel.setPreview(previewForAssignment());
+		return panel;
+	}
+	private static BankOrganizationPreview previewForAssignment()
+	{
+		java.util.List<BankCategoryPreview> categories = new java.util.ArrayList<>();
+		for (int i = 0; i < BankPresets.IRONMAN.getCategories().size(); i++)
+			categories.add(new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(i), i == 0
+				? Arrays.asList(item(995).withLayoutTag("currency"), item(2347).withLayoutTag("frequently-used"),
+					item(13204).withLayoutTag("currency")) : java.util.Collections.emptyList()));
+		return new BankOrganizationPreview(BankPresets.IRONMAN, categories);
 	}
 	private static BankPreviewItem item(int id) { return new BankPreviewItem(id, "Item " + id, 1); }
 	private static BankOrganizationPreview preview()

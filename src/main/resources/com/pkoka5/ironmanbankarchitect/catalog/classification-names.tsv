@@ -1,0 +1,77 @@
+# schema=1
+0	clue scroll	reward casket	scroll box	clue bottle	clue geode	clue nest
+1	rock hammer	enchanted gem	bug lantern
+2	fur pouch	meat pouch	huntsman's kit	huntsmans kit
+3	seed box	herb sack	bottomless compost bucket
+4	diving apparatus	druid pouch	crystal chime	gas mask
+5	dwarven stout	wizard's mind bomb	lizardkicker
+6	small pouch	medium pouch	large pouch	giant pouch	colossal pouch
+7	forestry kit	fish barrel	log basket	plank sack
+8	fighter torso	mixed hide top	barrelchest anchor
+9	zombie axe	blisterwood flail	eclipse atlatl	emberlight	arkan blade	abyssal bludgeon
+10	occult necklace	occult necklace (or)	necklace of anguish	necklace of anguish (or)
+11	celestial ring	mining helmet	cooking gauntlets	goldsmith gauntlets	noose wand	steel key ring	ice gloves
+12	bird snare	rabbit snare	box trap	lockpick	ogre bellows
+13	facemask	earmuffs	nose peg	reinforced goggles	ice cooler	bag of salt
+14	pegasian crystal	primordial crystal	eternal crystal
+15	bird nest	crushed nest	cactus spine	potato cactus	snake weed
+16	bucket of sand	lantern lens	molten glass
+17	crystal shard	rope	repair kit	hull parts	dynamite	saltpetre
+18	basalt	calcite	pyrophosphite	efh salt	te salt	urt salt	unidentified small fossil	unidentified medium fossil	unidentified large fossil	unidentified rare fossil
+19	pie dish	pie shell	orange spice	sacred oil	chocolate bar
+20	lobster pot	karambwan vessel	watering can
+21	arrowtips	arrowheads	arrow shaft	headless arrow	bolt tips	dart tip	dart shaft	javelin tips	javelin shaft	spear tips	grapple tip	crossbow limbs	blurite limbs
+22	bolt of canvas	bolt of cloth	bolt of linen
+23	chestplate	platebody	chainbody	robe top	hauberk
+24	platelegs	plateskirt	robe bottom	chaps	cuisse
+25	 helmet	helm	coif	hood
+26	 boots	shoes	treads
+27	 gloves	gauntlets	vambraces
+28	 amulet	necklace	pendant
+29	 arrow	 bolts	 dart	cannonball	grapple
+30	graceful	angler	prospector	pyromancer	lumberjack	carpenter	farmer's strawhat	farmer's jacket	farmer's shirt	farmer's boro trousers	rogue 	farmer's boots
+31	manta ray	sea turtle	dark crab
+32	guam leaf	marrentill	tarromin	harralander	ranarr weed	ranarr	toadflax	irit leaf	clean irit	avantoe	kwuarm	snapdragon	cadantine	lantadyme	dwarf weed	torstol
+33	agility	cooking	construction	crafting	farming	firemaking	fishing	fletching	herblore	hunter	mining	runecraft	runecrafting	slayer	smithing	thieving	woodcutting
+34	angler hat	angler top	angler waders	angler boots	spirit angler headband	spirit angler top	spirit angler waders	spirit angler boots	prospector helmet	prospector jacket	prospector legs	prospector boots	golden prospector helmet	golden prospector jacket	golden prospector legs	golden prospector boots	pyromancer hood	pyromancer garb	pyromancer robe	pyromancer boots	lumberjack hat	lumberjack top	lumberjack legs	lumberjack boots	carpenter's helmet	carpenter's shirt	carpenter's trousers	carpenter's boots	farmer's strawhat	farmer's jacket	farmer's shirt	farmer's boro trousers	farmer's boots	rogue mask	rogue top	rogue trousers	rogue gloves	rogue boots
+35	 mix	sacred oil	orange spice
+36	potion	brew	restore	antidote	antifire	super attack	super strength	super defence	super energy	sanfew serum	relicym's balm
+37	pickaxe	mining	celestial ring	coal bag	gem bag	goldsmith gauntlets
+38	 axe	machete	forestry	log basket	strung rabbit foot
+39	harpoon	fishing	lobster pot	karambwan vessel	fish barrel	barbarian rod
+40	rake	spade	seed dibber	secateurs	watering can	trowel	seed box	compost bucket
+41	hammer	saw	plank sack
+42	chisel	glassblowing	needle
+43	snare	trap	butterfly net	butterfly jar	noose	teasing	fur pouch	meat pouch	huntsman
+44	tinderbox	warm gloves	lantern	torch
+45	hat	hood	helmet	mask
+46	top	garb	jacket	shirt
+47	legs	waders	robe	trousers
+48	helmet	helm	coif	hat	mask	hood
+49	body	platebody	robe top	hauberk	torso	chestplate
+50	legs	platelegs	plateskirt	chaps	robe bottom	skirt	tassets
+51	cape	cloak	ava's	avas	accumulator	assembler
+52	amulet	necklace	symbol	stole
+53	shield	defender	book	ward	offhand
+54	gloves	vambraces	bracelet
+55	sword	scimitar	mace	dagger	spear	halberd	whip	maul	warhammer	battleaxe	hasta	rapier	salamander	flail
+56	bow	crossbow	ballista	blowpipe
+57	staff	wand	trident	sceptre	scepter
+58	arrow	bolt	dart	javelin	cannonball	chinchompa	bolt rack	grapple
+59	proselyte	initiate	monk's	holy symbol	holy sandals
+60	rune	dragon	barrows	bandos	torva	obsidian	fighter	berserker	defender	scimitar	whip	mace	spear	halberd	warhammer	battleaxe	maul	hasta	rapier	platebody	platelegs	plateskirt	helm	neitiznot	serpentine	faceguard	granite	justiciar	verac	dharok	guthan	torag	karamja gloves	barrows gloves
+61	bow	crossbow	ballista	blowpipe	arrow	bolt	dart	javelin	chinchompa	coif	chaps	vambraces	leather	d'hide	dragonhide	karil	armadyl	ava's	avas	accumulator	assembler
+62	staff	wand	trident	sceptre	scepter	mystic	ahrim	ancestral	infinity	wizard	splitbark	lunar	xerician	ghostly	robe	occult	tome
+63	tip	head	limbs
+64	copper	tin	bronze
+65	iron	coal	steel
+66	opal	jade	topaz	sapphire	emerald	ruby	diamond	dragonstone	onyx	zenyte
+67	pie	cake	kebab	stew	pizza	potato	shark	monkfish	karambwan	manta	anglerfish	lobster	swordfish	tuna	salmon	trout
+68	swordfish	shark	monkfish	karambwan	karambwanji	eel	anglerfish	harpoonfish	lobster	tuna	salmon	trout	sturgeon	mackerel	sardine	herring	anchovies	shrimp	cod	pike	bass
+69	gold	opal	jade	red topaz	sapphire	emerald	ruby	diamond	dragon	dragonstone	onyx	zenyte
+70	angler	carpenter	farmer's	graceful	lumberjack	prospector	pyromancer	rogue	guild hunter
+71	diamond	dragon	amethyst	rune	adamant	broad	mithril	bone	steel	iron	bronze
+72	oak	willow	teak	maple	mahogany	arctic pine	yew	magic	redwood	blisterwood	camphor	ironwood	celastrus	anima-infused
+73	cow	green	blue	red	black	bear	kebbit	fox	larupia	graahk	kyatt	dagannoth
+74	opal	jade	topaz	sapphire	emerald	ruby	diamond	dragonstone	onyx	zenyte
+75	shrimp	sardine	herring	anchovies	mackerel	trout	salmon	tuna	lobster	swordfish	monkfish	karambwan	shark	sea turtle	manta ray	anglerfish	eel	dark crab

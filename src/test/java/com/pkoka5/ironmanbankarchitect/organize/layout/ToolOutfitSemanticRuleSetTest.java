@@ -14,6 +14,12 @@ import static org.junit.Assert.assertTrue;
 
 public class ToolOutfitSemanticRuleSetTest
 {
+	@Test public void hunterAndGoldenProspectorUseHeadToFeetColumns()
+	{
+		assertOutfit(Arrays.asList(29263, 29265, 29267, 29269));
+		assertOutfit(Arrays.asList(25549, 25551, 25553, 25555));
+	}
+
 	@Test public void mixedFarmerVariantsStayTogether()
 	{
 		assertOutfit(Arrays.asList(13646, 13643, 13641, 13645));

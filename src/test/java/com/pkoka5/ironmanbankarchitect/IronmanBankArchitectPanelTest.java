@@ -48,6 +48,89 @@ import org.junit.Test;
 
 public class IronmanBankArchitectPanelTest
 {
+	@Test public void cleanupGuidanceExplainsClueAndQuestConditionsEvenAfterManualAssignment()
+	{
+		com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog catalog =
+			com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog.DEFAULT;
+		String clue = IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			catalog.describeOrUnknown(4310), 1).withLayoutTag("cleanup"));
+		assertTrue(clue.contains("Keep for clues"));
+		assertTrue(clue.contains("matching STASH unit and full set"));
+		assertTrue(clue.contains("Review placement is not a recommendation to discard."));
+		String quest = IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			catalog.describeOrUnknown(2961), 1).withLayoutTag("frequently-used"));
+		assertTrue(quest.contains("Placement: Frequently Used"));
+		assertTrue(quest.contains("Check current and later quest uses before removing."));
+		String unknown = IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			999999, "Unreviewed object", 1));
+		assertTrue(unknown.contains("not a recommendation to discard"));
+		assertFalse(unknown.contains("Keep for clues"));
+		assertFalse(unknown.contains("STASH"));
+		String storedOutfit = IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			catalog.describeOrUnknown(7594), 1).withLayoutTag("cosmetics"));
+		assertTrue(storedOutfit.contains("Requires a costume room and fancy dress box."));
+		assertTrue(storedOutfit.contains("UIM: store the full outfit before retrieving pieces."));
+		assertFalse(IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			catalog.describeOrUnknown(19912), 1)).contains("fancy dress box"));
+	}
+
+	@Test public void storageTooltipsRemainConditionalAndDoNotChangeChosenPlacement()
+	{
+		com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem rake = new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog.DEFAULT.describeOrUnknown(5341), 1)
+			.withLayoutTag("frequently-used");
+		String tooltip = IronmanBankArchitectPanel.itemTooltip(rake);
+		assertTrue(tooltip.contains("Placement: Frequently Used"));
+		assertTrue(tooltip.contains("storage option tool leprechaun"));
+		assertTrue(tooltip.contains("Storage is optional; check access and capacity."));
+		assertFalse(IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog.DEFAULT.describeOrUnknown(22398), 1))
+			.contains("Storage is optional"));
+	}
+
+	@Test public void itemTooltipsSeparateKnownUsesFromChosenPlacement() throws Exception
+	{
+		com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem robe = new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog.DEFAULT.describeOrUnknown(4300), 1)
+			.withLayoutTag("frequently-used");
+		String tooltip = IronmanBankArchitectPanel.itemTooltip(robe);
+		assertTrue(tooltip.contains("Placement: Frequently Used"));
+		assertTrue(tooltip.contains("Uses: thieving utility, quest use, clue required"));
+		assertFalse(tooltip.contains("thieving-utility"));
+		String helm = IronmanBankArchitectPanel.itemTooltip(new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+			com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog.DEFAULT.describeOrUnknown(19687), 1));
+		assertFalse(helm.contains("warm clothing"));
+		String unusualName = IronmanBankArchitectPanel.itemTooltip(
+			new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(999999, "<b>A & B</b>", 1));
+		assertTrue(unusualName.contains("&lt;b&gt;A &amp; B&lt;/b&gt;"));
+		SwingUtilities.invokeAndWait(() -> {
+			try {
+			for (String[] sample : new String[][] {
+				{"item-usage-tooltip", tooltip},
+				{"storage-conditions-tooltip", IronmanBankArchitectPanel.itemTooltip(
+					new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(
+						com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog.DEFAULT.describeOrUnknown(7594), 1)
+						.withLayoutTag("cosmetics"))},
+				{"cleanup-review-tooltip", IronmanBankArchitectPanel.itemTooltip(
+					new com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem(999999, "Unreviewed object", 1))}})
+			{
+				JLabel cell = new JLabel();
+				cell.setToolTipText(sample[1]);
+				javax.swing.JToolTip tip = cell.createToolTip();
+				tip.setTipText(sample[1]);
+				tip.setSize(tip.getPreferredSize());
+				java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(tip.getWidth(), tip.getHeight(),
+					java.awt.image.BufferedImage.TYPE_INT_ARGB);
+				java.awt.Graphics2D graphics = image.createGraphics();
+				tip.paint(graphics);
+				graphics.dispose();
+				Files.createDirectories(Paths.get("build/reports/ui"));
+				javax.imageio.ImageIO.write(image, "png", Paths.get("build/reports/ui/" + sample[0] + ".png").toFile());
+			}
+			} catch (java.io.IOException ex) { throw new RuntimeException(ex); }
+		});
+	}
+
 	@Test
 	public void analyzeButtonRunsCallback()
 	{
@@ -288,6 +371,25 @@ public class IronmanBankArchitectPanelTest
 			&& analyzeBounds.x + analyzeBounds.width <= viewportWidth);
 		assertTrue(showBankBounds.x >= 0
 			&& showBankBounds.x + showBankBounds.width <= viewportWidth);
+		java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(225, 400,
+			java.awt.image.BufferedImage.TYPE_INT_ARGB);
+		java.awt.Graphics2D graphics = image.createGraphics();
+		panel.paint(graphics);
+		graphics.dispose();
+		try
+		{
+			Files.createDirectories(Paths.get("build/reports/ui"));
+			javax.imageio.ImageIO.write(image, "png", Paths.get("build/reports/ui/sidebar.png").toFile());
+			panel.setSize(225, 800);
+			layoutTree(panel);
+			image = new java.awt.image.BufferedImage(225, 800,
+				java.awt.image.BufferedImage.TYPE_INT_ARGB);
+			graphics = image.createGraphics();
+			panel.paint(graphics);
+			graphics.dispose();
+			javax.imageio.ImageIO.write(image, "png", Paths.get("build/reports/ui/sidebar-tall.png").toFile());
+		}
+		catch (java.io.IOException ex) { throw new RuntimeException(ex); }
 		panel.shutdown();
 	}
 

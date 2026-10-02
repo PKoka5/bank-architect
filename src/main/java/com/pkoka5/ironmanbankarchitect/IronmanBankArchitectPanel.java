@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankBlockDescriptor;
 import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
@@ -95,9 +96,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		"Guides tab creation and item order in the vanilla All items view, in Swap or Insert mode; "
 			+ "Insert usually needs fewer drags. Every move stays manual.";
 	private static final int STATUS_REFRESH_MILLIS = 100;
-	private static final int DESTINATION_COLUMNS = 5;
+	private static final int DESTINATION_COLUMNS = 2;
 	private static final int DESTINATION_GAP = 2;
-	private static final int DESTINATION_CELL = 36;
 	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
 	private static final int CELL_HEIGHT = 32;
@@ -112,10 +112,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final Color DESTINATION_EMPTY_BG = new Color(26, 26, 26);
 	// PluginPanel is ~225px wide; leave room for panel padding, card padding
 	// and the scrollbar so wrapped text never clips at the right edge.
-	private static final int SIDEBAR_TEXT_WIDTH = 200;
+	private static final int SIDEBAR_TEXT_WIDTH = 180;
 	// The layout editor sits inside the same 225px panel, so its rows are pinned
 	// to one width; anything wider pushes the whole column off the right edge.
-	private static final int SIDEBAR_CONTENT_WIDTH = 204;
+	private static final int SIDEBAR_CONTENT_WIDTH = 184;
 	private static final int LAYOUT_NAME_WIDTH = 110;
 	/** Shown in the profile list while the working layout matches no saved one. */
 	private static final String UNSAVED_PROFILE = "Custom (unsaved)";
@@ -149,6 +149,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JLabel organizationPreviewLabel;
 	private final JLabel guideProgressLabel;
 	private final JLabel nextMoveLabel;
+	private JLabel workflowSteps;
 	private final JLabel detailsChevron;
 	private final ProgressBar guideProgressBar;
 	private final JPanel detailsPanel;
@@ -214,21 +215,18 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		analyzeButton = new JButton("Analyze Bank");
-		// A fixed preferred width keeps the action row inside 225px; BorderLayout
-		// stretches the button to whatever space the icons leave over.
-		analyzeButton.setPreferredSize(new Dimension(100, 26));
 		analyzeButton.addActionListener(event -> {
 			analyzeCallback.run();
 			refreshAnalysis();
 		});
 
-		showBankButton = iconButton(blueprintIcon(), "Open the blueprint");
+		showBankButton = new JButton("Open Blueprint");
 		showBankButton.addActionListener(event -> showBankDialog());
 
-		toggleButton = iconButton(guideIcon(), "");
+		toggleButton = new JButton();
 		toggleButton.addActionListener(event -> onToggleGuide());
 
-		assignCategoriesButton = iconButton(assignIcon(), "");
+		assignCategoriesButton = new JButton();
 		assignCategoriesButton.addActionListener(event -> {
 			guideController.toggleCategoryAssignMode();
 			refreshControls();
@@ -337,6 +335,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		cardConstraints.weightx = 1;
 		cardConstraints.fill = GridBagConstraints.HORIZONTAL;
 		cardConstraints.insets = new Insets(0, 0, 8, 0);
+		content.add(actionRow(), cardConstraints);
+		cardConstraints.gridy++;
 		content.add(destinationGrid(), cardConstraints);
 		cardConstraints.gridy++;
 		content.add(tabOrderButton, cardConstraints);
@@ -345,19 +345,26 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		cardConstraints.gridy++;
 		content.add(guideProgressBar, cardConstraints);
 		cardConstraints.gridy++;
-		content.add(actionRow(), cardConstraints);
-		cardConstraints.gridy++;
-		content.add(nextMoveLabel, cardConstraints);
+		JPanel instruction = new JPanel(new BorderLayout(0, 8));
+		instruction.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+		instruction.setBorder(BorderFactory.createCompoundBorder(
+			BorderFactory.createLineBorder(ColorScheme.BORDER_COLOR),
+			BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+		JLabel heading = new JLabel("NEXT STEP");
+		heading.setFont(FontManager.getRunescapeSmallFont());
+		heading.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		instruction.add(heading, BorderLayout.NORTH);
+		instruction.add(nextMoveLabel, BorderLayout.CENTER);
+		cardConstraints.weighty = 1;
+		cardConstraints.fill = GridBagConstraints.HORIZONTAL;
+		cardConstraints.anchor = GridBagConstraints.NORTH;
+		content.add(instruction, cardConstraints);
+		cardConstraints.weighty = 0;
+		cardConstraints.fill = GridBagConstraints.HORIZONTAL;
 		cardConstraints.gridy++;
 		content.add(detailsHeader(), cardConstraints);
 		cardConstraints.gridy++;
 		content.add(detailsPanel, cardConstraints);
-		cardConstraints.gridy++;
-		cardConstraints.weighty = 1;
-		cardConstraints.fill = GridBagConstraints.BOTH;
-		JPanel filler = new JPanel();
-		filler.setOpaque(false);
-		content.add(filler, cardConstraints);
 
 		JScrollPane scrollPane = new JScrollPane(content);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -384,6 +391,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		JPanel strip = new JPanel(new BorderLayout(8, 0));
 		strip.setOpaque(false);
+		strip.setBorder(BorderFactory.createCompoundBorder(
+			BorderFactory.createMatteBorder(0, 0, 1, 0, ColorScheme.BORDER_COLOR),
+			BorderFactory.createEmptyBorder(2, 0, 8, 0)));
 
 		JLabel mark = new JLabel(new ImageIcon(IronmanBankArchitectPlugin.createIcon()));
 		mark.setVerticalAlignment(SwingConstants.CENTER);
@@ -391,7 +401,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		JPanel who = verticalPanel();
 		JLabel title = new JLabel(TITLE);
 		title.setFont(FontManager.getRunescapeBoldFont());
-		title.setForeground(Color.WHITE);
+		title.setForeground(ColorScheme.TEXT_COLOR);
 		title.setAlignmentX(LEFT_ALIGNMENT);
 		JLabel profile = new JLabel(AllRoundIronmanPreset.PROFILE_NAME);
 		profile.setFont(FontManager.getRunescapeSmallFont());
@@ -426,18 +436,29 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private JPanel actionRow()
 	{
-		JPanel row = new JPanel(new BorderLayout(4, 0));
+		JPanel row = new JPanel(new GridLayout(0, 1, 0, 4));
 		row.setOpaque(false);
 
-		JPanel switches = new JPanel(new GridLayout(1, 0, 4, 0));
-		switches.setOpaque(false);
-		switches.add(showBankButton);
-		switches.add(toggleButton);
-		switches.add(assignCategoriesButton);
-
-		row.add(analyzeButton, BorderLayout.CENTER);
-		row.add(switches, BorderLayout.EAST);
-		return row;
+		showBankButton.setText("Open Blueprint");
+		for (JButton button : new JButton[] {analyzeButton, showBankButton,
+			toggleButton, assignCategoriesButton, tabOrderButton})
+		{
+			button.setFont(FontManager.getRunescapeSmallFont());
+			button.setPreferredSize(new Dimension(SIDEBAR_CONTENT_WIDTH,
+				button == analyzeButton || button == showBankButton ? 36 : 30));
+		}
+		row.add(analyzeButton);
+		row.add(showBankButton);
+		row.add(toggleButton);
+		row.add(assignCategoriesButton);
+		JPanel actions = new JPanel(new BorderLayout(0, 4));
+		actions.setOpaque(false);
+		actions.add(row, BorderLayout.CENTER);
+		workflowSteps = label("<html>1. Analyze your bank<br>2. Edit the blueprint<br>3. Follow the sorting guide</html>");
+		workflowSteps.setFont(FontManager.getRunescapeSmallFont());
+		workflowSteps.setForeground(ColorScheme.TEXT_COLOR);
+		actions.add(workflowSteps, BorderLayout.SOUTH);
+		return actions;
 	}
 
 	private JPanel detailsHeader()
@@ -471,15 +492,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		detailsChevron.setIcon(new ImageIcon(chevronIcon(expanded)));
 		revalidate();
 		repaint();
-	}
-
-	private JButton iconButton(BufferedImage icon, String tooltip)
-	{
-		JButton button = new JButton(new ImageIcon(icon));
-		button.setPreferredSize(new Dimension(26, 26));
-		button.setToolTipText(tooltip);
-		button.setFocusPainted(false);
-		return button;
 	}
 
 	void shutdown()
@@ -1397,6 +1409,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshControls()
 	{
+		toggleButton.setText("Sorting Guide: " + (guideController.isGuideEnabled() ? "On" : "Off"));
+		assignCategoriesButton.setText("Assign Categories: " + (guideController.isCategoryAssignMode() ? "On" : "Off"));
 		toggleButton.setToolTipText(guideController.isGuideEnabled()
 			? "Bank guide is on" : "Bank guide is off");
 		toggleButton.setBorder(activeBorder(guideController.isGuideEnabled()));
@@ -1409,9 +1423,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	/** A lit edge reads faster than a button label that flips between two verbs. */
 	private static javax.swing.border.Border activeBorder(boolean active)
 	{
-		return active
-			? BorderFactory.createLineBorder(ColorScheme.BRAND_ORANGE)
-			: BorderFactory.createLineBorder(ColorScheme.BORDER_COLOR);
+		return BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(
+			active ? new Color(111, 169, 130) : ColorScheme.BORDER_COLOR),
+			BorderFactory.createEmptyBorder(7, 4, 7, 4));
 	}
 
 	private void refreshStatus()
@@ -1421,8 +1435,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		statusLabel.setText(sidebarHtml(guideController.getStatusText()));
 		String guideText = guideController.getGuideProgressText();
 		guideProgressLabel.setText(sidebarHtml(guideText));
-		nextMoveLabel.setText(sidebarHtml(firstSentence(guideText)));
-		nextMoveLabel.setToolTipText(sidebarHtml(guideText));
+		nextMoveLabel.setText(sidebarHtml(guideText).replace(
+			"width='" + SIDEBAR_TEXT_WIDTH, "width='" + (SIDEBAR_TEXT_WIDTH - 18)));
+		nextMoveLabel.setForeground(ColorScheme.TEXT_COLOR);
+		nextMoveLabel.setVerticalAlignment(SwingConstants.TOP);
 		int percent = guideController.getGuideProgressPercent();
 		guideProgressBar.setVisible(percent >= 0);
 		if (percent >= 0)
@@ -1461,6 +1477,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		BankAnalysisStatus analysis = guideController.bankAnalysisStatus();
 		catalogSummaryLabel.setText(sidebarHtml(analysis.catalogSummaryText()));
 		BankOrganizationPreview preview = analysis.organizationPreview().orElse(null);
+		workflowSteps.setVisible(preview == null);
 		organizationPreviewLabel.setText(sidebarHtml(blueprintStatusText(analysis)));
 		showBankButton.setEnabled(preview != null);
 		refreshDestinations(preview);
@@ -1527,6 +1544,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		private final int categoryIndex;
 		private final JLabel sprite = new JLabel("", SwingConstants.CENTER);
 		private String count = "";
+		private String caption = "Not analyzed";
 
 		private DestinationCell(int categoryIndex)
 		{
@@ -1535,7 +1553,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			setBackground(DESTINATION_EMPTY_BG);
 			setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0,
 				CategoryPalette.colorFor(categoryIndex)));
-			setPreferredSize(new Dimension(DESTINATION_CELL, DESTINATION_CELL));
+			setPreferredSize(new Dimension(90, 48));
 			add(sprite, BorderLayout.CENTER);
 			setCursor(new Cursor(Cursor.HAND_CURSOR));
 			addMouseListener(new MouseAdapter()
@@ -1567,6 +1585,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		{
 			boolean filled = category != null && category.getItemCount() > 0;
 			count = filled ? Integer.toString(category.getItemCount()) : "";
+			caption = category == null ? "Not analyzed" : category.getCategory().getName();
 			sprite.setIcon(null);
 			sprite.setText("");
 			setBackground(filled ? DESTINATION_CELL_BG : DESTINATION_EMPTY_BG);
@@ -1612,12 +1631,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			String label = destinationLabel(categoryIndex);
 			drawTag(graphics, label, 2, metrics.getAscent() + 1,
 				isSelected() ? ColorScheme.BRAND_ORANGE : Color.WHITE);
+			String shortName = caption;
+			while (metrics.stringWidth(shortName) > getWidth() - 8 && shortName.length() > 1)
+				shortName = shortName.substring(0, shortName.length() - 2) + "…";
+			drawTag(graphics, shortName, 4, getHeight() - 5, ColorScheme.TEXT_COLOR);
 			if (count.isEmpty())
 			{
 				return;
 			}
 			drawTag(graphics, count, getWidth() - metrics.stringWidth(count) - 2,
-				getHeight() - 5, Color.WHITE);
+				metrics.getAscent() + 1, Color.WHITE);
 		}
 
 		private void drawTag(Graphics graphics, String text, int x, int y, Color color)
@@ -1627,36 +1650,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			graphics.setColor(color);
 			graphics.drawString(text, x, y);
 		}
-	}
-
-	private static BufferedImage blueprintIcon()
-	{
-		return drawIcon(graphics -> {
-			graphics.setColor(ColorScheme.TEXT_COLOR);
-			graphics.drawRect(1, 2, 11, 9);
-			graphics.drawLine(1, 5, 12, 5);
-			graphics.drawLine(5, 5, 5, 11);
-		});
-	}
-
-	private static BufferedImage guideIcon()
-	{
-		return drawIcon(graphics -> {
-			graphics.setColor(ColorScheme.TEXT_COLOR);
-			graphics.drawOval(1, 1, 11, 11);
-			graphics.fillOval(5, 5, 4, 4);
-		});
-	}
-
-	private static BufferedImage assignIcon()
-	{
-		return drawIcon(graphics -> {
-			graphics.setColor(ColorScheme.TEXT_COLOR);
-			graphics.drawLine(1, 3, 12, 3);
-			graphics.drawLine(1, 7, 12, 7);
-			graphics.drawLine(1, 11, 6, 11);
-			graphics.drawOval(8, 8, 5, 5);
-		});
 	}
 
 	private static BufferedImage chevronIcon(boolean pointingUp)
@@ -1763,11 +1756,32 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		}
 
 		label.setText(Integer.toString(item.getItemId()));
-		label.setToolTipText(item.toCompactLabel() + (item.getLayoutTagKey() == null ? ""
-			: " — " + BankTags.byKey(item.getLayoutTagKey()).getName()));
+		label.setToolTipText(itemTooltip(item));
 		label.setBorder(BorderFactory.createLineBorder(SLOT_BORDER));
 		itemIconRenderer.accept(item, label);
 		return label;
+	}
+
+	static String itemTooltip(BankPreviewItem item)
+	{
+		String text = item.toCompactLabel();
+		if (item.getLayoutTagKey() != null)
+			text += "\nPlacement: " + BankTags.byKey(item.getLayoutTagKey()).getName();
+		if (!item.getUsageTags().isEmpty())
+			text += "\nUses: " + String.join(", ", item.getUsageTags()).replace('-', ' ');
+		if (item.getUsageTags().stream().anyMatch(tag -> tag.startsWith("storage-option-")))
+			text += "\nStorage is optional; check access and capacity.";
+		if (item.hasTag("storage-option-poh-fancy-dress-box"))
+			text += "\nRequires a costume room and fancy dress box. UIM: store the full outfit before retrieving pieces.";
+		if (item.hasTag("clue-required"))
+			text += "\nKeep for clues, or check the matching STASH unit and full set.";
+		if (item.hasTag("quest-use") || item.hasTag("quest-weapon"))
+			text += "\nCheck current and later quest uses before removing.";
+		if (item.getItemCategory() == ItemCategory.CLEANUP
+			|| item.getItemCategory() == ItemCategory.UNKNOWN
+			|| "cleanup".equals(item.getLayoutTagKey()) || "quest-items".equals(item.getLayoutTagKey()))
+			text += "\nReview placement is not a recommendation to discard.";
+		return sidebarHtml(text);
 	}
 
 	private static String blueprintStatusText(BankAnalysisStatus analysis)

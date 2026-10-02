@@ -4,6 +4,25 @@ This folder contains generated research artifacts. They are not production catal
 
 ## Product Research
 
+`item-role-audit-final-october-2.md` records the final clue/quest/equipment batch, conditional
+cleanup protections, whole-export coverage measurement and the ingame test checklist.
+
+`item-role-audit-utility-storage-october-2.md` records six repeatable-utility catalog decisions,
+33 usage rows and the first seven conditional alternative-storage hints.
+
+`item-role-audit-skilling-october-2.md` records skilling outfit coverage, the Guild hunter /
+Golden prospector layout additions and user-visible usage facts in blueprint tooltips.
+
+`item-role-audit-functional-october-2.md` records the second batch: four functional gear
+corrections and the first independently curated exact-ID usage facts loaded by the plugin.
+
+`item-role-audit-october-2.md` and its TSV ledger track the first exact-ID cosmetic corrections
+and pending overlapping quest, clue and skilling roles from the October placement research.
+
+`plugin-hub-placement-and-cleanup-october-2.md` records the October 2026 public-feature survey,
+our classification baseline, and an original plan for item usage roles and conditional cleanup.
+It distinguishes verified local measurements, plugin README claims and gameplay research candidates.
+
 `existing-bank-plugin-research.md` captures C4a product research on existing RuneLite Plugin Hub
 plugins related to banks, inventories, setups, exports, cleanup, bank tags, layouts, value, search,
 and external storage. It is product positioning research only; do not copy third-party code, UI,

@@ -529,10 +529,11 @@ public final class BankOrganizationPreviewBuilder
 		{
 			return false;
 		}
-		if (WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
+		if (!catalogItem.getTags().isEmpty()
+			|| WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
 		{
-			// A bank layout cannot split duplicate copies across tabs. Keep the
-			// complete stack of important niche/spec weapons in combat gear.
+			// Known roles can matter despite weaker stats. A bank layout cannot
+			// split duplicate copies, so retain the complete stack for manual review.
 			return false;
 		}
 		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());

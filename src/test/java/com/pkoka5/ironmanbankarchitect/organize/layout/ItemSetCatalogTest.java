@@ -14,7 +14,7 @@ public class ItemSetCatalogTest
 	{
 		assertDomain("gear", 37, 144);
 		assertDomain("tools", 15, 83);
-		assertDomain("cosmetics", 41, 164);
+		assertDomain("cosmetics", 43, 173);
 	}
 
 	private static void assertDomain(String domain, int expectedSets, int expectedItems)

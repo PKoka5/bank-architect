@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadataCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
@@ -190,9 +192,7 @@ final class SupplyItemSorter
 
 	private static boolean isFoodName(String name)
 	{
-		return containsAny(name, "pie", "cake", "kebab", "stew", "pizza", "potato",
-			"shark", "monkfish", "karambwan", "manta", "anglerfish", "lobster",
-			"swordfish", "tuna", "salmon", "trout");
+		return containsAny(name, ClassificationNames.group(67));
 	}
 
 	private static boolean containsAny(String value, String... needles)

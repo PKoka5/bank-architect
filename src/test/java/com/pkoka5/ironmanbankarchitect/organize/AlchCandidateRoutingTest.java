@@ -21,6 +21,30 @@ public class AlchCandidateRoutingTest
 	private static final ItemCatalog GEAR_CATALOG = itemId -> Optional.of(new CatalogItem(itemId,
 		"Gear " + itemId, ItemCategory.GEAR, "gear", Collections.emptySet(), null));
 
+	@Test public void knownUsesProtectOrdinaryReviewedAndBulkStockFromAutomaticAlchRouting()
+	{
+		for (String role : Arrays.asList("clue-required", "quest-use", "special-attack", "skilling-outfit"))
+		{
+			for (int quantity : new int[]{1, 2, 25})
+			{
+				int id = ItemID.RUNE_PLATEBODY;
+				ItemCatalog catalog = candidate -> Optional.of(new CatalogItem(candidate, "Gear " + candidate,
+					ItemCategory.GEAR, "body", candidate == id ? Collections.singleton(role) : Collections.emptySet(), null));
+				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99002, 1, 1),
+					new BankItemSnapshot(id, quantity, 2))), catalog, BankPresets.IRONMAN,
+					candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
+				assertEquals(role + " x" + quantity, 3, categoryByKey(preview, "combat-gear").getItemCount());
+				assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+			}
+		}
+		// An ordinary untagged duplicate must still enter the existing alch workflow.
+		BankOrganizationPreview ordinary = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 2, 1))),
+			GEAR_CATALOG, BankPresets.IRONMAN, candidate -> Optional.of(meleeBody(100)), candidate -> 39000);
+		assertEquals(1, categoryByKey(ordinary, "slayer-boss-loot").getItemCount());
+	}
+
 	@Test
 	public void outclassedTradeableGearMovesToTheAlchTab()
 	{

@@ -22,6 +22,10 @@ public final class ResourceItemRegistry implements ItemCatalog
 		"book of the dead", "magic whistle"
 	};
 
+	private static final RequiredResource<java.util.List<String[]>> NAME_RULES =
+		new RequiredResource<>("registry name rules", () -> loadNameRules(ResourceItemRegistry.class.getResourceAsStream(
+			"/com/pkoka5/ironmanbankarchitect/catalog/registry-name-rules.tsv")));
+
 	public static final ResourceItemRegistry INSTANCE = new ResourceItemRegistry();
 
 	private final RequiredResource<Map<Integer, CatalogItem>> itemsById;
@@ -43,6 +47,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 	public void requireAvailable()
 	{
 		overrides.requireAvailable();
+		NAME_RULES.get();
 		itemsById.get();
 		GearTierCatalog.INSTANCE.size();
 		WikiItemLists.INSTANCE.requireAvailable();
@@ -158,8 +163,14 @@ public final class ResourceItemRegistry implements ItemCatalog
 					category = canonicalOverride.get().getCategory();
 					subcategory = canonicalOverride.get().getSubcategory();
 				}
+				if ("cosmetics".equals(com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog.domainOf(itemId).orElse(""))
+					|| com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog.cosmeticFamilyOf(itemId).isPresent())
+				{
+					category = ItemCategory.CLUE;
+					subcategory = "cosmetic";
+				}
 				items.putIfAbsent(itemId, new CatalogItem(itemId, displayName, category,
-					subcategory, Collections.emptySet(), null));
+					subcategory, ItemUsageTags.forItem(itemId), null));
 			}
 		}
 		catch (IOException ex)
@@ -269,94 +280,35 @@ public final class ResourceItemRegistry implements ItemCatalog
 	private static ItemCategory refineCategory(String displayName, String constantName, ItemCategory category)
 	{
 		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
-		if (containsAny(name, "clue scroll", "reward casket", "ornament kit", "cosmetic",
-			"costume", "mask", "hat", "robe top", "robe bottom", "platebody ornament", "platelegs ornament",
-			"burnt fish", "burntfish", "burnt lobster", "burnt shark", "burnt swordfish",
-			"burnt manta", "burnt mantaray", "burnt sea turtle", "burnt seaturtle",
-			"beer glass", "nulodion's notes", "instruction manual", "holy table napkin", "grail bell",
-			"holy grail", "cog", "rat poison", "red vine worm", "insect repellent", "candle",
-			"khazard cell", "lever", "shiny key", "child's blanket", "quest", "notes", "letter",
-			"package", "message", "certificate", "sample", "specimen", "plaque", "pebble", "urn",
-			"skull", "portrait", "belt buckle", "old boot", "buttons", "powder", "liquid",
-			"chemical", "compound", "vase", "bullroarer", "hollow reed", "casket", "key",
-			"gown", "scorpion cage", "bird feed", "sheep feed", "cattleprod", "oil can",
-			"rubber tube", "pressure gauge", "distillator", "touch paper", "karamja rum",
-			"plague", "pigeon", "newcomer map", "torch", "observatory lens", "scroll",
-			"locating crystal", "beads of the dead", "wampum belt", "old tooth",
-			"ammonium nitrate", "nitroglycerin", "arcenia root", "tattered", "scrumpled",
-			"scribbled", "scrawled", "macro triffidfruit", "report", "shaman's tome",
-			"binding book", "heart crystal", "chunk of crystal", "hunk of crystal",
-			"lump of crystal", "holy force", "totem", "gnomeball", "crest part"))
-		{
-			return ItemCategory.CLEANUP;
-		}
-		if (containsAny(name, TELEPORT_NEEDLES))
-		{
-			return ItemCategory.TELEPORT;
-		}
-		if (containsAny(name, "shark", "monkfish", "karambwan", "manta ray", "anglerfish", "lobster",
-			"swordfish", "tuna", "salmon", "trout", "saradomin brew", "restore", "stamina potion",
-			"prayer potion", "super combat", "ranging potion", "magic potion", "cooked", "pizza",
-			"potato", "cake", "pie", "wine", "summer pie", "karambwanji", "shrimp", "anchovies",
-			"sardine", "herring", "mackerel", "cod", "pike", "bass", "mantaray", "sea turtle",
-			"seaturtle", "giant carp", "strange fruit", "chilli potato", "egg potato",
-			"tuna potato", "stew", "curry", "kebab", "strength4", "attack4", "defence4",
-			"ranging4", "magic4", "poison chalice", "enchanted beef", "enchanted rat",
-			"enchanted bear", "enchanted chicken", "cup of tea", "holy water"))
-		{
-			return ItemCategory.POTION;
-		}
-		if (containsAny(name, "pickaxe", " axe", "harpoon", "lobster pot", "small fishing net",
-			"big fishing net", "chisel", "hammer", "saw", "rake", "seed dibber", "secateurs",
-			"watering can", "tinderbox", "pestle and mortar", "glassblowing pipe",
-			"spade", "needle", "thread", "mould", "hammerstone", "fishing rod", "fly fishing rod",
-			"small pouch", "medium pouch", "large pouch", "giant pouch", "colossal pouch"))
-		{
-			return ItemCategory.TOOL;
-		}
-		if (containsAny(name, "arrow", "bolt", "dart", "knife", "javelin", "cannonball", "chinchompa",
-			"bolt rack", "toktz", "tzhaar", "helmet", "helm", "coif", "body", "chaps", "vambraces",
-			"boots", "gloves", "shield", "defender", "sword", "scimitar", "mace", "dagger", "spear",
-			"halberd", "whip", "bow", "staff", "wand", "crossbow", "maul", "warhammer", "battleaxe",
-			"excalibur", "pendant of lucien", "armadyl pendant", "cannon base", "cannon stand",
-			"cannon barrels", "cannon furnace", "twpart", "mcannon", "railing", "gauntlets"))
-		{
-			return ItemCategory.GEAR;
-		}
-		if (containsAny(name, "logs", "log", "ore", "bar", "plank", "hide", "leather", "gem",
-			"uncut", "essence", "fish", "raw ", "scale", "dust", "ash", "bone", "bones",
-			"limestone", "clay", "sand", "molten glass", "flax", "bow string", "bowstring",
-			"feather", "nail", "nails", "coconut", "seaweed", "bucket of", "vial", "orb",
-			"battlestaff", "dragonhide", "coal", "charcoal", "rock pick", "trowel",
-			"panning tray", "oyster"))
-		{
-			return ItemCategory.SKILLING;
-		}
-		if (containsAny(name, "seed", "sapling", "compost", "ultracompost", "plant cure", "watering can"))
-		{
-			return ItemCategory.FARMING;
-		}
-		if (containsAny(name, "grimy", "secondary",
-			"eye of newt", "snape grass", "red spiders", "white berries", "limpwurt", "mort myre fungus",
-			"unidentified guam", "unidentified marentill", "unidentified marrentill",
-			"unidentified tarromin", "unidentified harralander", "unidentified ranarr",
-			"unidentified irit", "unidentified avantoe", "unidentified kwuarm",
-			"unidentified cadantine", "unidentified dwarf weed", "unidentified torstol",
-			"guam", "marentill", "marrentill", "tarromin", "harralander", "ranarr weed",
-			"irit leaf", "avantoe", "kwuarm", "cadantine", "dwarf weed", "torstol",
-			"unicorn horn", "jangerberries", "weapon poison", "snakeweed mixture",
-			"ardrigal mixture", "cadava berries", "cadavaberries") || containsWord(name, "herb"))
-		{
-			return ItemCategory.HERBLORE;
-		}
-		if (containsAny(name, "coins", "tokkul", "numulite", "mark of grace", "nugget", "stardust",
-			"trading sticks", "ecto-token", "castle wars ticket", "pieces of eight", "pearl",
-			"western banner", "rada's blessing", "rada blessing", "ghommal's hilt", "ghommals hilt"))
-		{
-			return ItemCategory.CURRENCY;
-		}
-
+		for (String[] rule : NAME_RULES.get())
+			for (int i = 2; i < rule.length; i++)
+				if ("word".equals(rule[1]) ? containsWord(name, rule[i]) : name.contains(rule[i]))
+					return ItemCategory.valueOf(rule[0]);
 		return category;
+	}
+
+	static java.util.List<String[]> loadNameRules(InputStream stream)
+	{
+		if (stream == null) throw new IllegalStateException("Missing registry name rules");
+		java.util.List<String[]> rules = new java.util.ArrayList<>();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		{
+			if (!"# schema=1".equals(reader.readLine())) throw new IllegalStateException("Invalid name-rule schema");
+			String line;
+			while ((line = reader.readLine()) != null)
+			{
+				if (line.startsWith("#") || line.trim().isEmpty()) continue;
+				String[] rule = line.split("\\t", -1);
+				if (rule.length < 3 || !("contains".equals(rule[1]) || "word".equals(rule[1])))
+					throw new IllegalStateException("Invalid registry name rule");
+				ItemCategory.valueOf(rule[0]);
+				for (String field : rule) if (field.isEmpty()) throw new IllegalStateException("Empty name-rule field");
+				rules.add(rule);
+			}
+		}
+		catch (IOException ex) { throw new IllegalStateException("Cannot read registry name rules", ex); }
+		if (rules.isEmpty()) throw new IllegalStateException("Empty registry name rules");
+		return Collections.unmodifiableList(rules);
 	}
 
 	private static boolean containsAny(String value, String... needles)

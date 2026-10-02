@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
 import java.util.ArrayList;
@@ -189,7 +191,7 @@ final class ResourceItemSorter
 				if (name.contains("shaft")) return 0;
 				if (name.equals("feather")) return 1;
 				if (name.contains("headless")) return 2;
-				if (containsAny(name, "tip", "head", "limbs")) return 3;
+				if (containsAny(name, ClassificationNames.group(63))) return 3;
 				return 4;
 			case TEXTILE:
 				if (name.equals("flax")) return 0;
@@ -323,9 +325,9 @@ final class ResourceItemSorter
 
 	private static int metalRank(String name)
 	{
-		if (containsAny(name, "copper", "tin", "bronze")) return 0;
+		if (containsAny(name, ClassificationNames.group(64))) return 0;
 		if (containsAny(name, "blurite")) return 5;
-		if (containsAny(name, "iron", "coal", "steel")) return 10;
+		if (containsAny(name, ClassificationNames.group(65))) return 10;
 		if (name.contains("silver")) return 20;
 		if (name.contains("gold")) return 30;
 		if (name.contains("mithril")) return 40;
@@ -338,23 +340,19 @@ final class ResourceItemSorter
 	private static int woodRank(String name)
 	{
 		if (name.equals("logs") || name.equals("plank")) return 0;
-		String[] species = {"oak", "willow", "teak", "maple", "mahogany", "arctic pine",
-			"yew", "magic", "redwood", "blisterwood", "camphor", "ironwood", "celastrus",
-			"anima-infused"};
+		String[] species = ClassificationNames.group(72);
 		return orderedMatch(name, species);
 	}
 
 	private static int hideRank(String name)
 	{
-		String[] types = {"cow", "green", "blue", "red", "black", "bear", "kebbit", "fox",
-			"larupia", "graahk", "kyatt", "dagannoth"};
+		String[] types = ClassificationNames.group(73);
 		return orderedMatch(name, types);
 	}
 
 	private static int gemRank(String name)
 	{
-		String[] gems = {"opal", "jade", "topaz", "sapphire", "emerald", "ruby", "diamond",
-			"dragonstone", "onyx", "zenyte"};
+		String[] gems = ClassificationNames.group(74);
 		return orderedMatch(name, gems);
 	}
 
@@ -363,9 +361,7 @@ final class ResourceItemSorter
 		if (name.contains("leaping trout")) return 200;
 		if (name.contains("leaping salmon")) return 210;
 		if (name.contains("leaping sturgeon")) return 220;
-		String[] food = {"shrimp", "sardine", "herring", "anchovies", "mackerel", "trout",
-			"salmon", "tuna", "lobster", "swordfish", "monkfish", "karambwan", "shark",
-			"sea turtle", "manta ray", "anglerfish", "eel", "dark crab"};
+		String[] food = ClassificationNames.group(75);
 		return orderedMatch(name, food);
 	}
 
@@ -399,8 +395,7 @@ final class ResourceItemSorter
 
 	static boolean isGem(String name)
 	{
-		return containsAny(name, "opal", "jade", "topaz", "sapphire", "emerald", "ruby",
-			"diamond", "dragonstone", "onyx", "zenyte");
+		return containsAny(name, ClassificationNames.group(66));
 	}
 
 	static boolean containsWord(String value, String word)
