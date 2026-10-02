@@ -18,6 +18,29 @@ import static org.junit.Assert.assertTrue;
 /** Small synthetic banks reproducing the reported choices, without private bank exports. */
 public class CommunityFeedbackPlacementTest
 {
+	@Test public void upgradedQuickToolsReplaceOrdinaryVersionsAndRespectManualChoices()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		for (int hammer : new int[]{25644, 29775})
+		{
+			BankSnapshot bank = bank(1755, 2347, 34024, hammer, 952, 995);
+			BankOrganizationPreview preview = build(bank, new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+			assertEquals(Arrays.asList(995, hammer, 34024, 952), ids(preview, 0));
+			assertTrue(ids(preview, plan.destinationOf("tools")).containsAll(Arrays.asList(2347, 1755)));
+			BankOrganizationPreview manual = build(bank,
+				UserCategoryOverrides.parse("2347=frequently-used,34024=tools"), plan, BankLayoutOptions.DEFAULTS);
+			assertTrue(ids(manual, 0).contains(2347));
+			assertFalse(ids(manual, 0).contains(34024));
+			assertTrue(ids(manual, plan.destinationOf("tools")).contains(34024));
+			BankLayoutOptions noGather = new BankLayoutOptions(true, true, true, Collections.emptyMap(),
+				GearLayout.GRID_STYLES, PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL,
+				TeleportOrder.ALPHABETICAL, false);
+			BankOrganizationPreview disabled = build(bank, new UserCategoryOverrides(), plan, noGather);
+			assertTrue(ids(disabled, plan.destinationOf("tools")).containsAll(Arrays.asList(2347, 1755, hammer, 34024)));
+		}
+		assertEquals("Jeweller's chisel", CompositeItemCatalog.DEFAULT.describeOrUnknown(34024).getDisplayName());
+	}
+
 	@Test public void repeatableQuestAndPrayerUtilitiesAvoidCleanupAndRawResources()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);

@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.7.0";
+	static final String RELEASE_ID = "0.7.1";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -40,14 +40,11 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Clearer bank planning</h3>"
-			+ "<p>A simpler sidebar and blueprint editor. Choose an item's category directly in the editor. "
-			+ "Your saved placements still come first.</p>"
-			+ "<h3>Better item placement</h3>"
-			+ "<p>Improved hunter supplies, cosmetics, skilling outfits, quest tools and combat gear.</p>"
-			+ "<h3>Know why you keep it</h3>"
-			+ "<p>Item tooltips explain known uses and optional storage. Check clue and quest uses before removing items. "
-			+ "Items with known uses stay out of the automatic alch selection.</p>"
+			+ "<h3>Upgraded quick tools</h3>"
+			+ "<p>Main now prefers an Imcando hammer (including off-hand) and Jeweller's chisel when present "
+			+ "in your bank. Their placeholders preserve that choice.</p>"
+			+ "<p>Without an upgrade, the ordinary hammer and chisel keep their quick-access spots. "
+			+ "Other versions stay in Tools, and your saved assignments still come first.</p>"
 			+ "<p>You still move every real bank item yourself.</p></div></html>");
 		notes.setForeground(Color.WHITE);
 		notes.setVerticalAlignment(JLabel.TOP);

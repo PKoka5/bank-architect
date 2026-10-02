@@ -188,7 +188,7 @@ public final class BankOrganizationPreviewBuilder
 			CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
 				bankItem.getItemId(), gearStats);
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem,
-				options.gatherFrequentlyUsed());
+				options.gatherFrequentlyUsed() && !IronmanQuickToolSelector.isTieredTool(bankItem.getItemId()));
 			if (preset.getType() == BankPresetType.IRONMAN
 				&& quickToolIds.contains(catalogItem.getItemId()))
 			{

@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Seed catalog covering only the item IDs already verified for Phase B (the Irit to Super attack
- * Herblore prep row). Later phases add more items; unknown IDs are never treated as an error.
+ * Verified seed workflow items and supplemental items missing from the bundled registry.
+ * Unknown IDs are never treated as an error.
  */
 public final class StaticItemCatalog implements ItemCatalog
 {
@@ -60,6 +60,8 @@ public final class StaticItemCatalog implements ItemCatalog
 		put(items, 149, "Super attack (1)", ItemCategory.POTION, "dose-1",
 			tags("super-attack", "dose-1", "partial-dose"), "herblore.super-attack.1");
 
+		put(items, 34024, "Jeweller's chisel", ItemCategory.TOOL, "crafting-tool",
+			Collections.emptySet(), null);
 		return items;
 	}
 

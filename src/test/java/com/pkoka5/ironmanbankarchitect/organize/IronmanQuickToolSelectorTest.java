@@ -10,6 +10,29 @@ import static org.junit.Assert.assertEquals;
 
 public class IronmanQuickToolSelectorTest
 {
+	@Test public void upgradedHammersAndChiselsWinIncludingPlaceholders()
+	{
+		for (int hammer : new int[]{25644, 29775})
+			for (int quantity : new int[]{0, 1})
+			{
+				BankSnapshot bank = new BankSnapshot(Arrays.asList(
+					new BankItemSnapshot(2347, 1, 0), new BankItemSnapshot(1755, 1, 1),
+					new BankItemSnapshot(hammer, quantity, 2, quantity == 0),
+					new BankItemSnapshot(34024, quantity, 3, quantity == 0)));
+				assertEquals(new HashSet<>(Arrays.asList(hammer, 34024)), IronmanQuickToolSelector.select(bank));
+			}
+		assertEquals(new HashSet<>(Arrays.asList(25644, 34024)), IronmanQuickToolSelector.select(
+			new BankSnapshot(Arrays.asList(new BankItemSnapshot(29775, 1, 0),
+				new BankItemSnapshot(25644, 1, 1), new BankItemSnapshot(34024, 1, 2)))));
+	}
+
+	@Test public void ordinaryToolsRemainFallbackAndBrokenHammerIsNotAnUpgrade()
+	{
+		assertEquals(new HashSet<>(Arrays.asList(2347, 1755)), IronmanQuickToolSelector.select(
+			new BankSnapshot(Arrays.asList(new BankItemSnapshot(2347, 1, 0),
+				new BankItemSnapshot(1755, 1, 1), new BankItemSnapshot(25633, 1, 2)))));
+	}
+
 	@Test
 	public void selectsHammerAndExactlyOneHighestOwnedToolPerFamily()
 	{

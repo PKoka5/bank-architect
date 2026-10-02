@@ -8,10 +8,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Selects Hammer and exactly one highest-tier owned pickaxe and axe for Ironman Main. */
+/** Selects one owned tool per quick-access family, preserving bank placeholders. */
 public final class IronmanQuickToolSelector
 {
-	private static final int HAMMER = 2347;
+	private static final List<List<Integer>> HAMMER_TIERS = tiers(ids(25644, 29775), ids(2347));
+	private static final List<List<Integer>> CHISEL_TIERS = tiers(ids(34024), ids(1755));
 	private static final List<List<Integer>> PICKAXE_TIERS = tiers(
 		ids(23680), ids(13243, 25063, 30345), ids(20014, 11920, 12797, 23677, 25376, 30351),
 		ids(23276, 1275), ids(1271), ids(1273), ids(12297), ids(1269), ids(1267), ids(1265));
@@ -34,7 +35,8 @@ public final class IronmanQuickToolSelector
 			owned.add(item.getItemId());
 		}
 		Set<Integer> selected = new LinkedHashSet<>();
-		if (owned.contains(HAMMER)) selected.add(HAMMER);
+		selectHighest(owned, HAMMER_TIERS, selected);
+		selectHighest(owned, CHISEL_TIERS, selected);
 		selectHighest(owned, PICKAXE_TIERS, selected);
 		selectHighest(owned, AXE_TIERS, selected);
 		return Collections.unmodifiableSet(selected);
@@ -42,7 +44,8 @@ public final class IronmanQuickToolSelector
 
 	static boolean isTieredTool(int itemId)
 	{
-		return contains(PICKAXE_TIERS, itemId) || contains(AXE_TIERS, itemId) || itemId == HAMMER;
+		int rank = quickAccessRank(itemId);
+		return rank >= 0 && rank < 4;
 	}
 
 	/** Canonical Main segment: axe, pickaxe, hammer, chisel, then spade. */
@@ -50,8 +53,8 @@ public final class IronmanQuickToolSelector
 	{
 		if (contains(AXE_TIERS, itemId)) return 0;
 		if (contains(PICKAXE_TIERS, itemId)) return 1;
-		if (itemId == HAMMER) return 2;
-		if (itemId == 1755) return 3;
+		if (contains(HAMMER_TIERS, itemId)) return 2;
+		if (contains(CHISEL_TIERS, itemId)) return 3;
 		if (itemId == 952) return 4;
 		return -1;
 	}
