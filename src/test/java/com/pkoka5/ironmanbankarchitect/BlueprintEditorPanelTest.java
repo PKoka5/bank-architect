@@ -121,6 +121,66 @@ public class BlueprintEditorPanelTest
 		});
 	}
 
+	@Test public void selectingSwappingInsertingAndUndoKeepEachTabsScrollPosition() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			BlueprintEditorPanel panel = panel(new Model());
+			java.util.List<BankPreviewItem> main = new java.util.ArrayList<>();
+			java.util.List<BankPreviewItem> gear = new java.util.ArrayList<>();
+			for (int id = 1; id <= 400; id++)
+			{
+				main.add(item(id));
+				gear.add(item(id + 400));
+			}
+			panel.setPreview(new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0), main),
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(1), gear))));
+			panel.beginEdit();
+			layout(panel);
+			javax.swing.JTabbedPane tabs = (javax.swing.JTabbedPane) panel.getComponent(0);
+			Point mainPosition = new Point(0, 1400);
+			((javax.swing.JScrollPane) tabs.getComponentAt(0)).getViewport().setViewPosition(mainPosition);
+			for (String movement : new String[]{"Swap", "Insert"})
+			{
+				mode(panel).setSelectedItem(movement);
+				click(panel, "300");
+				layout(panel);
+				assertEquals("Selection in " + movement, mainPosition,
+					((javax.swing.JScrollPane) tabs.getComponentAt(0)).getViewport().getViewPosition());
+				JLabel selected = (JLabel) find(panel, "300");
+				assertEquals(java.awt.Color.GREEN, ((javax.swing.border.LineBorder) selected.getBorder()).getLineColor());
+				click(panel, "301");
+				layout(panel);
+				assertEquals(movement, mainPosition,
+					((javax.swing.JScrollPane) tabs.getComponentAt(0)).getViewport().getViewPosition());
+				Component moved = find(panel, "300");
+				assertEquals("Clicked destination in " + movement, 300, moved.getParent().getComponentZOrder(moved));
+				button(panel, "Undo").doClick();
+				layout(panel);
+				assertEquals("Undo in " + movement, mainPosition,
+					((javax.swing.JScrollPane) tabs.getComponentAt(0)).getViewport().getViewPosition());
+				Component restored = find(panel, "300");
+				assertEquals("Restored original slot", 299, restored.getParent().getComponentZOrder(restored));
+			}
+			tabs.setSelectedIndex(1);
+			layout(panel);
+			Point gearPosition = new Point(0, 1000);
+			((javax.swing.JScrollPane) tabs.getComponentAt(1)).getViewport().setViewPosition(gearPosition);
+			click(panel, "650");
+			layout(panel);
+			assertEquals(gearPosition,
+				((javax.swing.JScrollPane) tabs.getComponentAt(1)).getViewport().getViewPosition());
+			tabs.setSelectedIndex(0);
+			layout(panel);
+			assertEquals("Main position after switching tabs", mainPosition,
+				((javax.swing.JScrollPane) tabs.getComponentAt(0)).getViewport().getViewPosition());
+			tabs.setSelectedIndex(1);
+			layout(panel);
+			assertEquals("Gear position after switching tabs", gearPosition,
+				((javax.swing.JScrollPane) tabs.getComponentAt(1)).getViewport().getViewPosition());
+		});
+	}
+
 	private static javax.swing.JComboBox<?> mode(Container container)
 	{
 		for (Component component : container.getComponents()) {

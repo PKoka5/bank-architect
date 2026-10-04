@@ -202,7 +202,7 @@ public final class MainQuickAccessSemanticRuleSet
 	 */
 	private static List<Integer> gracefulColumn(List<LayoutEntry> entries)
 	{
-		Map<String, List<LayoutEntry>> byFamily = new LinkedHashMap<>();
+		Map<String, List<LayoutEntry>> byFamily = new java.util.TreeMap<>();
 		for (LayoutEntry entry : entries)
 		{
 			String key = ItemSetCatalog.setKeyOf(entry.getItem().getItemId()).orElse("");

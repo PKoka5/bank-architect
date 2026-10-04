@@ -98,13 +98,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final int STATUS_REFRESH_MILLIS = 100;
 	private static final int DESTINATION_COLUMNS = 2;
 	private static final int DESTINATION_GAP = 2;
-	private static final int BANK_GRID_COLUMNS = 8;
 	private static final int CELL_WIDTH = 36;
 	private static final int CELL_HEIGHT = 32;
-	private static final int CELL_GAP = 2;
 	private static final int DIALOG_WIDTH = 560;
 	private static final int DIALOG_HEIGHT = 640;
-	private static final Color BANK_BG = new Color(38, 38, 38);
 	private static final Color BANK_PANEL = new Color(31, 31, 31);
 	private static final Color SLOT_BORDER = new Color(78, 78, 78);
 	private static final Color BLANK_SLOT_BORDER = new Color(52, 52, 52);
@@ -623,6 +620,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 */
 	void moveTagTo(String tagKey, int destinationIndex)
 	{
+		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		applyLayoutPlan(layoutPlan.withTagAt(tagKey, destinationIndex));
 	}
 
@@ -644,6 +642,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	/** Reorders a category within its destination, which decides what leads the tab. */
 	void shiftWithinSelected(String tagKey, int offset)
 	{
+		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		applyLayoutPlan(layoutPlan.withTagShifted(tagKey, offset));
 	}
 
@@ -662,6 +661,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void renderLayoutEditor()
 	{
+		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		BankOrganizationPreview preview = guideController.bankAnalysisStatus()
 			.organizationPreview()
 			.orElse(null);
@@ -1264,22 +1264,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	/** A name no saved layout is using yet. */
 	private String freeProfileName(String wanted)
 	{
-		List<String> taken = bankLayoutModel.profileNames();
-		if (!taken.contains(wanted))
-		{
-			return wanted;
-		}
-
-		for (int suffix = 2; suffix < taken.size() + 3; suffix++)
-		{
-			String candidate = wanted + " " + suffix;
-			if (!taken.contains(candidate))
-			{
-				return candidate;
-			}
-		}
-
-		return wanted + " copy";
+		return BankLayoutProfiles.freeName(wanted, bankLayoutModel.profileNames());
 	}
 
 	private String fallbackName()
@@ -1428,6 +1413,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			BorderFactory.createEmptyBorder(7, 4, 7, 4));
 	}
 
+	void refreshSettings()
+	{
+		if (layoutEditor.isVisible()) renderLayoutEditor();
+		refreshStatus();
+	}
+
 	private void refreshStatus()
 	{
 		categoryOverrideLabel.setText(sidebarHtml(guideController.getCategoryOverrideText()));
@@ -1474,6 +1465,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void refreshAnalysis()
 	{
+		BankLayoutPlan latestPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
+		boolean planChanged = !latestPlan.getDestinations().equals(layoutPlan.getDestinations());
+		layoutPlan = latestPlan;
 		BankAnalysisStatus analysis = guideController.bankAnalysisStatus();
 		catalogSummaryLabel.setText(sidebarHtml(analysis.catalogSummaryText()));
 		BankOrganizationPreview preview = analysis.organizationPreview().orElse(null);
@@ -1481,7 +1475,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		organizationPreviewLabel.setText(sidebarHtml(blueprintStatusText(analysis)));
 		showBankButton.setEnabled(preview != null);
 		refreshDestinations(preview);
-		if (layoutEditor.isVisible() && preview != renderedLayoutPreview)
+		if (layoutEditor.isVisible() && (planChanged || preview != renderedLayoutPreview))
 		{
 			renderLayoutEditor();
 		}
@@ -1798,53 +1792,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return "Blueprint ready: " + preview.getPlannedItemCount() + " item IDs sorted.";
 	}
 
-	private static String shortCategoryName(BankCategoryPreview category)
-	{
-		String key = category.getCategory().getKey();
-		if ("currency-utilities".equals(key))
-		{
-			return "Main";
-		}
-		if ("combat-gear".equals(key))
-		{
-			return "Gear";
-		}
-		if ("potions-food".equals(key))
-		{
-			return "Supplies";
-		}
-		if ("herblore".equals(key))
-		{
-			return "Herblore";
-		}
-		if ("seeds-farming".equals(key))
-		{
-			return "Farming";
-		}
-		if ("skilling-tools".equals(key))
-		{
-			return "Tools";
-		}
-		if ("resources".equals(key))
-		{
-			return "Resources";
-		}
-		if ("slayer-boss-loot".equals(key))
-		{
-			return "Boss Loot";
-		}
-		if ("clues-cosmetics".equals(key))
-		{
-			return "Clues";
-		}
-		if ("storage-cleanup".equals(key))
-		{
-			return "Review";
-		}
-
-		return category.getCategory().getName();
-	}
-
 	private static JPanel card(String title, Component... rows)
 	{
 		JPanel card = new JPanel(new GridBagLayout());
@@ -1899,18 +1846,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		label.setForeground(Color.WHITE);
 		label.setAlignmentX(Component.LEFT_ALIGNMENT);
 		return label;
-	}
-
-	private static JPanel emptyCategoryPanel()
-	{
-		JPanel panel = verticalPanel();
-		panel.setBackground(BANK_BG);
-		panel.setOpaque(true);
-		panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		JLabel label = label("No owned items");
-		label.setForeground(new Color(140, 140, 140));
-		panel.add(label);
-		return panel;
 	}
 
 	/**

@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsWord;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 
 final class ReviewItemSorter
@@ -21,7 +24,7 @@ final class ReviewItemSorter
 			return 30;
 		}
 
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		return rankByName(name,
 			group(0, "seed vault", "costume room", "poh", "stash", "armour case", "magic wardrobe",
 				"treasure chest", "toy box", "cape rack"),
@@ -94,39 +97,12 @@ final class ReviewItemSorter
 
 	private static boolean matches(String name, String needle)
 	{
-		if (!"key".equals(needle))
-		{
-			return name.contains(needle);
-		}
-
-		int fromIndex = 0;
-		while (fromIndex < name.length())
-		{
-			int index = name.indexOf(needle, fromIndex);
-			if (index < 0)
-			{
-				return false;
-			}
-			int end = index + needle.length();
-			boolean startBoundary = index == 0 || !Character.isLetterOrDigit(name.charAt(index - 1));
-			boolean endBoundary = end == name.length() || !Character.isLetterOrDigit(name.charAt(end));
-			if (startBoundary && endBoundary)
-			{
-				return true;
-			}
-			fromIndex = index + 1;
-		}
-		return false;
+		return "key".equals(needle) ? containsWord(name, needle) : name.contains(needle);
 	}
 
 	private static Group group(int rank, String... needles)
 	{
 		return new Group(rank, needles);
-	}
-
-	private static String normalizedName(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
 	}
 
 	private static final class Group

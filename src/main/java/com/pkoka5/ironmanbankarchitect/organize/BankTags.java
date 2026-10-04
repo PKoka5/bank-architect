@@ -146,7 +146,7 @@ public final class BankTags
 			throw new IllegalArgumentException("Category has no tags: " + categoryKey);
 		}
 
-		String normalized = subcategory == null ? "" : subcategory.trim().toLowerCase();
+		String normalized = subcategory == null ? "" : subcategory.trim().toLowerCase(java.util.Locale.ROOT);
 		Split fallback = null;
 		for (Split split : splits)
 		{

@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
@@ -82,8 +84,4 @@ final class BlockKeys
 		return name.replaceFirst("\\s*\\([0-9]+\\)$", "");
 	}
 
-	private static String normalized(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
-	}
 }

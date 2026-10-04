@@ -1,6 +1,8 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysis;
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisRequest;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
@@ -15,6 +17,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BlockArrangements;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutShareCode;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintOrderProfiles;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
@@ -40,7 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
 import javax.swing.JLabel;
@@ -57,6 +60,8 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.game.ItemEquipmentStats;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemStats;
@@ -113,18 +118,18 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private BankAnalysis bankAnalysis;
 	private BankGuideOverlay guideOverlay;
 	private BankCategoryOverlay categoryOverlay;
-	private UserCategoryOverrides categoryOverrides = new UserCategoryOverrides();
-	private final Map<String, AsyncBufferedImage> itemIcons = new ConcurrentHashMap<>();
+	private final Cache<String, AsyncBufferedImage> itemIcons = CacheBuilder.newBuilder().maximumSize(2048).build();
+	private final AtomicBoolean settingsRefreshQueued = new AtomicBoolean();
 	/** The items the latest analysis request saw; null until a bank was captured. */
 	private Map<Integer, List<Integer>> analyzedBankContents;
 
 	@Override
 	protected void startUp()
 	{
+		settingsRefreshQueued.set(false);
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
 		guideController.setBankOpenedListener(this::onBankOpened);
-		categoryOverrides = UserCategoryOverrides.parse(config.categoryOverrides());
-		guideController.publishCategoryOverrideCount(categoryOverrides.size());
+		guideController.publishCategoryOverrideCount(categoryOverrides().size());
 		bankAnalysis = new BankAnalysis(
 			command -> clientThread.invoke(command),
 			analysisExecutor,
@@ -157,6 +162,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Override
 	protected void shutDown()
 	{
+		settingsRefreshQueued.set(false);
 		if (bankAnalysis != null)
 		{
 			bankAnalysis.close();
@@ -190,7 +196,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		// down here. Closing bankAnalysis invalidates every queued callback.
 		guideController = null;
 		panel = null;
-		itemIcons.clear();
+		itemIcons.invalidateAll();
 		analyzedBankContents = null;
 	}
 
@@ -226,7 +232,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		// to name one or the player could not say which part of a bundle an item
 		// belongs to. Built back to front because the menu renders bottom-up, so
 		// the list reads in catalogue order on screen.
-		Optional<String> current = categoryOverrides.categoryKeyFor(itemId);
+		Optional<String> current = categoryOverrides().categoryKeyFor(itemId);
 		List<BankTag> tags = BankTags.all();
 		for (int index = tags.size() - 1; index >= 0; index--)
 		{
@@ -263,10 +269,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			// when the entry itself carries no item ID.
 			Widget widget = entry.getWidget();
 			int itemId = widget == null ? entry.getItemId() : widget.getItemId();
-			ItemComposition composition = client.getItemDefinition(itemId);
-			int canonical = BankItemIds.canonical(itemId,
-				composition == null ? -1 : composition.getPlaceholderTemplateId(),
-				composition == null ? -1 : composition.getPlaceholderId());
+			int canonical = BankItemIds.canonical(client, itemId);
 			if (canonical > 0)
 			{
 				return canonical;
@@ -277,27 +280,67 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	private void applyCategoryOverride(int itemId, String itemName, String categoryKey)
 	{
-		categoryOverrides.put(itemId, categoryKey);
-		persistCategoryOverrides();
+		UserCategoryOverrides overrides = categoryOverrides();
+		overrides.put(itemId, categoryKey);
+		persistCategoryOverrides(overrides);
 		log.debug("Category override for {} ({}) set to {}", itemName, itemId, categoryKey);
 		analyzeBank();
 	}
 
 	private void resetCategoryOverrides()
 	{
-		categoryOverrides.clear();
-		persistCategoryOverrides();
+		persistCategoryOverrides(new UserCategoryOverrides());
 		analyzeBank();
 	}
 
-	private void persistCategoryOverrides()
+	private UserCategoryOverrides categoryOverrides()
 	{
-		config.setCategoryOverrides(categoryOverrides.serialize());
+		return UserCategoryOverrides.parse(config.categoryOverrides());
+	}
+
+	private void persistCategoryOverrides(UserCategoryOverrides overrides)
+	{
+		config.setCategoryOverrides(overrides.serialize());
 		BankGuideController controller = guideController;
 		if (controller != null)
 		{
-			controller.publishCategoryOverrideCount(categoryOverrides.size());
+			controller.publishCategoryOverrideCount(overrides.size());
 		}
+	}
+
+	@Subscribe
+	public void onProfileChanged(ProfileChanged event)
+	{
+		refreshSettings();
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged event)
+	{
+		if (IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
+			&& !java.util.Arrays.asList("suggestNextMove", "showCategoryOverlay", "hideSortedHighlights",
+				"categoryOverlayOpacity", "lastSeenRelease").contains(event.getKey()))
+			refreshSettings();
+	}
+
+	private void refreshSettings()
+	{
+		BankAnalysis analysis = bankAnalysis;
+		BankGuideController controller = guideController;
+		if (analysis == null || controller == null) return;
+		analysis.invalidate();
+		if (!settingsRefreshQueued.compareAndSet(false, true)) return;
+		clientThread.invokeLater(() -> {
+			if (bankAnalysis != analysis || guideController != controller) return;
+			settingsRefreshQueued.set(false);
+			analyzedBankContents = null;
+			controller.publishCategoryOverrideCount(categoryOverrides().size());
+			IronmanBankArchitectPanel currentPanel = panel;
+			if (currentPanel != null) javax.swing.SwingUtilities.invokeLater(() -> {
+				if (panel == currentPanel) currentPanel.refreshSettings();
+			});
+			analyzeBank();
+		});
 	}
 
 	/** The player's assignment of categories to bank destinations. */
@@ -327,13 +370,18 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			config.gatherFrequentlyUsed())
 			.withBlockArrangements(BlockArrangements.parse(config.blockOrders()))
 			.withItemOrders(BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile())
-				.forProfile(config.activeLayoutProfile()));
+				.forProfile(activeProfileName()));
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */
 	private BankLayoutProfiles savedProfiles()
 	{
 		return BankLayoutProfiles.parse(config.layoutProfiles(), config.activeLayoutProfile());
+	}
+
+	private String activeProfileName()
+	{
+		return BankLayoutShareCode.sanitize(config.activeLayoutProfile());
 	}
 
 	private void storeProfiles(BankLayoutProfiles profiles)
@@ -350,7 +398,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private Map<String, String> blockOrderSnapshots()
 	{
 		Map<String, String> snapshots = new java.util.LinkedHashMap<>();
-		String serialized = config.blockOrdersByProfile();
+		String serialized = BankLayoutProfiles.repairActiveName(config.blockOrdersByProfile(), config.activeLayoutProfile());
 		if (serialized == null || serialized.isEmpty())
 		{
 			return snapshots;
@@ -360,7 +408,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			int split = entry.indexOf('~');
 			if (split > 0 && split < entry.length() - 1)
 			{
-				snapshots.put(entry.substring(0, split), entry.substring(split + 1));
+				snapshots.put(BankLayoutShareCode.sanitize(entry.substring(0, split)), entry.substring(split + 1));
 			}
 		}
 		return snapshots;
@@ -406,7 +454,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public String editingContext()
 			{
-				return config.activeLayoutProfile() + "|" + activePlan().serialize()
+				return activeProfileName() + "|" + activePlan().serialize()
 					+ "|" + config.blueprintOrdersByProfile();
 			}
 
@@ -415,37 +463,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				BankOrganizationPreview expected, String expectedContext,
 				java.util.function.Consumer<Boolean> completed)
 			{
-				List<Integer> requested = new java.util.ArrayList<>(itemIds);
-				clientThread.invoke(() -> {
-					boolean success = false;
-					if (guideController != null && guideController.organizationPreview() == expected
-						&& editingContext().equals(expectedContext)
-						&& tab >= 0 && tab < expected.getCategories().size())
-					{
-						Optional<BankSnapshot> live = BankSnapshotReader.readOpenBank(client);
-						Map<Integer, Integer> actualCounts = new HashMap<>();
-						expected.getCategories().get(tab).getItems().forEach(item ->
-							actualCounts.merge(item.getItemId(), 1, Integer::sum));
-						Map<Integer, Integer> requestedCounts = new HashMap<>();
-						requested.forEach(id -> requestedCounts.merge(id, 1, Integer::sum));
-						if (live.isPresent() && live.get().contents().equals(analyzedBankContents)
-							&& (requested.isEmpty() || requestedCounts.equals(actualCounts)))
-						{
-							BlueprintOrderProfiles profiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
-							BlueprintItemOrders orders = profiles.forProfile(config.activeLayoutProfile());
-							if (orders.isSupported())
-							{
-								profiles.put(config.activeLayoutProfile(), requested.isEmpty()
-									? orders.resetTab(tab) : orders.withTab(tab, requested));
-								config.setBlueprintOrdersByProfile(profiles.serialize());
-								analyzeBank();
-								success = true;
-							}
-						}
-					}
-					final boolean result = success;
-					javax.swing.SwingUtilities.invokeLater(() -> completed.accept(result));
-				});
+				saveEdits(java.util.Collections.singletonMap(tab, itemIds), java.util.Collections.emptyMap(),
+					itemIds.isEmpty(), expected, expectedContext, completed);
 			}
 
 			@Override
@@ -454,44 +473,86 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				BankOrganizationPreview expected, String expectedContext,
 				java.util.function.Consumer<Boolean> completed)
 			{
+				saveEdits(itemOrders, destinations, false, expected, expectedContext, completed);
+			}
+
+			private void saveEdits(Map<Integer, List<Integer>> itemOrders,
+				Map<String, BlueprintItemOrders.Destination> destinations, boolean reset,
+				BankOrganizationPreview expected, String expectedContext,
+				java.util.function.Consumer<Boolean> completed)
+			{
 				Map<Integer, List<Integer>> requested = new HashMap<>();
 				itemOrders.forEach((tab, ids) -> requested.put(tab, new java.util.ArrayList<>(ids)));
 				Map<String, BlueprintItemOrders.Destination> routes = new HashMap<>(destinations);
+				updateBlueprint(expected, expectedContext, completed, live -> {
+					if (!requested.keySet().stream().allMatch(tab -> tab >= 0 && tab < expected.getCategories().size())
+						|| !routes.values().stream().allMatch(route -> activePlan().destinationOf(route.tag) == route.tab)) return false;
+					Map<Integer, Integer> before = new HashMap<>();
+					Map<Integer, Integer> after = new HashMap<>();
+					for (int tab = 0; tab < expected.getCategories().size(); tab++)
+					{
+						List<Integer> ids = new java.util.ArrayList<>();
+						expected.getCategories().get(tab).getItems().forEach(item -> ids.add(item.getItemId()));
+						ids.forEach(id -> before.merge(id, 1, Integer::sum));
+						(reset ? ids : requested.getOrDefault(tab, ids)).forEach(id -> after.merge(id, 1, Integer::sum));
+					}
+					if (!before.equals(after)) return false;
+					BlueprintItemOrders orders = activeOptions().itemOrders().withDestinations(routes);
+					for (Map.Entry<Integer, List<Integer>> entry : requested.entrySet())
+						orders = reset ? orders.resetTab(entry.getKey()) : orders.withTab(entry.getKey(), entry.getValue());
+					storeItemOrders(activeProfileName(), orders);
+					return true;
+				});
+			}
+
+			private void updateBlueprint(BankOrganizationPreview expected, String expectedContext,
+				java.util.function.Consumer<Boolean> completed, java.util.function.Function<BankSnapshot, Boolean> action)
+			{
 				clientThread.invoke(() -> {
 					boolean success = false;
-					if (guideController != null && guideController.organizationPreview() == expected
-						&& editingContext().equals(expectedContext)
-						&& requested.keySet().stream().allMatch(tab -> tab >= 0 && tab < expected.getCategories().size())
-						&& routes.values().stream().allMatch(route -> activePlan().destinationOf(route.tag) == route.tab))
+					if (expected != null && guideController != null && guideController.organizationPreview() == expected
+						&& editingContext().equals(expectedContext) && activeOptions().itemOrders().isSupported())
 					{
 						Optional<BankSnapshot> live = BankSnapshotReader.readOpenBank(client);
-						Map<Integer, Integer> before = new HashMap<>();
-						Map<Integer, Integer> after = new HashMap<>();
-						for (int tab = 0; tab < expected.getCategories().size(); tab++)
+						if (live.isPresent() && live.get().contents().equals(analyzedBankContents))
 						{
-							List<Integer> ids = new java.util.ArrayList<>();
-							expected.getCategories().get(tab).getItems().forEach(item -> ids.add(item.getItemId()));
-							ids.forEach(id -> before.merge(id, 1, Integer::sum));
-							requested.getOrDefault(tab, ids).forEach(id -> after.merge(id, 1, Integer::sum));
-						}
-						if (live.isPresent() && live.get().contents().equals(analyzedBankContents) && before.equals(after))
-						{
-							BlueprintOrderProfiles profiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
-							BlueprintItemOrders orders = profiles.forProfile(config.activeLayoutProfile());
-							if (orders.isSupported())
-							{
-								orders = orders.withDestinations(routes);
-								for (Map.Entry<Integer, List<Integer>> entry : requested.entrySet())
-									orders = orders.withTab(entry.getKey(), entry.getValue());
-								profiles.put(config.activeLayoutProfile(), orders);
-								config.setBlueprintOrdersByProfile(profiles.serialize());
-								analyzeBank();
-								success = true;
-							}
+							try { success = action.apply(live.get()); }
+							catch (IllegalArgumentException changedBank) { log.debug("Blueprint save refused", changedBank); }
 						}
 					}
 					final boolean result = success;
 					javax.swing.SwingUtilities.invokeLater(() -> completed.accept(result));
+				});
+			}
+
+			private void storeItemOrders(String name, BlueprintItemOrders orders)
+			{
+				BlueprintOrderProfiles profiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
+				profiles.put(name, orders);
+				config.setBlueprintOrdersByProfile(profiles.serialize());
+				analyzeBank();
+			}
+
+			@Override
+			public void captureCurrentBank(String name, BankOrganizationPreview expected, String expectedContext,
+				java.util.function.Consumer<Boolean> completed)
+			{
+				updateBlueprint(expected, expectedContext, completed, live -> {
+					if (name == null || name.trim().isEmpty()) return false;
+					Optional<Map<Integer, List<Integer>>> tabs = BankSnapshotReader.readTabOrders(client, live);
+					if (!tabs.isPresent()) return false;
+					BlueprintItemOrders captured = BlueprintItemOrders.capture(tabs.get(), expected, activeOptions().itemOrders());
+					BankLayoutProfiles previous = savedProfiles();
+					String free = previous.freeName(name);
+					BankLayoutProfiles profiles = previous.withProfile(free, activePlan().serialize());
+					if (!free.equals(profiles.getActiveName())) return false;
+					Map<String, String> blocks = blockOrderSnapshots();
+					blocks.put(activeProfileName(), config.blockOrders());
+					blocks.put(free, config.blockOrders());
+					storeProfiles(profiles);
+					storeBlockOrderSnapshots(blocks);
+					storeItemOrders(free, captured);
+					return true;
 				});
 			}
 
@@ -551,9 +612,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				// one brings its own back, so block orders belong to the
 				// layout they were made for rather than bleeding across all.
 				Map<String, String> snapshots = blockOrderSnapshots();
-				snapshots.put(config.activeLayoutProfile(), config.blockOrders());
+				snapshots.put(activeProfileName(), config.blockOrders());
 				BankLayoutProfiles profiles = savedProfiles().withActive(name);
-				config.setActiveLayoutProfile(profiles.getActiveName());
+				storeProfiles(profiles);
 				config.setTabOrder(BankLayoutPlan
 					.parse(BankPresets.IRONMAN, profiles.activePlan())
 					.serialize());
@@ -567,13 +628,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public void saveProfile(String name, BankLayoutPlan plan)
 			{
 				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
-				BlueprintItemOrders previousItems = itemProfiles.forProfile(config.activeLayoutProfile());
+				BlueprintItemOrders previousItems = itemProfiles.forProfile(activeProfileName());
+				Map<String, String> snapshots = blockOrderSnapshots();
 				BankLayoutProfiles profiles = savedProfiles().withProfile(name,
 					plan.completedFor(BankPresets.IRONMAN).serialize());
 				storeProfiles(profiles);
 				itemProfiles.put(profiles.getActiveName(), previousItems);
 				config.setBlueprintOrdersByProfile(itemProfiles.serialize());
-				Map<String, String> snapshots = blockOrderSnapshots();
 				snapshots.put(profiles.getActiveName(), config.blockOrders());
 				storeBlockOrderSnapshots(snapshots);
 				save(plan);
@@ -583,7 +644,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public void deleteProfile(String name)
 			{
 				if (BankLayoutProfiles.DEFAULT_NAME.equals(name)) return;
-				if (name.equals(config.activeLayoutProfile())) selectProfile(BankLayoutProfiles.DEFAULT_NAME);
+				if (name.equals(activeProfileName())) selectProfile(BankLayoutProfiles.DEFAULT_NAME);
 				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
 				itemProfiles.remove(name);
 				config.setBlueprintOrdersByProfile(itemProfiles.serialize());
@@ -707,7 +768,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		analyzedBankContents = bankSnapshot.contents();
 		return Optional.of(new BankAnalysisRequest(bankSnapshot,
 			collectGearStats(bankSnapshot), collectAlchValues(bankSnapshot),
-			categoryOverrides.asMap(), activePlan(), activeOptions()));
+			categoryOverrides().asMap(), activePlan(), activeOptions()));
 	}
 
 	private Map<Integer, Integer> collectAlchValues(BankSnapshot snapshot)
@@ -768,7 +829,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		}
 
 		String cacheKey = item.getItemId() + ":" + item.getQuantity();
-		AsyncBufferedImage image = itemIcons.computeIfAbsent(cacheKey,
+		AsyncBufferedImage image = itemIcons.asMap().computeIfAbsent(cacheKey,
 			key -> itemManager.getImage(item.getItemId(), item.getQuantity(), item.getQuantity() > 1));
 		label.setText("");
 		image.addTo(label);

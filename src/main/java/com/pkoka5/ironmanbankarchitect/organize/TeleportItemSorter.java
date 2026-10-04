@@ -1,5 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.numericSuffix;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
@@ -135,19 +139,7 @@ final class TeleportItemSorter
 		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
 		if (metadata.isPresent()) return metadata.get().getVariantValue();
 		String name = normalized(item.getDisplayName());
-		int open = name.lastIndexOf('(');
-		if (open < 0 || !name.endsWith(")"))
-		{
-			return -1;
-		}
-		try
-		{
-			return Integer.parseInt(name.substring(open + 1, name.length() - 1));
-		}
-		catch (NumberFormatException ignored)
-		{
-			return -1;
-		}
+		return numericSuffix(name, -1);
 	}
 
 	private static Optional<ItemSortMetadata> teleportJewelleryMetadata(BankPreviewItem item)
@@ -180,20 +172,4 @@ final class TeleportItemSorter
 		return subcategory.contains("teleport-scroll") || name.contains("teleport scroll");
 	}
 
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static String normalized(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
-	}
 }

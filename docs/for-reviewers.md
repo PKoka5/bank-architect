@@ -2,7 +2,7 @@
 
 This plugin is larger than most Hub submissions, so this page exists to make the
 one question that matters — *does it automate anything?* — quick to answer.
-Everything below is checkable with `grep`.
+The live-client boundary and behavior described below can be checked in the source.
 
 ## The short version
 
@@ -10,27 +10,26 @@ The plugin reads the open bank, computes a target layout, and draws. The player
 performs every bank action by hand. There is no network access, no reflection,
 no external process, no file I/O, and no third-party dependency.
 
-## Only four files touch live client state
+## Live-client read boundaries
 
-Of 131 production source files, exactly four import anything that reads or
-reacts to the running game:
+These files contain the supported bank/client adapters:
 
-| File | Lines | What it does |
-|---|---|---|
-| `bank/BankSnapshotReader.java` | 79 | Reads `InventoryID.BANK` into a plain list of item IDs and quantities. |
-| `IronmanBankArchitectPlugin.java` | ~540 | Plugin lifecycle, bank analysis adapter, and the bank right-click menu entries described below. |
-| `overlay/BankGuideOverlay.java` | ~1380 | Draws the move guidance. Mostly geometry. |
-| `overlay/BankCategoryOverlay.java` | ~250 | Draws a colour per item. Nothing else. |
+| File | What it does |
+|---|---|
+| `bank/BankSnapshotReader.java` | Reads `InventoryID.BANK`, placeholder definitions and `BANK_TAB_1..9` counts into plain snapshots and physical tab orders. |
+| `bank/BankItemIds.java` | Resolves placeholders to canonical IDs through supported item definitions. |
+| `IronmanBankArchitectPlugin.java` | Plugin lifecycle, bank analysis adapter, local blueprint persistence and the bank right-click menu entries below. |
+| `overlay/BankGuideOverlay.java` | Reads visible bank/widget state and draws manual move guidance. |
+| `overlay/BankCategoryOverlay.java` | Reads bank widgets and draws destination colours. |
 
 ```sh
-grep -rlE 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Menu;)' src/main
+rg -l 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Menu;)' src/main/java
 ```
 
-Twelve further files import `net.runelite.api.gameval.ItemID` and nothing else —
-those are compile-time item-ID constants in classification tables, with no
-client access. The remaining 115 files import no RuneLite API at all. They are
-the analysis lifecycle over immutable plain data, the item catalogue, the
-layout engine, and the sorters. That is where the line count lives.
+Classification and layout code also uses compile-time `gameval.ItemID` constants.
+The planner and sorters otherwise operate on immutable plain data, not live bank
+actions. Source and line totals are deliberately omitted because they change
+between releases.
 
 ## Things a reviewer will reasonably want to check
 
@@ -46,8 +45,8 @@ strings in a bundled TSV are absolute HTTPS URLs, so the data manifest cannot
 carry a malformed citation. No connection is ever opened. It is the only
 `java.net` reference in the plugin.
 
-**Bundled data is 1.9 MB.** Eight pinned TSV/text datasets under
-`src/main/resources`, the largest being an item registry of ~32,500 entries.
+**Bundled data.** Pinned TSV/text datasets under `src/main/resources` include
+the item registry, classification overrides, item roles and semantic sets.
 They are read with `getResourceAsStream` and are never written, downloaded, or
 refreshed at runtime. Classification is fully offline and deterministic; the
 plugin makes no Wiki or price-API calls.
@@ -58,10 +57,18 @@ snapshot, item stats, prices, category corrections, layout, and layout options
 are captured on the client thread first, so the background task works only from
 immutable plain-data snapshots and values.
 
-**A separate window.** "Show My Bank" opens a `JDialog` with a read-only
-preview of the planned layout. It is disposed in `shutDown`. The sidebar's tab
-layout editor lets the player assign and order categories and tags. It stores
-the plan in plugin config and re-runs the analysis. No second dialog exists.
+**Local blueprint editing.** **Open Blueprint** opens a `JDialog` with the
+planned layout. Select/Swap/Insert, category assignment and Undo change a local
+draft only; Save persists the draft to plugin config after fresh bank and
+profile checks. The sidebar Layout editor assigns categories and tags. Dialogs
+are disposed during shutdown. Copy/export actions use the clipboard.
+
+**Capture the current bank.** **Save current bank...** reads the full supported
+bank container and tab counts on the client thread and saves them as a new named
+active layout. It rejects fillers, invalid tab boundaries, stale contents and
+profile overflow before configuration writes. It preserves prior saved layouts
+and changes no game state. Captured destinations are explicit local item-order
+records; unknown future storage versions cannot be overwritten.
 
 ## Why another bank plugin
 
@@ -73,24 +80,23 @@ common approach is a fixed template, or a set of category rules that decide
 *which tab* an item belongs to and stop there. A template only works if your
 bank resembles the one it was built from; a tab assignment leaves the inside of
 the tab in whatever order the items happened to be. Here the destination is only
-the first step. `organize/layout/` is a 7,100-line placement engine that packs
-each tab from the items you actually own: eight semantic rule sets propose
+the first step. `organize/layout/` is a placement engine that packs
+each tab from the items you actually own: semantic rule sets propose
 blocks — gear sets, rune blocks, potion doses grouped by dose, resource zones by
 skill, tool and outfit sets — and a scored packer chooses a placement that fits
-the tab's real width and item count. Eleven per-category sorters order what is
+the tab's real width and item count. Per-category sorters order what is
 left. Nothing is placed that you do not own, and no filler is invented.
 
 **Gear is grouped by combat style and slot, with the best first.** Melee, ranged
 and magic get their own lanes, each slot forms a row, and within a slot the
-order is decided from real equipment stats plus a 309-entry gear tier catalogue
+order is decided from real equipment stats plus a reviewed gear tier catalogue
 — so a strength set, a ranged set and a mage set end up as recognisable blocks
 instead of an alphabetical pile. The same stat comparison drives the alch
-review: an item only moves out of combat gear when an owned item beats it
-outright on all fifteen equipment stats.
+review, alongside reviewed alch suitability, quantity, value and owned-alternative
+checks. Quantity alone cannot move unreviewed gear into the alch pile.
 
 Both claims are checkable. `docs/research/` holds the dated studies the rules
-were built from, including a review of the most-imported community bank
-templates, and `./gradlew aggregateCleanupReview` replays 1,800 generated banks
+were built from, and `./gradlew aggregateCleanupReview` replays 1,800 generated banks
 through the whole planner and asserts every one reaches a complete, dense layout
 with no stalled or non-terminating route.
 
@@ -116,8 +122,13 @@ The destination-colour overlay only draws and therefore has no such gates.
 ./gradlew test                # full unit suite
 ./gradlew simulateRandomBanks # 150 generated banks, all reach a complete plan
 ./gradlew aggregateCleanupReview
+./gradlew build --offline      # full suite and unchanged simulation baselines
 ```
 
 The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
+
+The [0.8.0 release record](release-0.8.0.md) documents the final test results,
+owner-confirmed live test, jar checksum, changed bundled resources and calibrated
+review-token estimates. Local estimates are not the official Plugin Hub count.

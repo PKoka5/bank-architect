@@ -11,7 +11,7 @@ public final class BankLayoutShareCode
 
 	private static final String SEPARATOR = "~";
 	private static final int PARTS = 3;
-	private static final int MAX_NAME_LENGTH = 40;
+	static final int MAX_NAME_LENGTH = 40;
 
 	private final String name;
 	private final String plan;
@@ -73,7 +73,7 @@ public final class BankLayoutShareCode
 	public static String sanitize(String name)
 	{
 		String cleaned = name == null ? "" : name.replace(SEPARATOR, " ")
-			.replace("|", " ").replace("+", " ").trim();
+			.replace("|", " ").replace("+", " ").replace(";", " ").trim();
 		if (cleaned.isEmpty())
 		{
 			return "Shared layout";

@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
 
 import com.pkoka5.ironmanbankarchitect.catalog.GearTierCatalog;
@@ -24,6 +27,8 @@ final class GearItemSorter
 	private static final int STYLE_OTHER = 4;
 	private static final int[] SETUP_STYLES = {STYLE_MELEE, STYLE_RANGED, STYLE_MAGIC, STYLE_PRAYER};
 	private static final int[] SETUP_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+	private static final int[] NAME_STYLE_GROUPS = {61, 62, 60, 59};
+	private static final int[] NAME_STYLES = {STYLE_RANGED, STYLE_MAGIC, STYLE_MELEE, STYLE_PRAYER};
 
 	// Must match the popup grid width; only full rows keep the set columns
 	// aligned once the real bank compacts everything.
@@ -167,7 +172,7 @@ final class GearItemSorter
 		Comparator<BankPreviewItem> byTier = Comparator
 			.comparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
 			.thenComparing(item -> -ownedFamilySizes.getOrDefault(item.getItemId(), 0))
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId);
 		for (List<BankPreviewItem> candidates : setCandidates.values())
 		{
@@ -466,14 +471,14 @@ final class GearItemSorter
 			.thenComparingInt(item -> ammoFamilyRank(item, gearStats))
 			.thenComparingInt(item -> ammoTierRank(item, gearStats))
 			.thenComparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return remaining;
 	}
 
 	static int rank(BankPreviewItem item)
 	{
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		int slot = slotRank(name);
 		return slot == 11 ? 1300 : slot * 100 + styleRank(name);
 	}
@@ -487,7 +492,7 @@ final class GearItemSorter
 	private static int ammoFamilyRank(BankPreviewItem item, GearStatsSource gearStats)
 	{
 		if (slotRankOf(item, gearStats) != 11) return 0;
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		if (containsAny(name, "arrow", "brutal")) return 0;
 		if (containsAny(name, "bolt", "bolt rack")) return 10;
 		if (name.contains("dart")) return 20;
@@ -500,7 +505,7 @@ final class GearItemSorter
 	private static int ammoTierRank(BankPreviewItem item, GearStatsSource gearStats)
 	{
 		if (slotRankOf(item, gearStats) != 11) return 0;
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		String[] tiers = ClassificationNames.group(71);
 		for (int i = 0; i < tiers.length; i++)
 		{
@@ -517,7 +522,7 @@ final class GearItemSorter
 			return stats.get().slotRank();
 		}
 
-		return slotRank(normalizedName(item.getDisplayName()));
+		return slotRank(normalized(item.getDisplayName()));
 	}
 
 	private static int styleRankOf(BankPreviewItem item, GearStatsSource gearStats)
@@ -528,7 +533,7 @@ final class GearItemSorter
 			return stats.get().style().ordinal();
 		}
 
-		return styleRank(normalizedName(item.getDisplayName()));
+		return styleRank(normalized(item.getDisplayName()));
 	}
 
 	private static int scoreOf(BankPreviewItem item, GearStatsSource gearStats)
@@ -545,98 +550,17 @@ final class GearItemSorter
 
 	private static int slotRank(String name)
 	{
-		if (containsAny(name, ClassificationNames.group(48)))
-		{
-			return 0;
-		}
-		if (containsAny(name, ClassificationNames.group(49)))
-		{
-			return 1;
-		}
-		if (containsAny(name, ClassificationNames.group(50)))
-		{
-			return 2;
-		}
-		if (containsAny(name, ClassificationNames.group(51)))
-		{
-			return 3;
-		}
-		if (containsAny(name, ClassificationNames.group(52)))
-		{
-			return 4;
-		}
-		if (containsAny(name, ClassificationNames.group(53)))
-		{
-			return 5;
-		}
-		if (containsAny(name, ClassificationNames.group(54)))
-		{
-			return 6;
-		}
-		if (containsAny(name, "boots"))
-		{
-			return 7;
-		}
-		if (containsAny(name, ClassificationNames.group(55)))
-		{
-			return 8;
-		}
-		if (containsAny(name, ClassificationNames.group(56)))
-		{
-			return 9;
-		}
-		if (containsAny(name, ClassificationNames.group(57)))
-		{
-			return 10;
-		}
-		if (containsAny(name, ClassificationNames.group(58)))
-		{
-			return 11;
-		}
-
+		for (int slot = 0; slot < 12; slot++)
+			if (slot == 7 ? name.contains("boots")
+				: containsAny(name, ClassificationNames.group(48 + slot - (slot > 7 ? 1 : 0)))) return slot;
 		return 12;
 	}
 
 	private static int styleRank(String name)
 	{
-		if (isRanged(name))
-		{
-			return STYLE_RANGED;
-		}
-		if (isMagic(name))
-		{
-			return STYLE_MAGIC;
-		}
-		if (isMelee(name))
-		{
-			return STYLE_MELEE;
-		}
-		if (isPrayer(name))
-		{
-			return STYLE_PRAYER;
-		}
-
+		for (int i = 0; i < NAME_STYLE_GROUPS.length; i++)
+			if (containsAny(name, ClassificationNames.group(NAME_STYLE_GROUPS[i]))) return NAME_STYLES[i];
 		return STYLE_OTHER;
-	}
-
-	private static boolean isPrayer(String name)
-	{
-		return containsAny(name, ClassificationNames.group(59));
-	}
-
-	private static boolean isMelee(String name)
-	{
-		return containsAny(name, ClassificationNames.group(60));
-	}
-
-	private static boolean isRanged(String name)
-	{
-		return containsAny(name, ClassificationNames.group(61));
-	}
-
-	private static boolean isMagic(String name)
-	{
-		return containsAny(name, ClassificationNames.group(62));
 	}
 
 	// Tier 1 (Starter) through tier 5 (End); keeps curated tiers within the pre-existing
@@ -652,7 +576,7 @@ final class GearItemSorter
 			return tier.getAsInt() * GEAR_TIER_SCORE_STEP;
 		}
 
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		int score = 0;
 		score = Math.max(score, scoreIfContains(name, 1000, "torva", "ancestral", "masori", "tumeken", "twisted bow",
 			"scythe", "shadow"));
@@ -675,21 +599,4 @@ final class GearItemSorter
 		return containsAny(name, needles) ? score : 0;
 	}
 
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private static String normalizedName(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
-	}
 }

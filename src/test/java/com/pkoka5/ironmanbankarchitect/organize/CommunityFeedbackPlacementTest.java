@@ -115,6 +115,66 @@ public class CommunityFeedbackPlacementTest
 	}
 
 	@Test
+	public void equalCompleteGracefulRecoloursStayStableAfterSortingAndReanalysis()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		// Two complete non-base recolours in a 53-item Main. Preserve the other
+		// tabs too: reanalysis receives the whole bank, not only its Main section.
+		int[] original = {13579, 13583, 13585, 13587, 13589, 13581,
+			13627, 13629, 13631, 13633, 13635, 13637, 995, 556, 558, 562,
+			554, 555, 559, 564, 557, 561, 563, 565, 560, 566, 9075, 21880,
+			2347, 1755, 952, 8013, 4251, 21389, 12791, 13393, 19564,
+			25818, 24711, 22400, 30638, 32399, 13660, 3853, 6529, 13204,
+			4699, 4698, 4697, 4696, 4695, 4694, 28929, 30843, 11832, 25781, 385};
+		List<Integer> expected = null;
+		for (int seed = 0; seed < 12; seed++)
+		{
+			List<Integer> shuffled = Arrays.stream(original).boxed().collect(Collectors.toList());
+			Collections.shuffle(shuffled, new java.util.Random(seed));
+			BankOrganizationPreview preview = build(bank(shuffled.stream().mapToInt(Integer::intValue).toArray()),
+				new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+			assertEquals("Main fixture", 53, ids(preview, 0).size());
+			List<Integer> ordered = allIds(preview);
+			assertEquals("No bank items lost", original.length, ordered.size());
+			if (expected == null) expected = ordered;
+			assertEquals("Shuffled bank " + seed, expected, ordered);
+			for (int reopen = 0; reopen < 2; reopen++)
+			{
+				preview = build(bank(ordered.stream().mapToInt(Integer::intValue).toArray()),
+					new UserCategoryOverrides(), plan, BankLayoutOptions.DEFAULTS);
+				ordered = allIds(preview);
+				assertEquals("Reanalysis " + reopen + " of shuffled bank " + seed, expected, ordered);
+			}
+		}
+	}
+
+	@Test
+	public void familyPotionOrderPreservesItemsWithLegacyCategoryCorrections()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.withTagAt("potions", 4).withTagAt("potion-doses", 8).withTagAt("tools", 6);
+		BankLayoutOptions options = new BankLayoutOptions(true, true, true, Collections.emptyMap(),
+			GearLayout.GRID_STYLES, PotionDoseOrder.BY_FAMILY, RuneOrder.ALPHABETICAL,
+			TeleportOrder.ALPHABETICAL);
+		for (BankCategory category : BankPresets.IRONMAN.getCategories())
+		{
+			UserCategoryOverrides overrides = UserCategoryOverrides.parse(
+				"121=" + category.getKey() + ",139=" + category.getKey());
+			BankOrganizationPreview preview = build(bank(121, 139, 995), overrides, plan, options);
+			String tag = "potions-food".equals(category.getKey()) ? "potions"
+				: BankTags.tagFor(category.getKey(), "potion-dose-3").getKey();
+			assertEquals("Item count for " + category.getKey(), 3, allIds(preview).size());
+			assertTrue("Correct destination for " + category.getKey(),
+				ids(preview, plan.destinationOf(tag)).containsAll(Arrays.asList(121, 139)));
+			assertEquals("Tag count for " + category.getKey(), Integer.valueOf(2), preview.getTagCounts().get(tag));
+		}
+		BankOrganizationPreview pinned = build(bank(121, 139, 995),
+			UserCategoryOverrides.parse("121=tools,139=tools"), plan, options);
+		assertEquals(3, allIds(pinned).size());
+		assertTrue(ids(pinned, plan.destinationOf("tools")).containsAll(Arrays.asList(121, 139)));
+	}
+
+	@Test
 	public void completedMainWithLunarStaffStaysCompleteAfterReanalysis()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
@@ -279,5 +339,11 @@ public class CommunityFeedbackPlacementTest
 	{
 		return preview.getCategories().get(tab).getItems().stream().filter(item -> !item.isBlank())
 			.map(BankPreviewItem::getItemId).collect(Collectors.toList());
+	}
+
+	private static List<Integer> allIds(BankOrganizationPreview preview)
+	{
+		return preview.getCategories().stream().flatMap(tab -> tab.getItems().stream())
+			.filter(item -> !item.isBlank()).map(BankPreviewItem::getItemId).collect(Collectors.toList());
 	}
 }

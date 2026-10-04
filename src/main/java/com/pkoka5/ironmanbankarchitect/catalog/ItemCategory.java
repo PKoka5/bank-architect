@@ -19,7 +19,7 @@ public enum ItemCategory
 
 	public String getDisplayLabel()
 	{
-		String lower = name().toLowerCase();
+		String lower = name().toLowerCase(java.util.Locale.ROOT);
 		return Character.toUpperCase(lower.charAt(0)) + lower.substring(1);
 	}
 }

@@ -274,6 +274,58 @@ public class BankAnalysisTest
 		assertEquals(Optional.of("seeds-herbs-farming"), request.categoryKey(5297));
 	}
 
+	@Test
+	public void obsoleteBackgroundRequestsSkipCatalogWork()
+	{
+		ControlledExecutor client = new ControlledExecutor();
+		ControlledExecutor background = new ControlledExecutor();
+		AtomicInteger lookups = new AtomicInteger();
+		List<BankAnalysisStatus> statuses = new ArrayList<>();
+		BankAnalysis analysis = new BankAnalysis(client, background,
+			requests(request(5297), request(209)), statuses::add, itemId -> {
+				lookups.incrementAndGet();
+				return StaticItemCatalog.INSTANCE.findById(itemId);
+			}, BankPresets.IRONMAN);
+		analysis.analyzeBank();
+		client.runNext();
+		analysis.analyzeBank();
+		client.runNext();
+		background.runNext();
+		assertEquals(0, lookups.get());
+		background.runNext();
+		org.junit.Assert.assertTrue(lookups.get() > 0);
+		assertEquals(BankAnalysisStatus.Kind.SUCCESS, last(statuses).kind());
+	}
+
+	@Test
+	public void invalidationClearsPublishedPreviewAndRejectsQueuedWork()
+	{
+		ControlledExecutor client = new ControlledExecutor();
+		ControlledExecutor background = new ControlledExecutor();
+		List<BankAnalysisStatus> statuses = new ArrayList<>();
+		BankAnalysis analysis = analysis(client, background,
+			requests(request(5297), request(209), request(5297, 209)), statuses);
+		analysis.analyzeBank();
+		client.runNext();
+		background.runNext();
+		analysis.analyzeBank();
+		client.runNext();
+		analysis.invalidate();
+		BankAnalysisStatus invalidated = last(statuses);
+		assertEquals(BankAnalysisStatus.Kind.NOT_STARTED, invalidated.kind());
+		assertFalse(invalidated.organizationPreview().isPresent());
+		background.runNext();
+		assertSame(invalidated, last(statuses));
+		analysis.analyzeBank();
+		client.runNext();
+		background.runNext();
+		assertEquals(2, last(statuses).organizationPreview().get().getPlannedItemCount());
+		analysis.close();
+		BankAnalysisStatus completed = last(statuses);
+		analysis.invalidate();
+		assertSame(completed, last(statuses));
+	}
+
 	private static BankAnalysis analysis(Executor clientExecutor, Executor analysisExecutor,
 		java.util.function.Supplier<Optional<BankAnalysisRequest>> requests,
 		List<BankAnalysisStatus> statuses)

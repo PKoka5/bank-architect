@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -231,6 +232,80 @@ public class ToolOutfitSemanticRuleSetTest
 		assertTrue(result.getConflicts().toString(), result.isSuccess());
 		assertReservedRows(result, runecrafting, 5);
 		assertReservedRows(result, containers, 8);
+	}
+
+	@Test
+	public void thirtyItemToolTabWithFishingToolsNeverLocksBeyondItsLastSlot()
+	{
+		List<Integer> input = toolTab(Arrays.asList(13258, 13259, 13260, 13261), 30);
+		LayoutResult result = assertValidPermutation(input, input);
+		List<Integer> expected = targetOrder(result);
+
+		for (int seed = 0; seed < 4; seed++)
+		{
+			List<Integer> shuffled = new ArrayList<>(input);
+			Collections.shuffle(shuffled, new Random(seed));
+			assertEquals(expected, targetOrder(assertValidPermutation(shuffled, input)));
+		}
+	}
+
+	@Test
+	public void firstSkillRunIsAnchoredOnlyWhenTheSlotAfterTheOutfitExists()
+	{
+		List<Integer> outfit = Arrays.asList(13258, 13259, 13260, 13261);
+		for (int size : new int[]{32, 33})
+		{
+			List<Integer> input = toolTab(outfit, size);
+			LayoutRequest request = request(input);
+			LayoutEntry fishingHead = request.getEntries().stream()
+				.filter(entry -> entry.getItem().getItemId() == 305).findFirst().get();
+			assertEquals(size == 33, fishingHead.hasLockedTarget());
+			if (size == 33) assertEquals(32, fishingHead.getLockedTarget());
+			assertValidPermutation(input, input);
+		}
+	}
+
+	@Test
+	public void sparsePartialAndTallOutfitsKeepAllToolTargetsInRange()
+	{
+		List<Integer> graceful = Arrays.asList(11850, 11852, 11854, 11856, 11858, 11860);
+		for (int pieces = 2; pieces <= graceful.size(); pieces++)
+		{
+			List<Integer> outfit = graceful.subList(0, pieces);
+			for (int size = pieces + 6; size <= pieces * 8 + 1; size++)
+			{
+				List<Integer> input = toolTab(outfit, size);
+				assertValidPermutation(input, input);
+			}
+		}
+	}
+
+	private static List<Integer> toolTab(List<Integer> outfit, int size)
+	{
+		List<Integer> input = new ArrayList<>(outfit);
+		input.addAll(Arrays.asList(305, 307, 303, 301, 309, 590));
+		for (int id = 950000; input.size() < size; id++) input.add(id);
+		return input;
+	}
+
+	private static LayoutResult assertValidPermutation(List<Integer> input, List<Integer> fallback)
+	{
+		LayoutRequest request = request(input);
+		List<LayoutConflict> conflicts = LayoutRequestValidator.validate(request);
+		assertTrue("size=" + input.size() + ": " + conflicts, conflicts.isEmpty());
+		for (LayoutEntry entry : request.getEntries())
+		{
+			if (entry.hasLockedTarget())
+				assertTrue(entry.getLockedTarget() >= 0 && entry.getLockedTarget() < input.size());
+		}
+		LayoutResult result = new SemanticBlockLayoutEngine().plan(request, fallback);
+		assertTrue("size=" + input.size() + ": " + result.getConflicts(), result.isSuccess());
+		List<Integer> actual = new ArrayList<>(targetOrder(result));
+		List<Integer> expected = new ArrayList<>(input);
+		Collections.sort(actual);
+		Collections.sort(expected);
+		assertEquals(expected, actual);
+		return result;
 	}
 
 	private static LayoutRequest request(List<Integer> ids)

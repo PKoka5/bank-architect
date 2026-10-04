@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.7.1";
+	static final String RELEASE_ID = "0.8.0";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -40,11 +40,14 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Upgraded quick tools</h3>"
-			+ "<p>Main now prefers an Imcando hammer (including off-hand) and Jeweller's chisel when present "
-			+ "in your bank. Their placeholders preserve that choice.</p>"
-			+ "<p>Without an upgrade, the ordinary hammer and chisel keep their quick-access spots. "
-			+ "Other versions stay in Tools, and your saved assignments still come first.</p>"
+			+ "<h3>Save your current bank</h3>"
+			+ "<p>Open Blueprint &gt; Save current bank... saves Main, all bank tabs and their item order "
+			+ "as a new active layout. Your previous layouts stay available.</p>"
+			+ "<p>Saved positions remain the target when you reopen the bank. "
+			+ "New items follow their categories; Reset tab order restores automatic placement.</p>"
+			+ "<h3>Fixes and improvements</h3>"
+			+ "<p>Fixes bank analysis with fishing tools or a tinderbox. Improves profile switching, "
+			+ "item corrections, stable sorting and editor scrolling, with safer alch suggestions.</p>"
 			+ "<p>You still move every real bank item yourself.</p></div></html>");
 		notes.setForeground(Color.WHITE);
 		notes.setVerticalAlignment(JLabel.TOP);

@@ -102,6 +102,27 @@ category correction or move its destination tag to another tab.
 
 ## Choosing your tab layout
 
+### Use your current bank as the blueprint
+
+After manually adjusting your bank, keep it open and select **Open Blueprint**,
+then **Save current bank...**. Enter a name. The plugin saves Main, all numbered
+tabs and their current item order as a new active layout, preserving your previous
+layout. Existing names get a numbered suffix.
+
+Analyze again or reopen the bank: these saved positions remain the target, including
+mixed-category tabs and placeholders. Missing items keep their saved positions for
+when they return; new items follow their automatic category placement and append.
+Category changes do not undo captured positions. **Assign category...** in the item
+editor can move an individual item again, and **Reset tab order** releases the saved
+positions in that tab. Use the Layout dropdown to switch back to your previous layout.
+
+Remove bank fillers before saving. If bank contents, the active layout or the
+analysis changes while saving, nothing is overwritten; analyze and try again.
+Captured item positions are local to your saved layout; layout share codes still
+share category assignments rather than individual item positions.
+
+### Arrange categories
+
 The blueprint fills the bank's main section and nine tabs. You decide which
 categories go where:
 

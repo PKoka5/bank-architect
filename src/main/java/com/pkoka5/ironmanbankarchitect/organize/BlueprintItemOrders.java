@@ -36,20 +36,20 @@ public final class BlueprintItemOrders
 	public static BlueprintItemOrders parse(String value)
 	{
 		if (value == null || value.isEmpty()) return EMPTY;
-		if (!value.startsWith("v1|")) return new BlueprintItemOrders(Collections.emptyMap(), value);
+		if (!value.startsWith("v1|") && !value.startsWith("v2|")) return new BlueprintItemOrders(Collections.emptyMap(), value);
 		Map<Integer, List<Integer>> parsed = new LinkedHashMap<>();
 		Map<String, Destination> routes = new LinkedHashMap<>();
 		for (String entry : value.substring(3).split("\\|"))
 		{
 			try
 			{
-				if (entry.startsWith("r:"))
+				if (entry.startsWith("r:") || value.startsWith("v2|") && entry.startsWith("c:"))
 				{
 					String[] fields = entry.split(":", -1);
 					if (fields.length == 5)
 					{
 						validateKey(fields[1]);
-						routes.put(fields[1], new Destination(Integer.parseInt(fields[2]), fields[3], fields[4]));
+						routes.put(fields[1], new Destination(Integer.parseInt(fields[2]), fields[3], fields[4], entry.startsWith("c:")));
 					}
 					continue;
 				}
@@ -76,6 +76,45 @@ public final class BlueprintItemOrders
 
 	public boolean isSupported() { return futureValue == null; }
 	public boolean hasTab(int tab) { return orders.containsKey(tab); }
+	public boolean isCaptured() { return destinations.values().stream().anyMatch(target -> target.captured); }
+
+	/** The current bank's physical tabs become the target, without changing item categories. */
+	public static BlueprintItemOrders capture(Map<Integer, List<Integer>> physicalTabs,
+		BankOrganizationPreview preview, BlueprintItemOrders previous)
+	{
+		Map<Integer, Deque<BankPreviewItem>> available = new LinkedHashMap<>();
+		Map<Integer, Integer> occurrences = new LinkedHashMap<>();
+		preview.getCategories().forEach(category -> category.getItems().forEach(item -> {
+			if (item.isBlank()) return;
+			int ordinal = occurrences.merge(item.getItemId(), 1, Integer::sum) - 1;
+			available.computeIfAbsent(item.getItemId(), key -> new ArrayDeque<>())
+				.add(item.getBlueprintOccurrence() < 0 ? item.withBlueprintOccurrence(ordinal) : item);
+		}));
+		BlueprintItemOrders result = EMPTY;
+		Map<String, Destination> routes = new LinkedHashMap<>();
+		occurrences.clear();
+		List<Integer> physicalOrder = new ArrayList<>(physicalTabs.keySet());
+		physicalOrder.sort(java.util.Comparator.comparingInt(tab -> tab == 0 ? BankLayoutPlan.DESTINATION_COUNT : tab));
+		for (int tab : physicalOrder)
+		{
+			result = result.withTab(tab, physicalTabs.get(tab));
+			for (int id : physicalTabs.get(tab))
+			{
+				Deque<BankPreviewItem> copies = available.get(id);
+				if (copies == null || copies.isEmpty()) throw new IllegalArgumentException("Bank contents changed");
+				BankPreviewItem item = copies.removeFirst();
+				String key = occurrenceKey(item, 0);
+				Destination prior = previous.destinations.get(key);
+				String original = prior != null && prior.tag.equals(item.getLayoutTagKey())
+					? prior.originalTag : item.getLayoutTagKey();
+				key = id + "#" + (occurrences.merge(id, 1, Integer::sum) - 1);
+				routes.put(key, new Destination(tab, original, item.getLayoutTagKey(), true));
+			}
+		}
+		if (available.values().stream().anyMatch(copies -> !copies.isEmpty()))
+			throw new IllegalArgumentException("Bank contents changed");
+		return result.withDestinations(routes);
+	}
 
 	/** Empty order restores automatic placement; existing absent IDs are retained on edits. */
 	public BlueprintItemOrders withTab(int tab, List<Integer> visibleOrder)
@@ -149,7 +188,12 @@ public final class BlueprintItemOrders
 		public final int tab;
 		public final String originalTag;
 		public final String tag;
+		private final boolean captured;
 		public Destination(int tab, String originalTag, String tag)
+		{
+			this(tab, originalTag, tag, false);
+		}
+		private Destination(int tab, String originalTag, String tag, boolean captured)
 		{
 			if (tab < 0 || tab >= BankLayoutPlan.DESTINATION_COUNT) throw new IllegalArgumentException("Invalid tab");
 			BankTags.byKey(originalTag);
@@ -157,6 +201,7 @@ public final class BlueprintItemOrders
 			this.tab = tab;
 			this.originalTag = originalTag;
 			this.tag = tag;
+			this.captured = captured;
 		}
 	}
 
@@ -200,6 +245,7 @@ public final class BlueprintItemOrders
 
 	private BankOrganizationPreview route(BankOrganizationPreview preview, BankLayoutPlan plan)
 	{
+		boolean captured = isCaptured();
 		List<List<BankPreviewItem>> routed = new ArrayList<>();
 		for (int i = 0; i < preview.getCategories().size(); i++) routed.add(new ArrayList<>());
 		Map<Integer, Integer> occurrences = new LinkedHashMap<>();
@@ -208,14 +254,16 @@ public final class BlueprintItemOrders
 		{
 			for (BankPreviewItem item : preview.getCategories().get(tab).getItems())
 			{
+				if (captured && item.isBlank()) continue;
 				int occurrence = occurrences.merge(item.getItemId(), 1, Integer::sum) - 1;
 				BankPreviewItem identified = item.withBlueprintOccurrence(occurrence);
 				Destination target = destinations.get(occurrenceKey(identified, occurrence));
 				if (target != null && target.tab < routed.size()
-					&& target.originalTag.equals(item.getLayoutTagKey())
-					&& plan != null && plan.destinationOf(target.tag) == target.tab)
+					&& (target.captured || target.originalTag.equals(item.getLayoutTagKey())
+						&& plan != null && plan.destinationOf(target.tag) == target.tab))
 				{
-					routed.get(target.tab).add(identified.withLayoutTag(target.tag));
+					routed.get(target.tab).add(target.originalTag.equals(item.getLayoutTagKey())
+						? identified.withLayoutTag(target.tag) : identified);
 					modified.add(tab);
 					modified.add(target.tab);
 				}
@@ -240,7 +288,7 @@ public final class BlueprintItemOrders
 	{
 		if (futureValue != null) return futureValue;
 		if (orders.isEmpty() && destinations.isEmpty()) return "";
-		StringBuilder out = new StringBuilder("v1");
+		StringBuilder out = new StringBuilder(isCaptured() ? "v2" : "v1");
 		orders.forEach((tab, ids) -> {
 			out.append('|').append(tab).append(':');
 			for (int i = 0; i < ids.size(); i++)
@@ -249,7 +297,7 @@ public final class BlueprintItemOrders
 				out.append(ids.get(i));
 			}
 		});
-		destinations.forEach((key, target) -> out.append("|r:").append(key).append(':')
+		destinations.forEach((key, target) -> out.append(target.captured ? "|c:" : "|r:").append(key).append(':')
 			.append(target.tab).append(':').append(target.originalTag).append(':').append(target.tag));
 		return out.toString();
 	}

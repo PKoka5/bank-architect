@@ -1,5 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsWord;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
 import java.util.Optional;
@@ -54,8 +58,8 @@ final class ResourceSkillZoneClassifier
 			}
 		}
 
-		String name = ResourceItemSorter.normalized(item.getDisplayName());
-		String subcategory = ResourceItemSorter.normalized(item.getSubcategory());
+		String name = normalized(item.getDisplayName());
+		String subcategory = normalized(item.getSubcategory());
 
 		if (ResourceItemSorter.isMiningResource(name))
 		{
@@ -95,16 +99,16 @@ final class ResourceSkillZoneClassifier
 		{
 			return ResourceSkillZone.WOODCUTTING;
 		}
-		if (ResourceItemSorter.containsAny(name, "hide", "leather") || name.endsWith(" fur")
+		if (containsAny(name, "hide", "leather") || name.endsWith(" fur")
 			|| ResourceItemSorter.isGem(name)
 			|| ResourceItemSorter.isGlassMaterial(name, subcategory)
 			|| ResourceItemSorter.isTextile(name, subcategory))
 		{
 			return ResourceSkillZone.CRAFTING;
 		}
-		if (subcategory.contains("prayer") || ResourceItemSorter.containsWord(name, "bone")
-			|| ResourceItemSorter.containsWord(name, "bones")
-			|| ResourceItemSorter.containsWord(name, "remains")
+		if (subcategory.contains("prayer") || containsWord(name, "bone")
+			|| containsWord(name, "bones")
+			|| containsWord(name, "remains")
 			|| name.equals("ashes")
 			|| (!name.equals("volcanic ash") && (name.endsWith(" ash") || name.endsWith(" ashes"))))
 		{

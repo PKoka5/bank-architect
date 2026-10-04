@@ -591,19 +591,8 @@ public final class BankGuideOverlay extends Overlay
 
 	private int canonicalItemId(int itemId, Map<Integer, Integer> canonicalItemIds)
 	{
-		Integer cached = canonicalItemIds.get(itemId);
-		if (cached != null)
-		{
-			return cached;
-		}
-		ItemComposition composition = client.getItemDefinition(itemId);
-		int canonical = canonicalItemId(itemId,
-			composition == null ? -1 : composition.getPlaceholderTemplateId(),
-			composition == null ? -1 : composition.getPlaceholderId());
-		canonicalItemIds.put(itemId, canonical);
-		return canonical;
+		return canonicalItemIds.computeIfAbsent(itemId, id -> BankItemIds.canonical(client, id));
 	}
-
 	static int canonicalItemId(int itemId, int placeholderTemplateId, int placeholderItemId)
 	{
 		return BankItemIds.canonical(itemId, placeholderTemplateId, placeholderItemId);
@@ -652,21 +641,8 @@ public final class BankGuideOverlay extends Overlay
 
 	private static boolean viewMatchesLogicalBank(List<BankSlotWidget> bankSlots, int[] actualItemIds)
 	{
-		if (bankSlots.size() != actualItemIds.length)
-		{
-			return false;
-		}
-		Set<Integer> seenSlots = new HashSet<>();
-		for (BankSlotWidget slot : bankSlots)
-		{
-			if (slot.logicalSlot < 0 || slot.logicalSlot >= actualItemIds.length
-				|| actualItemIds[slot.logicalSlot] != slot.itemId
-				|| !seenSlots.add(slot.logicalSlot))
-			{
-				return false;
-			}
-		}
-		return true;
+		return bankSlots.isEmpty() ? actualItemIds.length == 0
+			: viewMatchesSection(bankSlots, actualItemIds, 0, actualItemIds.length);
 	}
 
 	private static Map<Integer, Integer> plannedSlotByItemId(List<BankPreviewItem> plannedItems)

@@ -32,7 +32,7 @@ public final class BlueprintSlot
 
 	public static BlueprintSlot empty(String label)
 	{
-		return empty("empty." + label.trim().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", ""), label);
+		return empty("empty." + label.trim().toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", ""), label);
 	}
 
 	public String getKey()

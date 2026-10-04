@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsWord;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -209,7 +212,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 	 */
 	private static ItemCategory resolveCategory(String displayName, String constantName, ItemCategory explicitCategory)
 	{
-		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
+		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase(java.util.Locale.ROOT);
 		if (containsAny(name, TELEPORT_NEEDLES))
 		{
 			return ItemCategory.TELEPORT;
@@ -243,7 +246,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 	private static boolean isGearOverride(String displayName)
 	{
-		String name = displayName.toLowerCase();
+		String name = displayName.toLowerCase(java.util.Locale.ROOT);
 		if (name.startsWith("torag's hammers")) return true;
 		if (name.contains("thrownaxe") && !containsAny(name, "head", "crate", "ornament kit")) return true;
 		return containsWord(name, "warhammer") && !containsAny(name, "crate", "ornament kit");
@@ -251,7 +254,7 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 	private static boolean isToolOverride(String displayName)
 	{
-		String name = displayName.toLowerCase();
+		String name = displayName.toLowerCase(java.util.Locale.ROOT);
 		String base = name.replaceFirst("\\s*\\([^)]*\\)$", "").trim();
 		if (containsWord(name, "pickaxe") && !containsAny(name, "head", "handle", "kit", "crate")) return true;
 		if ((base.equals("harpoon") || base.endsWith(" harpoon")) && !name.contains("crate")) return true;
@@ -273,13 +276,13 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 	private static boolean isActualRune(String displayName)
 	{
-		String name = displayName.toLowerCase();
+		String name = displayName.toLowerCase(java.util.Locale.ROOT);
 		return name.endsWith(" rune") || name.contains("essence");
 	}
 
 	private static ItemCategory refineCategory(String displayName, String constantName, ItemCategory category)
 	{
-		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
+		String name = (displayName + " " + constantName.replace('_', ' ')).toLowerCase(java.util.Locale.ROOT);
 		for (String[] rule : NAME_RULES.get())
 			for (int i = 2; i < rule.length; i++)
 				if ("word".equals(rule[1]) ? containsWord(name, rule[i]) : name.contains(rule[i]))
@@ -311,38 +314,4 @@ public final class ResourceItemRegistry implements ItemCatalog
 		return Collections.unmodifiableList(rules);
 	}
 
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private static boolean containsWord(String value, String word)
-	{
-		int fromIndex = 0;
-		while (fromIndex < value.length())
-		{
-			int index = value.indexOf(word, fromIndex);
-			if (index < 0)
-			{
-				return false;
-			}
-			int end = index + word.length();
-			boolean startBoundary = index == 0 || !Character.isLetterOrDigit(value.charAt(index - 1));
-			boolean endBoundary = end == value.length() || !Character.isLetterOrDigit(value.charAt(end));
-			if (startBoundary && endBoundary)
-			{
-				return true;
-			}
-			fromIndex = index + 1;
-		}
-		return false;
-	}
 }

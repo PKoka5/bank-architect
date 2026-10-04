@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsWord;
+
 final class ItemClassificationRefiner
 {
 	private ItemClassificationRefiner()
@@ -8,9 +11,9 @@ final class ItemClassificationRefiner
 
 	static Classification refine(String displayName, String constantName, ItemCategory legacyCategory)
 	{
-		String name = displayName.toLowerCase();
-		String constant = constantName.toLowerCase();
-		String searchable = (displayName + " " + constantName.replace('_', ' ')).toLowerCase();
+		String name = displayName.toLowerCase(java.util.Locale.ROOT);
+		String constant = constantName.toLowerCase(java.util.Locale.ROOT);
+		String searchable = (displayName + " " + constantName.replace('_', ' ')).toLowerCase(java.util.Locale.ROOT);
 
 		if (containsAny(name, ClassificationNames.group(0)))
 		{
@@ -452,7 +455,7 @@ final class ItemClassificationRefiner
 			return new Classification(legacyCategory, gearSubcategory(name));
 		}
 
-		return new Classification(legacyCategory, legacyCategory.getDisplayLabel().toLowerCase());
+		return new Classification(legacyCategory, legacyCategory.getDisplayLabel().toLowerCase(java.util.Locale.ROOT));
 	}
 
 	private static String gearSubcategory(String name)
@@ -639,40 +642,6 @@ final class ItemClassificationRefiner
 			return false;
 		}
 		return containsAny(name, ClassificationNames.group(36));
-	}
-
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static boolean containsWord(String value, String word)
-	{
-		int fromIndex = 0;
-		while (fromIndex < value.length())
-		{
-			int index = value.indexOf(word, fromIndex);
-			if (index < 0)
-			{
-				return false;
-			}
-			int end = index + word.length();
-			boolean startBoundary = index == 0 || !Character.isLetterOrDigit(value.charAt(index - 1));
-			boolean endBoundary = end == value.length() || !Character.isLetterOrDigit(value.charAt(end));
-			if (startBoundary && endBoundary)
-			{
-				return true;
-			}
-			fromIndex = index + 1;
-		}
-		return false;
 	}
 
 	static final class Classification

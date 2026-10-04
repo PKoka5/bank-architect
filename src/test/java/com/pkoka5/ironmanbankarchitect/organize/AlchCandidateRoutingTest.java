@@ -1,10 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.Arrays;
@@ -199,24 +201,46 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
+	public void bulkQuantityDoesNotMakeBarrowsArmourReplaceable()
+	{
+		// Local canonical Wiki bonus vectors: Torva scores higher but loses on
+		// stab, slash, magic defence and ranged attack. A stack is not proof of replacement.
+		GearStats torva = new GearStats(GearSlot.BODY, 0, 0, 0, -18, -14, 6, 0, 1,
+			117, 111, 117, -11, 142, 0, 0);
+		GearStats dharok = new GearStats(GearSlot.BODY, 0, 0, 0, -30, -10, 0, 0, 0,
+			122, 120, 107, -6, 132, 0, 0);
+		assertFalse(torva.dominates(dharok));
+		for (int quantity : new int[]{3, 8, 25})
+		{
+			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+				new BankItemSnapshot(26384, 1, 0), new BankItemSnapshot(4720, quantity, 1))),
+				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
+				itemId -> itemId == 26384 ? Optional.of(torva) : Optional.of(dharok),
+				itemId -> itemId == 4720 ? 168000 : 360000);
+			assertEquals("Dharok x" + quantity, 2, categoryByKey(preview, "combat-gear").getItemCount());
+			assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+		}
+	}
+
+	@Test
 	public void bulkStockWearablesMoveToAlchEvenBelowValueThreshold()
 	{
 		// 820 mithril platebodies are smithing stock, not gear, even though
 		// their alch value sits below the normal threshold.
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
-		stats.put(1, meleeBody(300));
-		stats.put(2, meleeBody(100));
+		stats.put(26384, meleeBody(300));
+		stats.put(ItemID.MITHRIL_PLATEBODY, meleeBody(100));
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(1, 1, 0),
-			new BankItemSnapshot(2, 820, 1)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+			new BankItemSnapshot(26384, 1, 0),
+			new BankItemSnapshot(ItemID.MITHRIL_PLATEBODY, 820, 1)
+		)), CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 1560);
 
 		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals(1, categoryByKey(preview, "slayer-boss-loot").getItemCount());
-		assertEquals("Gear 2", categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+		assertEquals("Mithril platebody", categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
 	}
 
 	@Test
@@ -391,28 +415,30 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
-	public void alchDecisionUsesTheSameSemanticTiersAsGearLayout()
+	public void reviewedRuneStockKeepsItsAlchWorkflowWithoutDominance()
 	{
 		Map<Integer, String> names = new LinkedHashMap<>();
 		names.put(1, "Bandos chestplate");
 		names.put(2, "Fighter torso");
-		names.put(3, "Rune platebody");
+		names.put(ItemID.RUNE_PLATEBODY, "Rune platebody");
 		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId, names.get(itemId),
 			ItemCategory.GEAR, "body", Collections.emptySet(), null));
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, meleeBody(250));
 		stats.put(2, new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 4, 0, 0, 100));
-		// Rune has more raw defence than either alternative; semantic tiers must
-		// still recognize Bandos and torso as the owned primary + backup.
-		stats.put(3, meleeBody(308));
+		// The reviewed stock exception still applies when the primary/backup
+		// alternatives have weaker raw defence and do not prove dominance.
+		stats.put(ItemID.RUNE_PLATEBODY, meleeBody(308));
+		assertFalse(stats.get(1).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
+		assertFalse(stats.get(2).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
-			new BankItemSnapshot(3, 25, 2)
+			new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 25, 2)
 		)), catalog, BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
-			itemId -> itemId == 3 ? 39000 : 0);
+			itemId -> itemId == ItemID.RUNE_PLATEBODY ? 39000 : 0);
 
 		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals("Rune platebody",

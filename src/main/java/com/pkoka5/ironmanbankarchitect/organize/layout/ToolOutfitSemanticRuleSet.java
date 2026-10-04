@@ -123,7 +123,8 @@ public final class ToolOutfitSemanticRuleSet
 				entries.size(), lockedTargets)
 			: 0;
 
-		if (runecraftingRows == 0 && containerRows == 0)
+		// A sparse tab may end before the row below its tallest outfit exists.
+		if (runecraftingRows == 0 && containerRows == 0 && maxOutfitHeight * 8 < entries.size())
 		{
 			for (ToolFamilyFact family : TOOL_FAMILIES.get())
 			{

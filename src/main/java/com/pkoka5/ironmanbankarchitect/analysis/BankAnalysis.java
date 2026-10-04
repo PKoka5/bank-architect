@@ -96,6 +96,7 @@ public final class BankAnalysis implements AutoCloseable
 
 	private void analyzeBank(long requestGeneration, BankAnalysisRequest analysisRequest)
 	{
+		if (!isLatestRequest(requestGeneration)) return;
 		try
 		{
 			itemCatalog.requireAvailable();
@@ -141,5 +142,12 @@ public final class BankAnalysis implements AutoCloseable
 	{
 		closed = true;
 		currentRequestGeneration++;
+	}
+
+	public synchronized void invalidate()
+	{
+		if (closed) return;
+		currentRequestGeneration++;
+		statusPublisher.accept(BankAnalysisStatus.notStarted());
 	}
 }

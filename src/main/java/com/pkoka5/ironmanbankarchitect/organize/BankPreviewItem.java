@@ -27,7 +27,7 @@ public final class BankPreviewItem
 	public BankPreviewItem(int itemId, String displayName, int quantity)
 	{
 		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet(), false,
-			Collections.singletonList(quantity));
+			Collections.singletonList(quantity), null, -1);
 	}
 
 	public BankPreviewItem(CatalogItem catalogItem, int quantity)
@@ -37,31 +37,14 @@ public final class BankPreviewItem
 
 	public BankPreviewItem(CatalogItem catalogItem, int quantity, boolean placeholder)
 	{
-		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
-			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder,
-			Collections.singletonList(quantity));
+		this(catalogItem, quantity, placeholder, Collections.singletonList(quantity));
 	}
 
 	public BankPreviewItem(CatalogItem catalogItem, int quantity, boolean placeholder,
 		List<Integer> physicalSlotQuantities)
 	{
 		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
-			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder, physicalSlotQuantities);
-	}
-
-	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
-		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities)
-	{
-		this(itemId, displayName, quantity, itemCategory, subcategory, tags, placeholder,
-			physicalSlotQuantities, null);
-	}
-
-	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
-		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities,
-		String layoutTagKey)
-	{
-		this(itemId, displayName, quantity, itemCategory, subcategory, tags, placeholder,
-			physicalSlotQuantities, layoutTagKey, -1);
+			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder, physicalSlotQuantities, null, -1);
 	}
 
 	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
@@ -193,7 +176,7 @@ public final class BankPreviewItem
 		for (int slotQuantity : physicalSlotQuantities)
 		{
 			slots.add(new BankPreviewItem(itemId, displayName, slotQuantity, itemCategory,
-				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity), layoutTagKey));
+				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity), layoutTagKey, -1));
 		}
 		return slots;
 	}

@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
 import java.util.ArrayList;
@@ -60,7 +63,7 @@ public final class PresetItemSorter
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> subgroupRank(category.getKey(), item))
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
 	}
@@ -72,7 +75,7 @@ public final class PresetItemSorter
 			.comparingInt(PresetItemSorter::clueRank)
 			.thenComparingInt(item -> ItemSetCatalog.cosmeticFamilyRankOf(item.getItemId()))
 			.thenComparing(PresetItemSorter::clueFamily)
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
 	}
@@ -88,8 +91,8 @@ public final class PresetItemSorter
 	private static String clueFamily(BankPreviewItem item)
 	{
 		return ItemSetCatalog.cosmeticFamilyOf(item.getItemId())
-			.map(PresetItemSorter::normalizedName)
-			.orElseGet(() -> normalizedName(item.getDisplayName()));
+			.map(value -> normalized(value))
+			.orElseGet(() -> normalized(item.getDisplayName()));
 	}
 
 	private static List<BankPreviewItem> sortBossLoot(List<BankPreviewItem> items)
@@ -98,7 +101,7 @@ public final class PresetItemSorter
 		sorted.sort(Comparator
 			.comparingInt(PresetItemSorter::bossLootRank)
 			.thenComparing(PresetItemSorter::bossLootFamily)
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
 	}
@@ -108,15 +111,15 @@ public final class PresetItemSorter
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt(ReviewItemSorter::rank)
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
 	}
 
 	static int subgroupRank(String categoryKey, BankPreviewItem item)
 	{
-		String name = normalizedName(item.getDisplayName());
-		String subcategory = normalizedName(item.getSubcategory());
+		String name = normalized(item.getDisplayName());
+		String subcategory = normalized(item.getSubcategory());
 
 		if ("currency-utilities".equals(categoryKey))
 		{
@@ -184,8 +187,8 @@ public final class PresetItemSorter
 
 	static int herbloreSpilloverRank(BankPreviewItem item)
 	{
-		String name = normalizedName(item.getDisplayName());
-		String subcategory = normalizedName(item.getSubcategory());
+		String name = normalized(item.getDisplayName());
+		String subcategory = normalized(item.getSubcategory());
 		return rank(name, subcategory,
 			group(0, "seed", "sapling"),
 			group(10, "grimy", "clean", "herb", "leaf"),
@@ -226,27 +229,9 @@ public final class PresetItemSorter
 		return new Group(rank, needles);
 	}
 
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle))
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private static String normalizedName(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
-	}
-
 	private static int clueRank(BankPreviewItem item)
 	{
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		String[] order = {"beginner", "easy", "medium", "hard", "elite", "master"};
 		for (int i = 0; i < order.length; i++)
 		{
@@ -272,7 +257,7 @@ public final class PresetItemSorter
 	{
 		if (item.getItemCategory() == ItemCategory.UNIQUE)
 		{
-			String subcategory = normalizedName(item.getSubcategory());
+			String subcategory = normalized(item.getSubcategory());
 			if (subcategory.contains("weapon-upgrade")) return 0;
 			if (subcategory.contains("equipment-upgrade")) return 10;
 			if (subcategory.contains("charge")) return 20;
@@ -287,7 +272,7 @@ public final class PresetItemSorter
 
 	private static String bossLootFamily(BankPreviewItem item)
 	{
-		String name = normalizedName(item.getDisplayName());
+		String name = normalized(item.getDisplayName());
 		if (name.contains("crystal weapon seed")) return "crystal-weapon-seed";
 		if (name.endsWith(" page")) return "charge-page";
 		return name;

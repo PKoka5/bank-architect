@@ -127,9 +127,9 @@ public class BlueprintItemOrdersTest
 		BlueprintItemOrders parsed = BlueprintItemOrders.parse("v1|0:2,1|1:bad|22:1|2:-1");
 		assertEquals(Arrays.asList(2, 1), ids(parsed.apply(preview(1, 2)), 0));
 		assertFalse(parsed.hasTab(1));
-		BlueprintItemOrders future = BlueprintItemOrders.parse("v2|keep-this");
+		BlueprintItemOrders future = BlueprintItemOrders.parse("v3|keep-this");
 		assertFalse(future.isSupported());
-		assertEquals("v2|keep-this", future.serialize());
+		assertEquals("v3|keep-this", future.serialize());
 		assertThrows(IllegalStateException.class, () -> future.withTab(0, Arrays.asList(1)));
 		assertThrows(IllegalArgumentException.class, () -> BlueprintItemOrders.EMPTY.withTab(10, Arrays.asList(1)));
 		assertThrows(IllegalArgumentException.class, () -> BlueprintItemOrders.EMPTY.withTab(0,

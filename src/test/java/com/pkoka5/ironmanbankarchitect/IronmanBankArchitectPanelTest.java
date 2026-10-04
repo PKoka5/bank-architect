@@ -855,6 +855,101 @@ public class IronmanBankArchitectPanelTest
 		panel.shutdown();
 	}
 
+	@Test
+	public void visibleTabLayoutRefreshesWhenTheStoredPlanChangesWithoutANewPreview() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			RecordingLayoutModel model = new RecordingLayoutModel();
+			IronmanBankArchitectPanel panel = panelWith(model);
+			try
+			{
+				panel.getTabOrderButton().doClick();
+				BankLayoutPlan incoming = model.plan().withTagAt("runes", 9).withTagAt("food", 8);
+				model.save(incoming);
+				try
+				{
+					java.lang.reflect.Method refresh = IronmanBankArchitectPanel.class.getDeclaredMethod("refreshAnalysis");
+					refresh.setAccessible(true);
+					refresh.invoke(panel);
+				}
+				catch (ReflectiveOperationException ex)
+				{
+					throw new AssertionError(ex);
+				}
+				assertEquals(incoming.getDestinations(), panel.getLayoutPlan().getDestinations());
+			}
+			finally { panel.shutdown(); }
+		});
+	}
+
+	@Test
+	public void editingImmediatelyAfterExternalPlanChangePreservesTheIncomingPlacements() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			RecordingLayoutModel model = new RecordingLayoutModel();
+			IronmanBankArchitectPanel panel = panelWith(model);
+			try
+			{
+				panel.getTabOrderButton().doClick();
+				BankLayoutPlan incoming = model.plan().withTagAt("runes", 9);
+				model.save(incoming);
+				panel.moveTagTo("food", 8);
+				assertEquals(incoming.withTagAt("food", 8).getDestinations(), model.plan().getDestinations());
+			}
+			finally { panel.shutdown(); }
+		});
+	}
+
+	@Test
+	public void shiftingImmediatelyAfterExternalPlanChangePreservesTheIncomingPlacements() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			RecordingLayoutModel model = new RecordingLayoutModel();
+			IronmanBankArchitectPanel panel = panelWith(model);
+			try
+			{
+				panel.getTabOrderButton().doClick();
+				BankLayoutPlan incoming = model.plan().withTagAt("runes", 9)
+					.withTagAt("food", 8).withTagAt("cosmetics", 8);
+				model.save(incoming);
+				panel.shiftWithinSelected("cosmetics", -1);
+				assertEquals(incoming.withTagShifted("cosmetics", -1).getDestinations(), model.plan().getDestinations());
+			}
+			finally { panel.shutdown(); }
+		});
+	}
+
+	@Test
+	public void settingsRefreshUpdatesProfilesAndOptionsEvenWhenPlanAndPreviewDoNotChange() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			ProfileLayoutModel model = new ProfileLayoutModel();
+			BankLayoutPlan unchangedPlan = model.plan().withTagAt("runes", 9);
+			model.saveProfile("Profile A", unchangedPlan);
+			IronmanBankArchitectPanel panel = panelWith(model);
+			try
+			{
+				panel.getTabOrderButton().doClick();
+				assertEquals("Profile A", panel.getProfileChooser().getSelectedItem());
+				assertTrue(panel.getAlchPileBox().isSelected());
+				assertFalse(panel.getShowBankButton().isEnabled());
+				model.profiles = BankLayoutProfiles.parse("", "").withProfile("Profile B", unchangedPlan.serialize());
+				model.working = unchangedPlan;
+				model.layoutOptions = new BankLayoutOptions(false, false, false);
+
+				panel.refreshSettings();
+
+				assertEquals("Profile B", panel.getProfileChooser().getSelectedItem());
+				assertEquals(2, panel.getProfileChooser().getItemCount());
+				assertEquals("Profile B", panel.getProfileChooser().getItemAt(1));
+				assertFalse(panel.getAlchPileBox().isSelected());
+				assertEquals(unchangedPlan.getDestinations(), panel.getLayoutPlan().getDestinations());
+				assertFalse(panel.getShowBankButton().isEnabled());
+			}
+			finally { panel.shutdown(); }
+		});
+	}
+
 	/**
 	 * The two layout options live beside the tabs they affect. They were only in
 	 * the client's plugin settings at first, where nobody arranging tabs thinks

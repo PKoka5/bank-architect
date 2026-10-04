@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
@@ -76,10 +78,10 @@ final class HerbloreItemSorter
 
 		herblore.sort(Comparator
 			.comparingInt(HerbloreItemSorter::runRank)
-			.thenComparing(item -> potionFamily(normalizedName(item.getDisplayName())))
+			.thenComparing(item -> potionFamily(normalized(item.getDisplayName())))
 			.thenComparing(Comparator.comparingInt(
-				(BankPreviewItem item) -> doseOf(normalizedName(item.getDisplayName()))).reversed())
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+				(BankPreviewItem item) -> doseOf(normalized(item.getDisplayName()))).reversed())
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 
 		List<BankPreviewItem> laidOut = new ArrayList<>(herblore);
@@ -164,10 +166,10 @@ final class HerbloreItemSorter
 		}
 		Comparator<BankPreviewItem> spilloverOrder = Comparator
 			.comparingInt(PresetItemSorter::herbloreSpilloverRank)
-			.thenComparing(item -> potionFamily(normalizedName(item.getDisplayName())))
+			.thenComparing(item -> potionFamily(normalized(item.getDisplayName())))
 			.thenComparing(Comparator.comparingInt(
-				(BankPreviewItem item) -> doseOf(normalizedName(item.getDisplayName()))).reversed())
-			.thenComparing(item -> normalizedName(item.getDisplayName()))
+				(BankPreviewItem item) -> doseOf(normalized(item.getDisplayName()))).reversed())
+			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId);
 		herbloreSpillover.sort(spilloverOrder);
 		farmingSpillover.sort(spilloverOrder);
@@ -213,7 +215,7 @@ final class HerbloreItemSorter
 		BankPreviewItem[] cells = new BankPreviewItem[GRID_COLUMNS];
 		for (BankPreviewItem item : unused)
 		{
-			String name = normalizedName(item.getDisplayName());
+			String name = normalized(item.getDisplayName());
 			int herbCell = metadataHerbCell(chain, item);
 			if (herbCell < 0)
 			{
@@ -317,11 +319,6 @@ final class HerbloreItemSorter
 	private static BankPreviewItem first(BankPreviewItem current, BankPreviewItem candidate)
 	{
 		return current == null ? candidate : current;
-	}
-
-	private static String normalizedName(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
 	}
 
 	private static Chain chain(String herb, String product, String... secondaries)

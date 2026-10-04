@@ -40,6 +40,7 @@ final class BlueprintEditorPanel extends JPanel
 	private final JButton save = new JButton("Save");
 	private final JButton reset = new JButton("Reset tab order");
 	private final JButton assign = new JButton("Assign category...");
+	private final JButton capture = new JButton("Save current bank...");
 	private final javax.swing.JComboBox<String> moveMode = new javax.swing.JComboBox<>(new String[]{"Swap", "Insert"});
 	private int selectedItem = -1;
 	private final javax.swing.JTextArea status = new javax.swing.JTextArea("Analyze your bank to begin.", 2, 0);
@@ -69,10 +70,10 @@ final class BlueprintEditorPanel extends JPanel
 		tabs.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
 		JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		controls.setOpaque(false);
-		for (JButton button : new JButton[]{edit, undo, cancel, save, reset, assign})
+		for (JButton button : new JButton[]{edit, undo, cancel, save, reset, assign, capture})
 		{
 			button.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
-			if (button != assign) controls.add(button);
+			if (button != assign && button != capture) controls.add(button);
 		}
 		JPanel movement = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		movement.setOpaque(false);
@@ -81,6 +82,8 @@ final class BlueprintEditorPanel extends JPanel
 		movement.add(modeLabel);
 		movement.add(moveMode);
 		movement.add(assign);
+		movement.add(capture);
+		capture.setToolTipText("Save your open bank's tabs and item order as a new active layout. Remove bank fillers first.");
 		moveMode.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		moveMode.setForeground(ColorScheme.TEXT_COLOR);
 		moveMode.setToolTipText("Swap exchanges items; Insert moves the selected item to the clicked slot.");
@@ -103,6 +106,9 @@ final class BlueprintEditorPanel extends JPanel
 		cancel.addActionListener(event -> cancelEdit());
 		save.addActionListener(event -> saveDraft());
 		reset.addActionListener(event -> resetTab());
+		capture.addActionListener(event -> saveCurrentBank(javax.swing.JOptionPane.showInputDialog(this,
+			"Keep your bank open. Save all current tabs and item positions as a new active layout.",
+			com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles.freeName("My bank", model.profileNames()))));
 		assign.addActionListener(event -> {
 			String[] names = com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
 				.filter(tag -> model.plan().destinationOf(tag.getKey()) >= 0)
@@ -185,6 +191,19 @@ final class BlueprintEditorPanel extends JPanel
 		model.saveBlueprintEdit(orders, draft.transfers(), source, context, this::saved);
 	}
 
+	void saveCurrentBank(String name)
+	{
+		if (name == null || name.trim().isEmpty() || latest == null || draft != null || saving
+			|| !model.options().itemOrders().isSupported()) return;
+		saving = true;
+		refreshControls();
+		model.captureCurrentBank(name, latest, model.editingContext(), success -> {
+			saved(success);
+			status.setText(success ? "Current bank saved as your active layout. Future analysis follows these positions."
+				: "Unable to save. Open your bank, remove fillers and analyze again; check the saved-layout limit.");
+		});
+	}
+
 	private void resetTab()
 	{
 		if (latest == null || draft != null || saving || tabs.getSelectedIndex() < 0) return;
@@ -220,18 +239,22 @@ final class BlueprintEditorPanel extends JPanel
 		for (int i = 0; i < latest.getCategories().size(); i++)
 		{
 			BankCategoryPreview category = latest.getCategories().get(i);
-			String title = (i == 0 ? "MAIN" : "TAB " + (i + 1)) + "  " + category.getItemCount();
+			String title = tabTitle(i, category.getItemCount());
 			tabs.addTab(title, gridPane(category.getItems(), false));
-			tabs.setToolTipTextAt(i, category.getCategory().getName());
+			tabs.setToolTipTextAt(i, model.options().itemOrders().isCaptured() ? "Saved bank tab" : category.getCategory().getName());
 		}
 		selectTab(Math.min(selected, tabs.getTabCount() - 1));
 	}
 
 	private void renderDraft()
 	{
+		JScrollPane previous = (JScrollPane) tabs.getComponentAt(editedTab);
+		Point position = previous.getViewport().getViewPosition();
 		for (int i = 0; i < tabs.getTabCount(); i++)
-			tabs.setTitleAt(i, (i == 0 ? "MAIN" : "TAB " + (i + 1)) + "  " + draft.itemCount(i));
-		tabs.setComponentAt(editedTab, gridPane(draft.items(), true));
+			tabs.setTitleAt(i, tabTitle(i, draft.itemCount(i)));
+		JScrollPane replacement = gridPane(draft.items(), true);
+		tabs.setComponentAt(editedTab, replacement);
+		replacement.getViewport().setViewPosition(position);
 		refreshControls();
 	}
 
@@ -345,6 +368,11 @@ final class BlueprintEditorPanel extends JPanel
 		return -1;
 	}
 
+	private String tabTitle(int tab, int count)
+	{
+		return (tab == 0 ? "MAIN" : "TAB " + (tab + 1)) + "  " + count;
+	}
+
 	private void refreshControls()
 	{
 		boolean editing = draft != null;
@@ -356,6 +384,7 @@ final class BlueprintEditorPanel extends JPanel
 		cancel.setEnabled(editing && !saving);
 		save.setEnabled(editing && !stale && !saving);
 		reset.setEnabled(ready && !editing && latest.getCategories().get(tabs.getSelectedIndex()).hasManualOrder());
+		capture.setEnabled(ready && !editing);
 		moveMode.setEnabled(editing && !stale && !saving);
 		assign.setEnabled(editing && selectedItem >= 0 && !draft.items().get(selectedItem).isBlank() && !stale && !saving);
 		if (saving) status.setText("Saving local blueprint...");
@@ -366,7 +395,7 @@ final class BlueprintEditorPanel extends JPanel
 		else if (ready)
 		{
 			BankCategoryPreview selected = latest.getCategories().get(tabs.getSelectedIndex());
-			status.setText(selected.getCategory().getName() + (selected.hasManualOrder()
+			status.setText((model.options().itemOrders().isCaptured() ? "Saved current bank" : selected.getCategory().getName()) + (selected.hasManualOrder()
 				? " — Manual item order" : " — Automatic item order"));
 		}
 		else status.setText("Waiting for bank analysis...");

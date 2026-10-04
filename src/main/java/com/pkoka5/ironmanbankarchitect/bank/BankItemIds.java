@@ -1,6 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.bank;
 
 import net.runelite.api.gameval.ItemID;
+import net.runelite.api.Client;
+import net.runelite.api.ItemComposition;
 
 /**
  * Shared placeholder canonicalisation for bank item IDs.
@@ -27,5 +29,12 @@ public final class BankItemIds
 			return -1;
 		}
 		return placeholderTemplateId != -1 && placeholderItemId > 0 ? placeholderItemId : itemId;
+	}
+
+	public static int canonical(Client client, int itemId)
+	{
+		ItemComposition composition = client.getItemDefinition(itemId);
+		return canonical(itemId, composition == null ? -1 : composition.getPlaceholderTemplateId(),
+			composition == null ? -1 : composition.getPlaceholderId());
 	}
 }

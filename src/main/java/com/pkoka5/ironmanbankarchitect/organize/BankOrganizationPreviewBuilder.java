@@ -88,7 +88,7 @@ public final class BankOrganizationPreviewBuilder
 	private static String normalizedSubcategory(CatalogItem item)
 	{
 		String subcategory = item.getSubcategory();
-		return subcategory == null ? "" : subcategory.trim().toLowerCase();
+		return subcategory == null ? "" : subcategory.trim().toLowerCase(java.util.Locale.ROOT);
 	}
 
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset)
@@ -163,6 +163,7 @@ public final class BankOrganizationPreviewBuilder
 			? IronmanQuickToolSelector.select(snapshot) : Collections.emptySet();
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
+			if (!options.alchPile() || preset.getType() != BankPresetType.IRONMAN) break;
 			if (bankItem.isPlaceholder())
 			{
 				continue;
@@ -245,7 +246,7 @@ public final class BankOrganizationPreviewBuilder
 				// category on one tab share a bucket, which is what keeps a
 				// bundle's layout intact while its parts stay together.
 				BankTag tag = pinnedTag != null ? pinnedTag
-					: partDoseAsPotion ? BankTags.byKey("potions")
+					: partDoseAsPotion && "potions-food".equals(category.getKey()) ? BankTags.byKey("potions")
 					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
 				routedTag = tag;
 				if (!bankItem.isPlaceholder())
@@ -487,7 +488,7 @@ public final class BankOrganizationPreviewBuilder
 				&& stats.get().score() > 0)))
 		{
 			return new CatalogItem(item.getItemId(), item.getDisplayName(), ItemCategory.GEAR,
-				stats.get().getSlot().name().toLowerCase(), item.getTags(),
+				stats.get().getSlot().name().toLowerCase(java.util.Locale.ROOT), item.getTags(),
 				item.getWorkflowKey().orElse(null));
 		}
 
@@ -575,17 +576,13 @@ public final class BankOrganizationPreviewBuilder
 		// An explicit maintainer decision outranks the automatic proof.
 		boolean provenReplaceable = reviewedAlchable || beatenOutright;
 
-		// Bulk production stock (rune platebodies, crafted jewellery) moves out
-		// regardless of alch value, but weapons and ammo stay: high quantities
-		// there are consumables (chinchompas, thrown weapons), not stock.
+		// Keep weapons and ammo: large quantities can be consumable supplies.
 		GearSlot slot = stats.get().getSlot();
 		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
-		// Deliberately not gated on dominance: this rule identifies production
-		// stock by quantity, not by an item being beaten. Twenty-five rune
-		// platebodies are smithing output even though nothing owned beats their
-		// raw defence.
+		// Quantity alone cannot prove niche gear is replaceable. Bulk gear must
+		// also be explicitly reviewed or dominated by something the player owns.
 		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
-			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1)
+			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1 && provenReplaceable)
 		{
 			return true;
 		}
@@ -868,7 +865,7 @@ public final class BankOrganizationPreviewBuilder
 		private String inferredTagKeyOf(BankPreviewItem item)
 		{
 			String subcategory = item.getSubcategory() == null ? ""
-				: item.getSubcategory().trim().toLowerCase();
+				: item.getSubcategory().trim().toLowerCase(java.util.Locale.ROOT);
 			if (options.potionDoses() == PotionDoseOrder.BY_FAMILY
 				&& subcategory.startsWith("potion-dose-") && !subcategory.equals("potion-dose-4"))
 			{

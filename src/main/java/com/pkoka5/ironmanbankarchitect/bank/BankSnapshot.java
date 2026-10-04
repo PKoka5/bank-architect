@@ -11,6 +11,7 @@ import net.runelite.api.gameval.ItemID;
 public final class BankSnapshot
 {
 	private final List<BankItemSnapshot> items;
+	private final List<BankItemSnapshot> physicalItems;
 	private final Map<Integer, Integer> totalQuantityByItemId;
 
 	public BankSnapshot(List<BankItemSnapshot> rawEntries)
@@ -22,6 +23,7 @@ public final class BankSnapshot
 		Map<Integer, Boolean> placeholderByItemId = new LinkedHashMap<>();
 		Map<Integer, List<Integer>> physicalSlotQuantitiesByItemId = new LinkedHashMap<>();
 		List<Integer> firstSeenOrder = new ArrayList<>();
+		List<BankItemSnapshot> physical = new ArrayList<>();
 
 		for (BankItemSnapshot raw : rawEntries)
 		{
@@ -32,6 +34,7 @@ public final class BankSnapshot
 				continue;
 			}
 
+			physical.add(raw);
 			int itemId = raw.getItemId();
 			if (!quantityByItemId.containsKey(itemId))
 			{
@@ -63,6 +66,7 @@ public final class BankSnapshot
 		}
 
 		this.items = Collections.unmodifiableList(aggregated);
+		this.physicalItems = Collections.unmodifiableList(physical);
 
 		Map<Integer, Integer> totals = new LinkedHashMap<>();
 		for (BankItemSnapshot item : this.items)
@@ -77,6 +81,8 @@ public final class BankSnapshot
 	{
 		return items;
 	}
+
+	public List<BankItemSnapshot> getPhysicalItems() { return physicalItems; }
 
 	public int getTotalQuantity(int itemId)
 	{

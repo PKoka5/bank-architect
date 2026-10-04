@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 import net.runelite.api.Client;
-import net.runelite.api.ItemComposition;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.plugins.Plugin;
@@ -159,19 +158,8 @@ public final class BankCategoryOverlay extends Overlay
 
 	private int canonicalItemId(int itemId)
 	{
-		Integer cached = canonicalItemIdCache.get(itemId);
-		if (cached != null)
-		{
-			return cached;
-		}
-		ItemComposition composition = client.getItemDefinition(itemId);
-		int canonical = BankItemIds.canonical(itemId,
-			composition == null ? -1 : composition.getPlaceholderTemplateId(),
-			composition == null ? -1 : composition.getPlaceholderId());
-		canonicalItemIdCache.put(itemId, canonical);
-		return canonical;
+		return canonicalItemIdCache.computeIfAbsent(itemId, id -> BankItemIds.canonical(client, id));
 	}
-
 	/**
 	 * Colours mean nothing without names, so the legend lists only the
 	 * destinations actually on screen. It is placed beside the bank when the

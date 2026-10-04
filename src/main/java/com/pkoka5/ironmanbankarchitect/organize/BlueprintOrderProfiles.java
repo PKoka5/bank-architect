@@ -30,16 +30,25 @@ public final class BlueprintOrderProfiles
 
 	public BlueprintItemOrders forProfile(String name)
 	{
-		return BlueprintItemOrders.parse(values.get(name));
+		return BlueprintItemOrders.parse(values.get(keyFor(name)));
 	}
 
 	public void put(String name, BlueprintItemOrders orders)
 	{
+		name = keyFor(name);
 		if (orders.serialize().isEmpty()) values.remove(name);
 		else values.put(name, orders.serialize());
 	}
 
-	public void remove(String name) { values.remove(name); }
+	public void remove(String name) { values.remove(keyFor(name)); }
+
+	private String keyFor(String name)
+	{
+		if (!values.containsKey(name))
+			for (String stored : values.keySet())
+				if (BankLayoutShareCode.sanitize(stored).equals(name)) return stored;
+		return name;
+	}
 
 	public String serialize()
 	{

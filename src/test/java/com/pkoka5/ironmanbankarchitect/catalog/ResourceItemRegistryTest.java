@@ -5,10 +5,62 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
+import java.util.Locale;
+import java.util.Map;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 
 public class ResourceItemRegistryTest
 {
+	@Test
+	public void spikedVambracesRemainHandsGearRatherThanMatchingPikeFood()
+	{
+		for (int itemId : new int[]{10077, 10079, 10081, 10083, 10085})
+		{
+			assertCategoryOnly(itemId, ItemCategory.GEAR);
+			assertSubcategory(itemId, "hands");
+		}
+	}
+
+	@Test
+	public void freshRegistryClassificationDoesNotDependOnDefaultLocale()
+	{
+		String rows = "6696\tIce cooler\tUNKNOWN\tSLAYER_ICY_WATER\n"
+			+ "9420\tBronze limbs\tGEAR\tXBOWS_CROSSBOW_LIMBS_BRONZE\n"
+			+ "9423\tIron limbs\tGEAR\tXBOWS_CROSSBOW_LIMBS_IRON\n"
+			+ "10077\tSpiky vambraces\tUNKNOWN\tSPIKED_VAMBRACES\n";
+		synchronized (Locale.class)
+		{
+			Locale previous = Locale.getDefault();
+			try
+			{
+				for (Locale locale : new Locale[]{Locale.US, new Locale("tr", "TR")})
+				{
+					Locale.setDefault(locale);
+					// Load new rows each time: the singleton would hide locale-sensitive initialization.
+					Map<Integer, CatalogItem> items = ResourceItemRegistry.loadItems(
+						new ByteArrayInputStream(rows.getBytes(StandardCharsets.UTF_8)),
+						CanonicalItemClassificationOverrides.INSTANCE);
+					assertEquals(locale.toString(), ItemCategory.TOOL, items.get(6696).getCategory());
+					assertEquals("slayer-tool", items.get(6696).getSubcategory());
+					for (int itemId : new int[]{9420, 9423})
+					{
+						assertEquals(locale + " item " + itemId, ItemCategory.SKILLING,
+							items.get(itemId).getCategory());
+						assertEquals("ammo-component", items.get(itemId).getSubcategory());
+					}
+					assertEquals(locale.toString(), ItemCategory.GEAR, items.get(10077).getCategory());
+					assertEquals("hands", items.get(10077).getSubcategory());
+				}
+			}
+			finally
+			{
+				Locale.setDefault(previous);
+			}
+		}
+	}
+
 	@Test public void nameRulesRejectMissingOrMalformedData()
 	{
 		for (String data : new String[]{null, "# schema=2\nTOOL\tcontains\tnet\n",

@@ -1,11 +1,38 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import org.junit.Test;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
 public class ItemClassificationRefinerTest
 {
+	@Test
+	public void englishDisplayNamesAndConstantsAreStableUnderTurkishLocale()
+	{
+		synchronized (Locale.class)
+		{
+			Locale previous = Locale.getDefault();
+			try
+			{
+				for (Locale locale : new Locale[]{Locale.US, new Locale("tr", "TR")})
+				{
+					Locale.setDefault(locale);
+					assertClassification("Ice cooler", "SLAYER_ICY_WATER", ItemCategory.CLEANUP,
+						ItemCategory.TOOL, "slayer-tool");
+					assertClassification("Bronze limbs", "XBOWS_CROSSBOW_LIMBS_BRONZE", ItemCategory.GEAR,
+						ItemCategory.SKILLING, "ammo-component");
+					assertClassification("Iron limbs", "XBOWS_CROSSBOW_LIMBS_IRON", ItemCategory.GEAR,
+						ItemCategory.SKILLING, "ammo-component");
+				}
+			}
+			finally
+			{
+				Locale.setDefault(previous);
+			}
+		}
+	}
+
 	@Test
 	public void routesWeaponComponentsAndChargeItemsAsValuableDrops()
 	{

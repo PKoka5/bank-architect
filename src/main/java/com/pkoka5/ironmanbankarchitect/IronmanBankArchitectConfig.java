@@ -83,7 +83,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = guidanceSection,
 		position = 0,
 		name = "Show next manual move",
-		description = "Highlight the next safe manual collapse, tab drag, or same-section reorder in the vanilla All items bank view. Guidance follows the bank's Swap or Insert mode."
+		description = "Highlight the next manual collapse, tab drag or reorder in the vanilla All items view. Follow the bank's Swap or Insert mode."
 	)
 	default boolean suggestNextMove()
 	{
@@ -95,7 +95,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = guidanceSection,
 		position = 1,
 		name = "Colour bank items by destination",
-		description = "While Assign categories is on, tint every bank item with the colour of the blueprint tab it is planned for. Turn this off to keep the bank uncoloured even in assign mode. Drawing only; works in any bank view."
+		description = "In Assign categories mode, colour items by their blueprint destination. Works in any bank view; drawing only."
 	)
 	default boolean showCategoryOverlay()
 	{
@@ -107,7 +107,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = guidanceSection,
 		position = 2,
 		name = "Hide the green on sorted items",
-		description = "Once a slot already holds the item the blueprint wants there, leave it uncoloured. A finished bank then looks untouched and only the items that still need attention stay tinted, so you can keep the guide on permanently and a newly banked item stands out on its own. Off, the guide confirms every correct slot in green. Drawing only; misplaced, wrong and unplanned slots keep their colours either way."
+		description = "Hide green highlights on correctly placed items; other validation colours remain. Off shows correct slots in green. Newly misplaced items remain visible while the guide stays on."
 	)
 	default boolean hideSortedHighlights()
 	{
@@ -119,7 +119,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = guidanceSection,
 		position = 3,
 		name = "Guide on bank open",
-		description = "Analyze the bank and arm the sorting guide automatically every time the bank opens, and analyze again whenever an item is deposited or withdrawn, so the sidebar is never needed. Armed this way the guide stays quiet: no banners on other tabs or filtered views, and no green on already-sorted slots - only items still out of place are shown. The sidebar buttons keep working and switch the guide back to its usual form."
+		description = "Analyze and enable guidance on bank open and deposits or withdrawals. Automatic guidance hides banners on other tabs or filtered views and hides green highlights; sidebar controls restore normal guidance."
 	)
 	default boolean autoGuide()
 	{
@@ -131,7 +131,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = gearSection,
 		position = 0,
 		name = "Layout",
-		description = "Best in slot is the four-style best-in-slot matrix: one row per equipment slot, the leading columns your strongest melee, ranged, magic and prayer options, rows completed so the columns stay straight. Sets together stacks each set down a column - helm, body, legs - with the rest of the kit arranged around it, junk-free. List reads each set as one left-to-right run, strongest set first, loose gear and weapons flowing after, junk-free."
+		description = "Best in slot: strongest melee, ranged, magic and prayer columns, one row per equipment slot, filled to align. Sets together: vertical sets with remaining kit nearby. List: strongest sets first, then loose gear and weapons, without fillers."
 	)
 	default GearLayout gearLayout()
 	{
@@ -143,7 +143,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = gearSection,
 		position = 1,
 		name = "Gather outclassed gear for alching",
-		description = "Move equipment you own two strictly better versions of, and that is worth alching, to the Slayer & Boss Loot tab. Turn this off to keep every piece of gear in the combat gear tab, for example when you deliberately keep a spare set."
+		description = "Gather worthwhile equipment with two strictly better owned alternatives in Slayer & Boss Loot. Disable to keep gear, including intentional spare sets, in Combat gear."
 	)
 	default boolean alchPile()
 	{
@@ -155,7 +155,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = suppliesSection,
 		position = 0,
 		name = "Potion doses",
-		description = "Grab area keeps full potions at the front with part doses trailing behind the food as the to-decant pile. By family runs each potion 4 to 1 in one place."
+		description = "Grab area: full potions first, part doses behind food for decanting. By family: each potion together, doses 4 to 1."
 	)
 	default PotionDoseOrder potionDoses()
 	{
@@ -167,7 +167,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = herbloreSection,
 		position = 0,
 		name = "Fill part-empty Herblore rows",
-		description = "On, a part-finished recipe row borrows from the rest of the tab so the next recipe still starts at the left edge. Off, a short row is left short and the recipes simply follow each other."
+		description = "Fill incomplete recipe rows with other items so the next recipe starts at the left edge. Off keeps short rows followed immediately by the next recipe."
 	)
 	default boolean fillHerbloreRows()
 	{
@@ -179,7 +179,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = suppliesSection,
 		position = 1,
 		name = "Keep dose sets on one row",
-		description = "A dose family meeting a row edge slides behind the items after it so it stays on one row. Off, nothing ever moves: the tab reads in exact order and a family may wrap at the row edge."
+		description = "Move dose families behind later items when needed to keep each family on one row. Off preserves exact order and allows families to wrap."
 	)
 	default boolean keepDoseRows()
 	{
@@ -191,7 +191,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = utilitiesSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid keeps the curated shapes: the four-wide rune block and the achievement diary grid. List runs every item in reading order, wrapping like text, junk-free."
+		description = "Grid: four-wide rune block and achievement diary grid. List: items in reading order without fillers."
 	)
 	default TabOrder utilitiesLayout()
 	{
@@ -203,7 +203,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = toolsSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid keeps the curated shape: empty containers as columns above their filled forms. List runs every tool in skill order, wrapping like text, junk-free."
+		description = "Grid: empty container columns above their filled forms. List: tools in skill order without fillers."
 	)
 	default TabOrder toolsLayout()
 	{
@@ -215,7 +215,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = resourcesSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid keeps the curated shape: raw materials aligned above their processed forms. List runs every item in reading order, wrapping like text, junk-free."
+		description = "Grid: raw materials above their processed forms. List: items in reading order without fillers."
 	)
 	default TabOrder resourcesLayout()
 	{
@@ -227,7 +227,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = cluesSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid keeps the curated shape: cosmetic outfits as vertical columns. List runs every item in reading order, wrapping like text, junk-free."
+		description = "Grid: cosmetic outfits in vertical columns. List: items in reading order without fillers."
 	)
 	default TabOrder cluesLayout()
 	{
@@ -251,7 +251,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = utilitiesSection,
 		position = 2,
 		name = "Teleport order",
-		description = "Alphabetical, or the standard spellbook's city teleports first in casting order - Varrock, Lumbridge, Falador, House, Camelot, Ardougne, Watchtower and on - with other teleports following alphabetically and jewellery after."
+		description = "Alphabetical, or standard spellbook city teleports in casting order, followed by other teleports alphabetically and then jewellery."
 	)
 	default TeleportOrder teleportOrder()
 	{
@@ -263,7 +263,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = frequentlyUsedSection,
 		position = 0,
 		name = "Gather frequently used items",
-		description = "Hoist recurring items from across the whole bank - your best axe and pickaxe, a hammer, graceful, rune pouches, diary rewards and the staple utilities - onto the Frequently Used tag for quick access. Turn this off to keep every item filed with its own category."
+		description = "Gather your best axe and pickaxe, hammer, Graceful, rune pouches, diary rewards and staple utilities under Frequently Used. Off keeps their usual categories."
 	)
 	default boolean gatherFrequentlyUsed()
 	{

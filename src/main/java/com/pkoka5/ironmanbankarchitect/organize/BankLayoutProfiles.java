@@ -36,6 +36,7 @@ public final class BankLayoutProfiles
 		Map<String, String> plans = new LinkedHashMap<>();
 		if (serialized != null)
 		{
+			serialized = repairActiveName(serialized, activeName);
 			for (String entry : serialized.split(PROFILE_SEPARATOR))
 			{
 				String[] parts = entry.split(FIELD_SEPARATOR, 2);
@@ -53,6 +54,15 @@ public final class BankLayoutProfiles
 		}
 
 		return new BankLayoutProfiles(plans, BankLayoutShareCode.sanitize(activeName));
+	}
+
+	/** Recover a known active name saved before semicolons were excluded. */
+	public static String repairActiveName(String serialized, String activeName)
+	{
+		return serialized != null && activeName != null && activeName.contains(PROFILE_SEPARATOR)
+			? (PROFILE_SEPARATOR + serialized).replace(PROFILE_SEPARATOR + activeName + FIELD_SEPARATOR,
+				PROFILE_SEPARATOR + BankLayoutShareCode.sanitize(activeName) + FIELD_SEPARATOR).substring(1)
+			: serialized;
 	}
 
 	/** Every profile name, the bundled one first. */
@@ -138,22 +148,27 @@ public final class BankLayoutProfiles
 	/** A name not yet taken, so an import never overwrites an existing layout. */
 	public String freeName(String wanted)
 	{
+		return freeName(wanted, names());
+	}
+
+	public static String freeName(String wanted, List<String> taken)
+	{
 		String cleaned = BankLayoutShareCode.sanitize(wanted);
-		if (!plansByName.containsKey(cleaned))
+		if (!taken.contains(cleaned))
 		{
 			return cleaned;
 		}
 
-		for (int suffix = 2; suffix < MAX_PROFILES + 2; suffix++)
+		for (int suffix = 2; ; suffix++)
 		{
-			String candidate = cleaned + " " + suffix;
-			if (!plansByName.containsKey(candidate))
+			String ending = " " + suffix;
+			String candidate = cleaned.substring(0, Math.min(cleaned.length(),
+				BankLayoutShareCode.MAX_NAME_LENGTH - ending.length())).trim() + ending;
+			if (!taken.contains(candidate))
 			{
 				return candidate;
 			}
 		}
-
-		return cleaned + " " + System.currentTimeMillis();
 	}
 
 	public String serialize()

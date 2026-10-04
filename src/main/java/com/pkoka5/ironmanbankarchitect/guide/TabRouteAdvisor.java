@@ -1225,41 +1225,7 @@ public final class TabRouteAdvisor
 	private static boolean matchesDistribution(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, Move move)
 	{
-		int targetIndex = move.getTargetTab() - 1;
-		if (!sameItemCounts(beforeItems, afterItems)
-			|| beforeCounts.length != afterCounts.length
-			|| targetIndex < 0 || targetIndex >= beforeCounts.length)
-		{
-			return false;
-		}
-		int tabs = leadingTabCount(beforeCounts);
-		if (tabs < 0 || leadingTabCount(afterCounts) != tabs)
-		{
-			return false;
-		}
-		for (int index = 0; index < beforeCounts.length; index++)
-		{
-			int expected = beforeCounts[index] + (index == targetIndex ? 1 : 0);
-			if (afterCounts[index] != expected)
-			{
-				return false;
-			}
-		}
-
-		for (int index = 0; index < tabs; index++)
-		{
-			Map<Integer, Integer> expected = tabSectionCounts(beforeItems, beforeCounts, index);
-			if (index == targetIndex)
-			{
-				expected.merge(move.getItemId(), 1, Integer::sum);
-			}
-			if (!expected.equals(tabSectionCounts(afterItems, afterCounts, index)))
-			{
-				return false;
-			}
-		}
-		return mainLostOnly(beforeItems, beforeCounts, afterItems, afterCounts,
-			move.getItemId());
+		return matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts, move, -1, move.getTargetTab() - 1);
 	}
 
 	private static boolean matchesSwap(int[] beforeItems, int[] beforeCounts,
@@ -1282,82 +1248,37 @@ public final class TabRouteAdvisor
 	private static boolean matchesTransfer(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, Move move)
 	{
-		int sourceIndex = move.getSourceTab() - 1;
-		int targetIndex = move.getTargetTab() - 1;
-		int tabs = leadingTabCount(beforeCounts);
-		if (!sameItemCounts(beforeItems, afterItems)
-			|| beforeCounts.length != afterCounts.length
-			|| tabs < 0 || leadingTabCount(afterCounts) != tabs
-			|| sourceIndex < 0 || sourceIndex >= tabs
-			|| targetIndex < 0 || targetIndex >= tabs
-			|| sourceIndex == targetIndex || beforeCounts[sourceIndex] <= 1)
-		{
-			return false;
-		}
-		for (int index = 0; index < beforeCounts.length; index++)
-		{
-			int expected = beforeCounts[index]
-				+ (index == targetIndex ? 1 : 0) - (index == sourceIndex ? 1 : 0);
-			if (afterCounts[index] != expected)
-			{
-				return false;
-			}
-		}
-		for (int index = 0; index < tabs; index++)
-		{
-			Map<Integer, Integer> expected = tabSectionCounts(beforeItems, beforeCounts, index);
-			if (index == sourceIndex)
-			{
-				decrementItemCount(expected, move.getItemId());
-			}
-			if (index == targetIndex)
-			{
-				expected.merge(move.getItemId(), 1, Integer::sum);
-			}
-			if (!expected.equals(tabSectionCounts(afterItems, afterCounts, index)))
-			{
-				return false;
-			}
-		}
-		return mainSectionCounts(beforeItems, beforeCounts)
-			.equals(mainSectionCounts(afterItems, afterCounts));
+		return move.getSourceTab() > 0 && move.getTargetTab() > 0
+			&& matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts, move,
+			move.getSourceTab() - 1, move.getTargetTab() - 1);
 	}
 
 	private static boolean matchesReturnToMain(int[] beforeItems, int[] beforeCounts,
 		int[] afterItems, int[] afterCounts, Move move)
 	{
-		int sourceIndex = move.getSourceTab() - 1;
+		return move.getSourceTab() > 0 && matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts, move, move.getSourceTab() - 1, -1);
+	}
+
+	private static boolean matchesTabMove(int[] beforeItems, int[] beforeCounts,
+		int[] afterItems, int[] afterCounts, Move move, int source, int target)
+	{
 		int tabs = leadingTabCount(beforeCounts);
-		if (!sameItemCounts(beforeItems, afterItems)
-			|| beforeCounts.length != afterCounts.length
-			|| tabs < 0 || leadingTabCount(afterCounts) != tabs
-			|| sourceIndex < 0 || sourceIndex >= tabs || beforeCounts[sourceIndex] <= 1)
-		{
-			return false;
-		}
+		if (!sameItemCounts(beforeItems, afterItems) || beforeCounts.length != afterCounts.length
+			|| tabs < 0 || leadingTabCount(afterCounts) != tabs || source < -1 || source >= tabs
+			|| target < -1 || target >= tabs || source == target || source >= 0 && beforeCounts[source] <= 1) return false;
 		for (int index = 0; index < beforeCounts.length; index++)
+			if (afterCounts[index] != beforeCounts[index] + (index == target ? 1 : 0) - (index == source ? 1 : 0)) return false;
+		for (int index = 0; index <= tabs; index++)
 		{
-			int expected = beforeCounts[index] - (index == sourceIndex ? 1 : 0);
-			if (afterCounts[index] != expected)
-			{
-				return false;
-			}
+			Map<Integer, Integer> expected = index == tabs ? mainSectionCounts(beforeItems, beforeCounts)
+				: tabSectionCounts(beforeItems, beforeCounts, index);
+			if ((index == tabs ? source == -1 : source == index) && !decrementItemCount(expected, move.getItemId())) return false;
+			if (index == tabs ? target == -1 : target == index) expected.merge(move.getItemId(), 1, Integer::sum);
+			Map<Integer, Integer> actual = index == tabs ? mainSectionCounts(afterItems, afterCounts)
+				: tabSectionCounts(afterItems, afterCounts, index);
+			if (!expected.equals(actual)) return false;
 		}
-		for (int index = 0; index < tabs; index++)
-		{
-			Map<Integer, Integer> expected = tabSectionCounts(beforeItems, beforeCounts, index);
-			if (index == sourceIndex)
-			{
-				decrementItemCount(expected, move.getItemId());
-			}
-			if (!expected.equals(tabSectionCounts(afterItems, afterCounts, index)))
-			{
-				return false;
-			}
-		}
-		Map<Integer, Integer> expectedMain = mainSectionCounts(beforeItems, beforeCounts);
-		expectedMain.merge(move.getItemId(), 1, Integer::sum);
-		return expectedMain.equals(mainSectionCounts(afterItems, afterCounts));
+		return true;
 	}
 
 	private static boolean lowerSectionsUnchanged(int[] beforeItems, int[] beforeCounts,

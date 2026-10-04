@@ -21,6 +21,13 @@ interface BankLayoutModel
 {
 	default String editingContext() { return matchingProfile() + "|" + plan().serialize(); }
 
+	default void captureCurrentBank(String name,
+		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
+		String expectedContext, java.util.function.Consumer<Boolean> completed)
+	{
+		completed.accept(false);
+	}
+
 	default void saveItemOrder(int tab, List<Integer> itemIds,
 		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
 		String expectedContext, java.util.function.Consumer<Boolean> completed)

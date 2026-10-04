@@ -1,5 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.numericSuffix;
+
 import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
 
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
@@ -155,19 +159,7 @@ final class SupplyItemSorter
 
 		String name = normalized(item.getDisplayName());
 		if (name.startsWith("half a ") || name.startsWith("1/2 ")) return 1;
-		int open = name.lastIndexOf('(');
-		if (open >= 0 && name.endsWith(")"))
-		{
-			try
-			{
-				return 10 - Integer.parseInt(name.substring(open + 1, name.length() - 1));
-			}
-			catch (NumberFormatException ignored)
-			{
-				// Non-dose suffix; retain stable name ordering.
-			}
-		}
-		return 0;
+		return 10 - numericSuffix(name, 10);
 	}
 
 	private static Optional<ItemSortMetadata> foodMetadata(BankPreviewItem item,
@@ -195,17 +187,4 @@ final class SupplyItemSorter
 		return containsAny(name, ClassificationNames.group(67));
 	}
 
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle)) return true;
-		}
-		return false;
-	}
-
-	private static String normalized(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
-	}
 }

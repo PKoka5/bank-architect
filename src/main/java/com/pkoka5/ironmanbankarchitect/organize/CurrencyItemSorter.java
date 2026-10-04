@@ -1,5 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
+import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
+
 import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -79,17 +82,4 @@ final class CurrencyItemSorter
 		return 50;
 	}
 
-	private static boolean containsAny(String value, String... needles)
-	{
-		for (String needle : needles)
-		{
-			if (value.contains(needle)) return true;
-		}
-		return false;
-	}
-
-	private static String normalized(String value)
-	{
-		return value == null ? "" : value.toLowerCase();
-	}
 }
