@@ -22,10 +22,17 @@ public final class BankLayoutPlan
 	private static final String DESTINATION_SEPARATOR = "|";
 	private static final String TAG_SEPARATOR = "+";
 	private static final String LEGACY_SEPARATOR = ",";
+	private static final String KEEP_ORDER = "~keep";
 
 	private final List<List<String>> destinations;
+	private final int currentOrder;
 
 	private BankLayoutPlan(List<List<String>> destinations)
+	{
+		this(destinations, 0);
+	}
+
+	private BankLayoutPlan(List<List<String>> destinations, int currentOrder)
 	{
 		List<List<String>> copy = new ArrayList<>(destinations.size());
 		for (List<String> destination : destinations)
@@ -34,6 +41,22 @@ public final class BankLayoutPlan
 		}
 
 		this.destinations = Collections.unmodifiableList(copy);
+		this.currentOrder = currentOrder;
+	}
+
+	public boolean keepsCurrentOrder(int destinationIndex)
+	{
+		requireDestinationIndex(destinationIndex);
+		return (currentOrder & (1 << destinationIndex)) != 0;
+	}
+
+	public boolean hasCurrentOrder() { return currentOrder != 0; }
+
+	public BankLayoutPlan withCurrentOrder(int destinationIndex, boolean keep)
+	{
+		requireDestinationIndex(destinationIndex);
+		int changed = keep ? currentOrder | (1 << destinationIndex) : currentOrder & ~(1 << destinationIndex);
+		return changed == currentOrder ? this : new BankLayoutPlan(destinations, changed);
 	}
 
 	/**
@@ -119,7 +142,7 @@ public final class BankLayoutPlan
 			destination.remove(tagKey);
 		}
 		updated.get(destinationIndex).add(tagKey);
-		return new BankLayoutPlan(updated);
+		return new BankLayoutPlan(updated, currentOrder);
 	}
 
 	/**
@@ -149,13 +172,13 @@ public final class BankLayoutPlan
 
 		destination.remove(from);
 		destination.add(to, tagKey);
-		return new BankLayoutPlan(updated);
+		return new BankLayoutPlan(updated, currentOrder);
 	}
 
 	/** True when this plan is the preset's own arrangement. */
 	public boolean isDefault(BankPreset preset)
 	{
-		return destinations.equals(defaultFor(preset).destinations);
+		return currentOrder == 0 && destinations.equals(defaultFor(preset).destinations);
 	}
 
 	/**
@@ -177,7 +200,7 @@ public final class BankLayoutPlan
 		}
 
 		List<List<String>> completed = withRemainder(preset, mutableCopy(), placed);
-		return completed.equals(destinations) ? this : new BankLayoutPlan(completed);
+		return completed.equals(destinations) ? this : new BankLayoutPlan(completed, currentOrder);
 	}
 
 	public String serialize()
@@ -193,9 +216,10 @@ public final class BankLayoutPlan
 				builder.append(DESTINATION_SEPARATOR);
 			}
 			List<String> destination = destinations.get(destinationIndex);
+			if (keepsCurrentOrder(destinationIndex)) builder.append(KEEP_ORDER);
 			for (int index = 0; index < destination.size(); index++)
 			{
-				if (index > 0)
+				if (index > 0 || keepsCurrentOrder(destinationIndex))
 				{
 					builder.append(TAG_SEPARATOR);
 				}
@@ -210,12 +234,14 @@ public final class BankLayoutPlan
 	{
 		Set<String> placed = new LinkedHashSet<>();
 		List<List<String>> destinations = emptyDestinations();
+		int currentOrder = 0;
 
 		String[] parts = serialized.split("\\" + DESTINATION_SEPARATOR, -1);
 		for (int index = 0; index < parts.length && index < DESTINATION_COUNT; index++)
 		{
 			for (String key : parts[index].split("\\" + TAG_SEPARATOR))
 			{
+				if (KEEP_ORDER.equals(key.trim())) currentOrder |= 1 << index;
 				for (String tagKey : tagKeysFor(key.trim()))
 				{
 					if (placed.add(tagKey))
@@ -226,7 +252,7 @@ public final class BankLayoutPlan
 			}
 		}
 
-		return new BankLayoutPlan(withRemainder(preset, destinations, placed));
+		return new BankLayoutPlan(withRemainder(preset, destinations, placed), currentOrder);
 	}
 
 	/**

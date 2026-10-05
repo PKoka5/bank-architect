@@ -41,6 +41,7 @@ final class BlueprintEditorPanel extends JPanel
 	private final JButton reset = new JButton("Reset tab order");
 	private final JButton assign = new JButton("Assign category...");
 	private final JButton capture = new JButton("Save current bank...");
+	private final javax.swing.JCheckBox keepCurrentOrder = new javax.swing.JCheckBox("Keep current order");
 	private final javax.swing.JComboBox<String> moveMode = new javax.swing.JComboBox<>(new String[]{"Swap", "Insert"});
 	private int selectedItem = -1;
 	private final javax.swing.JTextArea status = new javax.swing.JTextArea("Analyze your bank to begin.", 2, 0);
@@ -90,7 +91,15 @@ final class BlueprintEditorPanel extends JPanel
 		JPanel footer = new JPanel(new BorderLayout());
 		footer.setBackground(ColorScheme.DARK_GRAY_COLOR);
 		footer.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
-		footer.add(controls, BorderLayout.NORTH);
+		keepCurrentOrder.setOpaque(false);
+		keepCurrentOrder.setForeground(ColorScheme.TEXT_COLOR);
+		keepCurrentOrder.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
+		keepCurrentOrder.setToolTipText("Keep this bank tab's order during guidance; items still move in and out. Save as keeps the choice with a named layout.");
+		JPanel actions = new JPanel(new BorderLayout());
+		actions.setOpaque(false);
+		actions.add(keepCurrentOrder, BorderLayout.NORTH);
+		actions.add(controls, BorderLayout.CENTER);
+		footer.add(actions, BorderLayout.NORTH);
 		footer.add(movement, BorderLayout.CENTER);
 		status.setForeground(ColorScheme.TEXT_COLOR);
 		status.setOpaque(false);
@@ -106,6 +115,11 @@ final class BlueprintEditorPanel extends JPanel
 		cancel.addActionListener(event -> cancelEdit());
 		save.addActionListener(event -> saveDraft());
 		reset.addActionListener(event -> resetTab());
+		keepCurrentOrder.addActionListener(event -> {
+			if (latest == null || draft != null || saving || tabs.getSelectedIndex() < 0) return;
+			model.save(model.plan().withCurrentOrder(tabs.getSelectedIndex(), keepCurrentOrder.isSelected()));
+			refreshControls();
+		});
 		capture.addActionListener(event -> saveCurrentBank(javax.swing.JOptionPane.showInputDialog(this,
 			"Keep your bank open. Save all current tabs and item positions as a new active layout.",
 			com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles.freeName("My bank", model.profileNames()))));
@@ -379,6 +393,8 @@ final class BlueprintEditorPanel extends JPanel
 		boolean stale = editing && (source == null || latest != source || !model.editingContext().equals(context));
 		boolean ready = latest != null && tabs.getSelectedIndex() >= 0 && !saving
 			&& model.options().itemOrders().isSupported();
+		keepCurrentOrder.setSelected(tabs.getSelectedIndex() >= 0 && model.plan().keepsCurrentOrder(tabs.getSelectedIndex()));
+		keepCurrentOrder.setEnabled(ready && !editing);
 		edit.setEnabled(ready && !editing && !latest.getCategories().get(tabs.getSelectedIndex()).getItems().isEmpty());
 		undo.setEnabled(editing && draft.canUndo() && !saving);
 		cancel.setEnabled(editing && !saving);
@@ -395,7 +411,9 @@ final class BlueprintEditorPanel extends JPanel
 		else if (ready)
 		{
 			BankCategoryPreview selected = latest.getCategories().get(tabs.getSelectedIndex());
-			status.setText((model.options().itemOrders().isCaptured() ? "Saved current bank" : selected.getCategory().getName()) + (selected.hasManualOrder()
+			status.setText(keepCurrentOrder.isSelected()
+				? "Current bank order is kept during guidance. Preview shows saved/automatic order; items still move between tabs."
+				: (model.options().itemOrders().isCaptured() ? "Saved current bank" : selected.getCategory().getName()) + (selected.hasManualOrder()
 				? " — Manual item order" : " — Automatic item order"));
 		}
 		else status.setText("Waiting for bank analysis...");

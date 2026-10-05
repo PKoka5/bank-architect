@@ -181,7 +181,7 @@ final class GearItemSorter
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
 		Set<Integer> reservedPrimaryIds = reservePrimaryItems(setCandidates);
-		Set<Integer> protectedVerticalSetIds = GearSetSemanticRuleSet.presentFamilyItemIds(items);
+		Set<Integer> protectedVerticalSetIds = ownedFamilySizes.keySet();
 		List<BankPreviewItem> fillerOrder = remainingSorted(items, new LinkedHashSet<>(), gearStats);
 
 		for (int[] setRow : SET_ROWS)

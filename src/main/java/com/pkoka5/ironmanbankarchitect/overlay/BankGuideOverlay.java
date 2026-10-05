@@ -14,6 +14,7 @@ import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Move;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.MoveType;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Phase;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
@@ -81,6 +83,7 @@ public final class BankGuideOverlay extends Overlay
 	private final TabRouteAdvisor.Session tabRouteSession = new TabRouteAdvisor.Session();
 	private final Map<Integer, Integer> canonicalItemIdCache = new HashMap<>();
 	private BankOrganizationPreview cachedPreview;
+	private String cachedLayout;
 	private BankTabPlan cachedTabPlan;
 	private List<BankPreviewItem> cachedPlannedItems;
 	private Map<Integer, Integer> cachedPlannedSlotByItemId;
@@ -293,6 +296,10 @@ public final class BankGuideOverlay extends Overlay
 		// of place.
 		boolean showFinalValidation = assessment.getProgress().getPhase() == Phase.SORTING
 			|| assessment.getStatus() == TabRouteAdvisor.Status.COMPLETE;
+		if (showFinalValidation)
+		{
+			plannedItems = cachedTabPlan.effectiveItems(actualItemIds, tabCounts);
+		}
 
 		Graphics2D bankGraphics = (Graphics2D) graphics.create();
 		try
@@ -521,12 +528,14 @@ public final class BankGuideOverlay extends Overlay
 
 	private void refreshPlanCache(BankOrganizationPreview preview)
 	{
-		if (cachedPreview == preview)
+		String layout = config.tabOrder();
+		if (cachedPreview == preview && Objects.equals(cachedLayout, layout))
 		{
 			return;
 		}
 		cachedPreview = preview;
-		cachedTabPlan = BankTabPlan.fromPreview(preview);
+		cachedLayout = layout;
+		cachedTabPlan = BankTabPlan.fromPreview(preview, BankLayoutPlan.parse(preview.getPreset(), layout));
 		cachedPlannedItems = cachedTabPlan.getFlattenedItems();
 		cachedPlannedSlotByItemId = plannedSlotByItemId(cachedPlannedItems);
 		tabRouteSession.reset();

@@ -144,10 +144,11 @@ public final class TabRouteAdvisor
 				Progress.distributing(mainStart, numberedItemTotal), List.of());
 		}
 
-		int correctPositions = correctPositionCount(actualItemIds, plan.getFlattenedItems());
+		List<BankPreviewItem> effective = plan.effectiveItems(actualItemIds, tabCounts);
+		int correctPositions = correctPositionCount(actualItemIds, effective);
 		Progress sorting = Progress.sorting(correctPositions, actualItemIds.length, mode,
-			estimatedRemainingSwaps(actualItemIds, plan.getFlattenedItems()),
-			minimumRemainingInserts(actualItemIds, plan, mainStart));
+			estimatedRemainingSwaps(actualItemIds, effective),
+			minimumRemainingInserts(actualItemIds, plan, mainStart, effective));
 		if (focusTabNumber >= 1 && focusTabNumber <= targets.size())
 		{
 			int focusStart = 0;
@@ -156,7 +157,8 @@ public final class TabRouteAdvisor
 				focusStart += targets.get(tabIndex).getItems().size();
 			}
 			TargetTab focus = targets.get(focusTabNumber - 1);
-			Move focusMove = nextSectionMove(mode, actualItemIds, focusStart, focus.getItems(),
+			Move focusMove = nextSectionMove(mode, actualItemIds, focusStart,
+				effective.subList(focusStart, focusStart + focus.getItems().size()),
 				focus.getBankTabNumber(), focus.getBlueprintCategoryNumber(),
 				focus.getCategoryName());
 			if (focusMove != null)
@@ -164,7 +166,8 @@ public final class TabRouteAdvisor
 				return Assessment.ready(focusMove, sorting);
 			}
 		}
-		Move mainMove = nextSectionMove(mode, actualItemIds, mainStart, plan.getMainItems(),
+		Move mainMove = nextSectionMove(mode, actualItemIds, mainStart,
+			effective.subList(mainStart, effective.size()),
 			0, 1, plan.getMainCategoryName());
 		if (mainMove != null)
 		{
@@ -174,7 +177,8 @@ public final class TabRouteAdvisor
 		int sectionStart = 0;
 		for (TargetTab target : targets)
 		{
-			Move tabMove = nextSectionMove(mode, actualItemIds, sectionStart, target.getItems(),
+			Move tabMove = nextSectionMove(mode, actualItemIds, sectionStart,
+				effective.subList(sectionStart, sectionStart + target.getItems().size()),
 				target.getBankTabNumber(), target.getBlueprintCategoryNumber(),
 				target.getCategoryName());
 			if (tabMove != null)
@@ -367,15 +371,15 @@ public final class TabRouteAdvisor
 	 * membership is exact.
 	 */
 	private static int minimumRemainingInserts(int[] actualItemIds, BankTabPlan plan,
-		int mainStart)
+		int mainStart, List<BankPreviewItem> effective)
 	{
 		int total = SectionInsertPlanner.minimumRemainingInserts(actualItemIds, mainStart,
-			plan.getMainItems());
+			effective.subList(mainStart, effective.size()));
 		int sectionStart = 0;
 		for (TargetTab target : plan.getNumberedTabs())
 		{
 			total += SectionInsertPlanner.minimumRemainingInserts(actualItemIds, sectionStart,
-				target.getItems());
+				effective.subList(sectionStart, sectionStart + target.getItems().size()));
 			sectionStart += target.getItems().size();
 		}
 		return total;
@@ -778,8 +782,10 @@ public final class TabRouteAdvisor
 				return alternative;
 			}
 			if (isSafeAlternative(alternative)
-				&& matchesSafeManualTransition(pinnedActualItemIds, pinnedTabCounts,
-					actualItemIds, tabCounts, mode))
+				&& (matchesSafeManualTransition(pinnedActualItemIds, pinnedTabCounts,
+					actualItemIds, tabCounts, mode)
+					|| Arrays.equals(pinnedTabCounts, tabCounts)
+						&& changesOnlyKeptOrder(pinnedActualItemIds, actualItemIds, plan, tabCounts)))
 			{
 				pin(actualItemIds, tabCounts, alternative);
 				return alternative;
@@ -825,6 +831,26 @@ public final class TabRouteAdvisor
 			pinnedAssessment = null;
 			clearPending();
 		}
+	}
+
+	private static boolean changesOnlyKeptOrder(int[] before, int[] after, BankTabPlan plan, int[] counts)
+	{
+		if (before.length != after.length) return false;
+		List<TargetTab> tabs = plan.getNumberedTabs();
+		if (leadingTabCount(counts) != tabs.size()) return false;
+		int start = 0;
+		for (int index = 0; index <= tabs.size(); index++)
+		{
+			int end = index < tabs.size() ? start + counts[index] : before.length;
+			int destination = index < tabs.size() ? tabs.get(index).getBlueprintCategoryNumber() - 1 : 0;
+			if (plan.keepsCurrentOrder(destination))
+			{
+				if (!sectionCounts(before, start, end).equals(sectionCounts(after, start, end))) return false;
+			}
+			else for (int slot = start; slot < end; slot++) if (before[slot] != after[slot]) return false;
+			start = end;
+		}
+		return true;
 	}
 
 	private static boolean matchesSafeManualTransition(int[] beforeItems, int[] beforeCounts,

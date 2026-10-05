@@ -33,7 +33,7 @@ public final class GearSetSemanticRuleSet
 	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
 		GearSetSemanticRuleSet.class.getResourceAsStream(
 			"/com/pkoka5/ironmanbankarchitect/catalog/gear-layout-families.tsv"), 0);
-	private static final RequiredResource<List<SetFact>> SETS =
+	private static final RequiredResource<List<ItemSetCatalog.SetDefinition>> SETS =
 		new RequiredResource<>("gear layout", GearSetSemanticRuleSet::buildSets);
 
 	private GearSetSemanticRuleSet()
@@ -67,7 +67,7 @@ public final class GearSetSemanticRuleSet
 
 		List<ItemSetCatalog.SetDefinition> verticalDefinitions = new ArrayList<>();
 		List<SemanticRule> rules = new ArrayList<>();
-		for (ItemSetCatalog.SetDefinition definition : definitions())
+		for (ItemSetCatalog.SetDefinition definition : SETS.get())
 		{
 			List<Integer> owned = new ArrayList<>();
 			for (Integer itemId : definition.getItemIds())
@@ -140,30 +140,7 @@ public final class GearSetSemanticRuleSet
 	 */
 	public static Set<Integer> presentFamilyItemIds(List<BankPreviewItem> items)
 	{
-		Objects.requireNonNull(items, "items");
-		Set<Integer> present = new LinkedHashSet<>();
-		for (BankPreviewItem item : items)
-		{
-			present.add(item.getItemId());
-		}
-
-		Set<Integer> familyItems = new LinkedHashSet<>();
-		for (SetFact set : SETS.get())
-		{
-			List<Integer> owned = new ArrayList<>();
-			for (int itemId : set.itemIds)
-			{
-				if (present.contains(itemId))
-				{
-					owned.add(itemId);
-				}
-			}
-			if (owned.size() >= 2)
-			{
-				familyItems.addAll(owned);
-			}
-		}
-		return Collections.unmodifiableSet(familyItems);
+		return ownedFamilySizeByItemId(items).keySet();
 	}
 
 	/**
@@ -182,10 +159,10 @@ public final class GearSetSemanticRuleSet
 		}
 
 		Map<Integer, Integer> sizeByItemId = new LinkedHashMap<>();
-		for (SetFact set : SETS.get())
+		for (ItemSetCatalog.SetDefinition set : SETS.get())
 		{
 			List<Integer> owned = new ArrayList<>();
-			for (int itemId : set.itemIds)
+			for (int itemId : set.getItemIds())
 			{
 				if (present.contains(itemId))
 				{
@@ -206,67 +183,21 @@ public final class GearSetSemanticRuleSet
 		return Collections.unmodifiableMap(sizeByItemId);
 	}
 
-	private static List<SetFact> buildSets()
+	private static List<ItemSetCatalog.SetDefinition> buildSets()
 	{
-		List<SetFact> sets = new ArrayList<>();
-		TABLE.entries().forEach((key, ids) -> sets.add(set(key, ids.stream().mapToInt(Integer::intValue).toArray())));
+		List<ItemSetCatalog.SetDefinition> sets = new ArrayList<>();
+		TABLE.entries().forEach((key, ids) -> sets.add(ItemSetCatalog.definition("gear", key, key, ids)));
 
 		Set<Integer> reserved = new LinkedHashSet<>();
-		for (SetFact set : sets)
-		{
-			for (int itemId : set.itemIds) reserved.add(itemId);
-		}
+		for (ItemSetCatalog.SetDefinition set : sets) reserved.addAll(set.getItemIds());
 		for (ItemSetCatalog.SetDefinition definition : ItemSetCatalog.sets("gear"))
 		{
-			boolean overlaps = false;
-			for (Integer itemId : definition.getItemIds())
+			if (Collections.disjoint(reserved, definition.getItemIds()))
 			{
-				if (reserved.contains(itemId))
-				{
-					overlaps = true;
-					break;
-				}
-			}
-			if (!overlaps)
-			{
-				int[] itemIds = new int[definition.getItemIds().size()];
-				for (int index = 0; index < itemIds.length; index++)
-				{
-					itemIds[index] = definition.getItemIds().get(index);
-					reserved.add(itemIds[index]);
-				}
-				sets.add(set(definition.getKey(), itemIds));
+				reserved.addAll(definition.getItemIds());
+				sets.add(ItemSetCatalog.definition("gear", definition.getKey(), definition.getKey(), definition.getItemIds()));
 			}
 		}
 		return Collections.unmodifiableList(sets);
-	}
-
-	private static List<ItemSetCatalog.SetDefinition> definitions()
-	{
-		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>();
-		for (SetFact set : SETS.get())
-		{
-			List<Integer> itemIds = new ArrayList<>(set.itemIds.length);
-			for (int itemId : set.itemIds) itemIds.add(itemId);
-			definitions.add(ItemSetCatalog.definition("gear", set.key, set.key, itemIds));
-		}
-		return definitions;
-	}
-
-	private static SetFact set(String key, int... itemIds)
-	{
-		return new SetFact(key, itemIds);
-	}
-
-	private static final class SetFact
-	{
-		private final String key;
-		private final int[] itemIds;
-
-		private SetFact(String key, int[] itemIds)
-		{
-			this.key = key;
-			this.itemIds = itemIds;
-		}
 	}
 }

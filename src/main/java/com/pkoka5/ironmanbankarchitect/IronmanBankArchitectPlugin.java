@@ -5,33 +5,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysis;
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisRequest;
-import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
-import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
-import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
-import com.pkoka5.ironmanbankarchitect.bank.BankSnapshotReader;
+import com.pkoka5.ironmanbankarchitect.bank.*;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategorySortMode;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
-import com.pkoka5.ironmanbankarchitect.organize.BlockArrangements;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutShareCode;
-import com.pkoka5.ironmanbankarchitect.organize.BlueprintOrderProfiles;
-import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
-import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
-import com.pkoka5.ironmanbankarchitect.organize.BankTag;
-import com.pkoka5.ironmanbankarchitect.organize.BankTags;
-import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
-import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
-import com.pkoka5.ironmanbankarchitect.organize.GearStats;
-import com.pkoka5.ironmanbankarchitect.overlay.BankCategoryOverlay;
-import com.pkoka5.ironmanbankarchitect.overlay.BankGuideOverlay;
-import com.pkoka5.ironmanbankarchitect.overlay.BankOverlayReservations;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import com.pkoka5.ironmanbankarchitect.overlay.*;
 import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
@@ -590,13 +568,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public String matchingProfile()
 			{
 				BankLayoutProfiles profiles = savedProfiles();
-				List<List<String>> current = activePlan().getDestinations();
+				String current = activePlan().serialize();
 				if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.activePlan())
-					.getDestinations().equals(current)) return profiles.getActiveName();
+					.serialize().equals(current)) return profiles.getActiveName();
 				for (String name : profiles.names())
 				{
 					if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.planFor(name))
-						.getDestinations().equals(current))
+						.serialize().equals(current))
 					{
 						return name;
 					}

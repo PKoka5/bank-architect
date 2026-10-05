@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.8.0";
+	static final String RELEASE_ID = "0.8.1";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -40,14 +40,12 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Save your current bank</h3>"
-			+ "<p>Open Blueprint &gt; Save current bank... saves Main, all bank tabs and their item order "
-			+ "as a new active layout. Your previous layouts stay available.</p>"
-			+ "<p>Saved positions remain the target when you reopen the bank. "
-			+ "New items follow their categories; Reset tab order restores automatic placement.</p>"
-			+ "<h3>Fixes and improvements</h3>"
-			+ "<p>Fixes bank analysis with fishing tools or a tinderbox. Improves profile switching, "
-			+ "item corrections, stable sorting and editor scrolling, with safer alch suggestions.</p>"
+			+ "<h3>Keep your own tab order</h3>"
+			+ "<p>Open Blueprint, select a tab and enable Keep current order. The guide accepts that tab's "
+			+ "current item order while still helping you move items into and out of it. "
+			+ "Other tabs keep their blueprint order.</p>"
+			+ "<p>Use Tab Layout &gt; Save as to keep the choice in a named layout. "
+			+ "Turn it off to restore normal blueprint guidance.</p>"
 			+ "<p>You still move every real bank item yourself.</p></div></html>");
 		notes.setForeground(Color.WHITE);
 		notes.setVerticalAlignment(JLabel.TOP);

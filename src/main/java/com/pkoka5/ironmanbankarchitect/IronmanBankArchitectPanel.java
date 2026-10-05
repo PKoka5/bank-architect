@@ -3,42 +3,9 @@ package com.pkoka5.ironmanbankarchitect;
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.organize.BankBlockDescriptor;
-import com.pkoka5.ironmanbankarchitect.organize.BankBlueprintTextExporter;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankCategorySortMode;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutShareCode;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import com.pkoka5.ironmanbankarchitect.organize.BankTag;
-import com.pkoka5.ironmanbankarchitect.organize.BankTags;
-import com.pkoka5.ironmanbankarchitect.organize.CategoryIcons;
-import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
-import com.pkoka5.ironmanbankarchitect.organize.GearLayout;
-import com.pkoka5.ironmanbankarchitect.organize.PresetItemSorter;
-import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
+import com.pkoka5.ironmanbankarchitect.organize.*;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.RenderingHints;
-import java.awt.Window;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -52,23 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
+import javax.swing.*;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -314,14 +265,14 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		detailsChevron = new JLabel(new ImageIcon(chevronIcon(false)));
 		detailsPanel = verticalPanel();
 		detailsPanel.setVisible(false);
-		detailsPanel.add(card(null, catalogSummaryLabel));
+		detailsPanel.add(card(catalogSummaryLabel));
 		detailsPanel.add(Box.createVerticalStrut(8));
-		detailsPanel.add(card(null, organizationPreviewLabel));
+		detailsPanel.add(card(organizationPreviewLabel));
 		detailsPanel.add(Box.createVerticalStrut(8));
-		detailsPanel.add(card(null, statusLabel, guideProgressLabel,
+		detailsPanel.add(card(statusLabel, guideProgressLabel,
 			mutedLabel(PREVIEW_BLOCK_HELP), mutedLabel(PREVIEW_OVERLAY_NOTE)));
 		detailsPanel.add(Box.createVerticalStrut(8));
-		detailsPanel.add(card(null, categoryOverrideLabel, resetOverridesButton,
+		detailsPanel.add(card(categoryOverrideLabel, resetOverridesButton,
 			mutedLabel(CATEGORY_CORRECTION_HELP)));
 
 		JPanel content = new JPanel(new GridBagLayout());
@@ -649,7 +600,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void applyLayoutPlan(BankLayoutPlan updated)
 	{
 		BankLayoutPlan completed = updated.completedFor(bankLayoutModel.preset());
-		if (completed.getDestinations().equals(layoutPlan.getDestinations()))
+		if (completed.serialize().equals(layoutPlan.serialize()))
 		{
 			return;
 		}
@@ -1466,7 +1417,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void refreshAnalysis()
 	{
 		BankLayoutPlan latestPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
-		boolean planChanged = !latestPlan.getDestinations().equals(layoutPlan.getDestinations());
+		boolean planChanged = !latestPlan.serialize().equals(layoutPlan.serialize());
 		layoutPlan = latestPlan;
 		BankAnalysisStatus analysis = guideController.bankAnalysisStatus();
 		catalogSummaryLabel.setText(sidebarHtml(analysis.catalogSummaryText()));
@@ -1792,7 +1743,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return "Blueprint ready: " + preview.getPlannedItemCount() + " item IDs sorted.";
 	}
 
-	private static JPanel card(String title, Component... rows)
+	private static JPanel card(Component... rows)
 	{
 		JPanel card = new JPanel(new GridBagLayout());
 		card.setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -1803,25 +1754,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		constraints.weightx = 1;
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.insets = new Insets(0, 0, 6, 0);
-		if (title != null)
-		{
-			card.add(headerLabel(title), constraints);
-			constraints.gridy++;
-		}
 		for (Component row : rows)
 		{
 			card.add(row, constraints);
 			constraints.gridy++;
 		}
 		return card;
-	}
-
-	private static JLabel headerLabel(String text)
-	{
-		JLabel label = new JLabel(text);
-		label.setFont(FontManager.getRunescapeBoldFont());
-		label.setForeground(ColorScheme.BRAND_ORANGE);
-		return label;
 	}
 
 	private static JLabel mutedLabel(String text)

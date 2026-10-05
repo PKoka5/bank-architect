@@ -102,6 +102,22 @@ category correction or move its destination tag to another tab.
 
 ## Choosing your tab layout
 
+### Keep your own order in a tab
+
+Open **Open Blueprint**, select a tab, and enable **Keep current order**. The
+guide still helps move items into and out of that tab, but accepts your current
+item order instead of asking you to rearrange it. Normal moves to the tab header
+append incoming items. Other tabs continue to follow their blueprint order.
+
+The blueprint grid shows the saved or automatic arrangement; the selected tab's
+status explains when guidance follows your actual bank order. Disabling the
+option restores that arrangement without deleting saved item positions or
+cross-tab assignments. The option also works for Main and empty destinations.
+
+Changes are saved locally. Use **Tab Layout > Save as** to include the choices
+in a named layout; switching layouts restores that layout's choices. Layout
+share codes include these choices, but never individual saved item positions.
+
 ### Use your current bank as the blueprint
 
 After manually adjusting your bank, keep it open and select **Open Blueprint**,

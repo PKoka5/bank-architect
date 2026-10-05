@@ -113,6 +113,9 @@ with search and bank-tag filters cleared, a bank state that matches the analyzed
 plan, and safe widget geometry. Each advised move is verified against the change
 the player actually made — a transposition in Swap mode, a single-item shift in
 Insert mode — and guidance pauses when the observed change is anything else.
+For a destination with **Keep current order**, a stable manual reorder is also
+accepted when it preserves that destination's members and leaves every other
+destination and all tab boundaries unchanged.
 
 The destination-colour overlay only draws and therefore has no such gates.
 
@@ -129,6 +132,6 @@ The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.8.0 release record](release-0.8.0.md) documents the final test results,
-owner-confirmed live test, jar checksum, changed bundled resources and calibrated
+The [0.8.1 release record](release-0.8.1.md) documents the final test results,
+owner-confirmed live test, jar checksum, changed file scope and calibrated
 review-token estimates. Local estimates are not the official Plugin Hub count.

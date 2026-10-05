@@ -1,11 +1,17 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
 import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,10 +31,15 @@ public final class BankTabPlan
 	private final String mainCategoryName;
 	private final List<BankPreviewItem> mainItems;
 	private final List<BankPreviewItem> flattenedItems;
+	private final BankLayoutPlan layout;
+	private int[] lastActual;
+	private int[] lastCounts;
+	private List<BankPreviewItem> lastEffective;
 
 	private BankTabPlan(List<TargetTab> numberedTabs, String mainCategoryKey,
-		String mainCategoryName, List<BankPreviewItem> mainItems)
+		String mainCategoryName, List<BankPreviewItem> mainItems, BankLayoutPlan layout)
 	{
+		this.layout = Objects.requireNonNull(layout, "layout");
 		this.numberedTabs = Collections.unmodifiableList(new ArrayList<>(numberedTabs));
 		this.mainCategoryKey = Objects.requireNonNull(mainCategoryKey, "mainCategoryKey");
 		this.mainCategoryName = Objects.requireNonNull(mainCategoryName, "mainCategoryName");
@@ -44,6 +55,11 @@ public final class BankTabPlan
 	}
 
 	public static BankTabPlan fromPreview(BankOrganizationPreview preview)
+	{
+		return fromPreview(preview, BankLayoutPlan.defaultFor(preview.getPreset()));
+	}
+
+	public static BankTabPlan fromPreview(BankOrganizationPreview preview, BankLayoutPlan layout)
 	{
 		Objects.requireNonNull(preview, "preview");
 		List<BankCategoryPreview> categories = preview.getCategories();
@@ -67,7 +83,58 @@ public final class BankTabPlan
 		}
 
 		return new BankTabPlan(numbered, main.getCategory().getKey(),
-			main.getCategory().getName(), main.getItems());
+			main.getCategory().getName(), main.getItems(), layout);
+	}
+
+	/** Project live order without changing the plan identity or its item destinations. */
+	public synchronized List<BankPreviewItem> effectiveItems(int[] actualItemIds, int[] tabCounts)
+	{
+		if (!layout.hasCurrentOrder()) return flattenedItems;
+		if (Arrays.equals(lastActual, actualItemIds) && Arrays.equals(lastCounts, tabCounts)) return lastEffective;
+		if (tabCounts.length != TabRouteAdvisor.MAX_TABS) throw new IllegalArgumentException("Invalid tab counts");
+		long total = 0;
+		for (int count : tabCounts)
+		{
+			if (count < 0) throw new IllegalArgumentException("Negative tab count");
+			total += count;
+		}
+		if (total > actualItemIds.length) throw new IllegalArgumentException("Tab counts exceed bank size");
+		List<BankPreviewItem> result = new ArrayList<>();
+		int start = 0;
+		for (TargetTab tab : numberedTabs)
+		{
+			int end = start + tabCounts[tab.getBankTabNumber() - 1];
+			result.addAll(currentOrder(tab.getItems(), actualItemIds, start, end,
+				layout.keepsCurrentOrder(tab.getBlueprintCategoryNumber() - 1)));
+			start = end;
+		}
+		result.addAll(currentOrder(mainItems, actualItemIds, start, actualItemIds.length,
+			layout.keepsCurrentOrder(0)));
+		lastActual = actualItemIds.clone();
+		lastCounts = tabCounts.clone();
+		lastEffective = Collections.unmodifiableList(result);
+		return lastEffective;
+	}
+
+	private static List<BankPreviewItem> currentOrder(List<BankPreviewItem> target, int[] actual,
+		int start, int end, boolean keep)
+	{
+		if (!keep) return target;
+		Map<Integer, Deque<BankPreviewItem>> remaining = new HashMap<>();
+		for (BankPreviewItem item : target)
+			remaining.computeIfAbsent(item.getItemId(), key -> new ArrayDeque<>()).addLast(item);
+		List<BankPreviewItem> result = new ArrayList<>();
+		for (int slot = start; slot < end; slot++)
+		{
+			Deque<BankPreviewItem> copies = remaining.get(actual[slot]);
+			if (copies != null && !copies.isEmpty()) result.add(copies.removeFirst());
+		}
+		for (BankPreviewItem item : target)
+		{
+			Deque<BankPreviewItem> copies = remaining.get(item.getItemId());
+			if (!copies.isEmpty() && copies.peekFirst() == item) result.add(copies.removeFirst());
+		}
+		return result;
 	}
 
 	public List<TargetTab> getNumberedTabs()
@@ -94,6 +161,8 @@ public final class BankTabPlan
 	{
 		return flattenedItems;
 	}
+
+	public boolean keepsCurrentOrder(int destinationIndex) { return layout.keepsCurrentOrder(destinationIndex); }
 
 	private static List<BankPreviewItem> immutableCopy(List<BankPreviewItem> items)
 	{
