@@ -3,11 +3,8 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.numericSuffix;
-
 import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
-
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 final class ToolItemSorter

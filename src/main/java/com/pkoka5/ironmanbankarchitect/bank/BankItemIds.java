@@ -1,8 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.bank;
 
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.Client;
-import net.runelite.api.ItemComposition;
+import net.runelite.api.*;
+
 
 /**
  * Shared placeholder canonicalisation for bank item IDs.

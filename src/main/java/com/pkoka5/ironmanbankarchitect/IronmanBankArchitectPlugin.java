@@ -1,10 +1,8 @@
 package com.pkoka5.ironmanbankarchitect;
 
 import com.google.inject.Provides;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysis;
-import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisRequest;
+import com.google.common.cache.*;
+import com.pkoka5.ironmanbankarchitect.analysis.*;
 import com.pkoka5.ironmanbankarchitect.bank.*;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
@@ -16,42 +14,28 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.inject.Inject;
-import javax.swing.JLabel;
-import net.runelite.api.Client;
-import net.runelite.api.ItemComposition;
-import net.runelite.api.Menu;
-import net.runelite.api.MenuAction;
-import net.runelite.api.MenuEntry;
-import net.runelite.api.events.ItemContainerChanged;
-import net.runelite.api.events.MenuOpened;
-import net.runelite.api.gameval.InterfaceID;
+import javax.swing.*;
+import net.runelite.api.*;
+import net.runelite.api.events.*;
+import net.runelite.api.gameval.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.events.ProfileChanged;
-import net.runelite.client.game.ItemEquipmentStats;
-import net.runelite.client.game.ItemManager;
-import net.runelite.client.game.ItemStats;
-import net.runelite.client.plugins.Plugin;
-import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.ui.ClientToolbar;
-import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.events.*;
+import net.runelite.client.game.*;
+import net.runelite.client.plugins.*;
+import net.runelite.client.ui.*;
 import net.runelite.client.ui.overlay.OverlayManager;
-import net.runelite.client.util.AsyncBufferedImage;
-import net.runelite.client.util.ColorUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.runelite.client.util.*;
+import org.slf4j.*;
+
 
 @PluginDescriptor(
 	name = "Bank Architect",
@@ -66,6 +50,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private static final String ASSIGN_MENU_OPTION = "Bank Architect";
 	private static final String CLEAR_OVERRIDE_OPTION = "Use automatic classification";
 	private static final Color ASSIGN_MENU_COLOR = new Color(242, 169, 59);
+	private static final String[] OPTION_KEYS = {"alchPile", "gearLayout", "utilitiesLayout", "toolsLayout",
+		"resourcesLayout", "cluesLayout", "keepDoseRows", "fillHerbloreRows", "potionDoses", "runeOrder",
+		"teleportOrder", "gatherFrequentlyUsed"};
 
 	private static final Logger log = LoggerFactory.getLogger(IronmanBankArchitectPlugin.class);
 
@@ -88,6 +75,10 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private IronmanBankArchitectConfig config;
 
 	@Inject
+	private ConfigManager configManager;
+	private PresetSettings settings;
+
+	@Inject
 	private ScheduledExecutorService analysisExecutor;
 
 	private NavigationButton navigationButton;
@@ -105,6 +96,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	protected void startUp()
 	{
 		settingsRefreshQueued.set(false);
+		initializeCustomProfiles();
 		guideController = new BankGuideController(AllRoundIronmanPreset.create());
 		guideController.setBankOpenedListener(this::onBankOpened);
 		guideController.publishCategoryOverrideCount(categoryOverrides().size());
@@ -118,7 +110,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		// Both overlays want the free canvas beside the bank; the shared claim
 		// keeps the guidance panel off the destination legend on a small window.
 		BankOverlayReservations reservations = new BankOverlayReservations();
-		guideOverlay = new BankGuideOverlay(this, client, guideController, config, reservations);
+		guideOverlay = new BankGuideOverlay(this, client, guideController, config, reservations, this::activePlan);
 		overlayManager.add(guideOverlay);
 		categoryOverlay = new BankCategoryOverlay(this, client, guideController, config,
 			reservations);
@@ -211,6 +203,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		// belongs to. Built back to front because the menu renders bottom-up, so
 		// the list reads in catalogue order on screen.
 		Optional<String> current = categoryOverrides().categoryKeyFor(itemId);
+		BankPreset menuPreset = activePreset();
+		String menuProfile = activeProfileName();
 		List<BankTag> tags = BankTags.all();
 		for (int index = tags.size() - 1; index >= 0; index--)
 		{
@@ -219,14 +213,16 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			submenu.createMenuEntry(-1)
 				.setOption((active ? "* " : "") + tag.getName())
 				.setType(MenuAction.RUNELITE)
-				.onClick(entry -> applyCategoryOverride(itemId, itemName, tag.getKey()));
+				.onClick(entry -> { if (activePreset() == menuPreset && activeProfileName().equals(menuProfile))
+					applyCategoryOverride(itemId, itemName, tag.getKey()); });
 		}
 		if (current.isPresent())
 		{
 			submenu.createMenuEntry(-1)
 				.setOption(CLEAR_OVERRIDE_OPTION)
 				.setType(MenuAction.RUNELITE)
-				.onClick(entry -> applyCategoryOverride(itemId, itemName, null));
+				.onClick(entry -> { if (activePreset() == menuPreset && activeProfileName().equals(menuProfile))
+					applyCategoryOverride(itemId, itemName, null); });
 		}
 	}
 
@@ -258,6 +254,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	private void applyCategoryOverride(int itemId, String itemName, String categoryKey)
 	{
+		initializeCustomProfiles();
 		UserCategoryOverrides overrides = categoryOverrides();
 		overrides.put(itemId, categoryKey);
 		persistCategoryOverrides(overrides);
@@ -273,12 +270,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	private UserCategoryOverrides categoryOverrides()
 	{
-		return UserCategoryOverrides.parse(config.categoryOverrides());
+		return builtin() ? new UserCategoryOverrides() : UserCategoryOverrides.parse(preferences().get("categoryOverrides", ""));
 	}
 
 	private void persistCategoryOverrides(UserCategoryOverrides overrides)
 	{
-		config.setCategoryOverrides(overrides.serialize());
+		if (!ensureCustom()) return;
+		preferences().set("categoryOverrides", overrides.serialize());
 		BankGuideController controller = guideController;
 		if (controller != null)
 		{
@@ -295,8 +293,14 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
+		if (guideController != null && IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
+			&& Arrays.asList(OPTION_KEYS).contains(event.getKey())
+			&& !Objects.equals(event.getOldValue(), event.getNewValue()))
+		{
+			if (ensureCustom()) preferences().set(event.getKey(), event.getNewValue() == null ? "" : event.getNewValue());
+		}
 		if (IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
-			&& !java.util.Arrays.asList("suggestNextMove", "showCategoryOverlay", "hideSortedHighlights",
+			&& !Arrays.asList("suggestNextMove", "showCategoryOverlay", "hideSortedHighlights",
 				"categoryOverlayOpacity", "lastSeenRelease").contains(event.getKey()))
 			refreshSettings();
 	}
@@ -312,9 +316,10 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			if (bankAnalysis != analysis || guideController != controller) return;
 			settingsRefreshQueued.set(false);
 			analyzedBankContents = null;
+			initializeCustomProfiles();
 			controller.publishCategoryOverrideCount(categoryOverrides().size());
 			IronmanBankArchitectPanel currentPanel = panel;
-			if (currentPanel != null) javax.swing.SwingUtilities.invokeLater(() -> {
+			if (currentPanel != null) SwingUtilities.invokeLater(() -> {
 				if (panel == currentPanel) currentPanel.refreshSettings();
 			});
 			analyzeBank();
@@ -324,48 +329,143 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	/** The player's assignment of categories to bank destinations. */
 	private BankLayoutPlan activePlan()
 	{
-		return BankLayoutPlan.parse(BankPresets.IRONMAN, config.tabOrder());
+		return builtin() ? BankLayoutPlan.defaultFor(activePreset())
+			: BankLayoutPlan.parse(activePreset(), savedProfiles().activePlan());
+	}
+
+	private PresetSettings settings()
+	{
+		if (settings == null) settings = new PresetSettings(configManager, this::activePreset);
+		return settings;
 	}
 
 	/** The player's layout choices that no plan can state for them. */
 	private BankLayoutOptions activeOptions()
 	{
+		if (builtin()) return BankLayoutOptions.defaultFor(activePreset());
+		return readOptions(preferences())
+			.withBlockArrangements(BlockArrangements.parse(preferences().get("blockOrders", "")))
+			.withItemOrders(BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""))
+				.forProfile(activeProfileName()));
+	}
+
+	private boolean builtin() { return savedProfiles().isDefaultActive(); }
+	private PresetSettings preferences() { return settings().forProfile(activeProfileName()); }
+
+	private BankLayoutOptions readOptions(PresetSettings source)
+	{
+		boolean main = activePreset().getType() == BankPresetType.MAIN;
 		// A layout choice exists only where packed and sorted genuinely differ:
 		// where a category has curated geometry to keep or give up. Everywhere
 		// else the two are a nudge apart, so no option is offered and packed
 		// stands.
 		Map<BankCategorySortMode, TabOrder> tabOrders = new EnumMap<>(BankCategorySortMode.class);
-		tabOrders.put(BankCategorySortMode.MAIN, config.utilitiesLayout());
-		tabOrders.put(BankCategorySortMode.TELEPORTS, config.utilitiesLayout());
-		tabOrders.put(BankCategorySortMode.CURRENCY, config.utilitiesLayout());
+		TabOrder utilities = source.get("utilitiesLayout", main ? TabOrder.PACKED : config.utilitiesLayout());
+		tabOrders.put(BankCategorySortMode.MAIN, utilities);
+		tabOrders.put(BankCategorySortMode.TELEPORTS, utilities);
+		tabOrders.put(BankCategorySortMode.CURRENCY, utilities);
 		tabOrders.put(BankCategorySortMode.SUPPLIES,
-			config.keepDoseRows() ? TabOrder.PACKED : TabOrder.SEQUENTIAL);
-		tabOrders.put(BankCategorySortMode.TOOLS, config.toolsLayout());
-		tabOrders.put(BankCategorySortMode.RESOURCES, config.resourcesLayout());
-		tabOrders.put(BankCategorySortMode.CLUES, config.cluesLayout());
-		return new BankLayoutOptions(true, config.fillHerbloreRows(), config.alchPile(), tabOrders,
-			config.gearLayout(), config.potionDoses(), config.runeOrder(), config.teleportOrder(),
-			config.gatherFrequentlyUsed())
-			.withBlockArrangements(BlockArrangements.parse(config.blockOrders()))
-			.withItemOrders(BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile())
-				.forProfile(activeProfileName()));
+			source.get("keepDoseRows", main || config.keepDoseRows()) ? TabOrder.PACKED : TabOrder.SEQUENTIAL);
+		tabOrders.put(BankCategorySortMode.TOOLS, source.get("toolsLayout", main ? TabOrder.PACKED : config.toolsLayout()));
+		tabOrders.put(BankCategorySortMode.RESOURCES, source.get("resourcesLayout", main ? TabOrder.PACKED : config.resourcesLayout()));
+		tabOrders.put(BankCategorySortMode.CLUES, source.get("cluesLayout", main ? TabOrder.PACKED : config.cluesLayout()));
+		return new BankLayoutOptions(true, !main && source.get("fillHerbloreRows", config.fillHerbloreRows()),
+			source.get("alchPile", main || config.alchPile()), tabOrders,
+			source.get("gearLayout", main ? GearLayout.GRID_STYLES : config.gearLayout()),
+			main ? PotionDoseOrder.BY_FAMILY : source.get("potionDoses", config.potionDoses()),
+			source.get("runeOrder", main ? RuneOrder.ELEMENTAL : config.runeOrder()),
+			source.get("teleportOrder", main ? TeleportOrder.ALPHABETICAL : config.teleportOrder()),
+			!main && source.get("gatherFrequentlyUsed", config.gatherFrequentlyUsed()));
+	}
+
+	private Object[] optionValues(BankLayoutOptions options)
+	{
+		return new Object[] {options.alchPile(), options.gearLayout(), options.orderFor(BankCategorySortMode.MAIN),
+			options.orderFor(BankCategorySortMode.TOOLS), options.orderFor(BankCategorySortMode.RESOURCES),
+			options.orderFor(BankCategorySortMode.CLUES), options.orderFor(BankCategorySortMode.SUPPLIES) == TabOrder.PACKED,
+			options.fillHerbloreRows(), options.potionDoses(), options.runeOrder(), options.teleportOrder(), options.gatherFrequentlyUsed()};
+	}
+
+	private void storeOptions(PresetSettings target, BankLayoutOptions options)
+	{
+		Object[] values = optionValues(options);
+		for (int index = 0; index < OPTION_KEYS.length; index++) target.set(OPTION_KEYS[index], values[index]);
+	}
+
+	private void copyPreferences(String name, BankLayoutOptions options, String corrections, String blocks)
+	{
+		PresetSettings target = settings().forProfile(name);
+		storeOptions(target, options);
+		target.set("categoryOverrides", corrections);
+		target.set("blockOrders", blocks);
+		target.set("profileReady", true);
+	}
+
+	private boolean ensureCustom()
+	{
+		if (!builtin()) return true;
+		BankLayoutProfiles profiles = savedProfiles();
+		String name = profiles.freeName("Custom layout");
+		profiles = profiles.withProfile(name, activePlan().serialize());
+		if (!name.equals(profiles.getActiveName()))
+		{
+			SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
+				"Delete a custom preset before creating another one.", "Preset limit", JOptionPane.INFORMATION_MESSAGE));
+			return false;
+		}
+		copyPreferences(name, activeOptions(), "", "");
+		storeProfiles(profiles);
+		return true;
+	}
+
+	/** Preserve the previous working layout, while leaving bundled presets immutable. */
+	private void initializeCustomProfiles()
+	{
+		if (settings().get("customPresetsReady", false)) return;
+		BankLayoutProfiles profiles = savedProfiles();
+		String storedPlan = settings().get("tabOrder", "");
+		BankLayoutPlan working = BankLayoutPlan.parse(activePreset(), storedPlan.isEmpty() ? profiles.activePlan() : storedPlan);
+		String corrections = settings().get("categoryOverrides", "");
+		String blocks = settings().get("blockOrders", "");
+		BankLayoutOptions previous = readOptions(settings());
+		BlueprintOrderProfiles orders = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
+		BlueprintItemOrders items = orders.forProfile(activeProfileName());
+		boolean modified = !working.isDefault(activePreset()) || !corrections.isEmpty() || !blocks.isEmpty()
+			|| !items.serialize().isEmpty();
+		Object[] previousValues = optionValues(previous);
+		Object[] defaults = optionValues(BankLayoutOptions.defaultFor(activePreset()));
+		for (int index = 0; index < OPTION_KEYS.length; index++)
+			modified |= !settings().get(OPTION_KEYS[index], "").isEmpty() && !previousValues[index].equals(defaults[index]);
+		if (modified || !profiles.isDefaultActive())
+		{
+			String name = profiles.isDefaultActive() ? profiles.freeName("Custom layout") : profiles.getActiveName();
+			BankLayoutProfiles changed = profiles.withProfile(name, working.serialize());
+			if (!name.equals(changed.getActiveName())) return;
+			copyPreferences(name, previous, corrections, blocks);
+			orders.put(name, items);
+			settings().set("blueprintOrdersByProfile", orders.serialize());
+			storeProfiles(changed);
+		}
+		settings().set("customPresetsReady", true);
 	}
 
 	/** The layouts the player has saved or imported, and which one they loaded. */
 	private BankLayoutProfiles savedProfiles()
 	{
-		return BankLayoutProfiles.parse(config.layoutProfiles(), config.activeLayoutProfile());
+		return BankLayoutProfiles.parse(settings().get("layoutProfiles", ""), settings().get("activeLayoutProfile", ""),
+			BankLayoutProfiles.defaultName(activePreset()));
 	}
 
 	private String activeProfileName()
 	{
-		return BankLayoutShareCode.sanitize(config.activeLayoutProfile());
+		return activePreset().getType() == BankPresetType.MAIN ? savedProfiles().getActiveName()
+			: BankLayoutShareCode.sanitize(settings().get("activeLayoutProfile", ""));
 	}
 
 	private void storeProfiles(BankLayoutProfiles profiles)
 	{
-		config.setLayoutProfiles(profiles.serialize());
-		config.setActiveLayoutProfile(profiles.getActiveName());
+		settings().set("layoutProfiles", profiles.serialize());
+		settings().set("activeLayoutProfile", profiles.getActiveName());
 	}
 
 	/**
@@ -375,8 +475,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	 */
 	private Map<String, String> blockOrderSnapshots()
 	{
-		Map<String, String> snapshots = new java.util.LinkedHashMap<>();
-		String serialized = BankLayoutProfiles.repairActiveName(config.blockOrdersByProfile(), config.activeLayoutProfile());
+		Map<String, String> snapshots = new LinkedHashMap<>();
+		String serialized = BankLayoutProfiles.repairActiveName(settings().get("blockOrdersByProfile", ""), settings().get("activeLayoutProfile", ""));
 		if (serialized == null || serialized.isEmpty())
 		{
 			return snapshots;
@@ -407,7 +507,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			}
 			builder.append(entry.getKey()).append('~').append(entry.getValue());
 		}
-		config.setBlockOrdersByProfile(builder.toString());
+		settings().set("blockOrdersByProfile", builder.toString());
 	}
 
 	/**
@@ -417,7 +517,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	 */
 	private BankPreset activePreset()
 	{
-		return BankPresets.IRONMAN;
+		return "MAIN".equals(config.bankPreset()) ? BankPresets.MAIN : BankPresets.IRONMAN;
 	}
 
 	/**
@@ -427,21 +527,22 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	 */
 	private BankLayoutModel bankLayoutModel()
 	{
+		initializeCustomProfiles();
 		return new BankLayoutModel()
 		{
 			@Override
 			public String editingContext()
 			{
-				return activeProfileName() + "|" + activePlan().serialize()
-					+ "|" + config.blueprintOrdersByProfile();
+				return activePreset().getKey() + "|" + activeProfileName() + "|" + activePlan().serialize()
+					+ "|" + settings().get("blueprintOrdersByProfile", "");
 			}
 
 			@Override
 			public void saveItemOrder(int tab, List<Integer> itemIds,
 				BankOrganizationPreview expected, String expectedContext,
-				java.util.function.Consumer<Boolean> completed)
+				Consumer<Boolean> completed)
 			{
-				saveEdits(java.util.Collections.singletonMap(tab, itemIds), java.util.Collections.emptyMap(),
+				saveEdits(Collections.singletonMap(tab, itemIds), Collections.emptyMap(),
 					itemIds.isEmpty(), expected, expectedContext, completed);
 			}
 
@@ -449,7 +550,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public void saveBlueprintEdit(Map<Integer, List<Integer>> itemOrders,
 				Map<String, BlueprintItemOrders.Destination> destinations,
 				BankOrganizationPreview expected, String expectedContext,
-				java.util.function.Consumer<Boolean> completed)
+				Consumer<Boolean> completed)
 			{
 				saveEdits(itemOrders, destinations, false, expected, expectedContext, completed);
 			}
@@ -457,10 +558,10 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			private void saveEdits(Map<Integer, List<Integer>> itemOrders,
 				Map<String, BlueprintItemOrders.Destination> destinations, boolean reset,
 				BankOrganizationPreview expected, String expectedContext,
-				java.util.function.Consumer<Boolean> completed)
+				Consumer<Boolean> completed)
 			{
 				Map<Integer, List<Integer>> requested = new HashMap<>();
-				itemOrders.forEach((tab, ids) -> requested.put(tab, new java.util.ArrayList<>(ids)));
+				itemOrders.forEach((tab, ids) -> requested.put(tab, new ArrayList<>(ids)));
 				Map<String, BlueprintItemOrders.Destination> routes = new HashMap<>(destinations);
 				updateBlueprint(expected, expectedContext, completed, live -> {
 					if (!requested.keySet().stream().allMatch(tab -> tab >= 0 && tab < expected.getCategories().size())
@@ -469,7 +570,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 					Map<Integer, Integer> after = new HashMap<>();
 					for (int tab = 0; tab < expected.getCategories().size(); tab++)
 					{
-						List<Integer> ids = new java.util.ArrayList<>();
+						List<Integer> ids = new ArrayList<>();
 						expected.getCategories().get(tab).getItems().forEach(item -> ids.add(item.getItemId()));
 						ids.forEach(id -> before.merge(id, 1, Integer::sum));
 						(reset ? ids : requested.getOrDefault(tab, ids)).forEach(id -> after.merge(id, 1, Integer::sum));
@@ -478,13 +579,12 @@ public final class IronmanBankArchitectPlugin extends Plugin
 					BlueprintItemOrders orders = activeOptions().itemOrders().withDestinations(routes);
 					for (Map.Entry<Integer, List<Integer>> entry : requested.entrySet())
 						orders = reset ? orders.resetTab(entry.getKey()) : orders.withTab(entry.getKey(), entry.getValue());
-					storeItemOrders(activeProfileName(), orders);
-					return true;
+					return storeItemOrders(activeProfileName(), orders);
 				});
 			}
 
 			private void updateBlueprint(BankOrganizationPreview expected, String expectedContext,
-				java.util.function.Consumer<Boolean> completed, java.util.function.Function<BankSnapshot, Boolean> action)
+				Consumer<Boolean> completed, Function<BankSnapshot, Boolean> action)
 			{
 				clientThread.invoke(() -> {
 					boolean success = false;
@@ -499,21 +599,27 @@ public final class IronmanBankArchitectPlugin extends Plugin
 						}
 					}
 					final boolean result = success;
-					javax.swing.SwingUtilities.invokeLater(() -> completed.accept(result));
+					SwingUtilities.invokeLater(() -> completed.accept(result));
 				});
 			}
 
-			private void storeItemOrders(String name, BlueprintItemOrders orders)
+			private boolean storeItemOrders(String name, BlueprintItemOrders orders)
 			{
-				BlueprintOrderProfiles profiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
+				if (builtin())
+				{
+					if (!ensureCustom()) return false;
+					name = activeProfileName();
+				}
+				BlueprintOrderProfiles profiles = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
 				profiles.put(name, orders);
-				config.setBlueprintOrdersByProfile(profiles.serialize());
+				settings().set("blueprintOrdersByProfile", profiles.serialize());
 				analyzeBank();
+				return true;
 			}
 
 			@Override
 			public void captureCurrentBank(String name, BankOrganizationPreview expected, String expectedContext,
-				java.util.function.Consumer<Boolean> completed)
+				Consumer<Boolean> completed)
 			{
 				updateBlueprint(expected, expectedContext, completed, live -> {
 					if (name == null || name.trim().isEmpty()) return false;
@@ -524,11 +630,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 					String free = previous.freeName(name);
 					BankLayoutProfiles profiles = previous.withProfile(free, activePlan().serialize());
 					if (!free.equals(profiles.getActiveName())) return false;
-					Map<String, String> blocks = blockOrderSnapshots();
-					blocks.put(activeProfileName(), config.blockOrders());
-					blocks.put(free, config.blockOrders());
+					copyPreferences(free, activeOptions(), categoryOverrides().serialize(), activeOptions().blockArrangements().serialize());
 					storeProfiles(profiles);
-					storeBlockOrderSnapshots(blocks);
 					storeItemOrders(free, captured);
 					return true;
 				});
@@ -537,7 +640,34 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public BankPreset preset()
 			{
-				return BankPresets.IRONMAN;
+				return activePreset();
+			}
+
+			@Override
+			public void selectPreset(BankPresetType type)
+			{
+				if (type != BankPresetType.IRONMAN && type != BankPresetType.MAIN
+					|| type == activePreset().getType() && builtin()) return;
+				if (bankAnalysis != null) bankAnalysis.invalidate();
+				config.setBankPreset(type.name());
+				initializeCustomProfiles();
+				selectProfile(defaultProfileName());
+				refreshSettings();
+			}
+
+			@Override
+			public List<String> presetChoices()
+			{
+				List<String> choices = new ArrayList<>(Arrays.asList("Ironman", "Main"));
+				for (BankPreset base : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN))
+				{
+					BankLayoutProfiles profiles = BankLayoutProfiles.parse(settings().getFor(base, "layoutProfiles", ""),
+						"", BankLayoutProfiles.defaultName(base));
+					for (String name : profiles.names())
+						if (!profiles.getDefaultName().equals(name)) choices.add(
+							(base.getType() == BankPresetType.MAIN ? "Main: " : "Ironman: ") + name);
+				}
+				return choices;
 			}
 
 			@Override
@@ -549,7 +679,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void save(BankLayoutPlan plan)
 			{
-				config.setTabOrder(plan.completedFor(BankPresets.IRONMAN).serialize());
+				if (!ensureCustom()) return;
+				storeProfiles(savedProfiles().withProfile(activeProfileName(), plan.completedFor(activePreset()).serialize()));
+				settings().set("tabOrder", plan.completedFor(activePreset()).serialize());
 				analyzeBank();
 			}
 
@@ -559,28 +691,11 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				return savedProfiles().names();
 			}
 
-			/**
-			 * Compared by the plan the layout produces, not by the text it was
-			 * stored as, so a profile written by an older version still counts as
-			 * a match once both sides mean the same arrangement.
-			 */
+			/** A custom retains its identity even when its plan matches a bundled preset. */
 			@Override
 			public String matchingProfile()
 			{
-				BankLayoutProfiles profiles = savedProfiles();
-				String current = activePlan().serialize();
-				if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.activePlan())
-					.serialize().equals(current)) return profiles.getActiveName();
-				for (String name : profiles.names())
-				{
-					if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.planFor(name))
-						.serialize().equals(current))
-					{
-						return name;
-					}
-				}
-
-				return "";
+				return savedProfiles().getActiveName();
 			}
 
 			@Override
@@ -589,43 +704,42 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				// The outgoing layout keeps its arrangements and the incoming
 				// one brings its own back, so block orders belong to the
 				// layout they were made for rather than bleeding across all.
-				Map<String, String> snapshots = blockOrderSnapshots();
-				snapshots.put(activeProfileName(), config.blockOrders());
 				BankLayoutProfiles profiles = savedProfiles().withActive(name);
+				if (!profiles.isDefaultActive() && !settings().forProfile(profiles.getActiveName()).get("profileReady", false))
+					copyPreferences(profiles.getActiveName(), readOptions(settings()), settings().get("categoryOverrides", ""),
+						blockOrderSnapshots().getOrDefault(profiles.getActiveName(), ""));
 				storeProfiles(profiles);
-				config.setTabOrder(BankLayoutPlan
-					.parse(BankPresets.IRONMAN, profiles.activePlan())
+				settings().set("tabOrder", BankLayoutPlan
+					.parse(activePreset(), profiles.activePlan())
 					.serialize());
-				String restored = snapshots.get(profiles.getActiveName());
-				config.setBlockOrders(restored == null ? "" : restored);
-				storeBlockOrderSnapshots(snapshots);
 				analyzeBank();
 			}
 
 			@Override
 			public void saveProfile(String name, BankLayoutPlan plan)
 			{
-				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
-				BlueprintItemOrders previousItems = itemProfiles.forProfile(activeProfileName());
-				Map<String, String> snapshots = blockOrderSnapshots();
-				BankLayoutProfiles profiles = savedProfiles().withProfile(name,
-					plan.completedFor(BankPresets.IRONMAN).serialize());
+				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
+				BlueprintItemOrders previousItems = activeOptions().itemOrders();
+				BankLayoutProfiles previous = savedProfiles();
+				BankLayoutProfiles profiles = previous.withProfile(name,
+					plan.completedFor(activePreset()).serialize());
+				if (profiles == previous) return;
+				copyPreferences(profiles.getActiveName(), activeOptions(), categoryOverrides().serialize(),
+					activeOptions().blockArrangements().serialize());
 				storeProfiles(profiles);
 				itemProfiles.put(profiles.getActiveName(), previousItems);
-				config.setBlueprintOrdersByProfile(itemProfiles.serialize());
-				snapshots.put(profiles.getActiveName(), config.blockOrders());
-				storeBlockOrderSnapshots(snapshots);
+				settings().set("blueprintOrdersByProfile", itemProfiles.serialize());
 				save(plan);
 			}
 
 			@Override
 			public void deleteProfile(String name)
 			{
-				if (BankLayoutProfiles.DEFAULT_NAME.equals(name)) return;
-				if (name.equals(activeProfileName())) selectProfile(BankLayoutProfiles.DEFAULT_NAME);
-				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(config.blueprintOrdersByProfile());
+				if (defaultProfileName().equals(name)) return;
+				if (name.equals(activeProfileName())) selectProfile(defaultProfileName());
+				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
 				itemProfiles.remove(name);
-				config.setBlueprintOrdersByProfile(itemProfiles.serialize());
+				settings().set("blueprintOrdersByProfile", itemProfiles.serialize());
 				storeProfiles(savedProfiles().without(name));
 				Map<String, String> snapshots = blockOrderSnapshots();
 				if (snapshots.remove(name) != null)
@@ -638,7 +752,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void saveBlockOrder(String tagKey, List<String> blockKeys)
 			{
-				config.setBlockOrders(BlockArrangements.parse(config.blockOrders())
+				if (!ensureCustom()) return;
+				preferences().set("blockOrders", activeOptions().blockArrangements()
 					.withTag(tagKey, blockKeys).serialize());
 				analyzeBank();
 			}
@@ -657,15 +772,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				// from. The three utility categories share one setting, so MAIN
 				// stands for all of them, and supplies asks its question as a
 				// checkbox rather than an order.
-				config.setAlchPile(options.alchPile());
-				config.setGearLayout(options.gearLayout());
-				config.setUtilitiesLayout(options.orderFor(BankCategorySortMode.MAIN));
-				config.setToolsLayout(options.orderFor(BankCategorySortMode.TOOLS));
-				config.setResourcesLayout(options.orderFor(BankCategorySortMode.RESOURCES));
-				config.setCluesLayout(options.orderFor(BankCategorySortMode.CLUES));
-				config.setKeepDoseRows(
-					options.orderFor(BankCategorySortMode.SUPPLIES) == TabOrder.PACKED);
-				config.setFillHerbloreRows(options.fillHerbloreRows());
+				if (!ensureCustom()) return;
+				storeOptions(preferences(), options);
 				analyzeBank();
 			}
 		};
@@ -746,7 +854,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		analyzedBankContents = bankSnapshot.contents();
 		return Optional.of(new BankAnalysisRequest(bankSnapshot,
 			collectGearStats(bankSnapshot), collectAlchValues(bankSnapshot),
-			categoryOverrides().asMap(), activePlan(), activeOptions()));
+			categoryOverrides().asMap(), activePlan(), activeOptions(), activePreset()));
 	}
 
 	private Map<Integer, Integer> collectAlchValues(BankSnapshot snapshot)

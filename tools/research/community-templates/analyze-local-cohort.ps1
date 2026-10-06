@@ -2,7 +2,8 @@ param(
 	[string] $InputDir = "tools/research/community-templates/cache/local-imports",
 	[string] $RegistryPath = "src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv",
 	[string] $MetadataPath = "src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-sort-metadata.tsv",
-	[string] $OutputPath = "tools/research/community-templates/cache/local-imports/aggregate-analysis.json"
+	[string] $OutputPath = "tools/research/community-templates/cache/local-imports/aggregate-analysis.json",
+	[string] $RepoIds = ""
 )
 
 Set-StrictMode -Version Latest
@@ -27,7 +28,8 @@ Get-Content -LiteralPath $MetadataPath |
 	ConvertFrom-Csv -Delimiter "`t" -Header ItemId, Family, VariantKind, VariantValue, FoodRole, HealModel, ImmediateHealMin, ImmediateHealMax, SecondaryHeal, AreaRestriction, SourceKey |
 	ForEach-Object { $metadata[[int] $_.ItemId] = $_ }
 
-$files = @(Get-ChildItem -LiteralPath $InputDir -File -Filter "*.normalized.json" | Sort-Object Name)
+. (Join-Path $PSScriptRoot "select-cohort.ps1")
+$files = @(Get-SelectedCommunityTemplateFiles $InputDir $RepoIds)
 if ($files.Count -eq 0)
 {
 	throw "No normalized template files found in: $InputDir"
@@ -195,6 +197,10 @@ foreach ($file in $files)
 {
 	$document = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
 	$templateId = [int] $document.TemplateId
+	if ($RepoIds -and $file.Name -ne "$templateId.normalized.json")
+	{
+		throw "Selected template ID differs from its input filename: $($file.Name)"
+	}
 	$columns = [int] $document.Columns
 	if ($columns -le 0)
 	{
@@ -376,6 +382,7 @@ $result = [ordered] @{
 	SchemaVersion = 2
 	Input = "git-ignored normalized local imports"
 	TemplateCount = $files.Count
+	SelectedRepoIds = $RepoIds
 	TabCount = $tabCount
 	PositivePlacementCount = $positivePlacementCount
 	CatalogCoverage = [ordered] @{

@@ -1,10 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+
 
 /** Builds one exact-ID vertical rule containing only owned sets with at least two pieces. */
 final class VerticalItemSetRuleFactory

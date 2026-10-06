@@ -1,16 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
-import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+
 
 /**
  * Exact canonical potion-dose families used by the supplies-category semantic layout. Each owned
@@ -45,11 +39,12 @@ public final class PotionDoseSemanticRuleSet
 		List<SemanticAtom> atoms = new ArrayList<>(FAMILIES.entries().size());
 		for (Map.Entry<String, List<Integer>> family : FAMILIES.entries().entrySet())
 		{
-			atoms.add(new SemanticAtom(family.getKey(), Arrays.asList(
-				new SemanticAtom.Member("dose-4", family.getValue().get(0)),
-				new SemanticAtom.Member("dose-3", family.getValue().get(1)),
-				new SemanticAtom.Member("dose-2", family.getValue().get(2)),
-				new SemanticAtom.Member("dose-1", family.getValue().get(3)))));
+			List<SemanticAtom.Member> members = new ArrayList<>();
+			for (int index = 0; index < 4; index++)
+			{
+				members.add(new SemanticAtom.Member("dose-" + (4 - index), family.getValue().get(index)));
+			}
+			atoms.add(new SemanticAtom(family.getKey(), members));
 		}
 
 		return SemanticRule.builder()

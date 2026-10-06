@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
@@ -10,6 +11,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,15 +19,30 @@ import java.util.Map;
 import java.util.Optional;
 import net.runelite.api.gameval.ItemID;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class AlchCandidateRoutingTest
 {
 	private static final ItemCatalog GEAR_CATALOG = itemId -> Optional.of(new CatalogItem(itemId,
 		"Gear " + itemId, ItemCategory.GEAR, "gear", Collections.emptySet(), null));
+	private final BankPreset preset;
+
+	@Parameterized.Parameters(name = "{0}")
+	public static Collection<Object[]> presets()
+	{
+		return Arrays.asList(new Object[][] {{BankPresetType.IRONMAN}, {BankPresetType.MAIN}});
+	}
+
+	public AlchCandidateRoutingTest(BankPresetType presetType)
+	{
+		this.preset = BankPresets.forType(presetType);
+	}
 
 	@Test public void knownUsesProtectOrdinaryReviewedAndBulkStockFromAutomaticAlchRouting()
 	{
-		for (String role : Arrays.asList("clue-required", "quest-use", "special-attack", "skilling-outfit"))
+		for (String role : Arrays.asList("quest-use", "special-attack", "skilling-outfit"))
 		{
 			for (int quantity : new int[]{1, 2, 25})
 			{
@@ -34,17 +51,35 @@ public class AlchCandidateRoutingTest
 					ItemCategory.GEAR, "body", candidate == id ? Collections.singleton(role) : Collections.emptySet(), null));
 				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99002, 1, 1),
-					new BankItemSnapshot(id, quantity, 2))), catalog, BankPresets.IRONMAN,
+					new BankItemSnapshot(id, quantity, 2))), catalog, preset,
 					candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
 				assertEquals(role + " x" + quantity, 3, categoryByKey(preview, "combat-gear").getItemCount());
 				assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 			}
 		}
-		// An ordinary untagged duplicate must still enter the existing alch workflow.
-		BankOrganizationPreview ordinary = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 2, 1))),
-			GEAR_CATALOG, BankPresets.IRONMAN, candidate -> Optional.of(meleeBody(100)), candidate -> 39000);
-		assertEquals(1, categoryByKey(ordinary, "slayer-boss-loot").getItemCount());
+	}
+
+	@Test
+	public void reviewedClueRequiredGearNeedsAnOwnedReplacementBeforeMovingToAlch()
+	{
+		int id = ItemID.RUNE_PLATEBODY;
+		ItemCatalog catalog = candidate -> Optional.of(new CatalogItem(candidate, "Gear " + candidate,
+			ItemCategory.GEAR, "body", candidate == id ? Collections.singleton("clue-required")
+				: Collections.emptySet(), null));
+		for (int quantity : new int[] {1, 2, 25})
+		{
+			BankOrganizationPreview withoutUpgrade = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+				Collections.singletonList(new BankItemSnapshot(id, quantity, 0))), catalog, preset,
+				candidate -> Optional.of(meleeBody(100)), candidate -> 39000);
+			assertEquals(1, categoryByKey(withoutUpgrade, "combat-gear").getItemCount());
+			assertEquals(0, categoryByKey(withoutUpgrade, "slayer-boss-loot").getItemCount());
+
+			BankOrganizationPreview withUpgrade = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+				new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(id, quantity, 1))), catalog, preset,
+				candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
+			assertEquals(1, categoryByKey(withUpgrade, "combat-gear").getItemCount());
+			assertEquals(1, categoryByKey(withUpgrade, "slayer-boss-loot").getItemCount());
+		}
 	}
 
 	@Test
@@ -68,7 +103,7 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 17, 2),
 			new BankItemSnapshot(4, 1, 3)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> alchValues.getOrDefault(itemId, 0));
 
@@ -98,7 +133,7 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 3, 2),
 			new BankItemSnapshot(4, 3, 3)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 39000);
 
@@ -109,11 +144,10 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
-	public void aReviewedItemStillMovesWhenNothingBeatsItOutright()
+	public void aReviewedWeaponStaysWhenTheOwnedUpgradeLosesOnAStat()
 	{
 		// The whip scores far higher but loses on crush defence, so it does not
-		// beat the adamant 2h outright. The reviewed listing is a maintainer
-		// decision and outranks the automatic proof.
+		// replace the adamant 2h on every stat. Weapons require that full proof.
 		int betterWeaponId = 99_004;
 		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
 			itemId == ItemID.ADAMANT_2H_SWORD ? "Adamant 2h sword" : "Abyssal whip",
@@ -127,12 +161,11 @@ public class AlchCandidateRoutingTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(betterWeaponId, 1, 0),
 			new BankItemSnapshot(ItemID.ADAMANT_2H_SWORD, 1, 1))),
-			catalog, BankPresets.IRONMAN, itemId -> Optional.ofNullable(stats.get(itemId)),
+			catalog, preset, itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> itemId == ItemID.ADAMANT_2H_SWORD ? 3840 : 0);
 
-		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
-		assertEquals("Adamant 2h sword",
-			categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 	}
 
 	@Test
@@ -147,7 +180,7 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 1, 2)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 39000);
 
@@ -168,7 +201,7 @@ public class AlchCandidateRoutingTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> alchValues.getOrDefault(itemId, 0));
 
@@ -191,8 +224,8 @@ public class AlchCandidateRoutingTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
-			new BankItemSnapshot(3, 1, 2)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+			new BankItemSnapshot(3, 2, 2)
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> alchValues.getOrDefault(itemId, 0));
 
@@ -214,7 +247,7 @@ public class AlchCandidateRoutingTest
 		{
 			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 				new BankItemSnapshot(26384, 1, 0), new BankItemSnapshot(4720, quantity, 1))),
-				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
+				CompositeItemCatalog.DEFAULT, preset,
 				itemId -> itemId == 26384 ? Optional.of(torva) : Optional.of(dharok),
 				itemId -> itemId == 4720 ? 168000 : 360000);
 			assertEquals("Dharok x" + quantity, 2, categoryByKey(preview, "combat-gear").getItemCount());
@@ -234,13 +267,46 @@ public class AlchCandidateRoutingTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(26384, 1, 0),
 			new BankItemSnapshot(ItemID.MITHRIL_PLATEBODY, 820, 1)
-		)), CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
+		)), CompositeItemCatalog.DEFAULT, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 1560);
 
 		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals(1, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 		assertEquals("Mithril platebody", categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+	}
+
+	@Test
+	public void unreviewedWearablesUseTheSameConservativeBulkThresholds()
+	{
+		for (int quantity : new int[] {7, 8})
+		{
+			for (int value : new int[] {999, 1000})
+			{
+				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99003, quantity, 1))),
+					GEAR_CATALOG, preset, itemId -> Optional.of(meleeBody(itemId == 99001 ? 300 : 100)),
+					itemId -> value);
+				boolean alch = quantity == 8 && value == 1000;
+				assertEquals(alch ? 1 : 0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+				assertEquals(alch ? 1 : 2, categoryByKey(preview, "combat-gear").getItemCount());
+			}
+		}
+	}
+
+	@Test
+	public void anUnreviewedClueRequiredStackStaysInGearDespiteDominatingAlternatives()
+	{
+		int id = 99003;
+		ItemCatalog catalog = candidate -> Optional.of(new CatalogItem(candidate, "Gear " + candidate,
+			ItemCategory.GEAR, "body", candidate == id ? Collections.singleton("clue-required")
+				: Collections.emptySet(), null));
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99002, 1, 1),
+			new BankItemSnapshot(id, 25, 2))), catalog, preset,
+			candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
+		assertEquals(3, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 	}
 
 	@Test
@@ -258,7 +324,7 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(2, 296, 1),
 			new BankItemSnapshot(3, 450, 2),
 			new BankItemSnapshot(4, 80, 3)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 100);
 
@@ -276,7 +342,7 @@ public class AlchCandidateRoutingTest
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 19, 1)
-		)), GEAR_CATALOG, BankPresets.IRONMAN,
+		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 30);
 
@@ -301,7 +367,7 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 12, 2)
-		)), catalog, BankPresets.IRONMAN,
+		)), catalog, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 40000);
 
@@ -317,24 +383,43 @@ public class AlchCandidateRoutingTest
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
 			Collections.singletonList(new BankItemSnapshot(ItemID.DRAGON_DAGGER_P__, 2, 0))),
-			catalog, BankPresets.IRONMAN, GearStatsSource.NONE, itemId -> 18000);
+			catalog, preset, GearStatsSource.NONE, itemId -> 18000);
 
 		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 	}
 
 	@Test
-	public void reviewedSingleCopyWithoutABetterAlternativeStaysInGear()
+	public void reviewedStockWithoutABetterAlternativeStaysInGear()
 	{
 		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
 			"Rune platebody", ItemCategory.GEAR, "body", Collections.emptySet(), null));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
-			Collections.singletonList(new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 1, 0))),
-			catalog, BankPresets.IRONMAN, GearStatsSource.NONE, itemId -> 39000);
+		for (int quantity : new int[] {1, 2, 25})
+		{
+			for (GearStatsSource stats : Arrays.asList(GearStatsSource.NONE,
+				(GearStatsSource) itemId -> Optional.of(meleeBody(100))))
+			{
+				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+					Collections.singletonList(new BankItemSnapshot(ItemID.RUNE_PLATEBODY, quantity, 0))),
+					catalog, preset, stats, itemId -> 39000);
+				assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
+				assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+			}
+		}
+	}
 
-		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
-		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+	@Test
+	public void anEqualOwnedAlternativeDoesNotMakeAReviewedStackReplaceable()
+	{
+		for (int quantity : new int[] {1, 2, 25})
+		{
+			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+				new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(ItemID.RUNE_PLATEBODY, quantity, 1))),
+				GEAR_CATALOG, preset, itemId -> Optional.of(meleeBody(100)), itemId -> 39000);
+			assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
+			assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
+		}
 	}
 
 	@Test
@@ -346,14 +431,17 @@ public class AlchCandidateRoutingTest
 			ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(betterWeaponId,
-			new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0, 0));
+			new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0,
+				0, 0, 0, 0, 0, 0, 4));
 		stats.put(ItemID.ADAMANT_2H_SWORD,
-			new GearStats(GearSlot.WEAPON, 50, 0, 0, 0, 0, 50, 0, 0, 0));
+			new GearStats(GearSlot.WEAPON, 50, 0, 0, 0, 0, 50, 0, 0,
+				0, 0, 0, 0, 0, 0, 4));
+		assertTrue(stats.get(betterWeaponId).dominates(stats.get(ItemID.ADAMANT_2H_SWORD)));
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(betterWeaponId, 1, 0),
 			new BankItemSnapshot(ItemID.ADAMANT_2H_SWORD, 1, 1))),
-			catalog, BankPresets.IRONMAN, itemId -> Optional.ofNullable(stats.get(itemId)),
+			catalog, preset, itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> itemId == ItemID.ADAMANT_2H_SWORD ? 3840 : 0);
 
 		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
@@ -370,14 +458,17 @@ public class AlchCandidateRoutingTest
 			ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(betterWeaponId,
-			new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0, 0));
+			new GearStats(GearSlot.WEAPON, 100, 0, 0, 0, 0, 100, 0, 0,
+				0, 0, 0, 0, 0, 0, 4));
 		stats.put(ItemID.DRAGON_DAGGER,
-			new GearStats(GearSlot.WEAPON, 25, 0, 0, 0, 0, 20, 0, 0, 0));
+			new GearStats(GearSlot.WEAPON, 25, 0, 0, 0, 0, 20, 0, 0,
+				0, 0, 0, 0, 0, 0, 4));
+		assertTrue(stats.get(betterWeaponId).dominates(stats.get(ItemID.DRAGON_DAGGER)));
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(betterWeaponId, 1, 0),
 			new BankItemSnapshot(ItemID.DRAGON_DAGGER, 1, 1))),
-			catalog, BankPresets.IRONMAN, itemId -> Optional.ofNullable(stats.get(itemId)),
+			catalog, preset, itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> itemId == ItemID.DRAGON_DAGGER ? 18000 : 0);
 
 		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
@@ -392,7 +483,7 @@ public class AlchCandidateRoutingTest
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
 			Collections.singletonList(new BankItemSnapshot(ItemID.MYSTIC_ROBE_TOP, 2, 0))),
-			catalog, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE);
+			catalog, preset, GearStatsSource.NONE, ItemValueSource.NONE);
 
 		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
@@ -406,7 +497,7 @@ public class AlchCandidateRoutingTest
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
 			Collections.singletonList(new BankItemSnapshot(1, 40, 0))),
-			GEAR_CATALOG, BankPresets.IRONMAN,
+			GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> 1560);
 
@@ -415,28 +506,28 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
-	public void reviewedRuneStockKeepsItsAlchWorkflowWithoutDominance()
+	public void reviewedArmourMovesWithAnOwnedHigherCuratedTierDespiteWeakerDefence()
 	{
 		Map<Integer, String> names = new LinkedHashMap<>();
-		names.put(1, "Bandos chestplate");
-		names.put(2, "Fighter torso");
+		names.put(11832, "Bandos chestplate");
+		names.put(10551, "Fighter torso");
 		names.put(ItemID.RUNE_PLATEBODY, "Rune platebody");
 		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId, names.get(itemId),
 			ItemCategory.GEAR, "body", Collections.emptySet(), null));
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
-		stats.put(1, meleeBody(250));
-		stats.put(2, new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 4, 0, 0, 100));
-		// The reviewed stock exception still applies when the primary/backup
-		// alternatives have weaker raw defence and do not prove dominance.
+		stats.put(11832, meleeBody(250));
+		stats.put(10551, new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 4, 0, 0, 100));
+		// The exact Bandos ID supplies a reviewed armour upgrade even when the
+		// owned primary/backup alternatives do not dominate raw defence.
 		stats.put(ItemID.RUNE_PLATEBODY, meleeBody(308));
-		assertFalse(stats.get(1).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
-		assertFalse(stats.get(2).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
+		assertFalse(stats.get(11832).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
+		assertFalse(stats.get(10551).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
-			new BankItemSnapshot(1, 1, 0),
-			new BankItemSnapshot(2, 1, 1),
+			new BankItemSnapshot(11832, 1, 0),
+			new BankItemSnapshot(10551, 1, 1),
 			new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 25, 2)
-		)), catalog, BankPresets.IRONMAN,
+		)), catalog, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
 			itemId -> itemId == ItemID.RUNE_PLATEBODY ? 39000 : 0);
 

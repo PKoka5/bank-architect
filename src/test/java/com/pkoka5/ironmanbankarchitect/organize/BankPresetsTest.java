@@ -59,7 +59,7 @@ public class BankPresetsTest
 		assertEquals(BankCategorySortMode.GEAR,
 			BankPresets.PVP.getCategory("replacement-sets").getSortMode());
 		assertEquals(BankCategorySortMode.CLUES,
-			BankPresets.MAIN.getCategory("clues-collection-log").getSortMode());
+			BankPresets.MAIN.getCategory("clues-cosmetics").getSortMode());
 		assertEquals(BankCategorySortMode.TOOLS,
 			BankPresets.SKILLER.getCategory("tools-outfits-pets").getSortMode());
 		assertEquals(BankCategorySortMode.REVIEW,

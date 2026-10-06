@@ -1,14 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import com.pkoka5.ironmanbankarchitect.organize.IronmanQuickToolSelector;
-import com.pkoka5.ironmanbankarchitect.organize.BankTags;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+
 
 /** Reviewed quick-access geometry for the active Ironman main tab. */
 public final class MainQuickAccessSemanticRuleSet

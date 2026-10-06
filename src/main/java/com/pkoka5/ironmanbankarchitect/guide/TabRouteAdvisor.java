@@ -2,14 +2,12 @@ package com.pkoka5.ironmanbankarchitect.guide;
 
 import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan.TargetTab;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+
+
+
+
 
 /**
  * Pure tab-aware route planner. It first builds clean category buckets from

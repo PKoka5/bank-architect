@@ -4,31 +4,22 @@ import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.*;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.swing.*;
-import net.runelite.client.ui.ColorScheme;
-import net.runelite.client.ui.FontManager;
-import net.runelite.client.ui.PluginPanel;
+import javax.swing.Timer;
+import net.runelite.client.ui.*;
 import net.runelite.client.ui.components.ProgressBar;
 
 final class IronmanBankArchitectPanel extends PluginPanel
 {
 	private static final String TITLE = "Bank Architect";
-	private static final String SUMMARY = "Read-only Ironman bank blueprint planner";
+	private static final String SUMMARY = "Read-only bank blueprint planner";
 	private static final String SAFETY_NOTE = "No bank actions are automated.";
 	private static final String DETAILS_LABEL = "Details";
 	private static final String CATEGORY_CORRECTION_HELP =
@@ -41,8 +32,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			+ "the no-entry button to take one off. A tab left with nothing is simply not "
 			+ "created, so the main section can stay empty for dumping loot. Keeping a "
 			+ "bundle's tags on one tab keeps its layout; splitting them is allowed and "
-			+ "each side is then arranged on its own. Put Part Doses on the tab with "
-			+ "Potions and the Herblore tab runs by kind instead of a row per recipe.";
+			+ "each side is then arranged on its own. ";
 	private static final String PREVIEW_OVERLAY_NOTE =
 		"Guides tab creation and item order in the vanilla All items view, in Swap or Insert mode; "
 			+ "Insert usually needs fewer drags. Every move stays manual.";
@@ -66,7 +56,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private static final int SIDEBAR_CONTENT_WIDTH = 184;
 	private static final int LAYOUT_NAME_WIDTH = 110;
 	/** Shown in the profile list while the working layout matches no saved one. */
-	private static final String UNSAVED_PROFILE = "Custom (unsaved)";
 
 	private final BankGuideController guideController;
 	private final BiConsumer<BankPreviewItem, JLabel> itemIconRenderer;
@@ -81,13 +70,14 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final JButton importButton;
 	private final JButton exportButton;
 	private final JButton deleteProfileButton;
-	private final JComboBox<String> profileChooser;
+	private final JComboBox<String> presetChooser = new JComboBox<>(new String[] {"Ironman", "Main"});
+	private boolean refreshingPreset;
 	private final JCheckBox alchPileBox;
-	private boolean refreshingProfiles;
 	private boolean refreshingOptions;
 	private final JPanel layoutEditor;
 	private final JPanel layoutRows;
 	private final JLabel layoutHeading;
+	private final JLabel layoutHelp;
 	private final BankLayoutModel bankLayoutModel;
 	private BankLayoutPlan layoutPlan;
 	private int selectedDestination = BankLayoutPlan.MAIN_DESTINATION_INDEX;
@@ -202,15 +192,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
 		// Asked separately, because they are the same mechanism but not the same
 		alchPileBox = layoutOptionBox("Gather outclassed gear",
-			"<html>Move gear you own two strictly better versions of, and that is worth "
-				+ "alching, to the Slayer &amp; Boss Loot tab.<br>Off: every piece of gear "
-				+ "stays in the combat gear tab.</html>");
+			"<html>Gather replaced gear and tools, plus spare standard Mystic colours. "
+				+ "Keep the best owned tool and each staff's rune supply.<br>Reviewed obsolete clue gear may move; "
+				+ "Dragon halberds always count as alch stock.<br>Off: keep normal categories.</html>");
 
-		profileChooser = new JComboBox<>();
-		profileChooser.setFont(FontManager.getRunescapeSmallFont());
-		profileChooser.setFocusable(false);
-		profileChooser.setToolTipText("The saved layout you are using");
-		profileChooser.addActionListener(event -> onProfileChosen());
 		saveProfileButton = layoutActionButton("Save as", "Save this layout under a name",
 			event -> saveLayoutAs());
 		importButton = layoutActionButton("Import", "Paste a layout shared with you",
@@ -229,13 +214,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		layoutEditor = verticalPanel();
 		layoutEditor.setVisible(false);
-		JLabel layoutHelp = mutedLabel(LAYOUT_EDITOR_HELP);
+		layoutHelp = mutedLabel(layoutHelpText());
 		layoutHelp.setAlignmentX(LEFT_ALIGNMENT);
 		layoutRows.setAlignmentX(LEFT_ALIGNMENT);
-		sizeToSidebar(profileChooser, 22);
 		sizeToSidebar(profileActions, 22);
-		layoutEditor.add(profileChooser);
-		layoutEditor.add(Box.createVerticalStrut(3));
 		layoutEditor.add(profileActions);
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(layoutHelp);
@@ -351,12 +333,19 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		title.setFont(FontManager.getRunescapeBoldFont());
 		title.setForeground(ColorScheme.TEXT_COLOR);
 		title.setAlignmentX(LEFT_ALIGNMENT);
-		JLabel profile = new JLabel(AllRoundIronmanPreset.PROFILE_NAME);
-		profile.setFont(FontManager.getRunescapeSmallFont());
-		profile.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
-		profile.setAlignmentX(LEFT_ALIGNMENT);
+		presetChooser.setFont(FontManager.getRunescapeSmallFont());
+		presetChooser.setAlignmentX(LEFT_ALIGNMENT);
+		presetChooser.setMaximumSize(new Dimension(SIDEBAR_CONTENT_WIDTH, 24));
+		presetChooser.setPrototypeDisplayValue("Ironman: Custom layout");
+		nameTheClosedChooser(presetChooser, "Preset");
+		refreshPresetChoices();
+		presetChooser.addActionListener(event -> {
+			if (refreshingPreset || presetChooser.getSelectedItem() == null) return;
+			bankLayoutModel.selectPresetChoice(presetChooser.getSelectedItem().toString());
+			refreshSettings();
+		});
 		who.add(title);
-		who.add(profile);
+		who.add(presetChooser);
 
 		strip.add(mark, BorderLayout.WEST);
 		strip.add(who, BorderLayout.CENTER);
@@ -575,10 +564,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		applyLayoutPlan(layoutPlan.withTagAt(tagKey, destinationIndex));
 	}
 
-	JComboBox<String> getProfileChooser()
-	{
-		return profileChooser;
-	}
+	JComboBox<String> getPresetChooser() { return presetChooser; }
 
 	JPanel getLayoutRows()
 	{
@@ -613,6 +599,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void renderLayoutEditor()
 	{
 		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
+		layoutHelp.setText(sidebarHtml(layoutHelpText()));
 		BankOrganizationPreview preview = guideController.bankAnalysisStatus()
 			.organizationPreview()
 			.orElse(null);
@@ -889,8 +876,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		box.addActionListener(event -> {
 			if (!refreshingOptions)
 			{
-				bankLayoutModel.saveOptions(
-					new BankLayoutOptions(true, true, alchPileBox.isSelected()));
+				BankLayoutOptions base = bankLayoutModel.options();
+				bankLayoutModel.saveOptions(new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(),
+					alchPileBox.isSelected(), ordersOf(base), base.gearLayout(), base.potionDoses(),
+					base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed()));
+				refreshProfiles();
 			}
 		});
 		return box;
@@ -913,6 +903,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 * their own: a panel in this list reads as a tag row, both to the eye and to
 	 * the code that walks it.</p>
 	 */
+	private String layoutHelpText()
+	{
+		return LAYOUT_EDITOR_HELP + (bankLayoutModel.preset().getType() == BankPresetType.MAIN
+			? "Main keeps potion families in dose order 4 to 1. Herbs run by stage: grimy, clean, seeds, unfinished."
+			: "Put Part Doses on the tab with Potions and the Herblore tab runs by kind instead of a row per recipe.");
+	}
+
 	private void addLayoutChoices(int destination)
 	{
 		Set<BankCategorySortMode> modes = new LinkedHashSet<>();
@@ -974,6 +971,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			{
 				GearLayout chosen = (GearLayout) chooser.getSelectedItem();
 				bankLayoutModel.saveOptions(withGearLayout(bankLayoutModel.options(), chosen));
+				refreshProfiles();
 			}
 		});
 		return chooser;
@@ -991,6 +989,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			{
 				TabOrder chosen = (TabOrder) chooser.getSelectedItem();
 				bankLayoutModel.saveOptions(withOrder(bankLayoutModel.options(), mode, chosen));
+				refreshProfiles();
 			}
 		});
 		return chooser;
@@ -1016,13 +1015,18 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 */
 	private void nameTheClosedChooser(JComboBox<?> chooser)
 	{
+		nameTheClosedChooser(chooser, "Layout");
+	}
+
+	private void nameTheClosedChooser(JComboBox<?> chooser, String label)
+	{
 		ListCellRenderer<Object> base = (ListCellRenderer<Object>) chooser.getRenderer();
 		chooser.setRenderer((list, value, index, selected, focused) -> {
 			Component cell = base.getListCellRendererComponent(
 				list, value, index, selected, focused);
 			if (index < 0 && cell instanceof JLabel)
 			{
-				((JLabel) cell).setText("Layout: " + value);
+				((JLabel) cell).setText(label + ": " + value);
 			}
 			return cell;
 		});
@@ -1031,7 +1035,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BankLayoutOptions withGearLayout(BankLayoutOptions base, GearLayout gearLayout)
 	{
 		return new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(), base.alchPile(),
-			ordersOf(base), gearLayout, base.potionDoses(), base.runeOrder(), base.teleportOrder());
+			ordersOf(base), gearLayout, base.potionDoses(), base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed());
 	}
 
 	private BankLayoutOptions withOrder(BankLayoutOptions base, BankCategorySortMode mode,
@@ -1047,7 +1051,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			orders.put(BankCategorySortMode.CURRENCY, order);
 		}
 		return new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(), base.alchPile(),
-			orders, base.gearLayout(), base.potionDoses(), base.runeOrder(), base.teleportOrder());
+			orders, base.gearLayout(), base.potionDoses(), base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed());
 	}
 
 	private Map<BankCategorySortMode, TabOrder> ordersOf(BankLayoutOptions base)
@@ -1068,6 +1072,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		{
 			BankLayoutOptions options = bankLayoutModel.options();
 			alchPileBox.setSelected(options.alchPile());
+			alchPileBox.setVisible(true);
 		}
 		finally
 		{
@@ -1092,58 +1097,37 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return button;
 	}
 
-	/**
-	 * The saved layouts, with the working one marked when it matches none of
-	 * them. Showing "unsaved" rather than leaving a profile selected keeps the
-	 * dropdown honest: an edited layout is no longer the layout it was loaded
-	 * from, and pretending otherwise would lose the player's edits on a switch.
-	 */
+	/** One header chooser represents both bundled presets and saved customs. */
 	private void refreshProfiles()
 	{
-		refreshingProfiles = true;
+		refreshPresetChoices();
+		String matching = bankLayoutModel.matchingProfile();
+		deleteProfileButton.setEnabled(!matching.isEmpty()
+			&& !bankLayoutModel.defaultProfileName().equals(matching));
+	}
+
+	private void refreshPresetChoices()
+	{
+		refreshingPreset = true;
 		try
 		{
-			String matching = bankLayoutModel.matchingProfile();
-			profileChooser.removeAllItems();
-			if (matching.isEmpty())
-			{
-				profileChooser.addItem(UNSAVED_PROFILE);
-			}
-			for (String name : bankLayoutModel.profileNames())
-			{
-				profileChooser.addItem(name);
-			}
-			profileChooser.setSelectedItem(matching.isEmpty() ? UNSAVED_PROFILE : matching);
-			profileChooser.setToolTipText(matching.isEmpty()
-				? "This layout has not been saved under a name"
-				: "Using the saved layout \"" + matching + "\"");
-			deleteProfileButton.setEnabled(!matching.isEmpty()
-				&& !BankLayoutProfiles.DEFAULT_NAME.equals(matching));
+			List<String> choices = bankLayoutModel.presetChoices();
+			presetChooser.setModel(new DefaultComboBoxModel<>(choices.toArray(new String[0])));
+			presetChooser.setSelectedItem(bankLayoutModel.selectedPresetChoice());
+			presetChooser.setToolTipText("Using " + bankLayoutModel.selectedPresetChoice()
+				+ ". Editing a bundled preset creates a custom copy.");
 		}
 		finally
 		{
-			refreshingProfiles = false;
+			refreshingPreset = false;
 		}
-	}
-
-	private void onProfileChosen()
-	{
-		Object selected = profileChooser.getSelectedItem();
-		if (refreshingProfiles || selected == null || UNSAVED_PROFILE.equals(selected))
-		{
-			return;
-		}
-
-		bankLayoutModel.selectProfile(selected.toString());
-		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
-		renderLayoutEditor();
 	}
 
 	private void saveLayoutAs()
 	{
 		String suggested = bankLayoutModel.matchingProfile();
 		String name = JOptionPane.showInputDialog(this, "Name for this layout:",
-			suggested.isEmpty() || BankLayoutProfiles.DEFAULT_NAME.equals(suggested)
+			suggested.isEmpty() || bankLayoutModel.defaultProfileName().equals(suggested)
 				? "My layout" : suggested);
 		if (name == null || name.trim().isEmpty())
 		{
@@ -1162,7 +1146,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		String matching = bankLayoutModel.matchingProfile();
 		String code = BankLayoutShareCode.encode(
-			matching.isEmpty() ? "Shared layout" : matching, layoutPlan);
+			matching.isEmpty() ? "Shared layout" : matching, layoutPlan, bankLayoutModel.preset());
 		Toolkit.getDefaultToolkit().getSystemClipboard()
 			.setContents(new StringSelection(code), null);
 		JOptionPane.showMessageDialog(this,
@@ -1192,6 +1176,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			return;
 		}
 
+		if (decoded.get().getPresetType() != bankLayoutModel.preset().getType())
+		{
+			JOptionPane.showMessageDialog(this, "Choose the " + decoded.get().getPresetType()
+				+ " preset before importing this layout.", "Different preset", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 		BankLayoutPlan imported = BankLayoutPlan
 			.parse(bankLayoutModel.preset(), decoded.get().getPlan())
 			.completedFor(bankLayoutModel.preset());
@@ -1203,7 +1193,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void deleteSelectedProfile()
 	{
 		String matching = bankLayoutModel.matchingProfile();
-		if (matching.isEmpty() || BankLayoutProfiles.DEFAULT_NAME.equals(matching))
+		if (matching.isEmpty() || bankLayoutModel.defaultProfileName().equals(matching))
 		{
 			return;
 		}
@@ -1366,6 +1356,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	void refreshSettings()
 	{
+		refreshPresetChoices();
+		arrangeOpenTagKey = null;
+		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		if (layoutEditor.isVisible()) renderLayoutEditor();
 		refreshStatus();
 	}

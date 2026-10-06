@@ -1,17 +1,8 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 /** A local concept: operations never mutate the preview or the real bank. */

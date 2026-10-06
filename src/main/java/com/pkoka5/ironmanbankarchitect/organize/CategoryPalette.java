@@ -1,9 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import java.awt.Color;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * Fixed colours for the ten blueprint destinations, indexed by preset order.

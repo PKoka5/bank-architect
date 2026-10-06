@@ -1,15 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.overlay;
 
-import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+
 
 /**
  * Item ID to blueprint destination lookup, built once per analysis.

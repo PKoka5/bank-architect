@@ -1,16 +1,24 @@
 # Bank Architect
 
 Bank Architect is a read-only RuneLite sidebar plugin for planning an organized
-Ironman bank. It scans the bank you have open, creates a deterministic
+Main or Ironman bank. It scans the bank you have open, creates a deterministic
 blueprint for the items you own, and can highlight one safe manual move at a
 time. You remain in control of every bank action.
 
-The currently selectable workflow is **Ironman — All-Round Bank**, which sorts
-owned items into ten purpose-driven destinations.
+Choose **Ironman — All-Round Bank**, **Main — All-Round Bank**, or your saved
+custom preset from the single chooser at the top of the sidebar. Both bundled
+presets sort owned items into ten purpose-driven destinations. Editing a bundled
+layout creates a custom preset, preserving the original defaults.
+
+Main groups runes and teleports in one tab, all combat styles together, potions
+in 4–3–2–1 dose order, and herbs, seeds and unfinished potions by stage. Ironman
+retains its original recipe-oriented arrangement. Both use the same reviewed
+Alch rules: replaced gear and tools can move to Alch, while best-owned tools,
+staff rune supply and your personal corrections remain protected.
 
 ## Installation
 
-After the plugin is published to the Plugin Hub:
+Install from the RuneLite Plugin Hub:
 
 1. Open RuneLite's configuration sidebar and select **Plugin Hub**.
 2. Search for **Bank Architect** and choose **Install**.
@@ -130,7 +138,7 @@ mixed-category tabs and placeholders. Missing items keep their saved positions f
 when they return; new items follow their automatic category placement and append.
 Category changes do not undo captured positions. **Assign category...** in the item
 editor can move an individual item again, and **Reset tab order** releases the saved
-positions in that tab. Use the Layout dropdown to switch back to your previous layout.
+positions in that tab. Use the header preset chooser to switch back to your previous layout.
 
 Remove bank fillers before saving. If bank contents, the active layout or the
 analysis changes while saving, nothing is overwritten; analyze and try again.
@@ -159,11 +167,10 @@ can see the shape of the bank while you build it.
 
 ### Saving and sharing a layout
 
-The dropdown at the top of the editor holds your saved layouts. **Ironman -
-All-Round** is the bundled one and always means the preset's own arrangement, so
-there is always a way back to a working bank. As soon as you change something
-the list shows **Custom (unsaved)**, because an edited layout is no longer the
-one you loaded.
+The header preset chooser lets you keep several versions of your bank.
+The bundled **Ironman** and **Main** presets always stay available. Editing a
+bundled layout creates a **Custom layout**; selecting a bundled preset restores
+its defaults. Saved customs keep their own layout preferences and corrections.
 
 - **Save as** stores the current layout under a name.
 - **Export** copies it to your clipboard as a share code you can paste anywhere.
@@ -214,15 +221,20 @@ perfectly happy for a short recipe row to stop where it stops.
   next recipe still starts at the left edge. **Off**: a short row is left short
   and the recipes simply follow each other.
 
-**Gather outclassed gear for alching** moves equipment you own two strictly
-better versions of, and that is worth alching, to the Slayer & Boss Loot tab.
-Turn it off to keep every piece of gear in the combat gear tab, for example when
-you keep a spare set on purpose.
+**Gather outclassed gear** sends reviewed replaced gear and tools to the
+separately placeable **Alch** tag. Main and Ironman use the same rules. The best
+owned reviewed gear stays; Rune and Adamant axes move when you own a better axe,
+elemental staffs preserve rune supply, and equivalent ordinary Mystic colours
+keep one stable variant. Dragon halberds count as Alch stock by default.
+Unreviewed duplicates need conservative stat/value evidence. Personal item
+choices always win. Turn gathering off to retain the normal categories.
 
 ### Two ways to arrange Herblore
 
-By default the Herblore tab is a **row per recipe**: grimy herb, clean herb,
+Ironman's default Herblore tab is a **row per recipe**: grimy herb, clean herb,
 seed, unfinished potion, secondary, then the 3, 2 and 1 dose.
+Main starts with dense runs by kind and keeps finished potion families in 4–3–2–1
+dose order with Food & Potions.
 
 Move **Part Doses** onto the tab that holds **Potions** and it changes to
 **runs by kind** instead: all the grimy herbs, then all the clean ones, then the
@@ -287,8 +299,8 @@ only classification input that is not bundled with the plugin.
 
 ## Current limitations
 
-- **Ironman — All-Round Bank** is the only selectable preset. Internal Main,
-  PvM, PvP, and Skiller foundations are not available in the interface.
+- **Ironman**, **Main** and saved custom presets are selectable. Internal
+  PvM, PvP and Skiller foundations are not available in the interface.
 - Roadmap features that still require complete pinned data or a maintainer
   policy are not presented as shipped. This includes GE-value loot ordering
   and selectable additional presets.

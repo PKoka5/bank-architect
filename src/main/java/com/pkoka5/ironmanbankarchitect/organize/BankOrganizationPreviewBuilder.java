@@ -1,20 +1,14 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
-import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
+import com.pkoka5.ironmanbankarchitect.bank.*;
 import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.layout.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+
+
+
+
 
 public final class BankOrganizationPreviewBuilder
 {
@@ -45,6 +39,7 @@ public final class BankOrganizationPreviewBuilder
 		int destination)
 	{
 		List<String> tags = plan.getTagKeys(destination);
+		if (preset.getType() == BankPresetType.MAIN) return tags;
 		if (tags.size() < 2)
 		{
 			return Collections.emptyList();
@@ -131,28 +126,41 @@ public final class BankOrganizationPreviewBuilder
 		BankLayoutPlan plan = layoutPlan == null ? null : layoutPlan.completedFor(preset);
 		// Without a plan there is nothing to read a layout choice from, so the
 		// per-category blueprint keeps the recipe rows it has always had.
-		boolean herbloreRecipeRows = plan == null || BankLayoutStyles.herbloreUsesRecipeRows(plan);
+		boolean main = preset.getType() == BankPresetType.MAIN;
+		boolean herbloreRecipeRows = !main && (plan == null || BankLayoutStyles.herbloreUsesRecipeRows(plan));
 		Map<String, Integer> tagCounts = new LinkedHashMap<>();
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
 		if (plan == null)
 		{
 			for (BankCategory category : preset.getCategories())
 			{
-				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category,
+				previewsByCategory.put(category.getKey(), new MutableCategoryPreview(category, main,
 					herbloreRecipeRows, options, Collections.emptyList()));
 			}
 		}
 
 		Map<String, List<OwnedGear>> ownedGearByKey = new LinkedHashMap<>();
+		Set<Integer> realOwned = new HashSet<>();
+		Map<Integer, String> choices = new HashMap<>();
+		boolean captured = options.itemOrders().isCaptured();
 		java.util.Set<Integer> quickToolIds = options.gatherFrequentlyUsed()
 			? IronmanQuickToolSelector.select(snapshot) : Collections.emptySet();
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
-			if (!options.alchPile() || preset.getType() != BankPresetType.IRONMAN) break;
+			if (!options.alchPile() || (!main && preset.getType() != BankPresetType.IRONMAN)) break;
 			if (bankItem.isPlaceholder())
 			{
 				continue;
 			}
+			int itemId = bankItem.getItemId();
+			realOwned.add(itemId);
+			BankTag choice = overrideTag(overrides, itemId);
+			BankCategory legacyChoice = overriddenCategory(preset, overrides, itemId);
+			if (choice != null) choices.put(itemId, choice.getKey());
+			else if (legacyChoice != null) choices.put(itemId, legacyChoice.getKey());
+			BlueprintItemOrders.Destination saved = options.itemOrders().destinations().get(itemId + "#0");
+			if (saved != null && (captured
+				|| plan != null && plan.destinationOf(saved.tag) == saved.tab)) choices.put(itemId, saved.tag);
 			Optional<GearStats> stats = gearStats.statsFor(bankItem.getItemId());
 			if (stats.isPresent())
 			{
@@ -165,7 +173,7 @@ public final class BankOrganizationPreviewBuilder
 				ownedGearByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
 					.add(new OwnedGear(GearItemSorter.score(
 						new BankPreviewItem(catalogItem, bankItem.getQuantity()), gearStats),
-						stats.get()));
+						stats.get(), catalogItem.getItemId()));
 			}
 		}
 
@@ -183,16 +191,16 @@ public final class BankOrganizationPreviewBuilder
 			// By family, a part dose counts as its potion: it classifies with
 			// the full potions rather than as Herblore's to-decant pile, so
 			// each potion runs 4 to 1 in one place.
-			boolean partDoseAsPotion = options.potionDoses() == PotionDoseOrder.BY_FAMILY
-				&& normalizedSubcategory(catalogItem).startsWith("potion-dose-")
-				&& !normalizedSubcategory(catalogItem).equals("potion-dose-4");
+			boolean partDoseAsPotion = (main || options.potionDoses() == PotionDoseOrder.BY_FAMILY)
+				&& normalizedSubcategory(catalogItem).matches("(?:potion-)?dose-[123]");
 			if (partDoseAsPotion)
 			{
 				category = preset.getCategory("potions-food");
 			}
-			if (options.alchPile() && !bankItem.isPlaceholder()
+			boolean alchCandidate = options.alchPile() && !bankItem.isPlaceholder()
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-				gearStats, itemValues, ownedGearByKey))
+				gearStats, itemValues, ownedGearByKey, realOwned, choices);
+			if (alchCandidate)
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
 			}
@@ -212,10 +220,12 @@ public final class BankOrganizationPreviewBuilder
 				if (overridden != null)
 				{
 					category = overridden;
+					alchCandidate = false;
 				}
 			}
 			MutableCategoryPreview preview;
-			BankTag routedTag = pinnedTag;
+			BankTag routedTag = pinnedTag != null ? pinnedTag
+				: alchCandidate && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("alch") : null;
 			if (plan == null)
 			{
 				preview = previewsByCategory.get(category.getKey());
@@ -230,7 +240,9 @@ public final class BankOrganizationPreviewBuilder
 				// below sees exactly the items that share a tab. Tags of one
 				// category on one tab share a bucket, which is what keeps a
 				// bundle's layout intact while its parts stay together.
-				BankTag tag = pinnedTag != null ? pinnedTag
+				BankTag tag = routedTag != null ? routedTag
+					: main && catalogItem.getItemId() == 9084 && "currency-utilities".equals(category.getKey())
+						? BankTags.byKey("teleports")
 					: partDoseAsPotion && "potions-food".equals(category.getKey()) ? BankTags.byKey("potions")
 					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
 				routedTag = tag;
@@ -248,7 +260,7 @@ public final class BankOrganizationPreviewBuilder
 				preview = previewsByCategory.get(bucketKey);
 				if (preview == null)
 				{
-					preview = new MutableCategoryPreview(category, herbloreRecipeRows, options,
+					preview = new MutableCategoryPreview(category, main, herbloreRecipeRows, options,
 						customizedTagOrder(preset, plan, destination));
 					previewsByCategory.put(bucketKey, preview);
 				}
@@ -465,6 +477,7 @@ public final class BankOrganizationPreviewBuilder
 
 	private static CatalogItem effectiveCatalogItem(CatalogItem item, int itemId, GearStatsSource gearStats)
 	{
+		if (item.getCategory() == ItemCategory.CLEANUP && "quest-item".equals(item.getSubcategory())) return item;
 		Optional<GearStats> stats = gearStats.statsFor(itemId);
 		if (stats.isPresent() && (item.getCategory() == ItemCategory.GEAR
 			|| ((item.getCategory() == ItemCategory.CLEANUP
@@ -494,44 +507,41 @@ public final class BankOrganizationPreviewBuilder
 			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey), bankItem.getSlotIndex());
 	}
 
-	/**
-	 * Ironman alch rule: a combat gear item whose style+slot already has two
-	 * strictly better owned items is a duplicate the player will realistically
-	 * never wear again; when it is also worth alching it moves to the alch
-	 * review tab instead of cluttering the gear columns.
-	 *
-	 * <p>The tier score that produces "strictly better" collapses fifteen stats
-	 * into one number, so on its own it can rank an item lower even when that
-	 * item is the better choice on some axis. Automatically chosen items must
-	 * therefore also be beaten outright by an owned item - see
-	 * {@link GearStats#dominates(GearStats)}. Hand-reviewed stock in
-	 * {@link IronmanAlchCandidateCatalog} is exempt: an explicit maintainer
-	 * decision outranks the automatic rule.</p>
-	 */
+	/** Shared Main/Ironman policy: reviewed gear needs an owned replacement;
+	 * unknown stock needs full dominance and the conservative value/backup rules.
+	 * A weighted score alone cannot prove replacement. The exact Dragon halberd
+	 * exception is an explicit owner choice, still subject to the option and overrides. */
 	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
-		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<OwnedGear>> ownedGearByKey)
+		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<OwnedGear>> ownedGearByKey,
+		Set<Integer> realOwned, Map<Integer, String> choices)
 	{
-		if (preset.getType() != BankPresetType.IRONMAN || !"combat-gear".equals(category.getKey()))
+		if (preset.getType() != BankPresetType.MAIN && preset.getType() != BankPresetType.IRONMAN)
 		{
 			return false;
 		}
-		if (!catalogItem.getTags().isEmpty()
+		// Owner-reviewed policy: the ordinary Dragon halberd is always alch stock.
+		if (catalogItem.getItemId() == net.runelite.api.gameval.ItemID.DRAGON_HALBERD)
+			return itemValues.highAlchValue(catalogItem.getItemId()) > 0;
+		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());
+		if (catalogItem.getTags().stream().anyMatch(tag -> !reviewedAlchable || !"clue-required".equals(tag))
 			|| WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
 		{
 			// Known roles can matter despite weaker stats. A bank layout cannot
 			// split duplicate copies, so retain the complete stack for manual review.
 			return false;
 		}
-		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());
-		if (reviewedAlchable && quantity > 1)
-		{
-			// Reviewed non-special stock belongs in the manual alch workflow.
-			return itemValues.highAlchValue(catalogItem.getItemId()) > 0;
-		}
-		if (quantity <= 1 && !reviewedAlchable)
+		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
+		if (highAlchValue <= 0 || (quantity <= 1 && !reviewedAlchable))
 		{
 			return false;
 		}
+		int itemId = catalogItem.getItemId();
+		if (reviewedAlchable && IronmanQuickToolSelector.isTieredTool(itemId))
+			return IronmanQuickToolSelector.hasOwnedUpgrade(itemId, realOwned);
+		boolean roleReplacement = reviewedAlchable
+			&& IronmanAlchCandidateCatalog.hasRoleReplacement(itemId, realOwned, choices);
+		if (IronmanAlchCandidateCatalog.isElementalStaff(itemId) || roleReplacement) return roleReplacement;
+		if (!"combat-gear".equals(category.getKey())) return false;
 		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
 		if (!stats.isPresent())
 		{
@@ -541,6 +551,15 @@ public final class BankOrganizationPreviewBuilder
 		List<OwnedGear> owned = ownedGearByKey.get(gearKey(stats.get()));
 		if (owned == null)
 		{
+			return false;
+		}
+		if (reviewedAlchable)
+		{
+			int tier = alchTier(catalogItem.getItemId());
+			boolean armour = stats.get().getSlot() != GearSlot.WEAPON && stats.get().getSlot() != GearSlot.AMMO;
+			for (OwnedGear candidate : owned)
+				if (candidate.stats.dominates(stats.get())
+					|| (armour && tier > 0 && alchTier(candidate.itemId) > tier)) return true;
 			return false;
 		}
 
@@ -558,25 +577,17 @@ public final class BankOrganizationPreviewBuilder
 				beatenOutright = true;
 			}
 		}
-		// An explicit maintainer decision outranks the automatic proof.
-		boolean provenReplaceable = reviewedAlchable || beatenOutright;
-
 		// Keep weapons and ammo: large quantities can be consumable supplies.
 		GearSlot slot = stats.get().getSlot();
-		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
-		// Quantity alone cannot prove niche gear is replaceable. Bulk gear must
-		// also be explicitly reviewed or dominated by something the player owns.
+		// Quantity alone cannot prove unknown niche gear is replaceable.
 		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
-			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1 && provenReplaceable)
+			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1 && beatenOutright)
 		{
 			return true;
 		}
 
-		int requiredBetterItems = reviewedAlchable ? 1 : OUTCLASSED_BY_COUNT;
-		int requiredAlchValue = reviewedAlchable ? 1 : ALCH_VALUE_THRESHOLD;
-		return highAlchValue >= requiredAlchValue
-			&& strictlyBetter >= requiredBetterItems
-			&& provenReplaceable;
+		return highAlchValue >= ALCH_VALUE_THRESHOLD
+			&& strictlyBetter >= OUTCLASSED_BY_COUNT && beatenOutright;
 	}
 
 	private static String gearKey(GearStats stats)
@@ -584,22 +595,40 @@ public final class BankOrganizationPreviewBuilder
 		return stats.style().ordinal() + ":" + stats.slotRank();
 	}
 
+	/** Exact progression facts; names alone cannot prove a replacement for alching. */
+	private static int alchTier(int itemId)
+	{
+		switch (itemId)
+		{
+			case 1101: case 1103: case 1105: case 1107: case 1109: case 1111: case 1113:
+			case 1137: case 1139: case 1141: case 1143: case 1145: case 1147: case 1151:
+				return 2; // Ordinary metal chainbodies and med helms, matching plate/full helm stages.
+			case 1149: case 3140: return 3; // Ordinary Dragon med helm and chainbody.
+			case 11826: case 11828: case 11830: return 4; // Armadyl armour.
+			case 27226: case 27229: case 27232: return 5; // Unfortified Masori armour.
+			default: return GearTierCatalog.INSTANCE.tierOf(itemId).orElse(0);
+		}
+	}
+
 	/** One owned combat-gear item, kept per style/slot bucket for comparison. */
 	private static final class OwnedGear
 	{
 		private final int score;
 		private final GearStats stats;
+		private final int itemId;
 
-		private OwnedGear(int score, GearStats stats)
+		private OwnedGear(int score, GearStats stats, int itemId)
 		{
 			this.score = score;
 			this.stats = stats;
+			this.itemId = itemId;
 		}
 	}
 
 	private static final class MutableCategoryPreview
 	{
 		private final BankCategory category;
+		private final boolean main;
 		private final boolean herbloreRecipeRows;
 		private final BankLayoutOptions options;
 		private final List<LayoutEntry> entries = new ArrayList<>();
@@ -609,10 +638,11 @@ public final class BankOrganizationPreviewBuilder
 		private final List<String> destinationTags;
 		private boolean plainRun;
 
-		private MutableCategoryPreview(BankCategory category, boolean herbloreRecipeRows,
+		private MutableCategoryPreview(BankCategory category, boolean main, boolean herbloreRecipeRows,
 			BankLayoutOptions options, List<String> destinationTags)
 		{
 			this.category = category;
+			this.main = main;
 			this.herbloreRecipeRows = herbloreRecipeRows;
 			this.options = options;
 			this.destinationTags = destinationTags;
@@ -851,7 +881,7 @@ public final class BankOrganizationPreviewBuilder
 		{
 			String subcategory = item.getSubcategory() == null ? ""
 				: item.getSubcategory().trim().toLowerCase(java.util.Locale.ROOT);
-			if (options.potionDoses() == PotionDoseOrder.BY_FAMILY
+			if ((main || options.potionDoses() == PotionDoseOrder.BY_FAMILY)
 				&& subcategory.startsWith("potion-dose-") && !subcategory.equals("potion-dose-4"))
 			{
 				return "potions";
@@ -875,6 +905,13 @@ public final class BankOrganizationPreviewBuilder
 		{
 			List<BankPreviewItem> items = items(entries);
 			plainRun = false;
+			if (main && (category.getSortMode() == BankCategorySortMode.HERBLORE
+				|| category.getSortMode() == BankCategorySortMode.FARMING))
+			{
+				plainRun = true;
+				return BankCategoryPreview.fromLogicalItems(category,
+					recordBlocks(honorBlockOrder(honorTagOrder(HerbloreItemSorter.layoutMain(items)))));
+			}
 				switch (category.getSortMode())
 				{
 				case MAIN:
@@ -892,7 +929,7 @@ public final class BankOrganizationPreviewBuilder
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
 						recordBlocks(honorBlockOrder(honorTagOrder(SupplyItemSorter.sort(items,
 							com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
-							options.potionDoses())))),
+							main ? PotionDoseOrder.BY_FAMILY : options.potionDoses())))),
 						PotionDoseSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.SUPPLIES)));
 				case TOOLS:

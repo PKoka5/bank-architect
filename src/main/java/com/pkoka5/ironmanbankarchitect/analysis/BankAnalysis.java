@@ -1,19 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.analysis;
 
-import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummarizer;
-import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
-import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
-import com.pkoka5.ironmanbankarchitect.catalog.CatalogUnavailableException;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
-import java.util.Objects;
-import java.util.Optional;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.*;
+import org.slf4j.*;
+
 
 /**
  * Owns the complete lifecycle of bank analysis. Only the newest request may
@@ -101,9 +94,9 @@ public final class BankAnalysis implements AutoCloseable
 		{
 			itemCatalog.requireAvailable();
 			BankCatalogSummary summary = BankCatalogSummarizer.summarize(
-				analysisRequest.bankSnapshot(), itemCatalog, bankPreset);
+				analysisRequest.bankSnapshot(), itemCatalog, analysisRequest.presetOr(bankPreset));
 			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
-				analysisRequest.bankSnapshot(), itemCatalog, bankPreset,
+				analysisRequest.bankSnapshot(), itemCatalog, analysisRequest.presetOr(bankPreset),
 				analysisRequest::gearStats, analysisRequest::alchValue,
 				analysisRequest::categoryKey, analysisRequest.layoutPlan(),
 				analysisRequest.layoutOptions());

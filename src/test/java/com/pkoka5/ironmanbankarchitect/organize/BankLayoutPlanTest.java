@@ -16,6 +16,24 @@ public class BankLayoutPlanTest
 	private static final BankPreset PRESET = BankPresets.IRONMAN;
 
 	@Test
+	public void newAlchTagFollowsLootInOldLayoutsAndKeepsExplicitCustomPlacement()
+	{
+		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN))
+		{
+			BankLayoutPlan edited = BankLayoutPlan.defaultFor(preset).withTagAt("boss-loot", 4)
+				.withTagAt("alch", 2).withCurrentOrder(4, true);
+			String oldPlan = edited.serialize().replace("+alch", "").replace("alch+", "");
+			BankLayoutPlan migrated = BankLayoutPlan.parse(preset, oldPlan);
+			assertEquals(4, migrated.destinationOf("alch"));
+			assertEquals(4, migrated.destinationOf("boss-loot"));
+			assertTrue(migrated.keepsCurrentOrder(4));
+			BankLayoutPlan restored = BankLayoutPlan.parse(preset, edited.serialize());
+			assertEquals(2, restored.destinationOf("alch"));
+			assertEquals(4, restored.destinationOf("boss-loot"));
+		}
+	}
+
+	@Test
 	public void defaultPlanKeepsEachCategorysTagsTogetherOnItsOwnDestination()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(PRESET);

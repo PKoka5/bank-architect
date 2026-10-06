@@ -1,13 +1,8 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
-import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import net.runelite.api.gameval.ItemID;
 
 public final class PresetCategoryMapper
@@ -20,7 +15,6 @@ public final class PresetCategoryMapper
 		6183, 6529, 6306, 12012, 25527, 21555);
 	private static final Set<Integer> IRONMAN_REVIEWED_TOOL_IDS = ids(13392, 25781);
 	private static final Set<Integer> IRONMAN_REVIEWED_LOOT_IDS = ids(
-		1201,
 		ItemID.TOME_OF_FIRE_UNCHARGED,
 		ItemID.TOME_OF_WATER_UNCHARGED,
 		ItemID.TOME_OF_EARTH_UNCHARGED);
@@ -50,7 +44,7 @@ public final class PresetCategoryMapper
 		switch (type)
 		{
 			case IRONMAN: return mapIronman(item, gather);
-			case MAIN: return mapMain(item.getCategory());
+			case MAIN: return mapMain(item);
 			case PVM:
 			case PVP: return mapCombat(item.getCategory(), type == BankPresetType.PVP);
 			case SKILLER: return mapSkiller(item);
@@ -158,23 +152,13 @@ public final class PresetCategoryMapper
 			.orElse(false);
 	}
 
-	private static String mapMain(ItemCategory category)
+	private static String mapMain(CatalogItem item)
 	{
-		switch (category)
-		{
-			case CURRENCY: return "currency-tradeables";
-			case RUNE:
-			case TELEPORT: return "teleports-runes";
-			case GEAR: return "combat-gear";
-			case POTION: return "potions-food";
-			case FARMING:
-			case HERBLORE: return "farming-herblore";
-			case UNIQUE: return "boss-slayer-loot";
-			case CLUE: return "clues-collection-log";
-			case SKILLING:
-			case TOOL: return "skilling-supplies";
-			default: return "junk-review";
-		}
+		if (item.getItemId() == 27641 || item.getItemId() == 22324 || item.getItemId() == 25734
+			|| IRONMAN_REVIEWED_LOOT_IDS.contains(item.getItemId())) return "combat-gear";
+		if (item.getItemId() == 9084) return "currency-utilities";
+		if (isPartialPotionDose(item)) return "potions-food";
+		return mapIronman(item, false);
 	}
 
 	private static String mapCombat(ItemCategory category, boolean pvp)

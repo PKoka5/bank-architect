@@ -1,16 +1,11 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
-import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+
+
 
 /** Exact canonical outfit columns plus compact horizontal tool runs grouped by primary skill. */
 public final class ToolOutfitSemanticRuleSet

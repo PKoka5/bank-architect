@@ -1,13 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * Packs a category by following the sorter's order. The real bank always

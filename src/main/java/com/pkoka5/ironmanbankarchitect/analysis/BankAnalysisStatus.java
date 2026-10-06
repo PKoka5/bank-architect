@@ -2,8 +2,8 @@ package com.pkoka5.ironmanbankarchitect.analysis;
 
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
 
 /** One atomic published state of bank analysis and its complete successful outcome. */
 public final class BankAnalysisStatus

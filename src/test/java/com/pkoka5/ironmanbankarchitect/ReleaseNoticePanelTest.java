@@ -16,21 +16,21 @@ public class ReleaseNoticePanelTest
 	@Test public void newReleaseAppearsAfterPreviousReleaseWasDismissedAndStaysDismissedAfterRestart() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			assertEquals("0.8.1", ReleaseNoticePanel.RELEASE_ID);
-			AtomicReference<String> seen = new AtomicReference<>("0.8.0");
+			assertEquals("0.9.0", ReleaseNoticePanel.RELEASE_ID);
+			AtomicReference<String> seen = new AtomicReference<>("0.8.1");
 			JPanel normal = new JPanel();
 			ReleaseNoticePanel panel = new ReleaseNoticePanel(normal, seen::get, seen::set);
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.8.0", seen.get());
+			assertEquals("0.8.1", seen.get());
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.8.0", seen.get());
+			assertEquals("0.8.1", seen.get());
 			JButton dismiss = button(panel);
 			assertNotNull(dismiss);
 			dismiss.doClick();
 			assertTrue(normal.isVisible());
-			assertEquals("0.8.1", seen.get());
+			assertEquals("0.9.0", seen.get());
 			panel.opened();
 			assertTrue(normal.isVisible());
 			JPanel restarted = new JPanel();
@@ -53,7 +53,9 @@ public class ReleaseNoticePanelTest
 			layout(panel);
 			JLabel notes = notes(panel);
 			assertNotNull(notes);
-			assertTrue(notes.getText().contains("Bank Architect 0.8.1"));
+			assertTrue(notes.getText().contains("Bank Architect 0.9.0"));
+			assertTrue(notes.getText().contains("Main and custom presets"));
+			assertTrue(notes.getText().contains("Smarter Alch sorting"));
 			assertTrue(notes.getText().contains("Keep current order"));
 			assertTrue(notes.getText().contains("Blueprint"));
 			JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, notes);

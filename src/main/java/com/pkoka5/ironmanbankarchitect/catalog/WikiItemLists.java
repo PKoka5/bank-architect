@@ -1,14 +1,11 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
+
+
+
 
 /**
  * Static item name lists sourced from the Old School RuneScape Wiki

@@ -1,11 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+
 
 /**
  * Pure public facade for planning one category on the fixed eight-column bank grid. The caller

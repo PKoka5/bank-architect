@@ -1,18 +1,11 @@
 package com.pkoka5.ironmanbankarchitect.bank;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Optional;
-import net.runelite.api.Client;
-import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
-import net.runelite.api.ItemComposition;
-import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.*;
+import net.runelite.api.gameval.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 
 public final class BankSnapshotReader

@@ -1,7 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.match;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
 public final class BlockMatchResult

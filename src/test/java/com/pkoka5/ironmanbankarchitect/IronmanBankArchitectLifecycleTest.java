@@ -16,6 +16,7 @@ import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintOrderProfiles;
 import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
 import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -48,19 +49,23 @@ public class IronmanBankArchitectLifecycleTest
 	{
 		AtomicReference<String> stored = new AtomicReference<>("2347=frequently-used");
 		IronmanBankArchitectPlugin plugin = new IronmanBankArchitectPlugin();
-		set(plugin, "config", config(stored));
+		IronmanBankArchitectConfig config = config(stored);
+		set(plugin, "config", config);
+		Map<String, String> values = new LinkedHashMap<>();
+		PresetTestSettings.attach(plugin, config, values);
 		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
 		set(plugin, "guideController", controller);
 		EventBus events = new EventBus();
 		events.register(plugin);
 		assign(plugin, 2347, "Hammer", "frequently-used");
-		String profileA = stored.get();
+		String profileA = corrections(plugin);
 
 		stored.set("1755=tools");
+		values.clear();
 		events.post(new ProfileChanged());
 		assign(plugin, 952, "Spade", "tools");
 
-		UserCategoryOverrides profileB = UserCategoryOverrides.parse(stored.get());
+		UserCategoryOverrides profileB = UserCategoryOverrides.parse(corrections(plugin));
 		assertEquals("2347=frequently-used", profileA);
 		assertEquals(Optional.of("tools"), profileB.categoryKeyFor(1755));
 		assertEquals(Optional.of("tools"), profileB.categoryKeyFor(952));
@@ -177,11 +182,11 @@ public class IronmanBankArchitectLifecycleTest
 		assertTrue(reloaded.names().contains(recoveredName));
 		assertEquals(legacyPlan.serialize(), reloaded.planFor(recoveredName));
 		assertEquals(otherPlan.serialize(), values.get("tabOrder"));
-		assertEquals(otherBlocks, values.get("blockOrders"));
+		assertEquals(otherBlocks, model.options().blockArrangements().serialize());
 		model.selectProfile(recoveredName);
 		assertEquals(recoveredName, values.get("activeLayoutProfile"));
 		assertEquals(legacyPlan.serialize(), values.get("tabOrder"));
-		assertEquals(legacyBlocks, values.get("blockOrders"));
+		assertEquals(legacyBlocks, model.options().blockArrangements().serialize());
 		assertEquals(legacyItems.serialize(), BlueprintOrderProfiles.parse(values.get("blueprintOrdersByProfile"))
 			.forProfile(values.get("activeLayoutProfile")).serialize());
 	}
@@ -209,10 +214,84 @@ public class IronmanBankArchitectLifecycleTest
 		assertEquals(plan.serialize(), reloaded.planFor(recoveredName));
 		assertEquals(plan.serialize(), reloaded.planFor("Copied setup"));
 		model.selectProfile(recoveredName);
-		assertEquals(blocks, values.get("blockOrders"));
+		assertEquals(blocks, model.options().blockArrangements().serialize());
 		assertEquals(plan.serialize(), values.get("tabOrder"));
 		model.selectProfile("Copied setup");
-		assertEquals(blocks, values.get("blockOrders"));
+		assertEquals(blocks, model.options().blockArrangements().serialize());
+	}
+
+	@Test
+	public void mainAndIronmanLayoutsKeepIndependentPlansOrdersAndMatchingNames() throws Exception
+	{
+		BankLayoutPlan ironmanPlan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.withTagAt("runes", 7).withCurrentOrder(1, true);
+		String blocks = BlockArrangements.EMPTY.withTag("cosmetics", Arrays.asList("item:1042")).serialize();
+		BlueprintItemOrders ironmanItems = BlueprintItemOrders.EMPTY.withTab(0, Arrays.asList(995, 2347));
+		BlueprintOrderProfiles orders = BlueprintOrderProfiles.parse("");
+		orders.put("My bank", ironmanItems);
+		Map<String, String> values = new LinkedHashMap<>();
+		values.put("layoutProfiles", BankLayoutProfiles.parse("", "")
+			.withProfile("My bank", ironmanPlan.serialize()).serialize());
+		values.put("activeLayoutProfile", "My bank");
+		values.put("tabOrder", ironmanPlan.serialize());
+		values.put("blockOrders", blocks);
+		values.put("blockOrdersByProfile", "My bank~" + blocks);
+		values.put("blueprintOrdersByProfile", orders.serialize());
+		Map<String, String> original = new LinkedHashMap<>(values);
+		BankLayoutModel model = layoutModel(values);
+		String ironmanContext = model.editingContext();
+
+		values.put("bankPreset", "MAIN");
+		assertEquals(BankPresets.MAIN, model.preset());
+		assertFalse(ironmanContext.equals(model.editingContext()));
+		BankLayoutPlan mainPlan = BankLayoutPlan.defaultFor(BankPresets.MAIN).withCurrentOrder(2, true);
+		model.saveProfile("My bank", mainPlan);
+		assertEquals("My bank", model.matchingProfile());
+		assertEquals(mainPlan.serialize(), model.plan().serialize());
+		assertTrue(model.plan().keepsCurrentOrder(2));
+		assertFalse(model.plan().keepsCurrentOrder(1));
+		assertEquals("", model.options().itemOrders().serialize());
+		model.saveBlockOrder("cosmetics", Arrays.asList("item:1038"));
+		String mainBlocks = model.options().blockArrangements().serialize();
+		assertNotNull(mainBlocks);
+		for (Map.Entry<String, String> entry : original.entrySet())
+			assertEquals(entry.getValue(), values.get(entry.getKey()));
+
+		values.put("bankPreset", "IRONMAN");
+		assertEquals(BankPresets.IRONMAN, model.preset());
+		assertEquals("My bank", model.matchingProfile());
+		assertEquals(ironmanPlan.serialize(), model.plan().serialize());
+		assertEquals(ironmanItems.serialize(), model.options().itemOrders().serialize());
+		assertEquals(blocks, model.options().blockArrangements().serialize());
+		values.put("bankPreset", "MAIN");
+		assertEquals(mainPlan.serialize(), model.plan().serialize());
+		assertEquals(mainBlocks, model.options().blockArrangements().serialize());
+	}
+
+	@Test
+	public void legacyUnnamedIronmanWorkingOrdersRemainActiveAndSurviveSaveAs() throws Exception
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN).withTagAt("runes", 7);
+		BlueprintItemOrders items = BlueprintItemOrders.EMPTY.withTab(0, Arrays.asList(995, 2347));
+		BlueprintOrderProfiles orders = BlueprintOrderProfiles.parse("");
+		orders.put("Shared layout", items);
+		String blocks = BlockArrangements.EMPTY.withTag("cosmetics", Arrays.asList("item:1042")).serialize();
+		Map<String, String> values = new LinkedHashMap<>();
+		values.put("activeLayoutProfile", "");
+		values.put("layoutProfiles", "");
+		values.put("tabOrder", plan.serialize());
+		values.put("blueprintOrdersByProfile", orders.serialize());
+		values.put("blockOrders", blocks);
+		values.put("blockOrdersByProfile", "Shared layout~" + blocks);
+		BankLayoutModel model = layoutModel(values);
+
+		assertEquals(items.serialize(), model.options().itemOrders().serialize());
+		model.saveProfile("Copied setup", plan);
+		assertEquals(items.serialize(), model.options().itemOrders().serialize());
+		BlueprintOrderProfiles after = BlueprintOrderProfiles.parse(values.get("blueprintOrdersByProfile"));
+		assertEquals(items.serialize(), after.forProfile("Shared layout").serialize());
+		assertEquals(items.serialize(), after.forProfile("Copied setup").serialize());
+		assertTrue(values.get("blockOrdersByProfile").contains("Shared layout~" + blocks));
 	}
 
 	private static BankLayoutModel layoutModel(Map<String, String> values) throws Exception
@@ -227,10 +306,13 @@ public class IronmanBankArchitectLifecycleTest
 					values.put(key, (String) arguments[0]);
 					return null;
 				}
-				return values.get(key);
+				if (values.containsKey(key)) return values.get(key);
+				return method.isDefault() ? MethodHandles.privateLookupIn(method.getDeclaringClass(), MethodHandles.lookup())
+					.unreflectSpecial(method, method.getDeclaringClass()).bindTo(proxy).invokeWithArguments() : null;
 			});
 		IronmanBankArchitectPlugin plugin = new IronmanBankArchitectPlugin();
 		set(plugin, "config", config);
+		PresetTestSettings.attach(plugin, config, values);
 		Method factory = IronmanBankArchitectPlugin.class.getDeclaredMethod("bankLayoutModel");
 		factory.setAccessible(true);
 		return (BankLayoutModel) factory.invoke(plugin);
@@ -246,13 +328,28 @@ public class IronmanBankArchitectLifecycleTest
 
 	private static IronmanBankArchitectConfig config(AtomicReference<String> stored)
 	{
+		Map<String, Object> fields = new LinkedHashMap<>();
 		return (IronmanBankArchitectConfig) Proxy.newProxyInstance(
 			IronmanBankArchitectLifecycleTest.class.getClassLoader(),
 			new Class<?>[]{IronmanBankArchitectConfig.class}, (proxy, method, arguments) -> {
 				if ("categoryOverrides".equals(method.getName())) return stored.get();
 				if ("setCategoryOverrides".equals(method.getName())) stored.set((String) arguments[0]);
-				return null;
+				if (method.getName().startsWith("set"))
+				{
+					fields.put(Character.toLowerCase(method.getName().charAt(3)) + method.getName().substring(4), arguments[0]);
+					return null;
+				}
+				if (fields.containsKey(method.getName())) return fields.get(method.getName());
+				return method.isDefault() ? MethodHandles.privateLookupIn(method.getDeclaringClass(), MethodHandles.lookup())
+					.unreflectSpecial(method, method.getDeclaringClass()).bindTo(proxy).invokeWithArguments() : null;
 			});
+	}
+
+	private static String corrections(IronmanBankArchitectPlugin plugin) throws Exception
+	{
+		Method method = IronmanBankArchitectPlugin.class.getDeclaredMethod("categoryOverrides");
+		method.setAccessible(true);
+		return ((UserCategoryOverrides) method.invoke(plugin)).serialize();
 	}
 
 	private static void assign(IronmanBankArchitectPlugin plugin, int id, String name, String tag) throws Exception
@@ -283,7 +380,9 @@ public class IronmanBankArchitectLifecycleTest
 		private Fixture() throws Exception
 		{
 			IronmanBankArchitectPlugin plugin = new IronmanBankArchitectPlugin();
-			set(plugin, "config", config(stored));
+			IronmanBankArchitectConfig config = config(stored);
+			set(plugin, "config", config);
+			PresetTestSettings.attach(plugin, config);
 			set(plugin, "clientThread", clientThread);
 			set(plugin, "guideController", controller);
 			controller.publishCategoryOverrideCount(1);

@@ -322,6 +322,14 @@ gear	gear.virtus	Virtus	5	26243
 gear	gear.virtus	Virtus	7	26245
 gear	gear.zamorak-monk	Zamorak Monk	5	1035
 gear	gear.zamorak-monk	Zamorak Monk	7	1033
+gear	gear.dwarf-cannon	Dwarf multicannon	0	6
+gear	gear.dwarf-cannon	Dwarf multicannon	1	8
+gear	gear.dwarf-cannon	Dwarf multicannon	2	10
+gear	gear.dwarf-cannon	Dwarf multicannon	3	12
+gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	0	26520
+gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	1	26522
+gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	2	26524
+gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	3	26526
 tools	tools.graceful-arceuus	Graceful (Arceuus)	0	13579
 tools	tools.graceful-arceuus	Graceful (Arceuus)	1	13581
 tools	tools.graceful-arceuus	Graceful (Arceuus)	5	13583

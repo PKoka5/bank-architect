@@ -10,6 +10,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
+import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.GearStats;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
@@ -29,6 +30,78 @@ import org.junit.Test;
 
 public class BankAnalysisTest
 {
+	@Test
+	public void explicitMainRequestUsesMainForBothSummaryAndPreview()
+	{
+		ControlledExecutor client = new ControlledExecutor();
+		ControlledExecutor background = new ControlledExecutor();
+		List<BankAnalysisStatus> statuses = new ArrayList<>();
+		BankAnalysisRequest request = request(BankPresets.MAIN, 139, 141, 143);
+		BankAnalysis analysis = analysis(client, background, requests(request), statuses);
+
+		assertSame(BankPresets.MAIN, request.presetOr(BankPresets.IRONMAN));
+		analysis.analyzeBank();
+		client.runNext();
+		background.runNext();
+
+		BankAnalysisStatus success = last(statuses);
+		assertEquals(BankAnalysisStatus.Kind.SUCCESS, success.kind());
+		assertSame(BankPresets.MAIN, success.organizationPreview().get().getPreset());
+		assertEquals(3, success.catalogSummary().get().countForPresetCategory("potions-food"));
+		assertEquals(0, success.catalogSummary().get().countForPresetCategory("herblore"));
+		org.junit.Assert.assertTrue(success.catalogSummary().get().toOverviewText()
+			.contains(BankPresets.MAIN.getName()));
+		assertEquals(3, success.organizationPreview().get().getCategories().get(3).getItemCount());
+	}
+
+	@Test
+	public void legacyRequestStillUsesTheAnalysisConstructorPreset()
+	{
+		ControlledExecutor client = new ControlledExecutor();
+		ControlledExecutor background = new ControlledExecutor();
+		List<BankAnalysisStatus> statuses = new ArrayList<>();
+		BankAnalysisRequest request = request(139);
+		BankAnalysis analysis = analysis(client, background, requests(request), statuses);
+
+		assertSame(BankPresets.IRONMAN, request.presetOr(BankPresets.IRONMAN));
+		assertSame(BankPresets.MAIN, request.presetOr(BankPresets.MAIN));
+		analysis.analyzeBank();
+		client.runNext();
+		background.runNext();
+
+		assertEquals(BankAnalysisStatus.Kind.SUCCESS, last(statuses).kind());
+		assertSame(BankPresets.IRONMAN, last(statuses).organizationPreview().get().getPreset());
+		assertEquals(1, last(statuses).catalogSummary().get().countForPresetCategory("herblore"));
+	}
+
+	@Test
+	public void switchingPresetInvalidatesQueuedIronmanWorkBeforePublishingFreshMain()
+	{
+		ControlledExecutor client = new ControlledExecutor();
+		ControlledExecutor background = new ControlledExecutor();
+		List<BankAnalysisStatus> statuses = new ArrayList<>();
+		BankAnalysis analysis = analysis(client, background,
+			requests(request(139), request(BankPresets.MAIN, 139, 141)), statuses);
+
+		analysis.analyzeBank();
+		client.runNext();
+		analysis.invalidate();
+		BankAnalysisStatus invalidated = last(statuses);
+		assertEquals(BankAnalysisStatus.Kind.NOT_STARTED, invalidated.kind());
+		assertFalse(invalidated.organizationPreview().isPresent());
+		analysis.analyzeBank();
+		client.runNext();
+		background.runLast();
+		BankAnalysisStatus main = last(statuses);
+
+		assertEquals(BankAnalysisStatus.Kind.SUCCESS, main.kind());
+		assertSame(BankPresets.MAIN, main.organizationPreview().get().getPreset());
+		assertEquals(2, main.catalogSummary().get().countForPresetCategory("potions-food"));
+		background.runNext();
+		assertSame(main, last(statuses));
+		assertEquals(4, statuses.size());
+	}
+
 	@Test
 	public void successfulRequestPublishesOneCompleteOutcome()
 	{
@@ -354,6 +427,13 @@ public class BankAnalysisTest
 		return new BankAnalysisRequest(snapshot(itemIds), Collections.emptyMap(),
 			Collections.emptyMap(), Collections.emptyMap(),
 			BankLayoutPlan.defaultFor(BankPresets.IRONMAN), BankLayoutOptions.DEFAULTS);
+	}
+
+	private static BankAnalysisRequest request(BankPreset preset, int... itemIds)
+	{
+		return new BankAnalysisRequest(snapshot(itemIds), Collections.emptyMap(),
+			Collections.emptyMap(), Collections.emptyMap(), BankLayoutPlan.defaultFor(preset),
+			BankLayoutOptions.DEFAULTS, preset);
 	}
 
 	private static BankSnapshot snapshot(int... itemIds)

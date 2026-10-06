@@ -4,7 +4,8 @@ param(
 	[string] $MetadataPath = "src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-sort-metadata.tsv",
 	[string] $OutputPath = "tools/research/community-templates/cache/local-imports/family-candidate-analysis.json",
 	[int] $MinimumTemplateSupport = 3,
-	[double] $MinimumAdjacencyConfidence = 0.6
+	[double] $MinimumAdjacencyConfidence = 0.6,
+	[string] $RepoIds = ""
 )
 
 Set-StrictMode -Version Latest
@@ -207,7 +208,8 @@ Get-Content -LiteralPath $MetadataPath |
 		$metadataByFamily[$family].Add($_)
 	}
 
-$files = @(Get-ChildItem -LiteralPath $InputDir -File -Filter "*.normalized.json" | Sort-Object Name)
+. (Join-Path $PSScriptRoot "select-cohort.ps1")
+$files = @(Get-SelectedCommunityTemplateFiles $InputDir $RepoIds)
 if ($files.Count -eq 0)
 {
 	throw "No normalized template files found in: $InputDir"
@@ -272,6 +274,10 @@ foreach ($file in $files)
 {
 	$document = Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json
 	$templateId = [int] $document.TemplateId
+	if ($RepoIds -and $file.Name -ne "$templateId.normalized.json")
+	{
+		throw "Selected template ID differs from its input filename: $($file.Name)"
+	}
 	$layoutHashes.Add(([string] $document.LayoutSha256).ToLowerInvariant())
 	$columns = [int] $document.Columns
 	if ($columns -le 0)
@@ -349,6 +355,18 @@ foreach ($pair in @($pairStats.Values | Sort-Object LowerItemId, HigherItemId))
 	{
 		throw "Recurring adjacent pair has no same-tab support: $($pair.LowerItemId)|$($pair.HigherItemId)"
 	}
+	$coPresentTemplateSupport = 0
+	foreach ($templateId in $itemStats[$pair.LowerItemId].TemplateIds)
+	{
+		if ($itemStats[$pair.HigherItemId].TemplateIds.Contains($templateId))
+		{
+			$coPresentTemplateSupport++
+		}
+	}
+	if ($coPresentTemplateSupport -lt $coTabTemplateIds.Count)
+	{
+		throw "Same-tab support exceeds co-presence support."
+	}
 
 	$confidence = [Math]::Round($adjacentTemplateSupport / $coTabTemplateIds.Count, 4)
 	if ($confidence -lt $MinimumAdjacencyConfidence)
@@ -412,6 +430,9 @@ foreach ($pair in @($pairStats.Values | Sort-Object LowerItemId, HigherItemId))
 		Occurrences = $pair.Occurrences
 		AdjacentTemplateSupport = $adjacentTemplateSupport
 		CoTabTemplateSupport = $coTabTemplateIds.Count
+		CoPresentTemplateSupport = $coPresentTemplateSupport
+		CoTabShareOfCoPresent = [Math]::Round($coTabTemplateIds.Count / $coPresentTemplateSupport, 4)
+		AdjacentShareOfCoPresent = [Math]::Round($adjacentTemplateSupport / $coPresentTemplateSupport, 4)
 		AdjacencyConfidence = $confidence
 		DominantOrientation = $dominantOrientation
 		OrientationConsistency = $orientationConsistency
@@ -976,6 +997,9 @@ $publicEdges = @($eligibleEdges | ForEach-Object {
 		Occurrences = $_.Occurrences
 		AdjacentTemplateSupport = $_.AdjacentTemplateSupport
 		CoTabTemplateSupport = $_.CoTabTemplateSupport
+		CoPresentTemplateSupport = $_.CoPresentTemplateSupport
+		CoTabShareOfCoPresent = $_.CoTabShareOfCoPresent
+		AdjacentShareOfCoPresent = $_.AdjacentShareOfCoPresent
 		AdjacencyConfidence = $_.AdjacencyConfidence
 		DominantOrientation = $_.DominantOrientation
 		OrientationConsistency = $_.OrientationConsistency
@@ -988,7 +1012,7 @@ $publicEdges = @($eligibleEdges | ForEach-Object {
 $metadataHash = (Get-FileHash -LiteralPath $MetadataPath -Algorithm SHA256).Hash.ToLowerInvariant()
 $registryHash = (Get-FileHash -LiteralPath $RegistryPath -Algorithm SHA256).Hash.ToLowerInvariant()
 $fingerprintMaterial = @(
-	"analyzer-schema=3"
+	"analyzer-schema=4"
 	"minimum-template-support=$MinimumTemplateSupport"
 	"minimum-adjacency-confidence=$MinimumAdjacencyConfidence"
 	"metadata=$metadataHash"
@@ -1027,7 +1051,7 @@ if (@($blockClassSignals | Where-Object {
 }
 
 $result = [ordered] @{
-	SchemaVersion = 3
+	SchemaVersion = 4
 	Input = "git-ignored normalized local imports"
 	Method = "exact-ID candidate discovery plus ordered curated-family and family-class block measurement"
 	CohortFingerprint = $cohortFingerprint
@@ -1036,6 +1060,7 @@ $result = [ordered] @{
 		MinimumAdjacencyConfidence = $MinimumAdjacencyConfidence
 	}
 	TemplateCount = $files.Count
+	SelectedRepoIds = $RepoIds
 	TabCount = $tabCount
 	PositivePlacementCount = $positivePlacementCount
 	MetadataPlacementCount = $positivePlacementCount - ($missingItems | Measure-Object Occurrences -Sum).Sum

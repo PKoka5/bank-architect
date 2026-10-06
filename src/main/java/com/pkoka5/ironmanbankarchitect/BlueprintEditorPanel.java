@@ -1,8 +1,6 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -11,19 +9,11 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.awt.event.*;
+import java.util.*;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
+import java.util.function.*;
+import javax.swing.*;
 import net.runelite.client.ui.ColorScheme;
 
 /** Swing-only blueprint editor. Dragging updates a draft; Save updates local configuration. */

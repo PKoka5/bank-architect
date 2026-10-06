@@ -1,14 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
-import com.pkoka5.ironmanbankarchitect.organize.BankCategory;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.LinkedHashMap;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+
 
 /**
  * Immutable summary of a bank scan classified through {@link ItemCatalog}. Counts are by unique

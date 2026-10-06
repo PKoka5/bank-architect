@@ -2932,3 +2932,15 @@
 10081	GEAR	hands	Blue spiky vambraces: canonical ranged hands-slot gear
 10083	GEAR	hands	Red spiky vambraces: canonical ranged hands-slot gear
 10085	GEAR	hands	Black spiky vambraces: canonical ranged hands-slot gear
+
+# Heraldic Rune clue helmets, distinct from POH-painted heraldic armour.
+# https://oldschool.runescape.wiki/w/Rune_heraldic_armour
+10286	CLUE	treasure-trail	Rune helm (h1)
+10288	CLUE	treasure-trail	Rune helm (h2)
+10290	CLUE	treasure-trail	Rune helm (h3)
+10292	CLUE	treasure-trail	Rune helm (h4)
+10294	CLUE	treasure-trail	Rune helm (h5)
+
+# Functional special-attack weapon, not a skilling resource.
+# https://oldschool.runescape.wiki/w/Dragon_battleaxe
+1377	GEAR	weapon	Dragon battleaxe

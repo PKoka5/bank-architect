@@ -1,13 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
-import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+
 
 public final class BankPreviewItem
 {

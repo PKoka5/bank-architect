@@ -1,11 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.bank;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import net.runelite.api.gameval.ItemID;
 
 public final class BankSnapshot

@@ -1,12 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import net.runelite.api.gameval.ItemID;
 
 /**

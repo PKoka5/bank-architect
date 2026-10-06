@@ -1,12 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import net.runelite.api.gameval.ItemID;
 
 /** Saved physical item order by blueprint tab. Missing entries stay dormant. */

@@ -971,7 +971,9 @@ public class BankOrganizationPreviewBuilderTest
 
 			List<Integer> expectedSupplies = preset.getType() == BankPresetType.IRONMAN
 				? Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739, 2434, 385)
-				: expected;
+				: preset.getType() == BankPresetType.MAIN
+					? Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739, 2434, 139, 141, 143, 385)
+					: expected;
 			assertEquals(preset.getType().name(), expectedSupplies, itemIds(supplies));
 			for (BankPreviewItem item : supplies)
 			{

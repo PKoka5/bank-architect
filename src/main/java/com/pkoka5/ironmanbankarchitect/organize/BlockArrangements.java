@@ -1,13 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+
 
 /**
  * The player's saved block orders, one list of block keys per tag.

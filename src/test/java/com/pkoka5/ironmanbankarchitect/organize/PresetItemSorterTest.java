@@ -81,7 +81,7 @@ public class PresetItemSorterTest
 	public void mainReviewCategoryReusesSafeUnknownLastSorting()
 	{
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(
-			BankPresets.MAIN.getCategory("junk-review"), Arrays.asList(
+			BankPresets.MAIN.getCategory("storage-cleanup"), Arrays.asList(
 				new BankPreviewItem(CatalogItem.unknown(999999), 1),
 				item(1, "Burnt shark", ItemCategory.CLEANUP)));
 

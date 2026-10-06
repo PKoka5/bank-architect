@@ -1,19 +1,21 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import com.pkoka5.ironmanbankarchitect.organize.GearLayout;
-import com.pkoka5.ironmanbankarchitect.organize.PotionDoseOrder;
-import com.pkoka5.ironmanbankarchitect.organize.RuneOrder;
-import com.pkoka5.ironmanbankarchitect.organize.TeleportOrder;
-import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
-import net.runelite.client.config.ConfigSection;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import net.runelite.client.config.*;
+
+
+
 
 @ConfigGroup(IronmanBankArchitectConfig.GROUP)
 public interface IronmanBankArchitectConfig extends Config
 {
 	String GROUP = "ironmanbankarchitect";
+
+	@ConfigItem(keyName = "bankPreset", name = "", description = "", hidden = true)
+	default String bankPreset() { return "IRONMAN"; }
+
+	@ConfigItem(keyName = "bankPreset", name = "", description = "")
+	void setBankPreset(String preset);
 
 	@ConfigSection(
 		name = "Guidance",
@@ -143,7 +145,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = gearSection,
 		position = 1,
 		name = "Gather outclassed gear for alching",
-		description = "Gather worthwhile equipment with two strictly better owned alternatives in Slayer & Boss Loot. Disable to keep gear, including intentional spare sets, in Combat gear."
+		description = "Gather replaced gear and tools, including spare standard Mystic colours. Main and Ironman use the same rules; preserve staff rune supply. Dragon halberds always count as alch stock."
 	)
 	default boolean alchPile()
 	{
@@ -269,66 +271,6 @@ public interface IronmanBankArchitectConfig extends Config
 	{
 		return true;
 	}
-
-	@ConfigItem(
-		keyName = "alchPile",
-		name = "",
-		description = ""
-	)
-	void setAlchPile(boolean alchPile);
-
-	// The sidebar offers these beside the tab each one shapes, so it needs to
-	// write them as well as read them. Hidden here: the visible controls are the
-	// ones above, and a second copy in the settings list would only confuse.
-
-	@ConfigItem(
-		keyName = "gearLayout",
-		name = "",
-		description = ""
-	)
-	void setGearLayout(GearLayout gearLayout);
-
-	@ConfigItem(
-		keyName = "utilitiesLayout",
-		name = "",
-		description = ""
-	)
-	void setUtilitiesLayout(TabOrder utilitiesLayout);
-
-	@ConfigItem(
-		keyName = "toolsLayout",
-		name = "",
-		description = ""
-	)
-	void setToolsLayout(TabOrder toolsLayout);
-
-	@ConfigItem(
-		keyName = "resourcesLayout",
-		name = "",
-		description = ""
-	)
-	void setResourcesLayout(TabOrder resourcesLayout);
-
-	@ConfigItem(
-		keyName = "cluesLayout",
-		name = "",
-		description = ""
-	)
-	void setCluesLayout(TabOrder cluesLayout);
-
-	@ConfigItem(
-		keyName = "keepDoseRows",
-		name = "",
-		description = ""
-	)
-	void setKeepDoseRows(boolean keepDoseRows);
-
-	@ConfigItem(
-		keyName = "fillHerbloreRows",
-		name = "",
-		description = ""
-	)
-	void setFillHerbloreRows(boolean fillHerbloreRows);
 
 	@ConfigItem(
 		keyName = "categoryOverlayOpacity",

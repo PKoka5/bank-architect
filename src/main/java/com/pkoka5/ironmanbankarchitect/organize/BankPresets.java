@@ -1,35 +1,14 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
+
+
+
 
 public final class BankPresets
 {
-	public static final BankPreset IRONMAN = preset(BankPresetType.IRONMAN, "ironman.all-round", "Ironman - All-Round Bank",
-		category("currency-utilities", "Frequently Used, Runes & Teleports", BankCategorySortMode.MAIN),
-		category("combat-gear", "Combat Gear", BankCategorySortMode.GEAR),
-		category("potions-food", "Potions, Food & PvM Supplies", BankCategorySortMode.SUPPLIES),
-		category("herblore", "Herblore & Potion Making", BankCategorySortMode.HERBLORE),
-		category("seeds-farming", "Seeds & Farming", BankCategorySortMode.FARMING),
-		category("skilling-tools", "Skilling Tools", BankCategorySortMode.TOOLS),
-		category("resources", "Raw & Processed Resources", BankCategorySortMode.RESOURCES),
-		category("slayer-boss-loot", "Slayer, Boss Loot & Unique Drops", BankCategorySortMode.BOSS_LOOT),
-		category("clues-cosmetics", "Clues, Cosmetics & Collection Log", BankCategorySortMode.CLUES),
-		category("storage-cleanup", "Storage & Cleanup Review", BankCategorySortMode.REVIEW));
-
-	public static final BankPreset MAIN = preset(BankPresetType.MAIN, "main.general", "Main - General Bank",
-		category("currency-tradeables", "Currency & Tradeables", BankCategorySortMode.CURRENCY),
-		category("teleports-runes", "Teleports & Runes", BankCategorySortMode.TELEPORTS),
-		category("combat-gear", "Combat Gear", BankCategorySortMode.GEAR),
-		category("potions-food", "Potions & Food", BankCategorySortMode.SUPPLIES),
-		category("skilling-supplies", "Skilling Supplies", BankCategorySortMode.GENERIC),
-		category("farming-herblore", "Farming & Herblore", BankCategorySortMode.HERBLORE),
-		category("boss-slayer-loot", "Bossing & Slayer Loot", BankCategorySortMode.BOSS_LOOT),
-		category("clues-collection-log", "Clues & Collection Log", BankCategorySortMode.CLUES),
-		category("cosmetics-outfits", "Cosmetics & Outfits", BankCategorySortMode.GENERIC),
-		category("junk-review", "Junk, Sell & Storage Review", BankCategorySortMode.REVIEW));
+	public static final BankPreset IRONMAN = allRound(false);
+	public static final BankPreset MAIN = allRound(true);
 
 	public static final BankPreset PVM = preset(BankPresetType.PVM, "pvm.general", "PvM Bank",
 		category("currency-utilities", "Core Currency & Utilities", BankCategorySortMode.CURRENCY),
@@ -98,6 +77,22 @@ public final class BankPresets
 	private static BankPreset preset(BankPresetType type, String key, String name, BankCategory... categories)
 	{
 		return new BankPreset(type, key, name, Arrays.asList(categories));
+	}
+
+	private static BankPreset allRound(boolean main)
+	{
+		return preset(main ? BankPresetType.MAIN : BankPresetType.IRONMAN,
+			main ? "main.general" : "ironman.all-round", main ? "Main - All-Round Bank" : "Ironman - All-Round Bank",
+			category("currency-utilities", main ? "Currency, Runes & Teleports" : "Frequently Used, Runes & Teleports", BankCategorySortMode.MAIN),
+			category("combat-gear", "Combat Gear", BankCategorySortMode.GEAR),
+			category("potions-food", main ? "Potions & Food" : "Potions, Food & PvM Supplies", BankCategorySortMode.SUPPLIES),
+			category("herblore", main ? "Herblore" : "Herblore & Potion Making", BankCategorySortMode.HERBLORE),
+			category("seeds-farming", "Seeds & Farming", BankCategorySortMode.FARMING),
+			category("skilling-tools", "Skilling Tools", BankCategorySortMode.TOOLS),
+			category("resources", "Raw & Processed Resources", BankCategorySortMode.RESOURCES),
+			category("slayer-boss-loot", main ? "Bossing & Slayer Loot" : "Slayer, Boss Loot & Unique Drops", BankCategorySortMode.BOSS_LOOT),
+			category("clues-cosmetics", "Clues, Cosmetics & Collection Log", BankCategorySortMode.CLUES),
+			category("storage-cleanup", "Storage & Cleanup Review", BankCategorySortMode.REVIEW));
 	}
 
 	private static BankCategory category(String key, String name, BankCategorySortMode sortMode)

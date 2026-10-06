@@ -1,17 +1,14 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.OptionalInt;
-import java.util.Set;
+import java.util.*;
+
+
+
+
+
+
 
 /**
  * Exact-ID gear progression stages (1 = Starter through 5 = End) curated from Wiki-verified

@@ -1,12 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+
 
 /** Splits categories by catalog subcategory into independently placeable tags. Each category ends with a catch-all tag so unmatched items remain in the blueprint. */
 public final class BankTags
@@ -53,8 +50,8 @@ public final class BankTags
 			split("raw-resources", "Raw & Processed Resources"),
 			split("gems", "Gems & Jewellery", "gem", "uncut-gem", "crafting-jewellery"),
 			split("ammo-components", "Ammo Components", "ammo-component")));
-		splits.put("slayer-boss-loot", Collections.singletonList(
-			split("boss-loot", "Slayer & Boss Loot")));
+		splits.put("slayer-boss-loot", Arrays.asList(
+			split("boss-loot", "Slayer & Boss Loot"), split("alch", "Alch", "alch")));
 		splits.put("clues-cosmetics", Arrays.asList(
 			split("clues", "Clue Scrolls & Caskets"),
 			split("cosmetics", "Cosmetics", "cosmetic"),

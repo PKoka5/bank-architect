@@ -246,7 +246,7 @@ public class PresetCategoryMapperTest
 			item(1755, ItemCategory.TOOL, "Chisel")).getKey());
 		assertEquals("currency-utilities", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(952, ItemCategory.TOOL, "Spade")).getKey());
-		assertEquals("junk-review", PresetCategoryMapper.map(BankPresets.MAIN,
+		assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.MAIN,
 			item(19634, ItemCategory.UNKNOWN, "Soul bearer")).getKey());
 		assertEquals("loot-clues-storage", PresetCategoryMapper.map(BankPresets.SKILLER,
 			item(19634, ItemCategory.UNKNOWN, "Soul bearer")).getKey());
@@ -261,7 +261,7 @@ public class PresetCategoryMapperTest
 			item(25781, ItemCategory.SKILLING, "Ash sanctifier")).getKey());
 		assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(13392, ItemCategory.TELEPORT, "Xeric's talisman (inert)")).getKey());
-		assertEquals("slayer-boss-loot", PresetCategoryMapper.map(BankPresets.IRONMAN,
+		assertEquals("combat-gear", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(1201, ItemCategory.GEAR, "Rune kiteshield")).getKey());
 		assertEquals("storage-cleanup", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(1588, ItemCategory.GEAR, "Grip's keyring")).getKey());
@@ -405,7 +405,7 @@ public class PresetCategoryMapperTest
 		{
 			expected.put(itemId, "currency-utilities");
 		}
-		expected.put(1201, "slayer-boss-loot");
+		expected.put(1201, "combat-gear");
 
 		// Hammer (2347), the 33rd PDF choice, is intentionally handled later by
 		// IronmanQuickToolSelector and has its own full-preview regression tests.
@@ -437,15 +437,15 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
-	public void exactIronmanReroutesDoNotChangeOtherPresetRouting()
+	public void sharedMainAndIronmanReroutesDoNotChangeCombatOrSkillerRouting()
 	{
 		CatalogItem essence = item(7936, ItemCategory.RUNE, "Pure essence");
 		CatalogItem coupon = item(32083, ItemCategory.SKILLING, "Sawmill coupon (wood plank)");
 
-		assertEquals("teleports-runes", PresetCategoryMapper.map(BankPresets.MAIN, essence).getKey());
+		assertEquals("resources", PresetCategoryMapper.map(BankPresets.MAIN, essence).getKey());
 		assertEquals("magic-gear", PresetCategoryMapper.map(BankPresets.PVM, essence).getKey());
 		assertEquals("teleports-runes", PresetCategoryMapper.map(BankPresets.SKILLER, essence).getKey());
-		assertEquals("skilling-supplies", PresetCategoryMapper.map(BankPresets.MAIN, coupon).getKey());
+		assertEquals("resources", PresetCategoryMapper.map(BankPresets.MAIN, coupon).getKey());
 	}
 
 	@Test
@@ -498,9 +498,9 @@ public class PresetCategoryMapperTest
 	@Test
 	public void everyPresetKeepsUniqueAndClueItemsOutOfGenericJunkFallbacks()
 	{
-		assertEquals("boss-slayer-loot", PresetCategoryMapper.map(BankPresets.MAIN,
+		assertEquals("slayer-boss-loot", PresetCategoryMapper.map(BankPresets.MAIN,
 			item(ItemCategory.UNIQUE, "Pegasian crystal")).getKey());
-		assertEquals("clues-collection-log", PresetCategoryMapper.map(BankPresets.MAIN,
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.MAIN,
 			item(ItemCategory.CLUE, "Clue scroll (hard)")).getKey());
 		assertEquals("loot-drops", PresetCategoryMapper.map(BankPresets.PVM,
 			item(ItemCategory.UNIQUE, "Burnt page")).getKey());

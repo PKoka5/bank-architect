@@ -1,13 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
-
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+
+
 
 /**
  * Reviewed Ironman quick-access semantics for the unnumbered main bank tab.

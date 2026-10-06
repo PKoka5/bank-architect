@@ -48,6 +48,27 @@ import static org.junit.Assert.assertTrue;
 public class BankCaptureLifecycleTest
 {
 	@Test
+	public void savingAnItemOrderOnBuiltinCreatesCustomAndRestoresOnlyThatCustomsOrder() throws Exception
+	{
+		Fixture fixture = new Fixture();
+		fixture.model.selectPresetChoice("Ironman");
+		fixture.model.saveItemOrder(0, Arrays.asList(1755, 995, 2347), fixture.preview,
+			fixture.model.editingContext(), fixture.result::set);
+		fixture.complete();
+		assertEquals(Boolean.TRUE, fixture.result.get());
+		String custom = fixture.model.selectedPresetChoice();
+		assertEquals("Ironman: Custom layout", custom);
+		String saved = fixture.model.options().itemOrders().serialize();
+		assertFalse(saved.isEmpty());
+		fixture.model.selectPresetChoice("Ironman");
+		assertEquals("", fixture.model.options().itemOrders().serialize());
+		fixture.model.selectPresetChoice(custom);
+		assertEquals(saved, fixture.model.options().itemOrders().serialize());
+		assertEquals(Arrays.asList(1755, 995, 2347), ids(fixture.model.options().itemOrders()
+			.apply(fixture.preview, fixture.model.plan()), 0));
+	}
+
+	@Test
 	public void captureReadsTheLatestPhysicalOrderAndCreatesANewProfileWithoutOverwritingTheOriginal() throws Exception
 	{
 		Fixture fixture = new Fixture();
@@ -72,7 +93,7 @@ public class BankCaptureLifecycleTest
 		assertEquals(originalOrders, fixture.orders().forProfile("Saved setup").serialize());
 		assertEquals(originalBlocks, fixture.values.get("blockOrders"));
 		assertTrue(fixture.values.get("blockOrdersByProfile").contains("Saved setup~" + originalBlocks));
-		assertTrue(fixture.values.get("blockOrdersByProfile").contains("Saved setup 2~" + originalBlocks));
+		assertEquals(originalBlocks, fixture.model.options().blockArrangements().serialize());
 		BlueprintItemOrders captured = fixture.orders().forProfile("Saved setup 2");
 		assertTrue(captured.isCaptured());
 		BankOrganizationPreview applied = captured.apply(fixture.preview, fixture.plan);
@@ -99,6 +120,15 @@ public class BankCaptureLifecycleTest
 			fixture.values.put(key, "changed after request");
 			fixture.assertRejectedWithoutMutation();
 		}
+	}
+
+	@Test
+	public void switchingPresetsRejectsAQueuedCaptureWithoutWritingEitherPreset() throws Exception
+	{
+		Fixture fixture = new Fixture();
+		fixture.queue("Captured");
+		fixture.values.put("bankPreset", "MAIN");
+		fixture.assertRejectedWithoutMutation();
 	}
 
 	@Test
@@ -252,6 +282,7 @@ public class BankCaptureLifecycleTest
 				});
 			IronmanBankArchitectPlugin plugin = new IronmanBankArchitectPlugin();
 			set(plugin, "config", config);
+			PresetTestSettings.attach(plugin, config, values);
 			set(plugin, "client", client);
 			set(plugin, "clientThread", clientThread);
 			set(plugin, "guideController", controller);

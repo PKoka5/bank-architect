@@ -1,12 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.match;
 
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSlot;
-import com.pkoka5.ironmanbankarchitect.blueprint.SlotKind;
-import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
-import java.util.ArrayList;
+import com.pkoka5.ironmanbankarchitect.blueprint.*;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
+
 
 public final class BankSlotMatcher
 {

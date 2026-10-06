@@ -3,9 +3,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsWord;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
-
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
 import java.util.Optional;
 
 /**

@@ -3,19 +3,13 @@ package com.pkoka5.ironmanbankarchitect.overlay;
 import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.isFullyVisible;
 import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.isSafeGeometry;
 import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.itemViewportBounds;
-
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
-import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
-import com.pkoka5.ironmanbankarchitect.guide.RearrangeMode;
-import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
+import com.pkoka5.ironmanbankarchitect.guide.*;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Move;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.MoveType;
 import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor.Phase;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,29 +17,17 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import net.runelite.api.Client;
-import net.runelite.api.Item;
-import net.runelite.api.ItemComposition;
-import net.runelite.api.ItemContainer;
-import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.*;
+import net.runelite.api.gameval.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.gameval.VarClientID;
-import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.plugins.Plugin;
-import net.runelite.client.ui.overlay.Overlay;
-import net.runelite.client.ui.overlay.OverlayLayer;
-import net.runelite.client.ui.overlay.OverlayPosition;
+import net.runelite.client.ui.overlay.*;
+
+
 
 public final class BankGuideOverlay extends Overlay
 {
@@ -80,6 +62,7 @@ public final class BankGuideOverlay extends Overlay
 	private final BankGuideController guideController;
 	private final IronmanBankArchitectConfig config;
 	private final BankOverlayReservations reservations;
+	private final java.util.function.Supplier<BankLayoutPlan> layoutPlan;
 	private final TabRouteAdvisor.Session tabRouteSession = new TabRouteAdvisor.Session();
 	private final Map<Integer, Integer> canonicalItemIdCache = new HashMap<>();
 	private BankOrganizationPreview cachedPreview;
@@ -97,11 +80,19 @@ public final class BankGuideOverlay extends Overlay
 	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
 		IronmanBankArchitectConfig config, BankOverlayReservations reservations)
 	{
+		this(plugin, client, guideController, config, reservations, null);
+	}
+
+	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
+		IronmanBankArchitectConfig config, BankOverlayReservations reservations,
+		java.util.function.Supplier<BankLayoutPlan> layoutPlan)
+	{
 		super(plugin);
 		this.client = client;
 		this.guideController = guideController;
 		this.config = config;
 		this.reservations = reservations;
+		this.layoutPlan = layoutPlan;
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
 		setPosition(OverlayPosition.DYNAMIC);
 		setMovable(false);
@@ -528,7 +519,7 @@ public final class BankGuideOverlay extends Overlay
 
 	private void refreshPlanCache(BankOrganizationPreview preview)
 	{
-		String layout = config.tabOrder();
+		String layout = layoutPlan == null ? config.tabOrder() : layoutPlan.get().serialize();
 		if (cachedPreview == preview && Objects.equals(cachedLayout, layout))
 		{
 			return;

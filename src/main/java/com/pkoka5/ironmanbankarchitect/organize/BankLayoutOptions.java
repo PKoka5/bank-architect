@@ -1,14 +1,22 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+
+
+
 
 /** Player preferences not inferred from tag placement: row filling, per-category sorting, gear layout and item/block orders. See BankLayoutStyles for inferred choices. */
 public final class BankLayoutOptions
 {
 	public static final BankLayoutOptions DEFAULTS = new BankLayoutOptions(true, true, true);
+
+	public static BankLayoutOptions defaultFor(BankPreset preset)
+	{
+		return preset.getType() == BankPresetType.MAIN
+			? new BankLayoutOptions(true, false, true, Collections.emptyMap(), GearLayout.GRID_STYLES,
+				PotionDoseOrder.BY_FAMILY, RuneOrder.ELEMENTAL, TeleportOrder.ALPHABETICAL, false)
+			: DEFAULTS;
+	}
 
 	private final boolean fillGearRows;
 	private final boolean fillHerbloreRows;

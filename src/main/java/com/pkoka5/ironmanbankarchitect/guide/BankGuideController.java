@@ -1,19 +1,14 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
-import com.pkoka5.ironmanbankarchitect.blueprint.BankProfile;
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSection;
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintTab;
-import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
+import com.pkoka5.ironmanbankarchitect.blueprint.*;
 import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.*;
+
+
 
 public final class BankGuideController
 {

@@ -2,7 +2,6 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsWord;
-
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 
 final class ReviewItemSorter

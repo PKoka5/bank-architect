@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
+
 
 /**
  * The lexicographic layout score: eighteen named non-negative integer components, minimized from

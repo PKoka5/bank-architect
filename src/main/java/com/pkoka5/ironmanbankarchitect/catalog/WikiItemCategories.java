@@ -1,18 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+
+
 
 /**
  * Build-time OSRS Wiki categories (oldschool.runescape.wiki, CC BY-NC-SA 3.0); refresh with

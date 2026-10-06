@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+
 
 /** Readable, versioned share codes containing a profile name and tag plan. */
 public final class BankLayoutShareCode
@@ -15,12 +15,16 @@ public final class BankLayoutShareCode
 
 	private final String name;
 	private final String plan;
+	private final BankPresetType presetType;
 
-	private BankLayoutShareCode(String name, String plan)
+	private BankLayoutShareCode(String name, String plan, BankPresetType presetType)
 	{
 		this.name = name;
 		this.plan = plan;
+		this.presetType = presetType;
 	}
+
+	public BankPresetType getPresetType() { return presetType; }
 
 	public String getName()
 	{
@@ -40,6 +44,12 @@ public final class BankLayoutShareCode
 		return PREFIX + SEPARATOR + sanitize(name) + SEPARATOR + plan.serialize();
 	}
 
+	public static String encode(String name, BankLayoutPlan plan, BankPreset preset)
+	{
+		return preset.getType() == BankPresetType.IRONMAN ? encode(name, plan)
+			: "BAv2~" + preset.getType().name() + "~" + sanitize(name) + "~" + plan.serialize();
+	}
+
 	/** Ignores surrounding whitespace; rejects missing or unsupported prefixes. */
 	public static Optional<BankLayoutShareCode> decode(String text)
 	{
@@ -49,6 +59,16 @@ public final class BankLayoutShareCode
 		}
 
 		String trimmed = text.trim();
+		BankPresetType type = BankPresetType.IRONMAN;
+		if (trimmed.regionMatches(true, 0, "BAv2~", 0, 5))
+		{
+			String[] versioned = trimmed.split(SEPARATOR, 3);
+			if (versioned.length != 3) return Optional.empty();
+			try { type = BankPresetType.valueOf(versioned[1].trim()); }
+			catch (IllegalArgumentException invalid) { return Optional.empty(); }
+			if (type != BankPresetType.IRONMAN && type != BankPresetType.MAIN) return Optional.empty();
+			trimmed = PREFIX + SEPARATOR + versioned[2];
+		}
 		String[] parts = trimmed.split(SEPARATOR, PARTS);
 		if (parts.length != PARTS || !PREFIX.equalsIgnoreCase(parts[0].trim()))
 		{
@@ -62,7 +82,7 @@ public final class BankLayoutShareCode
 			return Optional.empty();
 		}
 
-		return Optional.of(new BankLayoutShareCode(name, plan));
+		return Optional.of(new BankLayoutShareCode(name, plan, type));
 	}
 
 	/**

@@ -1,9 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.overlay;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 final class SlotGridResolver

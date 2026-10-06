@@ -1,15 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
-
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
-import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
+
 
 /**
  * Lays out owned Herblore chains in stable eight-cell rows:
@@ -50,6 +45,32 @@ final class HerbloreItemSorter
 
 	private HerbloreItemSorter()
 	{
+	}
+
+	static List<BankPreviewItem> layoutMain(List<BankPreviewItem> items)
+	{
+		List<BankPreviewItem> sorted = new ArrayList<>(items);
+		sorted.sort(Comparator.comparingInt(HerbloreItemSorter::mainStage)
+			.thenComparingInt(item -> {
+				String family = ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+					.map(ItemSortMetadata::getFamilyKey).orElse("");
+				for (int index = 0; index < CHAINS.length; index++)
+					if (family.equals(CHAINS[index].familyKey)) return index;
+				return CHAINS.length;
+			})
+			.thenComparing(item -> normalized(item.getDisplayName()))
+			.thenComparingInt(BankPreviewItem::getItemId));
+		return sorted;
+	}
+
+	private static int mainStage(BankPreviewItem item)
+	{
+		String tag = "herb-seed".equals(item.getSubcategory()) ? "herb-seeds"
+			: BankTags.tagFor(item.getItemCategory() == ItemCategory.FARMING ? "seeds-farming" : "herblore",
+				item.getSubcategory()).getKey();
+		int rank = java.util.Arrays.asList("grimy-herbs", "clean-herbs", "herb-seeds", "seeds",
+			"unfinished-potions", "secondaries", "herblore-other", "produce").indexOf(tag);
+		return rank < 0 ? 8 : rank;
 	}
 
 	/**

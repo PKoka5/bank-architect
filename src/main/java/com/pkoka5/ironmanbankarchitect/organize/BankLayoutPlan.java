@@ -1,11 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+
 
 /** Maps tags to main and nine bank tabs. Missing tags use the cleanup destination, or the last tab. Parsing ignores unknown keys, keeps the first duplicate and expands legacy category keys. */
 public final class BankLayoutPlan
@@ -66,6 +64,13 @@ public final class BankLayoutPlan
 	public static BankLayoutPlan defaultFor(BankPreset preset)
 	{
 		Objects.requireNonNull(preset, "preset");
+		if (preset.getType() == BankPresetType.MAIN)
+		{
+			return parse(preset, "frequently-used+currency|runes+teleports|gear+ammunition|potions+food+potion-doses"
+				+ "|grimy-herbs+clean-herbs+herb-seeds+seeds+unfinished-potions+secondaries+herblore-other+produce"
+				+ "|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|boss-loot+alch"
+				+ "|clues+cosmetics+collection-log|cleanup+quest-items");
+		}
 
 		List<List<String>> destinations = emptyDestinations();
 		List<BankCategory> categories = preset.getCategories();
@@ -325,6 +330,15 @@ public final class BankLayoutPlan
 	private static List<List<String>> withRemainder(BankPreset preset,
 		List<List<String>> destinations, Set<String> placed)
 	{
+		// Older custom plans keep the new Alch tag with their existing loot tab.
+		if (!placed.contains("alch"))
+			for (List<String> destination : destinations)
+				if (destination.contains("boss-loot"))
+				{
+					destination.add("alch");
+					placed.add("alch");
+					break;
+				}
 		List<String> remainder = new ArrayList<>();
 		for (BankCategory category : preset.getCategories())
 		{

@@ -30,6 +30,56 @@ public class BankLayoutSharingTest
 	}
 
 	@Test
+	public void mainShareCodesPreservePresetIdentityAndKeepCurrentOrderFlags()
+	{
+		BankLayoutPlan mine = BankLayoutPlan.defaultFor(BankPresets.MAIN)
+			.withTagAt("food", 8).withCurrentOrder(2, true).withCurrentOrder(7, true);
+		String encoded = BankLayoutShareCode.encode("Main setup", mine, BankPresets.MAIN);
+		BankLayoutShareCode decoded = BankLayoutShareCode.decode("  " + encoded + "\n").get();
+		BankLayoutPlan received = BankLayoutPlan.parse(BankPresets.MAIN, decoded.getPlan());
+
+		assertTrue(encoded.startsWith("BAv2~MAIN~"));
+		assertEquals(BankPresetType.MAIN, decoded.getPresetType());
+		assertEquals("Main setup", decoded.getName());
+		assertEquals(mine.serialize(), received.serialize());
+		assertTrue(received.keepsCurrentOrder(2));
+		assertTrue(received.keepsCurrentOrder(7));
+		assertFalse(received.keepsCurrentOrder(1));
+	}
+
+	@Test
+	public void explicitIronmanEncodingRetainsTheExistingShareFormat()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(PRESET).withCurrentOrder(1, true);
+		String original = BankLayoutShareCode.encode("Ironman setup", plan);
+		String explicit = BankLayoutShareCode.encode("Ironman setup", plan, PRESET);
+
+		assertEquals(original, explicit);
+		assertTrue(explicit.startsWith("BAv1~"));
+		assertEquals(BankPresetType.IRONMAN, BankLayoutShareCode.decode(explicit).get().getPresetType());
+	}
+
+	@Test
+	public void legacyShareCodesAlwaysIdentifyAsIronman()
+	{
+		BankLayoutShareCode legacy = BankLayoutShareCode.decode("BAv1~Old layout~currency|gear|food+potions").get();
+
+		assertEquals(BankPresetType.IRONMAN, legacy.getPresetType());
+		assertEquals("Old layout", legacy.getName());
+		assertEquals("currency|gear|food+potions", legacy.getPlan());
+	}
+
+	@Test
+	public void versionedCodesRejectMissingUnknownAndUnavailablePresets()
+	{
+		for (String malformed : new String[]{"BAv2", "BAv2~", "BAv2~MAIN", "BAv2~MAIN~name",
+			"BAv2~~name~food|gear", "BAv2~Unknown~name~food|gear", "BAv2~PVM~name~food|gear",
+			"BAv2~PVP~name~food|gear", "BAv2~SKILLER~name~food|gear", "BAv2~MAIN~name~",
+			"BAv2~MAIN~name~   ", "BAv3~MAIN~name~food|gear"})
+			assertFalse(malformed, BankLayoutShareCode.decode(malformed).isPresent());
+	}
+
+	@Test
 	public void pastedTextWithSurroundingWhitespaceStillDecodes()
 	{
 		String code = BankLayoutShareCode.encode("Setup", BankLayoutPlan.defaultFor(PRESET));

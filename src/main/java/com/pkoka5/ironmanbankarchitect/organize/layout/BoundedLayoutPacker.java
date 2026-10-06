@@ -1,17 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.PriorityQueue;
-import java.util.Set;
+
+
+
+
 
 /**
  * Deterministic bounded beam packer. It owns candidate generation so callers cannot inject partial

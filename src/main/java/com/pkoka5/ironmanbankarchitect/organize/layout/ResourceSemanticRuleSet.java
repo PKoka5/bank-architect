@@ -1,16 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
-import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
-import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+
 
 /**
  * Exact canonical resource relationships used by the category-level semantic layout engine.

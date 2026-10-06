@@ -1,0 +1,24 @@
+{
+  "SchemaVersion": 1,
+  "Purpose": "Original, selected exact-ID research probes; these are not complete role definitions or preset destinations.",
+  "Cases": [
+    {"Id":"currency", "Label":"Coins and platinum tokens", "LeftItemIds":[995], "RightItemIds":[13204]},
+    {"Id":"combat-melee-ranged", "Label":"Selected melee and ranged torso variants", "LeftItemIds":[11832,26384,28256], "RightItemIds":[11828,27229,27238]},
+    {"Id":"combat-ranged-magic", "Label":"Selected ranged and magic torso variants", "LeftItemIds":[11828,27229,27238], "RightItemIds":[21021,24666]},
+    {"Id":"ready-food", "Label":"Cooked anglerfish and karambwan", "LeftItemIds":[13441], "RightItemIds":[3144]},
+    {"Id":"prayer-doses", "Label":"Prayer potion four-dose and lower doses", "LeftItemIds":[2434], "RightItemIds":[139,141,143]},
+    {"Id":"boost-food", "Label":"Saturated heart and selected cooked foods", "LeftItemIds":[27641], "RightItemIds":[13441,3144]},
+    {"Id":"boost-prayer", "Label":"Saturated heart and prayer potion doses", "LeftItemIds":[27641], "RightItemIds":[2434,139,141,143]},
+    {"Id":"spell-runes", "Label":"Law and nature runes", "LeftItemIds":[563], "RightItemIds":[561]},
+    {"Id":"runes-house-tablet", "Label":"Law/nature runes and house tablet", "LeftItemIds":[563,561], "RightItemIds":[8013]},
+    {"Id":"travel-tablets", "Label":"House and Varrock tablets", "LeftItemIds":[8013], "RightItemIds":[8007]},
+    {"Id":"cannon-runes", "Label":"Ordinary/ornamented cannon parts and law/nature runes", "LeftItemIds":[6,8,10,12,26520,26522,26524,26526], "RightItemIds":[563,561]},
+    {"Id":"mining-equipment", "Label":"Selected mining tools and Prospector outfit variants", "LeftItemIds":[11920,12797,13243,13244,20014,23677,23680,23682,25063,25369,25376,30345,30346,30351], "RightItemIds":[12013,12014,12015,12016,25549,25551,25553,25555,29472,29474,29476,29478]},
+    {"Id":"eye-components", "Label":"Eye outfit tops and boots", "LeftItemIds":[26852,26860,26866,26872], "RightItemIds":[26856]},
+    {"Id":"rc-equipment", "Label":"Ordinary Colossal pouch and Eye boots", "LeftItemIds":[26784,26786], "RightItemIds":[26856]},
+    {"Id":"rc-lantern", "Label":"Abyssal lantern states and Eye boots", "LeftItemIds":[26822,26824,26826,26828,26830,26832,26834,26836,26838,26840,26842,26844,26846,26848], "RightItemIds":[26856]},
+    {"Id":"herb-seed", "Label":"Ranarr herb states and ranarr seed", "LeftItemIds":[207,257], "RightItemIds":[5295]},
+    {"Id":"herb-finished-potion", "Label":"Ranarr herb states and finished prayer potion", "LeftItemIds":[207,257], "RightItemIds":[2434,139,141,143]},
+    {"Id":"mining-inputs", "Label":"Selected mining tools and iron ore/bar", "LeftItemIds":[11920,12797,13243,13244,20014,23677,23680,23682,25063,25369,25376,30345,30346,30351], "RightItemIds":[440,2351]}
+  ]
+}

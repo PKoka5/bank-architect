@@ -1,11 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.ArrayDeque;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+
+
 
 /** Matches interchangeable occurrences of one item ID to physical target slots. */
 final class ItemOccurrenceMatcher

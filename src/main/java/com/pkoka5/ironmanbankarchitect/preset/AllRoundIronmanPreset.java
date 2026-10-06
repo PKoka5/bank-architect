@@ -1,10 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.preset;
 
-import com.pkoka5.ironmanbankarchitect.blueprint.BankProfile;
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSection;
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintSlot;
-import com.pkoka5.ironmanbankarchitect.blueprint.BlueprintTab;
-import com.pkoka5.ironmanbankarchitect.blueprint.VisualBlock;
+import com.pkoka5.ironmanbankarchitect.blueprint.*;
 import java.util.Arrays;
 
 public final class AllRoundIronmanPreset

@@ -1,22 +1,20 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 // Used only to validate the shape of source-attribution strings in a bundled
 // manifest. This class opens no connection; the plugin makes no network calls.
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
+
+
+
+
+
+
 
 public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCatalog
 {
@@ -74,77 +72,27 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 		}
 
 		Map<Integer, ItemSortMetadata> result = new LinkedHashMap<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		readTable(stream, 11, false, fields ->
 		{
-			String line;
-			int lineNumber = 0;
-			boolean schemaSeen = false;
-			while ((line = reader.readLine()) != null)
+			int itemId = parseInt(fields[0], "item_id");
+			String sourceKey = fields[10];
+			if (!knownSourceKeys.contains(sourceKey))
 			{
-				lineNumber++;
-				line = stripBom(line);
-				if (!schemaSeen)
-				{
-					if (line.trim().isEmpty())
-					{
-						continue;
-					}
-					if (!SCHEMA_HEADER.equals(line.trim()))
-					{
-						throw invalid("first non-empty line must be " + SCHEMA_HEADER, lineNumber, null);
-					}
-					schemaSeen = true;
-					continue;
-				}
-				if (isIgnored(line))
-				{
-					continue;
-				}
-
-				String[] fields = line.split("\t", -1);
-				if (fields.length != 11)
-				{
-					throw invalid("expected exactly 11 tab-separated fields", lineNumber, null);
-				}
-
-				try
-				{
-					int itemId = parseInt(fields[0], "item_id");
-					String sourceKey = fields[10];
-					if (!knownSourceKeys.contains(sourceKey))
-					{
-						throw new IllegalArgumentException("unknown sourceKey: " + sourceKey);
-					}
-
-					ItemSortMetadata metadata = new ItemSortMetadata(itemId, fields[1],
-						parseEnum(ItemSortMetadata.VariantKind.class, fields[2], "variant_kind"),
-						parseInt(fields[3], "variant_value"),
-						parseEnum(ItemSortMetadata.FoodRole.class, fields[4], "food_role"),
-						parseEnum(ItemSortMetadata.HealModel.class, fields[5], "heal_model"),
-						parseInt(fields[6], "immediate_heal_min"),
-						parseInt(fields[7], "immediate_heal_max"),
-						parseInt(fields[8], "secondary_heal"),
-						parseEnum(ItemSortMetadata.AreaRestriction.class, fields[9], "area_restriction"),
-						sourceKey);
-					if (result.putIfAbsent(itemId, metadata) != null)
-					{
-						throw new IllegalArgumentException("duplicate item_id: " + itemId);
-					}
-				}
-				catch (IllegalArgumentException ex)
-				{
-					throw invalid(ex.getMessage(), lineNumber, ex);
-				}
+				throw new IllegalArgumentException("unknown sourceKey: " + sourceKey);
 			}
-			if (!schemaSeen)
+			ItemSortMetadata metadata = new ItemSortMetadata(itemId, fields[1],
+				parseEnum(ItemSortMetadata.VariantKind.class, fields[2], "variant_kind"),
+				parseInt(fields[3], "variant_value"),
+				parseEnum(ItemSortMetadata.FoodRole.class, fields[4], "food_role"),
+				parseEnum(ItemSortMetadata.HealModel.class, fields[5], "heal_model"),
+				parseInt(fields[6], "immediate_heal_min"), parseInt(fields[7], "immediate_heal_max"),
+				parseInt(fields[8], "secondary_heal"),
+				parseEnum(ItemSortMetadata.AreaRestriction.class, fields[9], "area_restriction"), sourceKey);
+			if (result.putIfAbsent(itemId, metadata) != null)
 			{
-				throw invalid("missing " + SCHEMA_HEADER, lineNumber, null);
+				throw new IllegalArgumentException("duplicate item_id: " + itemId);
 			}
-		}
-		catch (IOException ex)
-		{
-			throw new IllegalStateException("Failed to read item sort metadata", ex);
-		}
+		});
 		if (result.isEmpty()) throw new IllegalStateException("Empty required metadata table");
 		return result;
 	}
@@ -157,6 +105,33 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 		}
 
 		Set<String> result = new LinkedHashSet<>();
+		readTable(stream, 5, true, fields ->
+		{
+			String sourceKey = ItemSortMetadata.requireKey(fields[0], "source_key");
+			URI uri = URI.create(requireText(fields[1], "source_url"));
+			if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null)
+				throw new IllegalArgumentException("source_url must be an absolute HTTPS URL");
+			LocalDate.parse(requireText(fields[2], "retrieved_on"));
+			String revision = requireText(fields[3], "revision");
+			boolean wiki = "oldschool.runescape.wiki".equalsIgnoreCase(uri.getHost());
+			if (wiki && !hasQueryParameter(uri, "oldid", revision))
+				throw new IllegalArgumentException("Wiki source_url oldid must match revision");
+			String license = requireText(fields[4], "license");
+			if (wiki)
+			{
+				if (!revision.matches("\\d+")) throw new IllegalArgumentException("Wiki revision must be numeric");
+				if (!"CC BY-NC-SA 3.0".equals(license))
+					throw new IllegalArgumentException("Wiki license must be CC BY-NC-SA 3.0");
+			}
+			if (!result.add(sourceKey)) throw new IllegalArgumentException("duplicate source_key: " + sourceKey);
+		});
+		if (result.isEmpty()) throw new IllegalStateException("Empty required metadata table");
+		return result;
+	}
+
+	/** Common framing keeps attribution and item tables equally strict. */
+	private static void readTable(InputStream stream, int fieldCount, boolean source, Consumer<String[]> row)
+	{
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
 		{
 			String line;
@@ -174,7 +149,7 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 					}
 					if (!SCHEMA_HEADER.equals(line.trim()))
 					{
-						throw invalidSource("first non-empty line must be " + SCHEMA_HEADER,
+						throw invalid(source, "first non-empty line must be " + SCHEMA_HEADER,
 							lineNumber, null);
 					}
 					schemaSeen = true;
@@ -186,59 +161,29 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 				}
 
 				String[] fields = line.split("\t", -1);
-				if (fields.length != 5)
+				if (fields.length != fieldCount)
 				{
-					throw invalidSource("expected exactly 5 tab-separated fields", lineNumber, null);
+					throw invalid(source, "expected exactly " + fieldCount + " tab-separated fields", lineNumber, null);
 				}
 
 				try
 				{
-					String sourceKey = ItemSortMetadata.requireKey(fields[0], "source_key");
-					URI uri = URI.create(requireText(fields[1], "source_url"));
-					if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null)
-					{
-						throw new IllegalArgumentException("source_url must be an absolute HTTPS URL");
-					}
-					LocalDate.parse(requireText(fields[2], "retrieved_on"));
-					String revision = requireText(fields[3], "revision");
-					if ("oldschool.runescape.wiki".equalsIgnoreCase(uri.getHost())
-						&& !hasQueryParameter(uri, "oldid", revision))
-					{
-						throw new IllegalArgumentException("Wiki source_url oldid must match revision");
-					}
-					String license = requireText(fields[4], "license");
-					if ("oldschool.runescape.wiki".equalsIgnoreCase(uri.getHost()))
-					{
-						if (!revision.matches("\\d+"))
-						{
-							throw new IllegalArgumentException("Wiki revision must be numeric");
-						}
-						if (!"CC BY-NC-SA 3.0".equals(license))
-						{
-							throw new IllegalArgumentException("Wiki license must be CC BY-NC-SA 3.0");
-						}
-					}
-					if (!result.add(sourceKey))
-					{
-						throw new IllegalArgumentException("duplicate source_key: " + sourceKey);
-					}
+					row.accept(fields);
 				}
 				catch (IllegalArgumentException | DateTimeParseException ex)
 				{
-					throw invalidSource(ex.getMessage(), lineNumber, ex);
+					throw invalid(source, ex.getMessage(), lineNumber, ex);
 				}
 			}
 			if (!schemaSeen)
 			{
-				throw invalidSource("missing " + SCHEMA_HEADER, lineNumber, null);
+				throw invalid(source, "missing " + SCHEMA_HEADER, lineNumber, null);
 			}
 		}
 		catch (IOException ex)
 		{
-			throw new IllegalStateException("Failed to read item sort metadata sources", ex);
+			throw new IllegalStateException("Failed to read item sort metadata" + (source ? " sources" : ""), ex);
 		}
-		if (result.isEmpty()) throw new IllegalStateException("Empty required metadata table");
-		return result;
 	}
 
 	private static InputStream openRequired(String resourcePath)
@@ -313,15 +258,9 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 		return value;
 	}
 
-	private static IllegalStateException invalid(String message, int lineNumber, Throwable cause)
+	private static IllegalStateException invalid(boolean source, String message, int lineNumber, Throwable cause)
 	{
-		return new IllegalStateException("Invalid item sort metadata at line " + lineNumber + ": " + message,
-			cause);
-	}
-
-	private static IllegalStateException invalidSource(String message, int lineNumber, Throwable cause)
-	{
-		return new IllegalStateException("Invalid item sort metadata source at line " + lineNumber + ": "
-			+ message, cause);
+		return new IllegalStateException("Invalid item sort metadata" + (source ? " source" : "")
+			+ " at line " + lineNumber + ": " + message, cause);
 	}
 }

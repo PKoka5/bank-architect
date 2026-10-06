@@ -2,21 +2,14 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
-
-import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
-
-import com.pkoka5.ironmanbankarchitect.catalog.GearTierCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
+
+
+
+
 
 final class GearItemSorter
 {
@@ -108,13 +101,15 @@ final class GearItemSorter
 					present.add(item);
 				}
 			}
-			if (present.size() >= 2)
+			if (present.size() >= 2 || present.size() == 1
+				&& GearSetSemanticRuleSet.isCannonPart(present.get(0).getItemId()))
 			{
 				presentSets.add(present);
 			}
 		}
 		// Strongest set first: a set ranks by its best piece.
-		presentSets.sort(Comparator.comparingInt((List<BankPreviewItem> set) -> {
+		presentSets.sort(Comparator.comparing((List<BankPreviewItem> set) ->
+			!GearSetSemanticRuleSet.isCannonPart(set.get(0).getItemId())).thenComparingInt(set -> {
 			int best = Integer.MIN_VALUE;
 			for (BankPreviewItem item : set)
 			{
@@ -437,6 +432,7 @@ final class GearItemSorter
 		GearStatsSource gearStats)
 	{
 		return slotRankOf(candidate, gearStats) != 11
+			&& !GearSetSemanticRuleSet.isCannonPart(candidate.getItemId())
 			&& !usedItemIds.contains(candidate.getItemId())
 			&& !reservedPrimaryIds.contains(candidate.getItemId())
 			&& !protectedVerticalSetIds.contains(candidate.getItemId());

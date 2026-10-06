@@ -1,16 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
-import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+
+
+
 
 /** Exact combat families whose reviewed equipment order is vertical outside the primary setups. */
 public final class GearSetSemanticRuleSet
@@ -28,6 +24,11 @@ public final class GearSetSemanticRuleSet
 			sets.add(set.getItemIds());
 		}
 		return sets;
+	}
+
+	public static boolean isCannonPart(int itemId)
+	{
+		return ItemSetCatalog.setKeyOf(itemId).orElse("").startsWith("gear.dwarf-cannon");
 	}
 
 	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
@@ -67,6 +68,7 @@ public final class GearSetSemanticRuleSet
 
 		List<ItemSetCatalog.SetDefinition> verticalDefinitions = new ArrayList<>();
 		List<SemanticRule> rules = new ArrayList<>();
+		Map<Integer, Integer> cannonTargets = new LinkedHashMap<>();
 		for (ItemSetCatalog.SetDefinition definition : SETS.get())
 		{
 			List<Integer> owned = new ArrayList<>();
@@ -76,6 +78,11 @@ public final class GearSetSemanticRuleSet
 				{
 					owned.add(itemId);
 				}
+			}
+			if (definition.getKey().startsWith("gear.dwarf-cannon"))
+			{
+				for (int itemId : owned) cannonTargets.put(itemId, cannonTargets.size());
+				continue;
 			}
 
 			SemanticRule compact = owned.size() > maxVerticalHeight
@@ -96,7 +103,13 @@ public final class GearSetSemanticRuleSet
 		{
 			rules.add(rule);
 		}
-		return new LayoutRequest(entries, rules);
+		List<LayoutEntry> anchored = new ArrayList<>(entries.size());
+		for (LayoutEntry entry : entries)
+		{
+			Integer target = cannonTargets.get(entry.getItem().getItemId());
+			anchored.add(target == null ? entry : entry.withLockedTarget(target));
+		}
+		return new LayoutRequest(anchored, rules);
 	}
 
 	private static SemanticRule compactRectangleRule(String setKey, List<Integer> owned,

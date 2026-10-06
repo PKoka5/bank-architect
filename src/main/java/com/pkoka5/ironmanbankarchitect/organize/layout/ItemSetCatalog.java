@@ -1,19 +1,13 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+
+
 
 /** Exact-ID set dictionary compiled from the reviewed user-supplied master workbook. */
 public final class ItemSetCatalog

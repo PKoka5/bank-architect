@@ -1,12 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 /**

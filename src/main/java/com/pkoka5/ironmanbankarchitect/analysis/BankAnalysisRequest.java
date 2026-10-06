@@ -1,14 +1,12 @@
 package com.pkoka5.ironmanbankarchitect.analysis;
 
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
-import com.pkoka5.ironmanbankarchitect.organize.GearStats;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
+
+
+
+
 
 /** All player and bank facts used by one coherent bank analysis. */
 public final class BankAnalysisRequest
@@ -19,6 +17,7 @@ public final class BankAnalysisRequest
 	private final Map<Integer, String> categoryKeysByItemId;
 	private final BankLayoutPlan layoutPlan;
 	private final BankLayoutOptions layoutOptions;
+	private final BankPreset preset;
 
 	public BankAnalysisRequest(BankSnapshot bankSnapshot,
 		Map<Integer, GearStats> gearStatsByItemId,
@@ -27,6 +26,15 @@ public final class BankAnalysisRequest
 		BankLayoutPlan layoutPlan,
 		BankLayoutOptions layoutOptions)
 	{
+		this(bankSnapshot, gearStatsByItemId, alchValuesByItemId, categoryKeysByItemId,
+			layoutPlan, layoutOptions, null);
+	}
+
+	public BankAnalysisRequest(BankSnapshot bankSnapshot, Map<Integer, GearStats> gearStatsByItemId,
+		Map<Integer, Integer> alchValuesByItemId, Map<Integer, String> categoryKeysByItemId,
+		BankLayoutPlan layoutPlan, BankLayoutOptions layoutOptions, BankPreset preset)
+	{
+		this.preset = preset;
 		this.bankSnapshot = Objects.requireNonNull(bankSnapshot, "bankSnapshot");
 		this.gearStatsByItemId = immutableCopy(gearStatsByItemId, "gearStatsByItemId");
 		this.alchValuesByItemId = immutableCopy(alchValuesByItemId, "alchValuesByItemId");
@@ -39,6 +47,8 @@ public final class BankAnalysisRequest
 	{
 		return bankSnapshot;
 	}
+
+	public BankPreset presetOr(BankPreset fallback) { return preset == null ? fallback : preset; }
 
 	public Optional<GearStats> gearStats(int itemId)
 	{

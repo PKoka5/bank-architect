@@ -1,12 +1,8 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
-import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
-import java.util.Collections;
-import java.util.List;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Reads and stores the player's assignment of categories to bank destinations.
@@ -19,30 +15,60 @@ import java.util.List;
  */
 interface BankLayoutModel
 {
-	default String editingContext() { return matchingProfile() + "|" + plan().serialize(); }
+	default String editingContext() { return preset().getKey() + "|" + matchingProfile() + "|" + plan().serialize(); }
+	default String defaultProfileName() { return BankLayoutProfiles.defaultName(preset()); }
+	default void selectPreset(BankPresetType type) { }
+
+	default List<String> presetChoices()
+	{
+		List<String> choices = new ArrayList<>(Arrays.asList("Ironman", "Main"));
+		for (String name : profileNames())
+			if (!defaultProfileName().equals(name)) choices.add(choiceLabel(name));
+		return choices;
+	}
+
+	default String choiceLabel(String name)
+	{
+		String base = preset().getType() == BankPresetType.MAIN ? "Main" : "Ironman";
+		return defaultProfileName().equals(name) ? base : base + ": " + name;
+	}
+
+	default String selectedPresetChoice() { return choiceLabel(matchingProfile()); }
+
+	default void selectPresetChoice(String choice)
+	{
+		boolean main = choice.equals("Main") || choice.startsWith("Main: ");
+		BankPresetType type = main ? BankPresetType.MAIN : BankPresetType.IRONMAN;
+		if (!choice.contains(": ")) selectPreset(type);
+		else
+		{
+			if (preset().getType() != type) selectPreset(type);
+			selectProfile(choice.substring(choice.indexOf(": ") + 2));
+		}
+	}
 
 	default void captureCurrentBank(String name,
-		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
-		String expectedContext, java.util.function.Consumer<Boolean> completed)
+		BankOrganizationPreview expected,
+		String expectedContext, Consumer<Boolean> completed)
 	{
 		completed.accept(false);
 	}
 
 	default void saveItemOrder(int tab, List<Integer> itemIds,
-		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
-		String expectedContext, java.util.function.Consumer<Boolean> completed)
+		BankOrganizationPreview expected,
+		String expectedContext, Consumer<Boolean> completed)
 	{
 		completed.accept(false);
 	}
 
-	default void saveBlueprintEdit(java.util.Map<Integer, List<Integer>> orders,
-		java.util.Map<String, com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders.Destination> transfers,
-		com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview expected,
-		String expectedContext, java.util.function.Consumer<Boolean> completed)
+	default void saveBlueprintEdit(Map<Integer, List<Integer>> orders,
+		Map<String, BlueprintItemOrders.Destination> transfers,
+		BankOrganizationPreview expected,
+		String expectedContext, Consumer<Boolean> completed)
 	{
 		if (transfers.isEmpty() && orders.size() == 1)
 		{
-			java.util.Map.Entry<Integer, List<Integer>> entry = orders.entrySet().iterator().next();
+			Map.Entry<Integer, List<Integer>> entry = orders.entrySet().iterator().next();
 			saveItemOrder(entry.getKey(), entry.getValue(), expected, expectedContext, completed);
 		}
 		else completed.accept(false);
@@ -80,18 +106,13 @@ interface BankLayoutModel
 	/** Every saved layout, the bundled one first. */
 	default List<String> profileNames()
 	{
-		return Collections.singletonList(BankLayoutProfiles.DEFAULT_NAME);
+		return Collections.singletonList(defaultProfileName());
 	}
 
-	/**
-	 * The saved layout the working plan currently matches, or empty when it
-	 * matches none. An edit leaves the player on no profile rather than quietly
-	 * rewriting the one they loaded, so switching back to it still returns the
-	 * layout they saved.
-	 */
+	/** The active preset's saved name. Editing a bundled preset creates a custom. */
 	default String matchingProfile()
 	{
-		return BankLayoutProfiles.DEFAULT_NAME;
+		return defaultProfileName();
 	}
 
 	/** Loads a saved layout as the working plan. */
@@ -118,7 +139,7 @@ interface BankLayoutModel
 	 */
 	default BankLayoutOptions options()
 	{
-		return BankLayoutOptions.DEFAULTS;
+		return BankLayoutOptions.defaultFor(preset());
 	}
 
 	/** Stores the layout options and rebuilds the blueprint from them. */

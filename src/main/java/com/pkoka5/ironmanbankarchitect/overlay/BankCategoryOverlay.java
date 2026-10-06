@@ -2,28 +2,24 @@ package com.pkoka5.ironmanbankarchitect.overlay;
 
 import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.isSafeGeometry;
 import static com.pkoka5.ironmanbankarchitect.overlay.BankOverlayGeometry.itemViewportBounds;
-
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemIds;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.CategoryPalette;
+import com.pkoka5.ironmanbankarchitect.organize.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.plugins.Plugin;
-import net.runelite.client.ui.overlay.Overlay;
-import net.runelite.client.ui.overlay.OverlayLayer;
-import net.runelite.client.ui.overlay.OverlayPosition;
+import net.runelite.client.ui.overlay.*;
+
+
 
 /**
  * Tints every bank item with the colour of the tab the blueprint sends it to.

@@ -73,6 +73,23 @@ not emit or check in complete player layouts. A block signal is the bounding box
 category component with at least eight known-category items; it is a research candidate, not proof of
 one semantic family or production-ready ordering.
 
+For account-specific research, pass an explicit reviewed cohort to **both** analyzers:
+
+```powershell
+.\tools\research\community-templates\analyze-local-cohort.ps1 `
+  -RepoIds "8,14,26,55" `
+  -OutputPath "tools/research/community-templates/cache/main-2026-10-05/aggregate-analysis.json"
+.\tools\research\community-templates\analyze-family-candidates.ps1 `
+  -RepoIds "8,14,26,55" `
+  -OutputPath "tools/research/community-templates/cache/main-2026-10-05/family-analysis.json"
+```
+
+This initial Main cohort is four selected July imports, predominantly late/endgame.
+It is not a representative sample of all Main banks. IDs must be positive integers;
+missing selected inputs fail rather than silently reducing the sample. Only selected
+normalized files are read. Without `-RepoIds`, both tools retain the historical
+all-input behavior, which must not be labelled a Main-only analysis.
+
 ## Analyze exact-ID family candidates
 
 Run the stricter second pass on the same normalized cache:
@@ -94,3 +111,33 @@ across tabs as ambiguous, and builds multi-family blocks only from directly touc
 atoms with the same namespace, variant kind, and stage signature. Broad category members and foreign
 items cannot bridge those atoms. Its checked-in report contains only aggregates; exact candidate
 items and every per-template placement remain in the ignored local cache.
+
+Family report schema 4 adds `CoPresentTemplateSupport` (both items anywhere in a
+template), `CoTabShareOfCoPresent` and `AdjacentShareOfCoPresent`. The existing
+`AdjacencyConfidence` remains conditional on both items sharing a tab. Always
+report these denominators together: strong adjacency within a tab does not establish
+that players usually group those items in the same tab. Candidate thresholds remain
+exploratory and do not approve a production rule. Check source/layout duplicates and
+independent author support separately before interpreting a majority.
+
+## Compare original Main role probes
+
+`main-role-probes.json` defines limited exact-ID research comparisons from our
+own catalog, not exhaustive role lists or preset destinations:
+
+```powershell
+.\tools\research\community-templates\measure-role-probes.ps1 `
+  -RepoIds "8,14,26,55" `
+  -OutputPath "tools/research/community-templates/cache/main-2026-10-05/role-probe-analysis.json"
+```
+
+Both sides must be present. Repeated relevant IDs are excluded as ambiguous;
+identical layout hashes receive one observation. Outputs distinguish any shared
+tab from all present selected members sharing one tab. Neither count establishes
+adjacency, all family members, player intent or role correctness. Author/revision
+independence still requires review. Explicit selection is required; partial web
+summaries must never be passed as complete inputs.
+
+Ignored output includes source, registry, probe and analyzer hashes plus
+aggregate results without per-template coordinates. Reviewed results are in
+[the Main role report](../../../docs/research/main-role-groups-2026-10-05.md).

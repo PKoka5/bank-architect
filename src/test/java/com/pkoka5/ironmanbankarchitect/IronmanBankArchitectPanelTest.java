@@ -180,7 +180,8 @@ public class IronmanBankArchitectPanelTest
 
 		String panelText = String.join("\n", collectLabelText(panel));
 
-		assertTrue(panelText.contains(AllRoundIronmanPreset.PROFILE_NAME));
+		assertEquals("Ironman", panel.getPresetChooser().getSelectedItem());
+		assertEquals(2, panel.getPresetChooser().getItemCount());
 		assertTrue(panelText.contains("Analyze Bank"));
 		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
 		assertTrue(panelText.contains("Guided mode highlights one manual bank action"));
@@ -823,18 +824,17 @@ public class IronmanBankArchitectPanelTest
 	 * must say so rather than leave a saved profile looking selected.
 	 */
 	@Test
-	public void editingALayoutLeavesTheProfileListShowingUnsaved()
+	public void editingALayoutShowsItsCustomNameInTheTopChooser()
 	{
 		ProfileLayoutModel model = new ProfileLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
 		panel.getTabOrderButton().doClick();
 
-		assertEquals(BankLayoutProfiles.DEFAULT_NAME,
-			panel.getProfileChooser().getSelectedItem());
+		assertEquals("Ironman", panel.getPresetChooser().getSelectedItem());
 
 		panel.moveTagTo("runes", 6);
 
-		assertEquals("Custom (unsaved)", panel.getProfileChooser().getSelectedItem());
+		assertEquals("Ironman: Custom layout", panel.getPresetChooser().getSelectedItem());
 		panel.shutdown();
 	}
 
@@ -850,8 +850,8 @@ public class IronmanBankArchitectPanelTest
 		panel.getTabOrderButton().doClick();
 		panel.getTabOrderButton().doClick();
 
-		assertEquals(BankLayoutProfiles.DEFAULT_NAME, panel.getProfileChooser().getItemAt(0));
-		assertEquals("Maugor setup", panel.getProfileChooser().getSelectedItem());
+		assertEquals("Ironman", panel.getPresetChooser().getItemAt(0));
+		assertEquals("Ironman: Maugor setup", panel.getPresetChooser().getSelectedItem());
 		panel.shutdown();
 	}
 
@@ -930,7 +930,7 @@ public class IronmanBankArchitectPanelTest
 			try
 			{
 				panel.getTabOrderButton().doClick();
-				assertEquals("Profile A", panel.getProfileChooser().getSelectedItem());
+				assertEquals("Ironman: Profile A", panel.getPresetChooser().getSelectedItem());
 				assertTrue(panel.getAlchPileBox().isSelected());
 				assertFalse(panel.getShowBankButton().isEnabled());
 				model.profiles = BankLayoutProfiles.parse("", "").withProfile("Profile B", unchangedPlan.serialize());
@@ -939,9 +939,9 @@ public class IronmanBankArchitectPanelTest
 
 				panel.refreshSettings();
 
-				assertEquals("Profile B", panel.getProfileChooser().getSelectedItem());
-				assertEquals(2, panel.getProfileChooser().getItemCount());
-				assertEquals("Profile B", panel.getProfileChooser().getItemAt(1));
+				assertEquals("Ironman: Profile B", panel.getPresetChooser().getSelectedItem());
+				assertEquals(3, panel.getPresetChooser().getItemCount());
+				assertEquals("Ironman: Profile B", panel.getPresetChooser().getItemAt(2));
 				assertFalse(panel.getAlchPileBox().isSelected());
 				assertEquals(unchangedPlan.getDestinations(), panel.getLayoutPlan().getDestinations());
 				assertFalse(panel.getShowBankButton().isEnabled());
@@ -1058,6 +1058,32 @@ public class IronmanBankArchitectPanelTest
 		panel.shutdown();
 	}
 
+	@Test
+	public void changingOneLayoutOptionPreservesOtherOptionsAndShowsTheCustomInTheTopChooser()
+	{
+		ProfileLayoutModel model = new ProfileLayoutModel();
+		model.saveOptions(new BankLayoutOptions(true, false, false, java.util.Collections.emptyMap(),
+			GearLayout.LIST, com.pkoka5.ironmanbankarchitect.organize.PotionDoseOrder.BY_FAMILY,
+			com.pkoka5.ironmanbankarchitect.organize.RuneOrder.ELEMENTAL,
+			com.pkoka5.ironmanbankarchitect.organize.TeleportOrder.ALPHABETICAL, false));
+		IronmanBankArchitectPanel panel = panelWith(model);
+		try
+		{
+			panel.getTabOrderButton().doClick();
+			panel.getAlchPileBox().doClick();
+			assertEquals(GearLayout.LIST, model.options().gearLayout());
+			assertFalse(model.options().fillHerbloreRows());
+			assertFalse(model.options().gatherFrequentlyUsed());
+			assertTrue(model.options().alchPile());
+			assertEquals("Ironman: Custom layout", panel.getPresetChooser().getSelectedItem());
+			JComboBox<?> gear = findChooserOver(panel.getLayoutRows(), GearLayout.class);
+			gear.setSelectedItem(GearLayout.GRID_SETS);
+			assertFalse(model.options().gatherFrequentlyUsed());
+			assertFalse(model.options().fillHerbloreRows());
+		}
+		finally { panel.shutdown(); }
+	}
+
 	/** A model that keeps its profiles in memory, standing in for the config. */
 	private static final class ProfileLayoutModel implements BankLayoutModel
 	{
@@ -1074,6 +1100,7 @@ public class IronmanBankArchitectPanelTest
 		@Override
 		public void saveOptions(BankLayoutOptions options)
 		{
+			save(working);
 			layoutOptions = options;
 		}
 
@@ -1092,6 +1119,8 @@ public class IronmanBankArchitectPanelTest
 		@Override
 		public void save(BankLayoutPlan plan)
 		{
+			profiles = profiles.withProfile(profiles.isDefaultActive() ? profiles.freeName("Custom layout")
+				: profiles.getActiveName(), plan.serialize());
 			working = plan;
 		}
 
@@ -1104,16 +1133,7 @@ public class IronmanBankArchitectPanelTest
 		@Override
 		public String matchingProfile()
 		{
-			for (String name : profiles.names())
-			{
-				if (BankLayoutPlan.parse(BankPresets.IRONMAN, profiles.planFor(name))
-					.getDestinations().equals(working.getDestinations()))
-				{
-					return name;
-				}
-			}
-
-			return "";
+			return profiles.getActiveName();
 		}
 
 		@Override

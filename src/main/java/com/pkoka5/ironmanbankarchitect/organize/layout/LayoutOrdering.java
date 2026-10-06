@@ -1,8 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 /** Shared canonical ordering for completed plans, search states and geometry validation. */

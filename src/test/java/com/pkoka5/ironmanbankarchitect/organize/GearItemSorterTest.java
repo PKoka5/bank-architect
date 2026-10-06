@@ -222,14 +222,15 @@ public class GearItemSorterTest
 		// Two full slot rows and zero rings/utility filler: both rows must
 		// still come out aligned instead of collapsing into dense runs.
 		List<BankPreviewItem> input = Arrays.asList(
-			item(1, "Body m"), item(2, "Body r"), item(3, "Body g"), item(4, "Body p"),
-			item(5, "Body s1"), item(6, "Body s2"), item(7, "Body s3"), item(8, "Body s4"),
-			item(11, "Legs m"), item(12, "Legs r"), item(13, "Legs g"), item(14, "Legs p"),
-			item(15, "Legs s1"), item(16, "Legs s2"), item(17, "Legs s3"), item(18, "Legs s4")
+			item(960001, "Body m"), item(960002, "Body r"), item(960003, "Body g"), item(960004, "Body p"),
+			item(960005, "Body s1"), item(960006, "Body s2"), item(960007, "Body s3"), item(960008, "Body s4"),
+			item(960011, "Legs m"), item(960012, "Legs r"), item(960013, "Legs g"), item(960014, "Legs p"),
+			item(960015, "Legs s1"), item(960016, "Legs s2"), item(960017, "Legs s3"), item(960018, "Legs s4")
 		);
 		GearStatsSource stats = itemId -> {
-			GearSlot slot = itemId < 10 ? GearSlot.BODY : GearSlot.LEGS;
-			int style = itemId % 10;
+			int fixtureId = itemId - 960000;
+			GearSlot slot = fixtureId < 10 ? GearSlot.BODY : GearSlot.LEGS;
+			int style = fixtureId % 10;
 			int stab = style == 1 ? 5 : style >= 5 ? 1 : 0;
 			int ranged = style == 2 ? 5 : 0;
 			int magic = style == 3 ? 5 : 0;
@@ -324,32 +325,33 @@ public class GearItemSorterTest
 	public void earlyRowsCannotExhaustFillersNeededByLaterStyleRows()
 	{
 		List<BankPreviewItem> input = Arrays.asList(
-			item(1, "Melee helm"), item(2, "Ranged helm"),
-			item(3, "Magic helm"), item(4, "Prayer helm"),
-			item(5, "Ring one"), item(6, "Ring two"),
-			item(7, "Ring three"), item(8, "Ring four"),
-			item(11, "Melee cape"), item(12, "Ranged cape"), item(13, "Magic cape"),
-			item(21, "Melee amulet"), item(22, "Ranged amulet"),
-			item(23, "Spare amulet one"), item(24, "Spare amulet two"),
-			item(25, "Spare amulet three"), item(26, "Spare amulet four"),
-			item(27, "Spare amulet five"));
+			item(961001, "Melee helm"), item(961002, "Ranged helm"),
+			item(961003, "Magic helm"), item(961004, "Prayer helm"),
+			item(961005, "Ring one"), item(961006, "Ring two"),
+			item(961007, "Ring three"), item(961008, "Ring four"),
+			item(961011, "Melee cape"), item(961012, "Ranged cape"), item(961013, "Magic cape"),
+			item(961021, "Melee amulet"), item(961022, "Ranged amulet"),
+			item(961023, "Spare amulet one"), item(961024, "Spare amulet two"),
+			item(961025, "Spare amulet three"), item(961026, "Spare amulet four"),
+			item(961027, "Spare amulet five"));
 		GearStatsSource stats = itemId -> {
+			int fixtureId = itemId - 961000;
 			GearSlot slot;
 			int style;
-			if (itemId <= 4)
+			if (fixtureId <= 4)
 			{
 				slot = GearSlot.HEAD;
-				style = itemId;
+				style = fixtureId;
 			}
-			else if (itemId >= 11 && itemId <= 13)
+			else if (fixtureId >= 11 && fixtureId <= 13)
 			{
 				slot = GearSlot.CAPE;
-				style = itemId - 10;
+				style = fixtureId - 10;
 			}
-			else if (itemId >= 21)
+			else if (fixtureId >= 21)
 			{
 				slot = GearSlot.NECK;
-				style = itemId == 22 ? 2 : 1;
+				style = fixtureId == 22 ? 2 : 1;
 			}
 			else
 			{
@@ -359,7 +361,7 @@ public class GearItemSorterTest
 			int ranged = style == 2 ? 5 : 0;
 			int magic = style == 3 ? 5 : 0;
 			int prayer = style == 4 ? 5 : 0;
-			int defence = itemId == 21 || itemId == 22 ? 100 : 10;
+			int defence = fixtureId == 21 || fixtureId == 22 ? 100 : 10;
 			return Optional.of(new GearStats(slot, melee, 0, 0, magic, ranged,
 				melee, ranged, prayer, defence));
 		};

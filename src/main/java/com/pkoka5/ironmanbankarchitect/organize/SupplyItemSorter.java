@@ -3,16 +3,10 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.containsAny;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.normalized;
 import static com.pkoka5.ironmanbankarchitect.util.NameMatching.numericSuffix;
-
-import com.pkoka5.ironmanbankarchitect.catalog.ClassificationNames;
-
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadata;
-import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadataCatalog;
-import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
-import java.util.ArrayList;
-import java.util.Comparator;
+import com.pkoka5.ironmanbankarchitect.catalog.*;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
+
 
 final class SupplyItemSorter
 {

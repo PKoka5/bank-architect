@@ -1,18 +1,10 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
-import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
-import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
-import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
+import com.pkoka5.ironmanbankarchitect.organize.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+
 
 /**
  * Dense physical-bank-tab plan derived from the ten blueprint categories.

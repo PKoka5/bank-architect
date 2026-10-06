@@ -1,11 +1,9 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
+
 
 /** Named plans with a permanent bundled default. Saving over the default creates a named copy. Serialized config skips malformed entries without discarding other profiles. */
 public final class BankLayoutProfiles
@@ -19,19 +17,33 @@ public final class BankLayoutProfiles
 
 	private final Map<String, String> plansByName;
 	private final String activeName;
+	private final String defaultName;
 
-	private BankLayoutProfiles(Map<String, String> plansByName, String activeName)
+	private BankLayoutProfiles(Map<String, String> plansByName, String activeName, String defaultName)
 	{
+		this.defaultName = defaultName;
 		Map<String, String> ordered = new LinkedHashMap<>();
-		ordered.put(DEFAULT_NAME, "");
+		ordered.put(defaultName, "");
 		ordered.putAll(plansByName);
-		ordered.put(DEFAULT_NAME, "");
+		ordered.put(defaultName, "");
 
 		this.plansByName = Collections.unmodifiableMap(ordered);
-		this.activeName = ordered.containsKey(activeName) ? activeName : DEFAULT_NAME;
+		this.activeName = ordered.containsKey(activeName) ? activeName : defaultName;
 	}
 
 	public static BankLayoutProfiles parse(String serialized, String activeName)
+	{
+		return parse(serialized, activeName, DEFAULT_NAME);
+	}
+
+	public static String defaultName(BankPreset preset)
+	{
+		return preset.getType() == BankPresetType.MAIN ? "Main - All-Round" : DEFAULT_NAME;
+	}
+
+	public String getDefaultName() { return defaultName; }
+
+	public static BankLayoutProfiles parse(String serialized, String activeName, String defaultName)
 	{
 		Map<String, String> plans = new LinkedHashMap<>();
 		if (serialized != null)
@@ -45,7 +57,7 @@ public final class BankLayoutProfiles
 					continue;
 				}
 				String name = BankLayoutShareCode.sanitize(parts[0]);
-				if (DEFAULT_NAME.equals(name) || parts[1].trim().isEmpty())
+				if (defaultName.equals(name) || parts[1].trim().isEmpty())
 				{
 					continue;
 				}
@@ -53,7 +65,7 @@ public final class BankLayoutProfiles
 			}
 		}
 
-		return new BankLayoutProfiles(plans, BankLayoutShareCode.sanitize(activeName));
+		return new BankLayoutProfiles(plans, BankLayoutShareCode.sanitize(activeName), defaultName);
 	}
 
 	/** Recover a known active name saved before semicolons were excluded. */
@@ -90,13 +102,13 @@ public final class BankLayoutProfiles
 
 	public boolean isDefaultActive()
 	{
-		return DEFAULT_NAME.equals(activeName);
+		return defaultName.equals(activeName);
 	}
 
 	/** The same set with a different profile in use. */
 	public BankLayoutProfiles withActive(String name)
 	{
-		return new BankLayoutProfiles(withoutDefault(), BankLayoutShareCode.sanitize(name));
+		return new BankLayoutProfiles(withoutDefault(), BankLayoutShareCode.sanitize(name), defaultName);
 	}
 
 	/**
@@ -112,7 +124,7 @@ public final class BankLayoutProfiles
 		Objects.requireNonNull(plan, "plan");
 
 		String cleaned = BankLayoutShareCode.sanitize(name);
-		if (DEFAULT_NAME.equals(cleaned))
+		if (defaultName.equals(cleaned))
 		{
 			cleaned = cleaned + " (copy)";
 		}
@@ -124,13 +136,13 @@ public final class BankLayoutProfiles
 		}
 
 		updated.put(cleaned, plan);
-		return new BankLayoutProfiles(updated, cleaned);
+		return new BankLayoutProfiles(updated, cleaned, defaultName);
 	}
 
 	/** Removes a saved profile; the bundled one cannot be removed. */
 	public BankLayoutProfiles without(String name)
 	{
-		if (DEFAULT_NAME.equals(name))
+		if (defaultName.equals(name))
 		{
 			return this;
 		}
@@ -142,7 +154,7 @@ public final class BankLayoutProfiles
 		}
 
 		return new BankLayoutProfiles(updated,
-			name.equals(activeName) ? DEFAULT_NAME : activeName);
+			name.equals(activeName) ? defaultName : activeName, defaultName);
 	}
 
 	/** A name not yet taken, so an import never overwrites an existing layout. */
@@ -189,7 +201,7 @@ public final class BankLayoutProfiles
 	private Map<String, String> withoutDefault()
 	{
 		Map<String, String> copy = new LinkedHashMap<>(plansByName);
-		copy.remove(DEFAULT_NAME);
+		copy.remove(defaultName);
 		return copy;
 	}
 }
