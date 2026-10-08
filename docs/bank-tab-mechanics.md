@@ -75,6 +75,7 @@ the player-facing order: Main/tab 1 first, then tabs 2..10.
 
 | Action | Contract |
 |---|---|
+| Drag an existing tab header onto its neighboring existing header | Exchanges their complete ordered item blocks and counts; other numbered tabs and Main stay unchanged. Guidance uses neighbors because nonadjacent swap/insert semantics are not yet verified. |
 | Collapse highest physical tab | Lower physical tab counts/content stay intact; collapsed items return to main in server-defined order. |
 | Drag main item to `+` | Creates the next dense physical tab containing that one anchor. |
 | Drag main item to an existing tab icon | Target count rises by one and the item becomes a member of that target tab. Exact landing position is deliberately irrelevant. |
@@ -104,6 +105,8 @@ Internal order does not matter during bucket construction.
 
 ### Phase 1 - recover mistakes, then repair structure
 
+- First recognize uniquely assigned category buckets whose tab positions are permuted. Guide adjacent header drags before moving individual items. Each drag removes one inversion; partial buckets qualify only when their unique destinations form a permutation of the existing leading tabs.
+- For mixed tabs, a header drag requires one unambiguously assigned bucket to reach its neighboring destination and at least two fewer misplaced physical items. Other mixed states use existing item recovery.
 - If a tab with at least two items contains a foreign item and its correct
   physical destination already exists, guide that one item directly there.
 - If that foreign item belongs to Main, guide it to the infinity/All target.
@@ -138,6 +141,7 @@ Internal order does not matter during bucket construction.
   remaining permutation.
 - Validate section membership and counts after every drag. Do not assume the
   server placed the item at the start or end.
+- In Insert mode, append missing items in target order instead of using the swap-cycle strategy. This maximizes the achievable increasing subsequence of a fixed prefix. Verified append placement improves efficiency; transition acknowledgement still checks membership so a different landing position is corrected later.
 
 ### Phase 4 - sort locally in visual order
 
@@ -166,6 +170,7 @@ The route terminates because each action decreases a finite measure:
 
 ## Transition acknowledgement
 
+- Adjacent header drag: both positive tab counts exchange, the two complete ordered item blocks exchange, and all other blocks/Main remain exactly unchanged. Equal tab sizes do not change counts, so counts alone never acknowledge this move. Independently sampled partial states keep waiting.
 - Collapse: same item-ID multiplicities; lower counts/content preserved;
   target and higher counts become zero; main landing order ignored.
 - Create: earlier buckets preserved; new count is one; anchor is the new
@@ -232,6 +237,18 @@ Use disposable items and record pre/post IDs, section sets and counts:
    other tabs remain unchanged.
 
 Guidance remains a development feature until this probe is recorded.
+
+### Whole-tab follow-up - 2026-10-08
+
+The tab-header feature requires an additional live smoke test in both item modes, with unequal and equal neighboring tab sizes, preserving internal order, Main, and the next instruction. Use the All-items view. Automated tests cover these transformations but do not replace that live check. A nonadjacent drag probe can establish whether the game swaps or inserts and whether item mode matters; the new guide deliberately advises only neighbors until then.
+
+The current vanilla scripts support existing numbered-header dragging under the tab parent and exclude All/empty New-tab endpoints. Their drag callbacks change temporary appearance; they do not establish the server's nonadjacent transformation or selected-tab behavior. The plugin reads live focus rather than predicting it. Primary sources pinned to `78f7221849595b3439e8a5d36f40aea93d9685c6`:
+
+- [Graphic header drag callback](https://github.com/runelite/cs2-scripts/blob/78f7221849595b3439e8a5d36f40aea93d9685c6/scripts/%5Bclientscript%2Cbankmain_dragtab_graphic%5D.cs2).
+- [Text header drag callback](https://github.com/runelite/cs2-scripts/blob/78f7221849595b3439e8a5d36f40aea93d9685c6/scripts/%5Bclientscript%2Cbankmain_dragtab_text%5D.cs2).
+- [Tab widget construction](https://github.com/runelite/cs2-scripts/blob/78f7221849595b3439e8a5d36f40aea93d9685c6/scripts/%5Bproc%2Cbankmain_tabicon%5D.cs2).
+
+No clientscript or third-party plugin implementation is copied into this repository. Complete validation and review-size figures are recorded in [Guidance efficiency](testing/guidance-efficiency-2026-10-08.md).
 # Local blueprint item editing
 
 Primary edit interaction: click an item to select it with a green border, choose

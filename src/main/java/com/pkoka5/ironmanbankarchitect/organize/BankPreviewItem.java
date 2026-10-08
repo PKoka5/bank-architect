@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import com.pkoka5.ironmanbankarchitect.catalog.*;
 import java.util.*;
 import java.util.List;
@@ -187,13 +189,4 @@ public final class BankPreviewItem
 		return quantity > 1 ? displayName + " x" + quantity : displayName;
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }

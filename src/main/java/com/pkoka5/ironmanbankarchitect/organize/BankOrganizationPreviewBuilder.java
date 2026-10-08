@@ -139,7 +139,7 @@ public final class BankOrganizationPreviewBuilder
 			}
 		}
 
-		Map<String, List<OwnedGear>> ownedGearByKey = new LinkedHashMap<>();
+		Map<String, List<BankGear>> gearByKey = new LinkedHashMap<>();
 		Set<Integer> realOwned = new HashSet<>();
 		Map<Integer, String> choices = new HashMap<>();
 		boolean captured = options.itemOrders().isCaptured();
@@ -148,12 +148,8 @@ public final class BankOrganizationPreviewBuilder
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
 			if (!options.alchPile() || (!main && preset.getType() != BankPresetType.IRONMAN)) break;
-			if (bankItem.isPlaceholder())
-			{
-				continue;
-			}
 			int itemId = bankItem.getItemId();
-			realOwned.add(itemId);
+			if (!bankItem.isPlaceholder()) realOwned.add(itemId);
 			BankTag choice = overrideTag(overrides, itemId);
 			BankCategory legacyChoice = overriddenCategory(preset, overrides, itemId);
 			if (choice != null) choices.put(itemId, choice.getKey());
@@ -170,9 +166,9 @@ public final class BankOrganizationPreviewBuilder
 				{
 					continue;
 				}
-				ownedGearByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
-					.add(new OwnedGear(GearItemSorter.score(
-						new BankPreviewItem(catalogItem, bankItem.getQuantity()), gearStats),
+				gearByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
+					.add(new BankGear(GearItemSorter.score(
+						new BankPreviewItem(catalogItem, bankItem.getQuantity(), bankItem.isPlaceholder()), gearStats),
 						stats.get(), catalogItem.getItemId()));
 			}
 		}
@@ -202,7 +198,7 @@ public final class BankOrganizationPreviewBuilder
 				&& sourceItem.getCategory() != ItemCategory.UNKNOWN
 				&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-				gearStats, itemValues, ownedGearByKey, realOwned, choices);
+				gearStats, itemValues, gearByKey, realOwned, choices);
 			if (alchCandidate)
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
@@ -510,12 +506,14 @@ public final class BankOrganizationPreviewBuilder
 			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey), bankItem.getSlotIndex());
 	}
 
-	/** Shared Main/Ironman policy: reviewed gear needs an owned replacement;
-	 * unknown stock needs full dominance and the conservative value/backup rules.
+	/** Shared Main/Ironman policy: reviewed armour accepts exact higher-tier bank placeholders;
+	 * other comparisons need an owned replacement. A placeholder records the planned kit,
+	 * not present ownership. Removing it restores normal classification.
+	 * Unknown stock needs full dominance and the conservative value/backup rules.
 	 * A weighted score alone cannot prove replacement. The exact Dragon halberd
 	 * exception is an explicit owner choice, still subject to the option and overrides. */
 	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
-		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<OwnedGear>> ownedGearByKey,
+		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<BankGear>> gearByKey,
 		Set<Integer> realOwned, Map<Integer, String> choices)
 	{
 		if (preset.getType() != BankPresetType.MAIN && preset.getType() != BankPresetType.IRONMAN)
@@ -551,8 +549,8 @@ public final class BankOrganizationPreviewBuilder
 			return false;
 		}
 
-		List<OwnedGear> owned = ownedGearByKey.get(gearKey(stats.get()));
-		if (owned == null)
+		List<BankGear> gear = gearByKey.get(gearKey(stats.get()));
+		if (gear == null)
 		{
 			return false;
 		}
@@ -560,8 +558,8 @@ public final class BankOrganizationPreviewBuilder
 		{
 			int tier = alchTier(catalogItem.getItemId());
 			boolean armour = stats.get().getSlot() != GearSlot.WEAPON && stats.get().getSlot() != GearSlot.AMMO;
-			for (OwnedGear candidate : owned)
-				if (candidate.stats.dominates(stats.get())
+			for (BankGear candidate : gear)
+				if (realOwned.contains(candidate.itemId) && candidate.stats.dominates(stats.get())
 					|| (armour && tier > 0 && alchTier(candidate.itemId) > tier)) return true;
 			return false;
 		}
@@ -569,8 +567,9 @@ public final class BankOrganizationPreviewBuilder
 		int ownScore = GearItemSorter.score(new BankPreviewItem(catalogItem, quantity), gearStats);
 		int strictlyBetter = 0;
 		boolean beatenOutright = false;
-		for (OwnedGear candidate : owned)
+		for (BankGear candidate : gear)
 		{
+			if (!realOwned.contains(candidate.itemId)) continue;
 			if (candidate.score > ownScore)
 			{
 				strictlyBetter++;
@@ -613,14 +612,14 @@ public final class BankOrganizationPreviewBuilder
 		}
 	}
 
-	/** One owned combat-gear item, kept per style/slot bucket for comparison. */
-	private static final class OwnedGear
+	/** Bank gear including placeholders, kept per style/slot bucket for bounded comparisons. */
+	private static final class BankGear
 	{
 		private final int score;
 		private final GearStats stats;
 		private final int itemId;
 
-		private OwnedGear(int score, GearStats stats, int itemId)
+		private BankGear(int score, GearStats stats, int itemId)
 		{
 			this.score = score;
 			this.stats = stats;

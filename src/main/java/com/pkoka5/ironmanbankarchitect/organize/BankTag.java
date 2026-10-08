@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 
 /**
  * One independently placeable part of a blueprint category.
@@ -42,15 +44,6 @@ public final class BankTag
 		return categoryKey;
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 
 	@Override
 	public boolean equals(Object other)

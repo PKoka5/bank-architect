@@ -939,6 +939,14 @@ public class TabRouteAdvisorTest
 		{
 			switch (move.getType())
 			{
+				case REORDER_TAB:
+					int left = Math.min(move.getSourceTab(), move.getTargetTab()) - 1;
+					int start = sectionStart(left);
+					Collections.rotate(items.subList(start, start + counts[left] + counts[left + 1]), counts[left + 1]);
+					int oldCount = counts[left];
+					counts[left] = counts[left + 1];
+					counts[left + 1] = oldCount;
+					break;
 				case COLLAPSE_TAB:
 					collapse(move.getTargetTab());
 					break;

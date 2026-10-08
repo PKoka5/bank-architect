@@ -47,21 +47,21 @@
 45	hat	hood	helmet	mask
 46	top	garb	jacket	shirt
 47	legs	waders	robe	trousers
-48	helmet	helm	coif	hat	mask	hood
-49	body	platebody	robe top	hauberk	torso	chestplate
-50	legs	platelegs	plateskirt	chaps	robe bottom	skirt	tassets
+48	helmet	helm	coif	hat	mask	hood	sallet	mitre	bearhead
+49	body	platebody	robe top	hauberk	torso	chestplate	oathplate chest	cuirass	brassard	robetop	leathertop
+50	legs	platelegs	plateskirt	chaps	robe bottom	skirt	tassets	tasset	cuisse	chausses
 51	cape	cloak	ava's	avas	accumulator	assembler
 52	amulet	necklace	symbol	stole
 53	shield	defender	book	ward	offhand
-54	gloves	vambraces	bracelet
-55	sword	scimitar	mace	dagger	spear	halberd	whip	maul	warhammer	battleaxe	hasta	rapier	salamander	flail
+54	gloves	vambraces	bracelet	gauntlets	bracers
+55	sword	scimitar	mace	dagger	spear	halberd	whip	maul	warhammer	battleaxe	hasta	rapier	salamander	flail	scythe	 axe	claws
 56	bow	crossbow	ballista	blowpipe
-57	staff	wand	trident	sceptre	scepter
-58	arrow	bolt	dart	javelin	cannonball	chinchompa	bolt rack	grapple
-59	proselyte	initiate	monk's	holy symbol	holy sandals
-60	rune	dragon	barrows	bandos	torva	obsidian	fighter	berserker	defender	scimitar	whip	mace	spear	halberd	warhammer	battleaxe	maul	hasta	rapier	platebody	platelegs	plateskirt	helm	neitiznot	serpentine	faceguard	granite	justiciar	verac	dharok	guthan	torag	karamja gloves	barrows gloves
-61	bow	crossbow	ballista	blowpipe	arrow	bolt	dart	javelin	chinchompa	coif	chaps	vambraces	leather	d'hide	dragonhide	karil	armadyl	ava's	avas	accumulator	assembler
-62	staff	wand	trident	sceptre	scepter	mystic	ahrim	ancestral	infinity	wizard	splitbark	lunar	xerician	ghostly	robe	occult	tome
+57	staff	wand	trident	sceptre	scepter	tumeken's shadow
+58	arrow	bolt	dart	javelin	cannonball	chinchompa	bolt rack	grapple	blessing
+59	proselyte	initiate	monk's	holy symbol	holy sandals	sunfire fanatic
+60	rune	dragon	barrows	bandos	torva	obsidian	fighter	berserker	defender	scimitar	whip	mace	spear	halberd	warhammer	battleaxe	maul	hasta	rapier	platebody	platelegs	plateskirt	helm	neitiznot	serpentine	faceguard	granite	justiciar	verac	dharok	guthan	torag	karamja gloves	barrows gloves	oathplate	rancour	echo boots	scythe	soulreaper axe	zombie axe	amulet of fury	amulet of blood fury	amulet of torture
+61	bow	crossbow	ballista	blowpipe	arrow	bolt	dart	javelin	chinchompa	coif	chaps	vambraces	leather	d'hide	dragonhide	karil	armadyl	ava's	avas	accumulator	assembler	masori	crystal helm	crystal body	crystal legs	necklace of anguish	ranger boots
+62	staff	wand	trident	sceptre	scepter	mystic	ahrim	ancestral	infinity	wizard	splitbark	lunar	xerician	ghostly	robe	occult	tome	tumeken's shadow
 63	tip	head	limbs
 64	copper	tin	bronze
 65	iron	coal	steel

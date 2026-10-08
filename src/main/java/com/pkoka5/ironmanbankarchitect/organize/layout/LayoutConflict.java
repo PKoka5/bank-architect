@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import java.util.*;
 
 
@@ -106,13 +108,4 @@ public final class LayoutConflict
 		return type + "(itemId=" + itemId + "): " + detail;
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }

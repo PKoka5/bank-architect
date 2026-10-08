@@ -269,7 +269,9 @@ public final class BankGuideOverlay extends Overlay
 			&& move != null && isTabTargetMove(move.getType());
 		Widget tabTarget = tabTargetMove
 			? resolveTabTarget(client.getWidget(InterfaceID.Bankmain.TABS), move) : null;
-		if (tabTargetMove && tabTarget == null)
+		Widget tabSource = tabTargetMove && move.getType() == MoveType.REORDER_TAB
+			? resolveTabHeader(client.getWidget(InterfaceID.Bankmain.TABS), move.getSourceTab(), "View tab") : null;
+		if (tabTargetMove && (tabTarget == null || move.getType() == MoveType.REORDER_TAB && tabSource == null))
 		{
 			return blocked(graphics, gridBounds, missingTabTargetMessage(move.getType()));
 		}
@@ -338,7 +340,8 @@ public final class BankGuideOverlay extends Overlay
 			try
 			{
 				BankOverlayText.prepare(connectorGraphics, BankOverlayText.smallFont());
-				drawTabMove(connectorGraphics, move, tabTarget.getBounds(), allByLogicalSlot,
+				drawTabMove(connectorGraphics, move, tabTarget.getBounds(),
+					tabSource == null ? null : tabSource.getBounds(), allByLogicalSlot,
 					visibleByLogicalSlot, gridBounds);
 			}
 			finally
@@ -347,7 +350,8 @@ public final class BankGuideOverlay extends Overlay
 			}
 		}
 
-		Rectangle hudSource = suggestNextMove && move != null && move.getFromSlot() >= 0
+		Rectangle hudSource = tabSource != null ? tabSource.getBounds()
+			: suggestNextMove && move != null && move.getFromSlot() >= 0
 			&& allByLogicalSlot.containsKey(move.getFromSlot())
 			? allByLogicalSlot.get(move.getFromSlot()).bounds : null;
 		Rectangle hudTarget = tabTargetMove ? tabTarget.getBounds()
@@ -816,6 +820,10 @@ public final class BankGuideOverlay extends Overlay
 		String instruction;
 			switch (move.getType())
 		{
+			case REORDER_TAB:
+				instruction = "Drag the whole tab header from bank position " + (move.getSourceTab() + 1)
+					+ " onto position " + (move.getTargetTab() + 1) + ". Its items stay together.";
+				break;
 			case COLLAPSE_TAB:
 				instruction = "Right-click bank tab position " + (move.getTargetTab() + 1)
 					+ " (Main is position 1) and choose Collapse tab.";
@@ -877,6 +885,9 @@ public final class BankGuideOverlay extends Overlay
 		String phase;
 		switch (progress.getPhase())
 		{
+			case REORDERING:
+				phase = "Reordering whole tabs";
+				break;
 			case RECOVERING:
 				phase = "Recovering misplaced items";
 				break;
@@ -943,6 +954,9 @@ public final class BankGuideOverlay extends Overlay
 		}
 			switch (move.getType())
 		{
+			case REORDER_TAB:
+				return "REORDER TABS\nFROM POS " + (move.getSourceTab() + 1)
+					+ " -> POS " + (move.getTargetTab() + 1) + "\nDrag the whole tab";
 			case COLLAPSE_TAB:
 				return progress + "\nTAB POSITION " + (move.getTargetTab() + 1)
 					+ ": RIGHT-CLICK\nChoose Collapse tab";
@@ -976,7 +990,7 @@ public final class BankGuideOverlay extends Overlay
 
 	static boolean isTabTargetMove(MoveType type)
 	{
-		return type == MoveType.COLLAPSE_TAB || type == MoveType.DRAG_TO_NEW_TAB
+		return type == MoveType.REORDER_TAB || type == MoveType.COLLAPSE_TAB || type == MoveType.DRAG_TO_NEW_TAB
 			|| type == MoveType.DISTRIBUTE_TO_TAB || type == MoveType.TRANSFER_TO_TAB
 			|| type == MoveType.RETURN_TO_MAIN;
 	}
@@ -990,22 +1004,27 @@ public final class BankGuideOverlay extends Overlay
 	private static Widget resolveTabTarget(Widget tabs, Move move)
 	{
 		boolean mainTarget = move.getType() == MoveType.RETURN_TO_MAIN;
-		if (tabs == null || tabs.isHidden() || !mainTarget && (move.getTargetTab() < 1
-			|| move.getTargetTab() > TabRouteAdvisor.MAX_TABS))
+		String action = mainTarget ? "View all items"
+			: move.getType() == MoveType.DRAG_TO_NEW_TAB ? "New tab"
+				: move.getType() == MoveType.COLLAPSE_TAB ? "Collapse tab" : "View tab";
+		return resolveTabHeader(tabs, mainTarget ? 0 : move.getTargetTab(), action);
+	}
+
+	static Widget resolveTabHeader(Widget tabs, int tab, String action)
+	{
+		if (tabs == null || tabs.isHidden() || tab < 0 || tab > TabRouteAdvisor.MAX_TABS
+			|| tab == 0 && !"View all items".equals(action))
 		{
 			return null;
 		}
-		int childIndex = mainTarget ? 10 : tabActionChildIndex(move.getTargetTab());
+		int childIndex = tabActionChildIndex(tab);
 		Widget child = tabs.getChild(childIndex);
 		if (child == null || child.isHidden() || child.getIndex() != childIndex
 			|| !isSafeGeometry(child.getBounds()))
 		{
 			return null;
 		}
-		String requiredAction = mainTarget ? "View all items"
-			: move.getType() == MoveType.DRAG_TO_NEW_TAB ? "New tab"
-				: move.getType() == MoveType.COLLAPSE_TAB ? "Collapse tab" : "View tab";
-		return hasAction(child.getActions(), requiredAction) ? child : null;
+		return hasAction(child.getActions(), action) ? child : null;
 	}
 
 	static int tabActionChildIndex(int tabNumber)
@@ -1131,9 +1150,18 @@ public final class BankGuideOverlay extends Overlay
 	}
 
 	private static void drawTabMove(Graphics2D graphics, Move move, Rectangle targetBounds,
+		Rectangle sourceTabBounds,
 		Map<Integer, BankSlotWidget> allByLogicalSlot,
 		Map<Integer, BankSlotWidget> visibleByLogicalSlot, Rectangle viewportBounds)
 	{
+		if (move.getType() == MoveType.REORDER_TAB)
+		{
+			drawArrowConnector(graphics, centerX(sourceTabBounds), centerY(sourceTabBounds),
+				centerX(targetBounds), centerY(targetBounds));
+			drawMoveCell(graphics, sourceTabBounds, MOVE_SOURCE, "MOVE");
+			drawMoveCell(graphics, targetBounds, MOVE_TARGET, "DROP");
+			return;
+		}
 		String targetLabel = move.getType() == MoveType.RETURN_TO_MAIN
 			? "ALL -> MAIN"
 			: move.getType() == MoveType.COLLAPSE_TAB

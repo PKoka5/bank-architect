@@ -77,6 +77,10 @@ public final class TabRouteAdvisor
 		}
 
 		List<TargetTab> targets = plan.getNumberedTabs();
+		boolean cleanBuckets = isCleanBucketSkeleton(actualItemIds, plan, tabCounts, currentTabs);
+		Move tabReorder = cleanBuckets ? null : firstTabReorder(actualItemIds, targets, tabCounts, currentTabs);
+		if (tabReorder != null)
+			return Assessment.ready(tabReorder, Progress.outsideSorting(Phase.REORDERING, 0, 1));
 		Map<Integer, BankPreviewItem> itemById = itemsById(plan.getFlattenedItems());
 		Map<Integer, Integer> targetTabByItemId = targetTabsByItemId(targets);
 		Move recovery = firstRecoveryMove(actualItemIds, plan, tabCounts, currentTabs,
@@ -87,7 +91,7 @@ public final class TabRouteAdvisor
 				Progress.recovering(foreignItemCount(actualItemIds, targets,
 					tabCounts, currentTabs)));
 		}
-		if (!isCleanBucketSkeleton(actualItemIds, plan, tabCounts, currentTabs))
+		if (!cleanBuckets)
 		{
 			if (currentTabs == 0)
 			{
@@ -119,7 +123,7 @@ public final class TabRouteAdvisor
 
 		int numberedItemTotal = numberedItemCount(targets);
 		Move appendFriendly = nextAppendFriendlyDistribution(actualItemIds, mainStart,
-			targets, tabCounts, itemById);
+			targets, tabCounts, itemById, mode);
 		if (appendFriendly != null)
 		{
 			return Assessment.ready(appendFriendly,
@@ -190,6 +194,54 @@ public final class TabRouteAdvisor
 			Progress.complete(actualItemIds.length), List.of());
 	}
 
+	/** Adjacent header drags have identical results whether the game swaps or inserts tabs. */
+	private static Move firstTabReorder(int[] ids, List<TargetTab> targets, int[] counts, int tabs)
+	{
+		if (tabs < 2) return null;
+		List<Map<Integer, Integer>> observed = new ArrayList<>();
+		List<Map<Integer, Integer>> planned = new ArrayList<>();
+		for (TargetTab target : targets) planned.add(itemCounts(target.getItems()));
+		int[] destinations = new int[tabs];
+		Set<Integer> matched = new HashSet<>();
+		boolean permutation = tabs <= targets.size();
+		int start = 0;
+		for (int tab = 0; tab < tabs; tab++)
+		{
+			Map<Integer, Integer> members = sectionCounts(ids, start, start + counts[tab]);
+			observed.add(members);
+			start += counts[tab];
+			int destination = -1;
+			for (int target = 0; target < planned.size(); target++)
+				if (foreignMembers(members, planned.get(target)) == 0)
+				{
+					if (destination >= 0) { destination = -1; break; }
+					destination = target;
+				}
+			destinations[tab] = destination;
+			permutation &= destination >= 0 && destination < tabs && matched.add(destination);
+		}
+		while (planned.size() < tabs) planned.add(Collections.emptyMap());
+		for (int tab = 0; tab + 1 < tabs; tab++)
+		{
+			boolean improves = permutation ? destinations[tab] > destinations[tab + 1]
+				: (destinations[tab] == tab + 1 || destinations[tab + 1] == tab)
+					&& foreignMembers(observed.get(tab), planned.get(tab + 1))
+					+ foreignMembers(observed.get(tab + 1), planned.get(tab))
+					<= foreignMembers(observed.get(tab), planned.get(tab))
+						+ foreignMembers(observed.get(tab + 1), planned.get(tab + 1)) - 2;
+			if (improves) return Move.reorderTabs(tab + 1, tab + 2);
+		}
+		return null;
+	}
+
+	private static int foreignMembers(Map<Integer, Integer> observed, Map<Integer, Integer> planned)
+	{
+		int foreign = 0;
+		for (Map.Entry<Integer, Integer> entry : observed.entrySet())
+			foreign += Math.max(0, entry.getValue() - planned.getOrDefault(entry.getKey(), 0));
+		return foreign;
+	}
+
 	static boolean isCleanBucketSkeleton(int[] actualItemIds, BankTabPlan plan,
 		int[] tabCounts, int currentTabs)
 	{
@@ -210,12 +262,9 @@ public final class TabRouteAdvisor
 				return false;
 			}
 			Map<Integer, Integer> targetCounts = itemCounts(target.getItems());
-			Map<Integer, Integer> observedCounts = new HashMap<>();
 			for (int slot = sectionStart; slot < sectionStart + count; slot++)
 			{
-				int itemId = actualItemIds[slot];
-				int observed = observedCounts.merge(itemId, 1, Integer::sum);
-				if (observed > targetCounts.getOrDefault(itemId, 0))
+				if (!decrementItemCount(targetCounts, actualItemIds[slot]))
 				{
 					return false;
 				}
@@ -237,12 +286,10 @@ public final class TabRouteAdvisor
 			Map<Integer, Integer> sourceTargetCounts = sourceIndex < targets.size()
 				? itemCounts(targets.get(sourceIndex).getItems())
 				: java.util.Collections.emptyMap();
-			Map<Integer, Integer> observedCounts = new HashMap<>();
 			for (int slot = sectionStart; slot < sectionStart + sourceCount; slot++)
 			{
 				int itemId = actualItemIds[slot];
-				int observed = observedCounts.merge(itemId, 1, Integer::sum);
-				if (observed <= sourceTargetCounts.getOrDefault(itemId, 0) || sourceCount <= 1)
+				if (decrementItemCount(sourceTargetCounts, itemId) || sourceCount <= 1)
 				{
 					continue;
 				}
@@ -274,12 +321,9 @@ public final class TabRouteAdvisor
 			Map<Integer, Integer> targetCounts = tabIndex < targets.size()
 				? itemCounts(targets.get(tabIndex).getItems())
 				: java.util.Collections.emptyMap();
-			Map<Integer, Integer> observedCounts = new HashMap<>();
 			for (int slot = sectionStart; slot < sectionStart + tabCounts[tabIndex]; slot++)
 			{
-				int itemId = actualItemIds[slot];
-				int observed = observedCounts.merge(itemId, 1, Integer::sum);
-				if (observed > targetCounts.getOrDefault(itemId, 0))
+				if (!decrementItemCount(targetCounts, actualItemIds[slot]))
 				{
 					foreign++;
 				}
@@ -384,7 +428,8 @@ public final class TabRouteAdvisor
 	}
 
 	private static Move nextAppendFriendlyDistribution(int[] actualItemIds, int mainStart,
-		List<TargetTab> targets, int[] tabCounts, Map<Integer, BankPreviewItem> itemById)
+		List<TargetTab> targets, int[] tabCounts, Map<Integer, BankPreviewItem> itemById,
+		RearrangeMode mode)
 	{
 		int sectionStart = 0;
 		for (TargetTab target : targets)
@@ -395,7 +440,7 @@ public final class TabRouteAdvisor
 				sectionStart += count;
 				continue;
 			}
-			int appendItemId = hasRepeatedItemIds(target.getItems())
+			int appendItemId = mode == RearrangeMode.INSERT || hasRepeatedItemIds(target.getItems())
 				? firstMissingTargetItemId(actualItemIds, sectionStart, count, target.getItems())
 				: cycleClosingAppendItemId(actualItemIds, sectionStart, count, target.getItems());
 			int sourceSlot = firstMainSourceForItem(actualItemIds, mainStart,
@@ -869,9 +914,12 @@ public final class TabRouteAdvisor
 		}
 		if (afterTabs == beforeTabs + 1)
 		{
-			return matchesAnyCreate(beforeItems, beforeCounts, afterItems, afterCounts,
-				beforeTabs);
+			return beforeTabs < afterCounts.length && afterCounts[beforeTabs] == 1
+				&& matchesCreate(beforeItems, beforeCounts, afterItems, afterCounts,
+					afterItems[sumLeadingCounts(afterCounts, beforeTabs)], beforeTabs + 1);
 		}
+		for (int tab = 1; tab < beforeTabs; tab++)
+			if (matchesTabReorder(beforeItems, beforeCounts, afterItems, afterCounts, tab, tab + 1)) return true;
 
 		int increased = -1;
 		int decreased = -1;
@@ -892,20 +940,14 @@ public final class TabRouteAdvisor
 			}
 		}
 
-		if (increased >= 0 && decreased >= 0)
+		if (increased >= 0 || decreased >= 0)
 		{
-			return matchesAnyTransfer(beforeItems, beforeCounts, afterItems, afterCounts,
-				decreased, increased, beforeTabs);
-		}
-		if (increased >= 0)
-		{
-			return matchesAnyDistribution(beforeItems, beforeCounts, afterItems, afterCounts,
-				increased, beforeTabs);
-		}
-		if (decreased >= 0)
-		{
-			return matchesAnyReturnToMain(beforeItems, beforeCounts, afterItems, afterCounts,
-				decreased, beforeTabs);
+			int changed = increased >= 0 ? increased : decreased;
+			Map<Integer, Integer> before = tabSectionCounts(beforeItems, beforeCounts, changed);
+			Map<Integer, Integer> after = tabSectionCounts(afterItems, afterCounts, changed);
+			Integer itemId = increased >= 0 ? singleCountDifference(before, after) : singleCountDifference(after, before);
+			return itemId != null && matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts,
+				itemId, decreased, increased);
 		}
 		return mode == RearrangeMode.INSERT
 			? matchesAnyInsert(beforeItems, beforeCounts, afterItems)
@@ -916,91 +958,6 @@ public final class TabRouteAdvisor
 	{
 		int tabs = leadingTabCount(counts);
 		return tabs >= 0 && sumLeadingCounts(counts, tabs) <= items.length;
-	}
-
-	private static boolean matchesAnyCreate(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, int beforeTabs)
-	{
-		if (beforeTabs >= afterCounts.length || afterCounts[beforeTabs] != 1)
-		{
-			return false;
-		}
-		for (int index = 0; index < afterCounts.length; index++)
-		{
-			int expected = index < beforeTabs ? beforeCounts[index]
-				: index == beforeTabs ? 1 : 0;
-			if (afterCounts[index] != expected || index >= beforeTabs && beforeCounts[index] != 0)
-			{
-				return false;
-			}
-		}
-		for (int index = 0; index < beforeTabs; index++)
-		{
-			if (!tabSectionCounts(beforeItems, beforeCounts, index)
-				.equals(tabSectionCounts(afterItems, afterCounts, index)))
-			{
-				return false;
-			}
-		}
-		int createdStart = sumLeadingCounts(afterCounts, beforeTabs);
-		return mainLostOnly(beforeItems, beforeCounts, afterItems, afterCounts,
-			afterItems[createdStart]);
-	}
-
-	private static boolean matchesAnyDistribution(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, int targetIndex, int tabs)
-	{
-		Integer addedItemId = singleAddedItem(
-			tabSectionCounts(beforeItems, beforeCounts, targetIndex),
-			tabSectionCounts(afterItems, afterCounts, targetIndex));
-		if (addedItemId == null || !otherTabSectionsUnchanged(beforeItems, beforeCounts,
-			afterItems, afterCounts, tabs, targetIndex, -1))
-		{
-			return false;
-		}
-		return mainLostOnly(beforeItems, beforeCounts, afterItems, afterCounts,
-			addedItemId);
-	}
-
-	private static boolean matchesAnyTransfer(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, int sourceIndex, int targetIndex, int tabs)
-	{
-		if (sourceIndex == targetIndex || beforeCounts[sourceIndex] <= 1)
-		{
-			return false;
-		}
-		Integer removedItemId = singleRemovedItem(
-			tabSectionCounts(beforeItems, beforeCounts, sourceIndex),
-			tabSectionCounts(afterItems, afterCounts, sourceIndex));
-		Integer addedItemId = singleAddedItem(
-			tabSectionCounts(beforeItems, beforeCounts, targetIndex),
-			tabSectionCounts(afterItems, afterCounts, targetIndex));
-		return removedItemId != null && removedItemId.equals(addedItemId)
-			&& otherTabSectionsUnchanged(beforeItems, beforeCounts, afterItems, afterCounts,
-				tabs, sourceIndex, targetIndex)
-			&& mainSectionCounts(beforeItems, beforeCounts)
-				.equals(mainSectionCounts(afterItems, afterCounts));
-	}
-
-	private static boolean matchesAnyReturnToMain(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, int sourceIndex, int tabs)
-	{
-		if (beforeCounts[sourceIndex] <= 1
-			|| !otherTabSectionsUnchanged(beforeItems, beforeCounts, afterItems, afterCounts,
-				tabs, sourceIndex, -1))
-		{
-			return false;
-		}
-		Integer removedItemId = singleRemovedItem(
-			tabSectionCounts(beforeItems, beforeCounts, sourceIndex),
-			tabSectionCounts(afterItems, afterCounts, sourceIndex));
-		if (removedItemId == null)
-		{
-			return false;
-		}
-		Map<Integer, Integer> expectedMain = mainSectionCounts(beforeItems, beforeCounts);
-		expectedMain.merge(removedItemId, 1, Integer::sum);
-		return expectedMain.equals(mainSectionCounts(afterItems, afterCounts));
 	}
 
 	private static boolean matchesAnySwap(int[] beforeItems, int[] afterItems)
@@ -1087,33 +1044,6 @@ public final class TabRouteAdvisor
 		return firstSlot >= sectionStart;
 	}
 
-	private static boolean otherTabSectionsUnchanged(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, int tabs, int firstExcluded, int secondExcluded)
-	{
-		for (int index = 0; index < tabs; index++)
-		{
-			if (index != firstExcluded && index != secondExcluded
-				&& !tabSectionCounts(beforeItems, beforeCounts, index)
-					.equals(tabSectionCounts(afterItems, afterCounts, index)))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static Integer singleAddedItem(Map<Integer, Integer> before,
-		Map<Integer, Integer> after)
-	{
-		return singleCountDifference(before, after);
-	}
-
-	private static Integer singleRemovedItem(Map<Integer, Integer> before,
-		Map<Integer, Integer> after)
-	{
-		return singleCountDifference(after, before);
-	}
-
 	private static Integer singleCountDifference(Map<Integer, Integer> smaller,
 		Map<Integer, Integer> larger)
 	{
@@ -1140,21 +1070,25 @@ public final class TabRouteAdvisor
 	{
 		switch (move.getType())
 		{
+			case REORDER_TAB:
+				return matchesTabReorder(beforeItems, beforeCounts, afterItems, afterCounts,
+					move.getSourceTab(), move.getTargetTab());
 			case COLLAPSE_TAB:
 				return matchesCollapse(beforeItems, beforeCounts,
 					afterItems, afterCounts, move.getTargetTab());
 			case DRAG_TO_NEW_TAB:
 				return matchesCreate(beforeItems, beforeCounts,
-					afterItems, afterCounts, move);
+					afterItems, afterCounts, move.getItemId(), move.getTargetTab());
 			case DISTRIBUTE_TO_TAB:
-				return matchesDistribution(beforeItems, beforeCounts,
-					afterItems, afterCounts, move);
+				return matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts,
+					move.getItemId(), -1, move.getTargetTab() - 1);
 			case TRANSFER_TO_TAB:
-				return matchesTransfer(beforeItems, beforeCounts,
-					afterItems, afterCounts, move);
+				return move.getSourceTab() > 0 && move.getTargetTab() > 0
+					&& matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts,
+						move.getItemId(), move.getSourceTab() - 1, move.getTargetTab() - 1);
 			case RETURN_TO_MAIN:
-				return matchesReturnToMain(beforeItems, beforeCounts,
-					afterItems, afterCounts, move);
+				return move.getSourceTab() > 0 && matchesTabMove(beforeItems, beforeCounts,
+					afterItems, afterCounts, move.getItemId(), move.getSourceTab() - 1, -1);
 			case SWAP_SECTION:
 				return matchesSwap(beforeItems, beforeCounts,
 					afterItems, afterCounts, move);
@@ -1164,6 +1098,28 @@ public final class TabRouteAdvisor
 			default:
 				return false;
 		}
+	}
+
+	private static boolean matchesTabReorder(int[] before, int[] counts, int[] after, int[] afterCounts,
+		int source, int target)
+	{
+		int left = Math.min(source, target) - 1;
+		if (Math.abs(source - target) != 1 || left < 0 || left + 1 >= counts.length
+			|| counts.length != afterCounts.length || before.length != after.length
+			|| !hasValidSectionBounds(before, counts) || !hasValidSectionBounds(after, afterCounts)
+			|| counts[left] <= 0 || counts[left + 1] <= 0) return false;
+		for (int tab = 0; tab < counts.length; tab++)
+			if (afterCounts[tab] != counts[tab == left ? left + 1 : tab == left + 1 ? left : tab]) return false;
+		int start = sumLeadingCounts(counts, left);
+		int middle = start + counts[left];
+		int end = middle + counts[left + 1];
+		for (int slot = 0; slot < before.length; slot++)
+		{
+			int oldSlot = slot < start || slot >= end ? slot
+				: slot < start + counts[left + 1] ? middle + slot - start : slot - counts[left + 1];
+			if (after[slot] != before[oldSlot]) return false;
+		}
+		return true;
 	}
 
 	private static boolean matchesInsert(int[] beforeItems, int[] beforeCounts,
@@ -1218,9 +1174,9 @@ public final class TabRouteAdvisor
 	}
 
 	private static boolean matchesCreate(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, Move move)
+		int[] afterItems, int[] afterCounts, int itemId, int targetTab)
 	{
-		int targetIndex = move.getTargetTab() - 1;
+		int targetIndex = targetTab - 1;
 		if (!sameItemCounts(beforeItems, afterItems)
 			|| beforeCounts.length != afterCounts.length
 			|| targetIndex < 0 || targetIndex >= beforeCounts.length)
@@ -1237,19 +1193,13 @@ public final class TabRouteAdvisor
 			}
 		}
 		int afterStart = sumLeadingCounts(afterCounts, targetIndex);
-		if (afterItems[afterStart] != move.getItemId())
+		if (afterItems[afterStart] != itemId)
 		{
 			return false;
 		}
 		return lowerSectionsUnchanged(beforeItems, beforeCounts, afterItems, afterCounts,
 			targetIndex) && mainLostOnly(beforeItems, beforeCounts, afterItems, afterCounts,
-			move.getItemId());
-	}
-
-	private static boolean matchesDistribution(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, Move move)
-	{
-		return matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts, move, -1, move.getTargetTab() - 1);
+			itemId);
 	}
 
 	private static boolean matchesSwap(int[] beforeItems, int[] beforeCounts,
@@ -1269,22 +1219,8 @@ public final class TabRouteAdvisor
 		return Arrays.equals(expected, afterItems);
 	}
 
-	private static boolean matchesTransfer(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, Move move)
-	{
-		return move.getSourceTab() > 0 && move.getTargetTab() > 0
-			&& matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts, move,
-			move.getSourceTab() - 1, move.getTargetTab() - 1);
-	}
-
-	private static boolean matchesReturnToMain(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, Move move)
-	{
-		return move.getSourceTab() > 0 && matchesTabMove(beforeItems, beforeCounts, afterItems, afterCounts, move, move.getSourceTab() - 1, -1);
-	}
-
 	private static boolean matchesTabMove(int[] beforeItems, int[] beforeCounts,
-		int[] afterItems, int[] afterCounts, Move move, int source, int target)
+		int[] afterItems, int[] afterCounts, int itemId, int source, int target)
 	{
 		int tabs = leadingTabCount(beforeCounts);
 		if (!sameItemCounts(beforeItems, afterItems) || beforeCounts.length != afterCounts.length
@@ -1296,8 +1232,8 @@ public final class TabRouteAdvisor
 		{
 			Map<Integer, Integer> expected = index == tabs ? mainSectionCounts(beforeItems, beforeCounts)
 				: tabSectionCounts(beforeItems, beforeCounts, index);
-			if ((index == tabs ? source == -1 : source == index) && !decrementItemCount(expected, move.getItemId())) return false;
-			if (index == tabs ? target == -1 : target == index) expected.merge(move.getItemId(), 1, Integer::sum);
+			if ((index == tabs ? source == -1 : source == index) && !decrementItemCount(expected, itemId)) return false;
+			if (index == tabs ? target == -1 : target == index) expected.merge(itemId, 1, Integer::sum);
 			Map<Integer, Integer> actual = index == tabs ? mainSectionCounts(afterItems, afterCounts)
 				: tabSectionCounts(afterItems, afterCounts, index);
 			if (!expected.equals(actual)) return false;
@@ -1386,6 +1322,7 @@ public final class TabRouteAdvisor
 
 	public enum Phase
 	{
+		REORDERING,
 		RECOVERING,
 		REPAIRING,
 		CREATING,
@@ -1396,6 +1333,7 @@ public final class TabRouteAdvisor
 
 	public enum MoveType
 	{
+		REORDER_TAB,
 		COLLAPSE_TAB,
 		DRAG_TO_NEW_TAB,
 		DISTRIBUTE_TO_TAB,
@@ -1440,6 +1378,12 @@ public final class TabRouteAdvisor
 			this.blueprintTabNumber = blueprintTabNumber;
 			this.categoryName = Objects.requireNonNull(categoryName, "categoryName");
 			this.anchorItemId = anchorItemId;
+		}
+
+		private static Move reorderTabs(int source, int target)
+		{
+			return new Move(MoveType.REORDER_TAB, -1, "Tab " + (source + 1),
+				-1, -1, source, target, -1, "");
 		}
 
 		private static Move collapseTab(int tabNumber, TargetTab target)

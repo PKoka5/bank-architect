@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 public final class BankItemReviewEntry
 {
 	private final int itemId;
@@ -33,13 +35,4 @@ public final class BankItemReviewEntry
 		return displayName + " (#" + itemId + ") slot " + slotIndex;
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }

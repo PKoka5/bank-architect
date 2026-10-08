@@ -24,6 +24,7 @@
 1071	2	Mithril platelegs
 1073	2	Adamant platelegs
 1079	2	Rune platelegs
+1093	2	Rune plateskirt
 1095	2	Leather chaps
 1097	2	Studded chaps
 1099	2	Green d'hide chaps
@@ -312,6 +313,7 @@
 28933	5	Sunfire fanatic helm
 28936	5	Sunfire fanatic cuirass
 28939	5	Sunfire fanatic chausses
+28945	4	Echo boots
 28947	5	Dizana's quiver (uncharged)
 28951	5	Dizana's quiver
 29004	4	Eclipse moon chestplate
@@ -327,3 +329,12 @@
 29283	3	Mixed hide legs
 29286	3	Mixed hide boots
 29289	3	Mixed hide cape
+# 2026-10-08: reviewed recent melee gear; docs/testing/combat-progression-consistency-2026-10-08.md.
+29801	5	Amulet of rancour
+29804	5	Amulet of rancour (s)
+30750	5	Oathplate helm
+30753	5	Oathplate chest
+30756	5	Oathplate legs
+30777	5	Radiant oathplate helm
+30779	5	Radiant oathplate chest
+30781	5	Radiant oathplate legs

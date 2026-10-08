@@ -76,20 +76,20 @@ public final class BankAnalysisRequest
 		return layoutOptions;
 	}
 
-	/** Quantity changes may preserve established routing, but changed facts or removed slots may not. */
+	/** Additions and withdrawals preserve routing; changed previous facts or removed slots do not. */
 	boolean sameLayoutContext(BankAnalysisRequest other, BankPreset fallback)
 	{
 		if (other == null || presetOr(fallback) != other.presetOr(fallback)
 			|| !layoutPlan.serialize().equals(other.layoutPlan.serialize())
 			|| !layoutOptions.equals(other.layoutOptions)
-			|| !categoryKeysByItemId.equals(other.categoryKeysByItemId)
-			|| !gearStatsByItemId.equals(other.gearStatsByItemId)
-			|| !alchValuesByItemId.equals(other.alchValuesByItemId)) return false;
+			|| !categoryKeysByItemId.equals(other.categoryKeysByItemId)) return false;
 		Map<Integer, List<Integer>> mine = bankSnapshot.contents();
 		Map<Integer, List<Integer>> theirs = other.bankSnapshot.contents();
-		if (!mine.keySet().equals(theirs.keySet())) return false;
-		for (int id : mine.keySet())
-			if (mine.get(id).size() != theirs.get(id).size()) return false;
+		if (!mine.keySet().containsAll(theirs.keySet())) return false;
+		for (int id : theirs.keySet())
+			if (mine.get(id).size() != theirs.get(id).size()
+				|| !Objects.equals(gearStatsByItemId.get(id), other.gearStatsByItemId.get(id))
+				|| !Objects.equals(alchValuesByItemId.get(id), other.alchValuesByItemId.get(id))) return false;
 		return true;
 	}
 

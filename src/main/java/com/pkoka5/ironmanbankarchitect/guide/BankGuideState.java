@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import java.util.Objects;
 
 public final class BankGuideState
@@ -56,13 +58,4 @@ public final class BankGuideState
 		return Objects.hash(selectedBlockKey, guideEnabled);
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }

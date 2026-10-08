@@ -132,18 +132,18 @@ The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.9.1 release record](release-0.9.1.md) documents the final test results,
-owner-confirmed live test, jar checksum, changed file scope and calibrated
-review-token estimates. Local estimates are not the official Plugin Hub count.
+The [0.9.2 release record](release-0.9.2.md) documents final tests, outstanding live
+checks, jar checksum, changed scope and calibrated review-token estimates.
+Local estimates are not the official Plugin Hub count.
 
-Version 0.9.1 retains already-established Alch destinations through quantity-only
-withdrawals when logical slot multiplicities, all captured facts and layout choices
-remain unchanged. It does not count a fresh placeholder as an owned upgrade.
-Only a generation-current successful analysis commits this session history;
-invalidation and shutdown clear it. The dated
-[placeholder review](testing/placeholder-gear-stability-2026-10-08.md) covers lifecycle
-and scope. The obsolete dense-only advisor was removed; live guidance continues
-to use the tab-aware advisor and its existing fail-closed checks.
+Version 0.9.2 keeps established session Alch decisions when IDs are added and
+existing facts/choices remain compatible. Fresh armour placeholders can supply
+only a higher exact curated tier in the same style/slot for reviewed stock;
+other replacement rules retain real-ownership requirements. Only a
+generation-current successful analysis commits session history; invalidation and
+shutdown clear it. The [fresh-placeholder review](testing/placeholder-armour-alch-2026-10-08.md)
+covers policy and regressions. Live guidance remains manual and validates
+observed transitions, including adjacent whole-tab moves.
 
 The [classification audit](research/final-placement-audit-2026-10-06.md) records
 exact-ID corrections, independent reference coverage and deliberately reviewed

@@ -129,7 +129,7 @@ public class AlchReplacementFamiliesTest
 	}
 
 	@Test
-	public void placeholdersNeverSupplyAutomaticReplacementProof()
+	public void placeholderRoleReplacementsDoNotSupplyAutomaticProof()
 	{
 		for (int[] pair : REPLACED_PAIRS)
 		{

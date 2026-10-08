@@ -2992,3 +2992,6 @@
 # Functional special-attack weapon, not a skilling resource.
 # https://oldschool.runescape.wiki/w/Dragon_battleaxe
 1377	GEAR	weapon	Dragon battleaxe
+# Reviewed recent melee gear: docs/testing/combat-progression-consistency-2026-10-08.md.
+30753	GEAR	body	Oathplate chest: functional melee body armour
+30779	GEAR	body	Radiant oathplate chest: cosmetic appearance of functional Oathplate armour

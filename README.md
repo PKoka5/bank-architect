@@ -17,9 +17,10 @@ Alch rules: replaced gear and tools can move to Alch, while best-owned tools,
 staff rune supply and your personal corrections remain protected.
 
 Taking out gear while leaving its placeholders preserves established Gear/Alch
-placement during the same RuneLite session when the item slots and preferences
-remain the same. A fresh session or changed items/settings recalculates the plan;
-empty placeholders alone cannot establish a new Alch replacement. Use a saved
+placement during the same RuneLite session, including when new items are deposited.
+Reviewed armour can also use a higher-tier placeholder of the same combat style
+and equipment slot after restarting. Other replacement rules require real bank
+items; changed existing facts or preferences trigger reassessment. Use a saved
 current-bank blueprint to preserve your chosen arrangement across restarts.
 
 ## Installation
@@ -47,8 +48,9 @@ Bank Architect has no separate installer, account, or external service.
    search and bank-tag filters. Either rearrange mode works; **Insert** mode
    usually needs fewer drags than **Swap** and the guide reports both counts.
 4. **Follow manual guidance:** select **Sorting Guide**. The overlay describes
-   one supported manual tab or item move at a time. You perform every collapse,
-   drag, swap, and drop yourself.
+   one supported manual tab or item move at a time. Where suitable, it suggests
+   moving neighboring tabs as a whole to preserve their contents. You perform
+   every collapse, drag, swap, and drop yourself.
 5. **Finish sorting:** the guide re-reads the bank after each manual action and
    advances only when the observed state is safe and consistent with the plan.
 

@@ -20,8 +20,10 @@ final class GearItemSorter
 	private static final int STYLE_OTHER = 4;
 	private static final int[] SETUP_STYLES = {STYLE_MELEE, STYLE_RANGED, STYLE_MAGIC, STYLE_PRAYER};
 	private static final int[] SETUP_SLOTS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-	private static final int[] NAME_STYLE_GROUPS = {61, 62, 60, 59};
-	private static final int[] NAME_STYLES = {STYLE_RANGED, STYLE_MAGIC, STYLE_MELEE, STYLE_PRAYER};
+	private static final int[] NAME_STYLE_GROUPS = {59, 61, 62, 60};
+	private static final int[] NAME_STYLES = {STYLE_PRAYER, STYLE_RANGED, STYLE_MAGIC, STYLE_MELEE};
+	private static final List<String> CATALOG_SLOTS = Arrays.asList(
+		"head", "body", "legs", "cape", "neck", "shield", "hands", "feet", "weapon", "ammo", "ring");
 
 	// Must match the popup grid width; only full rows keep the set columns
 	// aligned once the real bank compacts everything.
@@ -518,7 +520,15 @@ final class GearItemSorter
 			return stats.get().slotRank();
 		}
 
-		return slotRank(normalized(item.getDisplayName()));
+		String name = normalized(item.getDisplayName());
+		int slot = CATALOG_SLOTS.indexOf(item.getSubcategory());
+		if (slot < 0) return slotRank(name);
+		if (slot == 8)
+		{
+			int style = styleRank(name);
+			return style <= STYLE_MAGIC ? 8 + style : 8;
+		}
+		return slot < 8 ? slot : slot + 2;
 	}
 
 	private static int styleRankOf(BankPreviewItem item, GearStatsSource gearStats)
@@ -547,7 +557,7 @@ final class GearItemSorter
 	private static int slotRank(String name)
 	{
 		for (int slot = 0; slot < 12; slot++)
-			if (slot == 7 ? name.contains("boots")
+			if (slot == 7 ? containsAny(name, "boots", "sandals", "shoes", "flippers", "manacles", "treads")
 				: containsAny(name, ClassificationNames.group(48 + slot - (slot > 7 ? 1 : 0)))) return slot;
 		return 12;
 	}
@@ -559,8 +569,7 @@ final class GearItemSorter
 		return STYLE_OTHER;
 	}
 
-	// Tier 1 (Starter) through tier 5 (End); keeps curated tiers within the pre-existing
-	// 0-1000 name-heuristic scale so an untiered item's fallback score stays comparable.
+	// Exact metadata and name fallbacks use the same five progression stages.
 	private static final int GEAR_TIER_SCORE_STEP = 200;
 
 	private static int gearScore(BankPreviewItem item)
@@ -575,18 +584,18 @@ final class GearItemSorter
 		String name = normalized(item.getDisplayName());
 		int score = 0;
 		score = Math.max(score, scoreIfContains(name, 1000, "torva", "ancestral", "masori", "tumeken", "twisted bow",
-			"scythe", "shadow"));
-		score = Math.max(score, scoreIfContains(name, 900, "bandos", "armadyl", "ahrim", "karil", "zaryte",
-			"crystal", "bowfa", "bow of faerdhinen", "toxic blowpipe", "trident", "occult", "primordial",
-			"pegasian", "eternal"));
-		score = Math.max(score, scoreIfContains(name, 800, "barrows", "fighter torso", "serpentine",
-			"faceguard", "dragonfire", "abyssal", "whip", "tentacle", "dragon defender", "rune defender",
-			"blessed d'hide", "god d'hide", "malediction", "odium", "toxic"));
-		score = Math.max(score, scoreIfContains(name, 700, "dragon", "black d'hide", "mystic", "infinity",
-			"rune crossbow", "magic shortbow", "book of darkness", "tome"));
-		score = Math.max(score, scoreIfContains(name, 600, "rune", "red d'hide", "blue d'hide", "green d'hide",
-			"splitbark", "xerician"));
-		score = Math.max(score, scoreIfContains(name, 500, "adamant", "mithril", "leather", "wizard"));
+			"scythe", "shadow", "zaryte", "occult", "primordial", "pegasian", "eternal", "oathplate", "rancour"));
+		score = Math.max(score, scoreIfContains(name, 800, "bandos", "armadyl", "ahrim", "karil",
+			"crystal", "bowfa", "bow of faerdhinen", "toxic blowpipe", "trident", "barrows", "serpentine",
+			"faceguard", "dragonfire", "abyssal", "whip", "tentacle", "dragon defender",
+			"blessed d'hide", "god d'hide", "malediction", "odium", "toxic", "echo boots"));
+		score = Math.max(score, scoreIfContains(name, 600, "dragon", "black d'hide", "red d'hide", "infinity", "fighter torso",
+			"rune crossbow", "rune defender", "magic shortbow", "book of darkness", "tome"));
+		score = Math.max(score, scoreIfContains(name, 400, "rune", "blue d'hide", "green d'hide",
+			"splitbark", "xerician", "adamant", "mithril", "iron", "steel",
+			"leather", "mystic", "wizard boots"));
+		score = Math.max(score, scoreIfContains(name, 600, "mystic boots"));
+		score = Math.max(score, scoreIfContains(name, 200, "wizard"));
 		return score;
 	}
 

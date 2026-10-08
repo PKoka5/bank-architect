@@ -135,7 +135,7 @@ public final class RandomBankSimulationRunner
 		{
 			writer.write("seed\tscenario\titemCount\tplanTabs\toutcome\tfinalStatus"
 				+ "\ttotalMoves\tswaps\tminSwapsAtSortStart\tcollapses\tcreates"
-				+ "\tdistributes\ttransfers\treturns\terror");
+				+ "\tdistributes\ttransfers\treturns\ttabReorders\terror");
 			writer.newLine();
 			for (SimulationResult result : results)
 			{
@@ -153,6 +153,7 @@ public final class RandomBankSimulationRunner
 					+ "\t" + result.getMoveCounts().getOrDefault(MoveType.DISTRIBUTE_TO_TAB, 0)
 					+ "\t" + result.getMoveCounts().getOrDefault(MoveType.TRANSFER_TO_TAB, 0)
 					+ "\t" + result.getMoveCounts().getOrDefault(MoveType.RETURN_TO_MAIN, 0)
+					+ "\t" + result.getMoveCounts().getOrDefault(MoveType.REORDER_TAB, 0)
 					+ "\t" + result.getErrorMessage().replace('\t', ' '));
 				writer.newLine();
 			}

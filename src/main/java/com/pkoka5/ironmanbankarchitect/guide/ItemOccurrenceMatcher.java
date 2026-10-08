@@ -41,38 +41,8 @@ final class ItemOccurrenceMatcher
 			}
 		}
 
-		Map<Integer, ArrayDeque<Integer>> remainingTargetsByItemId = new HashMap<>();
-		for (int offset = 0; offset < size; offset++)
-		{
-			if (!assignedTarget[offset])
-			{
-				remainingTargetsByItemId.computeIfAbsent(targetItems.get(offset).getItemId(),
-					ignored -> new ArrayDeque<>()).addLast(offset);
-			}
-		}
-
-		for (int offset = 0; offset < size; offset++)
-		{
-			if (assignedCurrent[offset])
-			{
-				continue;
-			}
-			ArrayDeque<Integer> targets = remainingTargetsByItemId.get(
-				actualItemIds[sectionStart + offset]);
-			if (targets == null || targets.isEmpty())
-			{
-				return null;
-			}
-			targetOffsets[offset] = targets.removeFirst();
-		}
-		for (ArrayDeque<Integer> targets : remainingTargetsByItemId.values())
-		{
-			if (!targets.isEmpty())
-			{
-				return null;
-			}
-		}
-		return targetOffsets;
+		return fillRemainingOffsets(actualItemIds, sectionStart, targetItems,
+			targetOffsets, assignedCurrent, assignedTarget);
 	}
 
 	/**
@@ -89,6 +59,8 @@ final class ItemOccurrenceMatcher
 			return null;
 		}
 
+		if (targetItems.stream().map(BankPreviewItem::getItemId).distinct().count() == size)
+			return targetOffsets(actualItemIds, sectionStart, targetItems);
 		int[][] commonSuffixLengths = new int[size + 1][size + 1];
 		for (int current = size - 1; current >= 0; current--)
 		{
@@ -136,6 +108,15 @@ final class ItemOccurrenceMatcher
 			}
 		}
 
+		return fillRemainingOffsets(actualItemIds, sectionStart, targetItems,
+			targetOffsets, assignedCurrent, assignedTarget);
+	}
+
+	private static int[] fillRemainingOffsets(int[] actualItemIds, int sectionStart,
+		List<BankPreviewItem> targetItems, int[] targetOffsets,
+		boolean[] assignedCurrent, boolean[] assignedTarget)
+	{
+		int size = targetItems.size();
 		Map<Integer, ArrayDeque<Integer>> targetsByItemId = new HashMap<>();
 		for (int offset = 0; offset < size; offset++)
 		{

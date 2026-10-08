@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import java.util.*;
 
 
@@ -87,13 +89,4 @@ public final class CatalogItem
 		return Optional.ofNullable(workflowKey);
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }

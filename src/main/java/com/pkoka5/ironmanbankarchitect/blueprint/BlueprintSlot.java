@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.blueprint;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import java.util.Objects;
 
 public final class BlueprintSlot
@@ -50,13 +52,4 @@ public final class BlueprintSlot
 		return kind;
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }

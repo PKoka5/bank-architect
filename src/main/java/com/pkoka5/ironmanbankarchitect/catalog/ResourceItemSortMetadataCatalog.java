@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import java.io.*;
 // Used only to validate the shape of source-attribution strings in a bundled
 // manifest. This class opens no connection; the plugin makes no network calls.
@@ -249,14 +251,6 @@ public final class ResourceItemSortMetadataCatalog implements ItemSortMetadataCa
 		}
 	}
 
-	private static String requireText(String value, String field)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(field + " must not be blank");
-		}
-		return value;
-	}
 
 	private static IllegalStateException invalid(boolean source, String message, int lineNumber, Throwable cause)
 	{

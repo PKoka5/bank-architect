@@ -176,15 +176,16 @@ public class MainAlchRoutingTest
 	}
 
 	@Test
-	public void placeholderUpgradeIsNotAnOwnedReplacement()
+	public void curatedArmourPlaceholderGuidesReviewedStockWithoutOwningTheReplacement()
 	{
 		Map<Integer, GearStats> stats = replacementStats();
 		BankSnapshot bank = new BankSnapshot(Arrays.asList(new BankItemSnapshot(RUNE_BODY, 25, 0),
 			new BankItemSnapshot(BANDOS_BODY, 0, 1, true)));
 		BankOrganizationPreview preview = build(bank, PLAIN_GEAR, stats);
 
-		assertAt(preview, "gear", RUNE_BODY, BANDOS_BODY);
-		assertEquals(0, alchCount(preview));
+		assertAt(preview, "alch", RUNE_BODY);
+		assertAt(preview, "gear", BANDOS_BODY);
+		assertEquals(1, alchCount(preview));
 		assertTrue(item(preview, BANDOS_BODY).isPlaceholder());
 	}
 

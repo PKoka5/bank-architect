@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.9.1'
+version = '0.9.2'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
@@ -99,10 +99,11 @@ tasks.register('verifySimulationBaselines') {
 	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
 	doLast {
 		def expected = [
-			'report.tsv': '9f0a248876b46bdd4e14d88b367b7d7cc3e0bb2c24540272ff6df3190e69ccc7',
+			// Reviewed tab reorder/report schema: docs/testing/guidance-efficiency-2026-10-08.md.
+			'report.tsv': '0eaf605942c45776532344818621adc45369dd62c8f642bec856bdbe42dff941',
 			'cleanup-review.tsv': 'd55c89a746edd3053c7e2634da8cd1bc1d59056350358348b56f8c53834722f6',
-			'aggregate/cleanup-review.tsv': '8b22ce5274e8071383a976cf3ed41311f2a5c2469a6771b0d0e85075ff5a751d',
-			'aggregate/metadata.tsv': 'faba20b31280a04c092bae3426380116c91d46a652f45359e85047f429d657f3'
+			'aggregate/cleanup-review.tsv': 'ef5c3cc48e015a2c7aacfb5fd9741deda22c493f08470729825678b21375fe8b',
+			'aggregate/metadata.tsv': 'a1d69819db12c07ecf00ee6d3e018a666ffd3d551527cae4b9d1711ca0555f5e'
 		]
 		def customParameters = ['simBanks', 'simSeed', 'simMinItems', 'simMaxItems', 'simOutput', 'aggregateOutput']
 		if (customParameters.any { project.hasProperty(it) }) {

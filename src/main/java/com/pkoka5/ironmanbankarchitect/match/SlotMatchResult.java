@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.match;
 
+import static com.pkoka5.ironmanbankarchitect.util.TextValidation.requireText;
+
 import java.util.Objects;
 
 public final class SlotMatchResult
@@ -44,13 +46,4 @@ public final class SlotMatchResult
 		return quantity;
 	}
 
-	private static String requireText(String value, String name)
-	{
-		if (value == null || value.trim().isEmpty())
-		{
-			throw new IllegalArgumentException(name + " must not be blank");
-		}
-
-		return value;
-	}
 }
