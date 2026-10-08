@@ -230,11 +230,13 @@ public class PresetCategoryMapperTest
 			assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.IRONMAN,
 				item(itemId, ItemCategory.RUNE, "RC tool")).getKey());
 		}
-		for (int itemId : new int[] {6183, 6529, 6306, 12012, 25527, 21555})
+		for (int itemId : new int[] {6529, 6306, 12012, 25527, 21555})
 		{
-			assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
-				item(itemId, ItemCategory.CURRENCY, "Activity reward")).getKey());
+			assertEquals("currency-utilities", PresetCategoryMapper.map(BankPresets.IRONMAN,
+				item(itemId, ItemCategory.CURRENCY, "Activity currency")).getKey());
 		}
+		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.IRONMAN,
+			item(6183, ItemCategory.CURRENCY, "Frog token")).getKey());
 	}
 
 	@Test

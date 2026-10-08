@@ -25,6 +25,8 @@ public final class BankAnalysis implements AutoCloseable
 
 	private long currentRequestGeneration;
 	private boolean closed;
+	private BankAnalysisRequest successfulRequest;
+	private Map<Integer, String> establishedAlch = Collections.emptyMap();
 
 	public BankAnalysis(Executor clientExecutor, Executor analysisExecutor,
 		Supplier<Optional<BankAnalysisRequest>> bankAnalysisRequest,
@@ -98,14 +100,32 @@ public final class BankAnalysis implements AutoCloseable
 			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
 				analysisRequest.bankSnapshot(), itemCatalog, analysisRequest.presetOr(bankPreset),
 				analysisRequest::gearStats, analysisRequest::alchValue,
-				analysisRequest::categoryKey, analysisRequest.layoutPlan(),
+				retainedCategories(analysisRequest), analysisRequest.layoutPlan(),
 				analysisRequest.layoutOptions());
-			publishAnalysisIfLatest(requestGeneration, BankAnalysisStatus.success(summary, preview));
+			synchronized (this)
+			{
+				if (!isLatestRequest(requestGeneration)) return;
+				successfulRequest = analysisRequest;
+				establishedAlch = new HashMap<>();
+				for (BankPreviewItem item : preview.getPlannedItems())
+					if ("alch".equals(item.getLayoutTagKey())) establishedAlch.put(item.getItemId(), "alch");
+				publishAnalysisIfLatest(requestGeneration, BankAnalysisStatus.success(summary, preview));
+			}
 		}
 		catch (RuntimeException ex)
 		{
 			publishFailure(requestGeneration, ex);
 		}
+	}
+
+	private synchronized CategoryOverrideSource retainedCategories(BankAnalysisRequest request)
+	{
+		Map<Integer, String> retained = new HashMap<>(request.sameLayoutContext(successfulRequest, bankPreset)
+			&& request.bankSnapshot().getItems().stream().anyMatch(item -> item.isPlaceholder())
+			? establishedAlch : Collections.emptyMap());
+		retained.keySet().removeIf(id -> request.bankSnapshot().getTotalQuantity(id) > 0
+			&& request.bankSnapshot().getTotalQuantity(id) != successfulRequest.bankSnapshot().getTotalQuantity(id));
+		return id -> request.categoryKey(id).isPresent() ? request.categoryKey(id) : Optional.ofNullable(retained.get(id));
 	}
 
 	private void publishFailure(long requestGeneration, RuntimeException failure)
@@ -134,12 +154,16 @@ public final class BankAnalysis implements AutoCloseable
 	public synchronized void close()
 	{
 		closed = true;
+		successfulRequest = null;
+		establishedAlch = Collections.emptyMap();
 		currentRequestGeneration++;
 	}
 
 	public synchronized void invalidate()
 	{
 		if (closed) return;
+		successfulRequest = null;
+		establishedAlch = Collections.emptyMap();
 		currentRequestGeneration++;
 		statusPublisher.accept(BankAnalysisStatus.notStarted());
 	}

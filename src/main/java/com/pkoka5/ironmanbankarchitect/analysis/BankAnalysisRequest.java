@@ -76,6 +76,23 @@ public final class BankAnalysisRequest
 		return layoutOptions;
 	}
 
+	/** Quantity changes may preserve established routing, but changed facts or removed slots may not. */
+	boolean sameLayoutContext(BankAnalysisRequest other, BankPreset fallback)
+	{
+		if (other == null || presetOr(fallback) != other.presetOr(fallback)
+			|| !layoutPlan.serialize().equals(other.layoutPlan.serialize())
+			|| !layoutOptions.equals(other.layoutOptions)
+			|| !categoryKeysByItemId.equals(other.categoryKeysByItemId)
+			|| !gearStatsByItemId.equals(other.gearStatsByItemId)
+			|| !alchValuesByItemId.equals(other.alchValuesByItemId)) return false;
+		Map<Integer, List<Integer>> mine = bankSnapshot.contents();
+		Map<Integer, List<Integer>> theirs = other.bankSnapshot.contents();
+		if (!mine.keySet().equals(theirs.keySet())) return false;
+		for (int id : mine.keySet())
+			if (mine.get(id).size() != theirs.get(id).size()) return false;
+		return true;
+	}
+
 	private static <K, V> Map<K, V> immutableCopy(Map<K, V> source, String name)
 	{
 		return Collections.unmodifiableMap(new LinkedHashMap<>(Objects.requireNonNull(source, name)));

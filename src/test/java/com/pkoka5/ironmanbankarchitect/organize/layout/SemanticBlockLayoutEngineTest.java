@@ -6,7 +6,11 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor;
+import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
+import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
+import com.pkoka5.ironmanbankarchitect.organize.BankCategoryPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,11 +104,16 @@ public class SemanticBlockLayoutEngineTest
 		LayoutRequest request = request(entry(10, 0), entry(20, 1), entry(30, 2));
 		LayoutResult result = engine.plan(request, Arrays.asList(20, 10, 30));
 		List<BankPreviewItem> plannedItems = plannedItems(result);
+		List<BankCategoryPreview> categories = new ArrayList<>();
+		BankPresets.IRONMAN.getCategories().forEach(category -> categories.add(
+			new BankCategoryPreview(category, categories.isEmpty() ? plannedItems : Collections.emptyList())));
+		BankTabPlan plan = BankTabPlan.fromPreview(new BankOrganizationPreview(BankPresets.IRONMAN, categories));
+		int[] counts = new int[TabRouteAdvisor.MAX_TABS];
 
-		assertEquals(NextMoveAdvisor.Status.COMPLETE,
-			NextMoveAdvisor.assess(new int[]{20, 10, 30}, plannedItems).getStatus());
-		assertEquals(NextMoveAdvisor.Status.READY,
-			NextMoveAdvisor.assess(new int[]{10, 20, 30}, plannedItems).getStatus());
+		assertEquals(TabRouteAdvisor.Status.COMPLETE,
+			TabRouteAdvisor.assess(new int[]{20, 10, 30}, plan, counts).getStatus());
+		assertEquals(TabRouteAdvisor.Status.READY,
+			TabRouteAdvisor.assess(new int[]{10, 20, 30}, plan, counts).getStatus());
 	}
 
 	private static LayoutRequest request(LayoutEntry... entries)

@@ -177,4 +177,20 @@ public final class BankLayoutOptions
 	{
 		return teleportOrder;
 	}
+
+	private List<?> state()
+	{
+		return Arrays.asList(fillGearRows, fillHerbloreRows, alchPile, tabOrders, gearLayout,
+			potionDoses, runeOrder, teleportOrder, gatherFrequentlyUsed, blockArrangements,
+			itemOrders.serialize());
+	}
+
+	@Override
+	public boolean equals(Object other)
+	{
+		return other instanceof BankLayoutOptions && state().equals(((BankLayoutOptions) other).state());
+	}
+
+	@Override
+	public int hashCode() { return state().hashCode(); }
 }

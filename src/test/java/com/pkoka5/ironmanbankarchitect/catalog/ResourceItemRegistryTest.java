@@ -1901,8 +1901,8 @@ public class ResourceItemRegistryTest
 		assertSubcategory(23962, "resource");
 		assertCategory(22586, "Looting bag", ItemCategory.TOOL);
 		assertSubcategory(22586, "utility-container");
-		assertCategory(22947, "Rada's blessing 4", ItemCategory.CURRENCY);
-		assertSubcategory(22947, "currency");
+		assertCategory(22947, "Rada's blessing 4", ItemCategory.TELEPORT);
+		assertSubcategory(22947, "teleport");
 		assertCategory(995, "Coins", ItemCategory.CURRENCY);
 		assertSubcategory(995, "currency");
 	}

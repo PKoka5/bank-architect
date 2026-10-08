@@ -12,7 +12,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.ItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankTabPlan;
-import com.pkoka5.ironmanbankarchitect.guide.NextMoveAdvisor;
+import com.pkoka5.ironmanbankarchitect.guide.TabRouteAdvisor;
 import com.pkoka5.ironmanbankarchitect.organize.layout.LayoutEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -317,16 +317,18 @@ public class BankOrganizationPreviewBuilderTest
 			assertFalse(item.isBlank());
 		}
 
-		List<BankPreviewItem> flattened = BankTabPlan.fromPreview(preview).getFlattenedItems();
+		BankTabPlan plan = BankTabPlan.fromPreview(preview);
+		List<BankPreviewItem> flattened = plan.getFlattenedItems();
 		assertEquals(expected, itemIds(flattened));
 		int[] actual = itemIdArray(flattened);
-		assertEquals(NextMoveAdvisor.Status.COMPLETE,
-			NextMoveAdvisor.assess(actual, flattened).getStatus());
+		int[] counts = targetTabCounts(plan);
+		assertEquals(TabRouteAdvisor.Status.COMPLETE,
+			TabRouteAdvisor.assess(actual, plan, counts).getStatus());
 		int first = actual[0];
 		actual[0] = actual[1];
 		actual[1] = first;
-		assertEquals(NextMoveAdvisor.Status.READY,
-			NextMoveAdvisor.assess(actual, flattened).getStatus());
+		assertEquals(TabRouteAdvisor.Status.READY,
+			TabRouteAdvisor.assess(actual, plan, counts).getStatus());
 	}
 
 	@Test
@@ -980,17 +982,27 @@ public class BankOrganizationPreviewBuilderTest
 				assertFalse(item.isBlank());
 			}
 
-			List<BankPreviewItem> flattened = BankTabPlan.fromPreview(preview).getFlattenedItems();
+			BankTabPlan plan = BankTabPlan.fromPreview(preview);
+			List<BankPreviewItem> flattened = plan.getFlattenedItems();
 			assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(itemIds(flattened)));
 			int[] actual = itemIdArray(flattened);
-			assertEquals(NextMoveAdvisor.Status.COMPLETE,
-				NextMoveAdvisor.assess(actual, flattened).getStatus());
+			int[] counts = targetTabCounts(plan);
+			assertEquals(TabRouteAdvisor.Status.COMPLETE,
+				TabRouteAdvisor.assess(actual, plan, counts).getStatus());
 			int first = actual[0];
 			actual[0] = actual[1];
 			actual[1] = first;
-			assertEquals(NextMoveAdvisor.Status.READY,
-				NextMoveAdvisor.assess(actual, flattened).getStatus());
+			assertEquals(TabRouteAdvisor.Status.READY,
+				TabRouteAdvisor.assess(actual, plan, counts).getStatus());
 		}
+	}
+
+	private static int[] targetTabCounts(BankTabPlan plan)
+	{
+		int[] counts = new int[TabRouteAdvisor.MAX_TABS];
+		for (BankTabPlan.TargetTab tab : plan.getNumberedTabs())
+			counts[tab.getBankTabNumber() - 1] = tab.getItems().size();
+		return counts;
 	}
 
 	@Test

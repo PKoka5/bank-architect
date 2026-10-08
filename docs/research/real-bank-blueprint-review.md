@@ -2,6 +2,11 @@
 
 Date: 2026-07-19
 
+Policy update, 2026-10-06: the maintainer requested all spendable currencies to use
+Currency. Golden nugget, Numulite, Stardust, Tokkul and Trading sticks no longer
+use the historical Clues & Cosmetics split described below; Frog token retains
+its cosmetic reward destination. See [the current routing review](../testing/currency-utility-routing-2026-10-06.md).
+
 ## Source and context
 
 The maintainer generated a blueprint export ("Copy Blueprint Export") of a real 770-item Ironman

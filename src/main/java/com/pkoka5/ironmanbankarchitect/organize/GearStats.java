@@ -89,6 +89,21 @@ public final class GearStats
 		return comparable;
 	}
 
+	@Override
+	public boolean equals(Object other)
+	{
+		if (!(other instanceof GearStats)) return false;
+		GearStats stats = (GearStats) other;
+		return slot == stats.slot && comparable == stats.comparable && defenceSum == stats.defenceSum
+			&& java.util.Arrays.equals(comparisonVector(), stats.comparisonVector());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(slot, comparable, defenceSum, java.util.Arrays.hashCode(comparisonVector()));
+	}
+
 	/**
 	 * Pareto dominance: this item is beaten outright when {@code other} is at
 	 * least equal on every stat and strictly better on at least one.

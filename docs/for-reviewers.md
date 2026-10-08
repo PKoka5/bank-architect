@@ -125,13 +125,29 @@ The destination-colour overlay only draws and therefore has no such gates.
 ./gradlew test                # full unit suite
 ./gradlew simulateRandomBanks # 150 generated banks, all reach a complete plan
 ./gradlew aggregateCleanupReview
-./gradlew build --offline      # full suite and unchanged simulation baselines
+./gradlew build --offline      # full suite and reviewed simulation baselines
 ```
 
 The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.8.1 release record](release-0.8.1.md) documents the final test results,
+The [0.9.1 release record](release-0.9.1.md) documents the final test results,
 owner-confirmed live test, jar checksum, changed file scope and calibrated
 review-token estimates. Local estimates are not the official Plugin Hub count.
+
+Version 0.9.1 retains already-established Alch destinations through quantity-only
+withdrawals when logical slot multiplicities, all captured facts and layout choices
+remain unchanged. It does not count a fresh placeholder as an owned upgrade.
+Only a generation-current successful analysis commits this session history;
+invalidation and shutdown clear it. The dated
+[placeholder review](testing/placeholder-gear-stability-2026-10-08.md) covers lifecycle
+and scope. The obsolete dense-only advisor was removed; live guidance continues
+to use the tab-aware advisor and its existing fail-closed checks.
+
+The [classification audit](research/final-placement-audit-2026-10-06.md) records
+exact-ID corrections, independent reference coverage and deliberately reviewed
+simulation report changes. New exporters and update-tracking tools run only during
+development, have no runtime entry point, and are excluded from the plugin jar.
+Unregistered items cannot enter automatic Alch merely from stats, value or quantity;
+explicit player assignments retain their normal priority.

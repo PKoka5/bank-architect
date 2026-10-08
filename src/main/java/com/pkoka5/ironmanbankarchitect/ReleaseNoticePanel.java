@@ -15,7 +15,7 @@ import javax.swing.*;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.9.0";
+	static final String RELEASE_ID = "0.9.1";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -39,16 +39,14 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Main and custom presets</h3>"
-			+ "<p>Choose Ironman or Main at the top of the sidebar. Main groups runes and teleports, "
-			+ "potions from 4 to 1 doses, and herbs by stage. Editing a layout creates a custom preset; "
-			+ "the bundled presets keep their defaults.</p>"
-			+ "<h3>Smarter Alch sorting</h3>"
-			+ "<p>Both presets gather reviewed gear and tools when you own a replacement, plus spare standard "
-			+ "Mystic colours. Staffs keep their rune supply. Dragon halberds count as Alch stock. "
-			+ "Your own item choices still win.</p>"
-			+ "<p>Cannon parts stay together, Spiked boots go to Quest Items, and heraldic Rune helms go to Clues.</p>"
-			+ "<p>In Blueprint, Keep current order accepts a tab's live order while guiding transfers.</p>"
+			+ "<h3>Stable gear placeholders</h3>"
+			+ "<p>Taking out gear with placeholders keeps your established layout during this RuneLite session. "
+			+ "Adding or removing bank slots, or changing preferences, recalculates it. "
+			+ "Empty placeholders do not create new Alch decisions.</p>"
+			+ "<h3>Corrected item placement</h3>"
+			+ "<p>Activity currencies and several diary rewards, tools, quest items and cosmetics now use "
+			+ "corrected tags. Unclassified items stay out of automatic Alch suggestions.</p>"
+			+ "<p>Your corrections and saved bank blueprints still take priority.</p>"
 			+ "<p>You still move every real bank item yourself.</p></div></html>");
 		notes.setForeground(Color.WHITE);
 		notes.setVerticalAlignment(JLabel.TOP);

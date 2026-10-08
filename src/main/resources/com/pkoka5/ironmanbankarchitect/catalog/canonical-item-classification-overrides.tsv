@@ -35,6 +35,54 @@
 6111	GEAR	cape	Ghostly cloak
 # Exact item-ID classification overrides, one row per item:
 #   itemId	category	subcategory	[note]
+# Reddit feedback: Vale Totems reward tokens belong with currency.
+# Source: https://oldschool.runescape.wiki/w/Offerings
+31054	CURRENCY	currency	Vale offerings: bankable Vale Totems rewards
+# Currency/utility policy correction, 2026-10-06: classify function separately from bank placement.
+# Sources: https://oldschool.runescape.wiki/w/Rada%27s_blessing
+# https://oldschool.runescape.wiki/w/Ghommal%27s_hilt
+# https://oldschool.runescape.wiki/w/Western_banner
+22941	TELEPORT	teleport	Rada's blessing 1
+22943	TELEPORT	teleport	Rada's blessing 2
+22945	TELEPORT	teleport	Rada's blessing 3
+22947	TELEPORT	teleport	Rada's blessing 4
+25926	TELEPORT	teleport	Ghommal's hilt 1
+25928	TELEPORT	teleport	Ghommal's hilt 2
+25930	TELEPORT	teleport	Ghommal's hilt 3
+25932	TELEPORT	teleport	Ghommal's hilt 4
+25934	TELEPORT	teleport	Ghommal's hilt 5
+25936	TELEPORT	teleport	Ghommal's hilt 6
+13141	TOOL	achievement-utility	Western banner 1: no teleport
+13142	TOOL	achievement-utility	Western banner 2: no teleport
+13143	TELEPORT	teleport	Western banner 3
+13144	TELEPORT	teleport	Western banner 4
+# Independent final-placement audit, 2026-10-06. Exact identities: Wiki snapshot 2026-07-15.
+# Indexed roles checked 2026-10-06; direct item pages unavailable. See reviewed-item-roles.tsv in test resources.
+# Sources: https://oldschool.runescape.wiki/w/Hitpoints_cape
+# https://oldschool.runescape.wiki/w/Ring#Transformation_rings
+# https://oldschool.runescape.wiki/w/Alry_the_Angler%27s_Angling_Accessories?oldid=14893175
+# https://oldschool.runescape.wiki/w/Hallowed_token?oldid=15189742
+# https://oldschool.runescape.wiki/w/Update%3AForestry%3A_The_Way_of_the_Forester_-_Part_One
+# https://oldschool.runescape.wiki/w/Transcript%3AMountain_Daughter
+9768	GEAR	cape	Hitpoints cape: functional equipment, not currency
+9769	GEAR	cape	Hitpoints cape(t): same functional equipment role
+20017	CLUE	cosmetic	Ring of coins: cosmetic transformation, not spendable coins
+22842	TOOL	fishing-tool	Pearl barbarian rod: fishing implement, not raw material
+24719	TOOL	skilling-utility	Hallowed token: Agility time consumable, not Hallowed mark currency
+28152	SKILLING	woodcutting-supply	Nature offerings: Woodcutting enhancer, not combat equipment
+4485	CLEANUP	quest-item	White pearl: Mountain Daughter fruit; quest review, no disposal inference
+# Diary tiers are separate functions, not identical names with another number.
+# Sources: https://oldschool.runescape.wiki/w/Achievement_Diary/Rewards#Wilderness
+# https://oldschool.runescape.wiki/w/Template%3ATeleportation_items
+# https://oldschool.runescape.wiki/w/Transcript%3AThe_%27Wedge%27
+# Echo pearl: https://oldschool.runescape.wiki/w/Fathom_pearl
+13108	GEAR	weapon	Wilderness sword 1: functional weapon, no own teleport
+13109	GEAR	weapon	Wilderness sword 2: functional weapon, no own teleport
+13137	TOOL	light-source	Kandarin headgear 1: reusable light source, no teleport
+13138	TOOL	light-source	Kandarin headgear 2: reusable light source, no teleport
+31946	SKILLING	construction-material	Echo pearl: material for a fathom pearl, not currency
+# Source: https://oldschool.runescape.wiki/w/Update%3AOSRS_Reveals%3A_The_Kebos_Lowlands
+22840	CLUE	cosmetic	Golden tench: cosmetic fish weapon, not ordinary bank cleanup
 # Moved out of Java in September 2026: the table was 3,635 lines of case
 # labels, which is data wearing a switch statement. The Plugin Hub review
 # bot counts src/main/java and stops at 200k tokens, and this file alone

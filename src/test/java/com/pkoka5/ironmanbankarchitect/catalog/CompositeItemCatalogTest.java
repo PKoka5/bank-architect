@@ -84,7 +84,7 @@ public class CompositeItemCatalogTest
 			.orElseThrow(() -> new AssertionError("expected drakan medallion")).getCategory());
 		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(4251)
 			.orElseThrow(() -> new AssertionError("expected ectophial")).getCategory());
-		assertEquals(ItemCategory.CURRENCY, CompositeItemCatalog.DEFAULT.findById(13143)
+		assertEquals(ItemCategory.TELEPORT, CompositeItemCatalog.DEFAULT.findById(13143)
 			.orElseThrow(() -> new AssertionError("expected western banner")).getCategory());
 	}
 

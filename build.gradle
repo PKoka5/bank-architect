@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.9.0'
+version = '0.9.1'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
@@ -54,6 +54,19 @@ tasks.register('exportEffectiveItemClassifications', JavaExec) {
 	)
 }
 
+tasks.register('exportFinalItemPlacements', JavaExec) {
+	group = 'verification'
+	description = 'Exports actual default Main and Ironman tags and destinations for offline review.'
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.pkoka5.ironmanbankarchitect.research.FinalItemPlacementExporter'
+	args(
+		project.findProperty('placementRegistry') ?: 'src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv',
+		project.findProperty('placementOutput') ?: 'build/reports/item-classification/final-placements.tsv',
+		project.findProperty('placementExcludedOutput') ?: 'build/reports/item-classification/excluded-records.tsv'
+	)
+}
+
 tasks.register('simulateRandomBanks', JavaExec) {
 	group = 'verification'
 	description = 'Simulates random banks against the tab guidance route and reports outcomes.'
@@ -86,10 +99,10 @@ tasks.register('verifySimulationBaselines') {
 	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
 	doLast {
 		def expected = [
-			'report.tsv': '2e2b19244b4457e802da63f4ecfecfbeba870a06e1b664fdbacaf51794a77ca3',
+			'report.tsv': '9f0a248876b46bdd4e14d88b367b7d7cc3e0bb2c24540272ff6df3190e69ccc7',
 			'cleanup-review.tsv': 'd55c89a746edd3053c7e2634da8cd1bc1d59056350358348b56f8c53834722f6',
-			'aggregate/cleanup-review.tsv': '6292a041d282df58dabe9140513481eb94f9aaa6b9583cb9afcf2e83d997c968',
-			'aggregate/metadata.tsv': 'fb75547f8b7de99748ff0b5a5827535b80fdde93bee3f1deb33bdbb4096abbd6'
+			'aggregate/cleanup-review.tsv': '8b22ce5274e8071383a976cf3ed41311f2a5c2469a6771b0d0e85075ff5a751d',
+			'aggregate/metadata.tsv': 'faba20b31280a04c092bae3426380116c91d46a652f45359e85047f429d657f3'
 		]
 		def customParameters = ['simBanks', 'simSeed', 'simMinItems', 'simMaxItems', 'simOutput', 'aggregateOutput']
 		if (customParameters.any { project.hasProperty(it) }) {

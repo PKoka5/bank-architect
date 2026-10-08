@@ -11,8 +11,6 @@ public final class PresetCategoryMapper
 	private static final Set<Integer> IRONMAN_RUNECRAFTING_TOOL_IDS = ids(
 		5509, 5510, 5511, 5512, 5513, 5514, 5515, 26784, 26786, 5521);
 	private static final Set<Integer> IRONMAN_UTILITY_CONTAINER_IDS = ids(19634);
-	private static final Set<Integer> IRONMAN_ACTIVITY_REWARD_IDS = ids(
-		6183, 6529, 6306, 12012, 25527, 21555);
 	private static final Set<Integer> IRONMAN_REVIEWED_TOOL_IDS = ids(13392, 25781);
 	private static final Set<Integer> IRONMAN_REVIEWED_LOOT_IDS = ids(
 		ItemID.TOME_OF_FIRE_UNCHARGED,
@@ -74,7 +72,8 @@ public final class PresetCategoryMapper
 		{
 			return "storage-cleanup";
 		}
-		if (IRONMAN_ACTIVITY_REWARD_IDS.contains(item.getItemId()))
+		// Frog token redeems cosmetic clothing; spendable activity currencies use Currency.
+		if (item.getItemId() == 6183)
 		{
 			return "clues-cosmetics";
 		}

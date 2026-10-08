@@ -179,7 +179,8 @@ public final class BankOrganizationPreviewBuilder
 
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
-			CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
+			CatalogItem sourceItem = catalog.describeOrUnknown(bankItem.getItemId());
+			CatalogItem catalogItem = effectiveCatalogItem(sourceItem,
 				bankItem.getItemId(), gearStats);
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem,
 				options.gatherFrequentlyUsed() && !IronmanQuickToolSelector.isTieredTool(bankItem.getItemId()));
@@ -198,6 +199,8 @@ public final class BankOrganizationPreviewBuilder
 				category = preset.getCategory("potions-food");
 			}
 			boolean alchCandidate = options.alchPile() && !bankItem.isPlaceholder()
+				&& sourceItem.getCategory() != ItemCategory.UNKNOWN
+				&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
 				gearStats, itemValues, ownedGearByKey, realOwned, choices);
 			if (alchCandidate)

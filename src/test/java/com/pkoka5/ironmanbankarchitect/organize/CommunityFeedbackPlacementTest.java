@@ -120,11 +120,12 @@ public class CommunityFeedbackPlacementTest
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
 		// Two complete non-base recolours in a 53-item Main. Preserve the other
 		// tabs too: reanalysis receives the whole bank, not only its Main section.
+		// Frog token keeps an off-Main control now that Tokkul follows Currency.
 		int[] original = {13579, 13583, 13585, 13587, 13589, 13581,
 			13627, 13629, 13631, 13633, 13635, 13637, 995, 556, 558, 562,
 			554, 555, 559, 564, 557, 561, 563, 565, 560, 566, 9075, 21880,
 			2347, 1755, 952, 8013, 4251, 21389, 12791, 13393, 19564,
-			25818, 24711, 22400, 30638, 32399, 13660, 3853, 6529, 13204,
+			25818, 24711, 22400, 30638, 32399, 13660, 3853, 6183, 13204,
 			4699, 4698, 4697, 4696, 4695, 4694, 28929, 30843, 11832, 25781, 385};
 		List<Integer> expected = null;
 		for (int seed = 0; seed < 12; seed++)

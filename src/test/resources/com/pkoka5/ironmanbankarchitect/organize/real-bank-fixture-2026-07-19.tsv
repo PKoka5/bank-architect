@@ -413,13 +413,13 @@ itemId	expectedTabKey
 6103	currency-utilities
 6155	resources
 6183	clues-cosmetics
-6306	clues-cosmetics
+6306	currency-utilities
 6313	skilling-tools
 6332	resources
 6333	resources
 6465	skilling-tools
 6524	combat-gear
-6529	clues-cosmetics
+6529	currency-utilities
 6541	storage-cleanup
 6544	skilling-tools
 6570	combat-gear
@@ -556,7 +556,7 @@ itemId	expectedTabKey
 11860	currency-utilities
 11875	combat-gear
 11920	skilling-tools
-12012	clues-cosmetics
+12012	currency-utilities
 12013	skilling-tools
 12014	skilling-tools
 12015	skilling-tools
@@ -625,7 +625,7 @@ itemId	expectedTabKey
 21504	resources
 21543	resources
 21545	resources
-21555	clues-cosmetics
+21555	currency-utilities
 21562	resources
 21564	resources
 21622	resources
@@ -677,7 +677,7 @@ itemId	expectedTabKey
 24878	skilling-tools
 24882	skilling-tools
 24942	skilling-tools
-25527	clues-cosmetics
+25527	currency-utilities
 25539	skilling-tools
 25578	slayer-boss-loot
 25584	skilling-tools

@@ -2,6 +2,11 @@
 
 Analysis closed: 2026-07-14 (Europe/Paris)
 
+Policy update, 2026-10-06: Rada's blessing is now classified by its teleport
+function. The historical table below records the July decision; keeping a diary
+reward on Main no longer requires classifying it as Currency. See
+[the current routing review](../testing/currency-utility-routing-2026-10-06.md).
+
 This note closes the urgent category-audit phase over the ten locally normalized community
 templates. Individual layouts remain git-ignored and are not copied into the product. Only aggregate
 signals and independently reviewed Bank Architect classifications are retained.

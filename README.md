@@ -16,6 +16,12 @@ retains its original recipe-oriented arrangement. Both use the same reviewed
 Alch rules: replaced gear and tools can move to Alch, while best-owned tools,
 staff rune supply and your personal corrections remain protected.
 
+Taking out gear while leaving its placeholders preserves established Gear/Alch
+placement during the same RuneLite session when the item slots and preferences
+remain the same. A fresh session or changed items/settings recalculates the plan;
+empty placeholders alone cannot establish a new Alch replacement. Use a saved
+current-bank blueprint to preserve your chosen arrangement across restarts.
+
 ## Installation
 
 Install from the RuneLite Plugin Hub:
