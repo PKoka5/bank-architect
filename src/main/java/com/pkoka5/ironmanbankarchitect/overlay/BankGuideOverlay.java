@@ -276,8 +276,9 @@ public final class BankGuideOverlay extends Overlay
 			return blocked(graphics, gridBounds, missingTabTargetMessage(move.getType()));
 		}
 
+		boolean draggingSource = suggestNextMove && move != null && isDraggingFrom(move);
 		String guideText = tabGuideText(assessment, visibleByLogicalSlot.keySet(),
-			allByLogicalSlot, gridBounds, rearrangeMode);
+			allByLogicalSlot, gridBounds, rearrangeMode, draggingSource);
 		String hudText = tabHudText(assessment, suggestNextMove, rearrangeMode);
 		guideController.publishGuideProgress(guideText, assessment.getProgress().getPercent());
 		Map<Integer, Integer> plannedSlotByItemId = cachedPlannedSlotByItemId;
@@ -326,7 +327,7 @@ public final class BankGuideOverlay extends Overlay
 				boolean insert = move.getType() == MoveType.INSERT_SECTION;
 				drawGridMove(bankGraphics, move.getFromSlot(), move.getToSlot(),
 					insert ? "MOVE" : "FROM", insert ? "DROP" : "TO",
-					allByLogicalSlot, visibleByLogicalSlot, gridBounds);
+					allByLogicalSlot, visibleByLogicalSlot, gridBounds, draggingSource);
 			}
 		}
 		finally
@@ -803,7 +804,7 @@ public final class BankGuideOverlay extends Overlay
 
 	private String tabGuideText(TabRouteAdvisor.Assessment assessment, Set<Integer> visibleSlots,
 		Map<Integer, BankSlotWidget> allByLogicalSlot, Rectangle viewportBounds,
-		RearrangeMode mode)
+		RearrangeMode mode, boolean draggingSource)
 	{
 		TabRouteAdvisor.Progress progress = assessment.getProgress();
 		String progressLine = progressText(progress, mode);
@@ -864,14 +865,27 @@ public final class BankGuideOverlay extends Overlay
 					+ move.getDisplayName() + ".";
 				break;
 		}
-		if (move.getFromSlot() >= 0 && !visibleSlots.contains(move.getFromSlot()))
+		int highlightedSlot = draggingSource ? move.getToSlot() : move.getFromSlot();
+		if (highlightedSlot >= 0 && !visibleSlots.contains(highlightedSlot))
 		{
-			BankSlotWidget source = allByLogicalSlot.get(move.getFromSlot());
+			BankSlotWidget endpoint = allByLogicalSlot.get(highlightedSlot);
 			instruction += " Scroll " + offscreenDirection(
-				source == null ? null : source.bounds, viewportBounds)
-				+ " to FROM.";
+				endpoint == null ? null : endpoint.bounds, viewportBounds)
+				+ " to " + (draggingSource
+					? move.getType() == MoveType.INSERT_SECTION ? "DROP" : "TO" : "FROM") + ".";
 		}
 		return progressLine + "\n" + instruction;
+	}
+
+	/** Only the advised bank item can switch the overlay to destination-only guidance. */
+	private boolean isDraggingFrom(Move move)
+	{
+		if (!isGridMove(move.getType()) || !client.isDraggingWidget()) return false;
+		Widget dragged = client.getDraggedWidget();
+		return dragged != null && dragged.getId() == InterfaceID.Bankmain.ITEMS
+			&& dragged.getIndex() == move.getFromSlot()
+			&& dragged.getItemId() > 0
+			&& canonicalItemId(dragged.getItemId(), canonicalItemIdCache) == move.getItemId();
 	}
 
 	private static String sectionLabel(Move move)
@@ -1098,12 +1112,25 @@ public final class BankGuideOverlay extends Overlay
 	private static void drawGridMove(Graphics2D graphics, int fromSlot, int toSlot,
 		String sourceLabel, String targetLabel,
 		Map<Integer, BankSlotWidget> allByLogicalSlot,
-		Map<Integer, BankSlotWidget> visibleByLogicalSlot, Rectangle viewportBounds)
+		Map<Integer, BankSlotWidget> visibleByLogicalSlot, Rectangle viewportBounds, boolean draggingSource)
 	{
 		BankSlotWidget source = visibleByLogicalSlot.get(fromSlot);
 		BankSlotWidget target = visibleByLogicalSlot.get(toSlot);
 		BankSlotWidget logicalSource = allByLogicalSlot.get(fromSlot);
 		BankSlotWidget logicalTarget = allByLogicalSlot.get(toSlot);
+
+		if (draggingSource)
+		{
+			if (target != null) drawMoveCell(graphics, target.bounds, MOVE_TARGET, targetLabel);
+			else
+			{
+				int targetY = edgeY(logicalTarget, viewportBounds);
+				drawEdgeBadge(graphics, edgeX(logicalTarget,
+					viewportBounds.x + viewportBounds.width / 2, viewportBounds), targetY,
+					MOVE_TARGET, targetLabel, targetY <= viewportBounds.y + 14, viewportBounds);
+			}
+			return;
+		}
 
 		if (source != null && target != null)
 		{

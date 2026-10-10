@@ -15,7 +15,7 @@ import javax.swing.*;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.9.3";
+	static final String RELEASE_ID = "0.9.4";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -39,6 +39,8 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
+			+ "<h3>Scrolling while dragging</h3>"
+			+ "<p>Destination markers stay visible while dragging and scrolling through long bank tabs.</p>"
 			+ "<h3>Clearer Combat layouts</h3>"
 			+ "<p>Best gear leads each style column. Other sets stay together vertically, with separate weapon roles "
 			+ "and Crystal armour beside Bowfa.</p>"
