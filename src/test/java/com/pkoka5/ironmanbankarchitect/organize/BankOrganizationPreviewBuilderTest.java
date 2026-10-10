@@ -1235,7 +1235,7 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	@Test
-	public void gearCategoryBuildsEvidenceBackedSetsAsVerticalColumns()
+	public void gearCategoryKeepsEvidenceBackedSetsGroupedWithoutBorrowingUtilityFillers()
 	{
 		List<Integer> proselyte = Arrays.asList(9672, 9674, 9676);
 		List<Integer> mixedHide = Arrays.asList(29280, 29283, 29286);
@@ -1259,8 +1259,8 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"combat-gear").getItems());
 
-		assertVerticalFamily(target, proselyte);
-		assertVerticalFamily(target, mixedHide);
+		assertGroupedFamily(target, proselyte);
+		assertGroupedFamily(target, mixedHide);
 		assertEquals(new HashSet<>(ids), new HashSet<>(target));
 	}
 
@@ -1344,7 +1344,7 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	@Test
-	public void nonBisMonkAndDharokSetsStayVerticalWithoutEnteringSetupFillers()
+	public void nonBisMonkAndDharokSetsStayGroupedWithoutEnteringSetupFillers()
 	{
 		List<Integer> monk = Arrays.asList(544, 542);
 		List<Integer> dharok = Arrays.asList(4716, 4718, 4720, 4722);
@@ -1393,12 +1393,12 @@ public class BankOrganizationPreviewBuilderTest
 		{
 			for (int style = 0; style < 4; style++)
 			{
-				assertEquals("primary setup column changed",
+				assertEquals("best gear keeps its vertical style column",
 					Integer.valueOf(935000 + row * 10 + style), target.get(row * 8 + style));
 			}
 		}
-		assertVerticalFamily(target, monk);
-		assertVerticalFamily(target, dharok);
+		assertGroupedFamily(target, monk);
+		assertGroupedFamily(target, dharok);
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
@@ -1458,17 +1458,13 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		assertEquals("Lunar gloves left the Magic BIS hands cell",
+		assertEquals("Lunar gloves remain the best hands in the Magic column",
 			Integer.valueOf(9099), target.get(6 * 8 + 2));
 		int first = target.indexOf(9096);
-		assertTrue("missing Lunar remainder", first >= 72);
-		assertEquals(first + 1, target.indexOf(9097));
-		assertEquals(first + 8, target.indexOf(9101));
-		assertEquals(first + 9, target.indexOf(9098));
-		assertEquals(first + 16, target.indexOf(9102));
-		assertEquals(first + 17, target.indexOf(9100));
-		assertEquals(first + 24, target.indexOf(9084));
-		assertEquals(first + 25, target.indexOf(9104));
+		assertTrue("Lunar remainder uses a spare column beside the best gear", first % 8 >= 4);
+		List<Integer> remainder = Arrays.asList(9096, 9101, 9102, 9084, 9097, 9098, 9100, 9104);
+		for (int i = 0; i < remainder.size(); i++)
+			assertEquals("Lunar remainder remains vertical", first + i * 8, target.indexOf(remainder.get(i)));
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
@@ -1907,6 +1903,23 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
 		assertEquals(expected,
 			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));
+	}
+
+	private static void assertGroupedFamily(List<Integer> target, List<Integer> family)
+	{
+		List<Integer> positions = family.stream().map(target::indexOf).collect(java.util.stream.Collectors.toList());
+		assertTrue("every grouped member is present", positions.stream().allMatch(position -> position >= 0));
+		boolean consecutive = true;
+		for (int i = 0; i < positions.size(); i++) consecutive &= positions.get(i) == positions.get(0) + i;
+		if (consecutive) return;
+		int minRow = positions.stream().mapToInt(position -> position / 8).min().getAsInt();
+		int maxRow = positions.stream().mapToInt(position -> position / 8).max().getAsInt();
+		int minCol = positions.stream().mapToInt(position -> position % 8).min().getAsInt();
+		int maxCol = positions.stream().mapToInt(position -> position % 8).max().getAsInt();
+		List<Integer> rectangle = new ArrayList<>();
+		for (int col = minCol; col <= maxCol; col++)
+			for (int row = minRow; row <= maxRow; row++) rectangle.add(row * 8 + col);
+		assertEquals("family occupies an ordered complete rectangle", rectangle, positions);
 	}
 
 	private static void assertVerticalFamily(List<Integer> target, List<Integer> family)

@@ -17,7 +17,8 @@ public class OrderedItemFamiliesTest
 		// Fingerprints independently calculated from the former Java literals at 0046cd2.
 		assertOriginal("potion", 4, 22, "30902cec1cf66b2e8807a265f6a367abd796203cabaf7e6da6e9154e4e1beb5f");
 		assertOriginal("farming", 0, 11, "b0d9cebddc4c4c19c2bf1ee30179f20424f5c1d77662280a9d50227ee50a65a1");
-		assertOriginal("gear", 0, 43, "45ca82269e019bda9b9f3d194485e5558ceb964de06354d73fcea5bd7fb52b82");
+		// Reviewed October 10: prior rows plus the separate Sanguine Torva family.
+		assertOriginal("gear", 0, 78, "e70f6ba98c98e6e7463b1ecd5edfa412a004925634854e43b7e12c702a504f49");
 		// Reviewed October 2: append Guild hunter and Golden prospector columns.
 		assertOriginal("tool", 0, 34, "dc28e8281d146af28855b2b5928eae099558ef9e22495fef296ac846944bd6ce");
 		assertOriginal("resource", 0, 40, "8a8d2e0b5c704af9e462c61d3ee6d746d6de004db25ef573e82467d6e7b93a57");

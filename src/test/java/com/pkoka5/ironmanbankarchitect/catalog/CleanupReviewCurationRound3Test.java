@@ -11,8 +11,8 @@ public class CleanupReviewCurationRound3Test
 	@Test
 	public void routesCompleteBenchmarkRoundThreeFamiliesToFunctionalIronmanTabs()
 	{
-		assertFamily(ItemCategory.CLUE, "clues-cosmetics",
-			10374, 10382, 10390, 12496, 12504, 12512); // God coifs
+		assertFamily(ItemCategory.GEAR, "combat-gear",
+			10374, 10382, 10390, 12496, 12504, 12512); // Functional blessed ranged coifs
 		assertFamily(ItemCategory.CLUE, "clues-cosmetics",
 			10440, 10442, 10444, 12199, 12263, 12275); // God croziers
 		assertFamily(ItemCategory.CLUE, "clues-cosmetics",

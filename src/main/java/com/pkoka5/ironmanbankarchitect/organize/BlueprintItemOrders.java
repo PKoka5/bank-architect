@@ -188,6 +188,7 @@ public final class BlueprintItemOrders
 		{
 			this(tab, originalTag, tag, false);
 		}
+		boolean isCaptured() { return captured; }
 		private Destination(int tab, String originalTag, String tag, boolean captured)
 		{
 			if (tab < 0 || tab >= BankLayoutPlan.DESTINATION_COUNT) throw new IllegalArgumentException("Invalid tab");

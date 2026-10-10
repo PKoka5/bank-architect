@@ -19,7 +19,7 @@ public final class GearSetSemanticRuleSet
 	public static java.util.List<java.util.List<Integer>> gearSetsInSlotOrder()
 	{
 		java.util.List<java.util.List<Integer>> sets = new java.util.ArrayList<>();
-		for (ItemSetCatalog.SetDefinition set : ItemSetCatalog.sets("gear"))
+		for (ItemSetCatalog.SetDefinition set : SETS.get())
 		{
 			sets.add(set.getItemIds());
 		}
@@ -31,14 +31,76 @@ public final class GearSetSemanticRuleSet
 		return ItemSetCatalog.setKeyOf(itemId).orElse("").startsWith("gear.dwarf-cannon");
 	}
 
+	/** Accept an ordered dense run, a vertical column, or an exact column-major rectangle. */
+	public static boolean keepsFamiliesTogether(List<BankPreviewItem> items, int physicalStart)
+	{
+		Map<Integer, Integer> positions = new HashMap<>();
+		for (int i = 0; i < items.size(); i++) positions.put(items.get(i).getItemId(), physicalStart + i);
+		for (ItemSetCatalog.SetDefinition set : SETS.get())
+		{
+			List<Integer> owned = new ArrayList<>();
+			for (int id : set.getItemIds()) if (positions.containsKey(id)) owned.add(positions.get(id));
+			if (owned.size() < 2) continue;
+			int first = owned.get(0), minRow = first / 8, maxRow = minRow;
+			int minCol = first % 8, maxCol = minCol;
+			boolean run = true;
+			for (int i = 0; i < owned.size(); i++)
+			{
+				int target = owned.get(i);
+				run &= target == first + i;
+				minRow = Math.min(minRow, target / 8); maxRow = Math.max(maxRow, target / 8);
+				minCol = Math.min(minCol, target % 8); maxCol = Math.max(maxCol, target % 8);
+			}
+			if (run) continue;
+			int height = maxRow - minRow + 1;
+			if (height * (maxCol - minCol + 1) != owned.size()) return false;
+			for (int i = 0; i < owned.size(); i++)
+				if (owned.get(i) != minRow * 8 + minCol + i % height * 8 + i / height) return false;
+		}
+		return true;
+	}
+
 	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
 		GearSetSemanticRuleSet.class.getResourceAsStream(
 			"/com/pkoka5/ironmanbankarchitect/catalog/gear-layout-families.tsv"), 0);
+	private static final OrderedItemFamilies ROLES = new OrderedItemFamilies(
+		GearSetSemanticRuleSet.class.getResourceAsStream(
+			"/com/pkoka5/ironmanbankarchitect/catalog/combat-gear-roles.tsv"), 0);
 	private static final RequiredResource<List<ItemSetCatalog.SetDefinition>> SETS =
 		new RequiredResource<>("gear layout", GearSetSemanticRuleSet::buildSets);
 
 	private GearSetSemanticRuleSet()
 	{
+	}
+
+	/** Navigation preferences only; never evidence that another item can be alched. */
+	public static int frontlinePriority(int itemId)
+	{
+		for (Map.Entry<String, List<Integer>> row : ROLES.entries().entrySet())
+			if (row.getValue().contains(itemId)) return Integer.parseInt(row.getKey().split("/", 3)[0]);
+		return 0;
+	}
+
+	public static String weaponRole(int itemId)
+	{
+		for (Map.Entry<String, List<Integer>> row : ROLES.entries().entrySet())
+			if (row.getValue().contains(itemId))
+			{
+				String role = row.getKey().split("/", 3)[1];
+				return role.startsWith("weapon-") ? role : "";
+			}
+		return "";
+	}
+
+	public static boolean isBowfa(int itemId)
+	{
+		return ROLES.ids("0/weapon-ranged-bow/bowfa").contains(itemId);
+	}
+
+	public static boolean isCrystalArmour(int itemId)
+	{
+		return TABLE.entries().entrySet().stream()
+			.anyMatch(row -> row.getKey().startsWith("gear.crystal") && row.getValue().contains(itemId));
 	}
 
 	public static LayoutRequest forEntries(List<LayoutEntry> entries)
@@ -211,6 +273,17 @@ public final class GearSetSemanticRuleSet
 				sets.add(ItemSetCatalog.definition("gear", definition.getKey(), definition.getKey(), definition.getItemIds()));
 			}
 		}
+		// Weapons already belonging to an armour set retain that set. Shared gear appears once.
+		Map<String, List<Integer>> weaponRoles = new LinkedHashMap<>();
+		ROLES.entries().forEach((key, ids) ->
+		{
+			String role = key.split("/", 3)[1];
+			if (role.startsWith("weapon-"))
+				for (int id : ids)
+					if (reserved.add(id)) weaponRoles.computeIfAbsent(role, ignored -> new ArrayList<>()).add(id);
+		});
+		weaponRoles.forEach((role, ids) -> sets.add(
+			ItemSetCatalog.definition("gear", "gear.role." + role, role, ids)));
 		return Collections.unmodifiableList(sets);
 	}
 }

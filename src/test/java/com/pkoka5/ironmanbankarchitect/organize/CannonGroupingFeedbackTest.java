@@ -43,7 +43,7 @@ public class CannonGroupingFeedbackTest
 	}
 
 	@Test
-	public void busyCombatTabsKeepCannonsTogetherAndPreservePrimaryStyleColumns()
+	public void busyCombatTabsKeepCannonsTogetherBesideVerticalBestGear()
 	{
 		Fixture fixture = new Fixture().addPrimaries(GearSlot.HEAD, 0)
 			.addPrimaries(GearSlot.BODY, 1).addUtility(24)
@@ -58,14 +58,16 @@ public class CannonGroupingFeedbackTest
 				if (layout == GearLayout.GRID_STYLES)
 				{
 					List<Integer> target = ids(combat);
-					for (int row = 0; row < 2; row++)
+					for (int style = 0; style < 4; style++)
 					{
-						for (int style = 0; style < 4; style++)
-						{
-							assertEquals("Primary combat style column changed",
-								Integer.valueOf(primaryId(row, style)), target.get(row * 8 + style));
-						}
+						assertEquals("Best helmets stay in their style columns", primaryId(0, style),
+							(int) target.get(style));
+						assertEquals("Best bodies stay under their helmets", primaryId(1, style),
+							(int) target.get(8 + style));
 					}
+					assertEquals("Best melee legs remain in the melee column", 4722, (int) target.get(16));
+					assertEquals("Best prayer legs remain in the prayer column", 9676, (int) target.get(19));
+					assertEquals("Best melee weapon remains in the melee column", 4718, (int) target.get(24));
 				}
 			}
 		}
@@ -102,7 +104,7 @@ public class CannonGroupingFeedbackTest
 					BankCategoryPreview combat = combat(build(fixture, preset, options(preset, layout, true)), preset);
 					assertBlocksAndContents(fixture, combat);
 					assertCompactRectangle(ids(combat), bothCannons());
-					if (parts.size() == 1)
+					if (parts.size() == 1 && layout != GearLayout.GRID_STYLES)
 					{
 						assertEquals("A lone cannon component must stay before the gear-set run",
 							parts.get(0), ids(combat).get(0));
@@ -156,6 +158,7 @@ public class CannonGroupingFeedbackTest
 
 	private static void assertBlocksAndContents(Fixture fixture, BankCategoryPreview combat)
 	{
+		assertFalse("Automatic cannon grouping is not a manual order", combat.hasManualOrder());
 		assertContents(fixture, combat);
 		assertCompactRectangle(ids(combat), NORMAL);
 		assertCompactRectangle(ids(combat), ORNAMENTED);
@@ -172,6 +175,8 @@ public class CannonGroupingFeedbackTest
 		for (BankPreviewItem item : combat.getItems())
 		{
 			assertFalse("Cannon grouping inserted an empty bank slot", item.isBlank());
+			assertFalse("Owned cannon fixture items cannot become placeholders", item.isPlaceholder());
+			assertEquals("Quantity changed for " + item.getItemId(), 1, item.getQuantity());
 		}
 	}
 

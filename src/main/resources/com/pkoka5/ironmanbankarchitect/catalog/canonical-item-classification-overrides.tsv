@@ -1,5 +1,117 @@
 # schema=1
 # Final clue/quest audit: docs/research/item-role-audit-final-october-2.md
+# Ordinary functional gear audit: docs/testing/combat-gear-audit-2026-10-09.md.
+# Combat quality audit: docs/testing/combat-layout-quality-2026-10-09.md.
+# Finished ammunition: official cached RuneLite stats identify an ammo slot.
+# Endgame audit: exact equipment remains gear even without runtime equipment metadata.
+22325	GEAR	weapon	Scythe of vitur
+22486	GEAR	weapon	Scythe of vitur (uncharged)
+25736	GEAR	weapon	Holy scythe of vitur
+25738	GEAR	weapon	Holy scythe of vitur (uncharged)
+25739	GEAR	weapon	Sanguine scythe of vitur
+25741	GEAR	weapon	Sanguine scythe of vitur (uncharged)
+27275	GEAR	weapon	Tumeken's shadow
+27277	GEAR	weapon	Tumeken's shadow (uncharged)
+31106	GEAR	hands	Confliction gauntlets
+31113	GEAR	weapon	Eye of ayak
+31115	GEAR	weapon	Eye of ayak (uncharged)
+33639	GEAR	neck	Necklace of rupture
+881	GEAR	ammo	Barbed bolts: finished ammunition, not a fletching component
+9749	CLUE	cosmetic	Attack hood
+9752	CLUE	cosmetic	Strength hood
+9755	CLUE	cosmetic	Defence hood
+9758	CLUE	cosmetic	Ranging hood
+9761	CLUE	cosmetic	Prayer hood
+9764	CLUE	cosmetic	Magic hood
+9767	CLUE	cosmetic	Runecraft hood
+9770	CLUE	cosmetic	Hitpoints hood
+9773	CLUE	cosmetic	Agility hood
+9776	CLUE	cosmetic	Herblore hood
+9779	CLUE	cosmetic	Thieving hood
+9782	CLUE	cosmetic	Crafting hood
+9785	CLUE	cosmetic	Fletching hood
+9788	CLUE	cosmetic	Slayer hood
+9791	CLUE	cosmetic	Construct. hood
+9794	CLUE	cosmetic	Mining hood
+9797	CLUE	cosmetic	Smithing hood
+9800	CLUE	cosmetic	Fishing hood
+9803	CLUE	cosmetic	Cooking hood
+9806	CLUE	cosmetic	Firemaking hood
+9809	CLUE	cosmetic	Woodcutting hood
+9812	CLUE	cosmetic	Farming hood
+9814	CLUE	cosmetic	Quest point hood
+9950	CLUE	cosmetic	Hunter hood
+13070	CLUE	cosmetic	Achievement diary hood
+13223	CLUE	cosmetic	Music hood
+13281	CLUE	cosmetic	Max hood
+31292	CLUE	cosmetic	Sailing hood
+13330	CLUE	cosmetic	Fire max hood
+13332	CLUE	cosmetic	Saradomin max hood
+13334	CLUE	cosmetic	Zamorak max hood
+13336	CLUE	cosmetic	Guthix max hood
+13338	CLUE	cosmetic	Accumulator max hood
+20764	CLUE	cosmetic	Ardougne max hood
+21282	CLUE	cosmetic	Infernal max hood
+21778	CLUE	cosmetic	Imbued saradomin max hood
+21782	CLUE	cosmetic	Imbued zamorak max hood
+21786	CLUE	cosmetic	Imbued guthix max hood
+21900	CLUE	cosmetic	Assembler max hood
+24857	CLUE	cosmetic	Mythical max hood
+27366	CLUE	cosmetic	Masori assembler max hood
+28904	CLUE	cosmetic	Dizana's max hood
+20251	CLUE	cosmetic	Arceuus banner
+20254	CLUE	cosmetic	Hosidius banner
+20257	CLUE	cosmetic	Lovakengj banner
+20260	CLUE	cosmetic	Piscarilius banner
+20263	CLUE	cosmetic	Shayzien banner
+28613	TOOL	resource-container	Cape pouch: Forestry basket upgrade
+20838	CLUE	cosmetic	Corrupted helm: event costume
+20840	CLUE	cosmetic	Corrupted platebody: event costume
+20842	CLUE	cosmetic	Corrupted platelegs: event costume
+20844	CLUE	cosmetic	Corrupted plateskirt: event costume
+20846	CLUE	cosmetic	Corrupted kiteshield: event costume
+23091	CLUE	cosmetic	Ornate gloves: Crack the Clue costume
+23093	CLUE	cosmetic	Ornate boots: Crack the Clue costume
+23095	CLUE	cosmetic	Ornate legs: Crack the Clue costume
+23097	CLUE	cosmetic	Ornate top: Crack the Clue costume
+23099	CLUE	cosmetic	Ornate cape: Crack the Clue costume
+23101	CLUE	cosmetic	Ornate helm: Crack the Clue costume
+27428	CLUE	cosmetic	Hood of Ruin: Crack the Clue costume
+27430	CLUE	cosmetic	Robe top of Ruin: Crack the Clue costume
+27432	CLUE	cosmetic	Robe bottom of Ruin: Crack the Clue costume
+27434	CLUE	cosmetic	Gloves of Ruin: Crack the Clue costume
+27436	CLUE	cosmetic	Socks of Ruin: Crack the Clue costume
+27438	CLUE	cosmetic	Cloak of Ruin: Crack the Clue costume
+25557	TOOL	skilling-utility	Dark flippers: underwater swimming
+21180	TOOL	skilling-utility	Flamtaer bracelet: Shades of Mort'ton construction
+11136	TOOL	achievement-utility	Karamja gloves 1: diary shopping benefits
+11138	TOOL	achievement-utility	Karamja gloves 2: diary shopping benefits
+11140	TELEPORT	teleport	Karamja gloves 3: Gem Mine teleport
+13103	TELEPORT	teleport	Karamja gloves 4: Gem Mine and Slayer master teleports
+3391	GEAR	hands	Splitbark gauntlets: magic armour
+25392	GEAR	hands	Swampbark gauntlets: magic armour
+6326	GEAR	head	Snakeskin bandana: ranged armour
+7400	GEAR	head	Enchanted hat: magic armour
+7398	GEAR	legs	Enchanted robe: magic armour
+26531	GEAR	head	Mystic hat (or): magic armour
+29566	GEAR	head	Dark squall hood: magic armour
+30082	GEAR	hands	Hueycoatl hide vambraces: ranged armour
+10330	GEAR	body	3rd age range top: ranged armour
+10342	GEAR	head	3rd age mage hat: magic armour
+10340	GEAR	legs	3rd age robe: magic armour
+10822	GEAR	body	Yak-hide armour: body piece
+10824	GEAR	legs	Yak-hide armour: leg piece with the same display name
+10547	GEAR	head	Healer hat: magic headwear
+10548	GEAR	head	Fighter hat: melee headwear
+10549	GEAR	head	Runner hat: defensive headwear
+10550	GEAR	head	Ranger hat: ranged headwear
+13652	GEAR	weapon	Dragon claws: melee weapon
+22324	GEAR	weapon	Ghrazi rapier: melee weapon
+25734	GEAR	weapon	Holy ghrazi rapier: functional appearance variant
+22978	GEAR	weapon	Dragon hunter lance: melee weapon
+28338	GEAR	weapon	Soulreaper axe: melee weapon
+28919	GEAR	weapon	Tonalztics of ralos (uncharged): rechargeable ranged weapon
+28922	GEAR	weapon	Tonalztics of ralos: ranged weapon
 579	GEAR	head	Blue wizard hat: functional magic headwear
 7394	GEAR	head	Blue wizard hat (g): retain magic stats
 7396	GEAR	head	Blue wizard hat (t): retain magic stats
@@ -2507,12 +2619,12 @@
 25719	CLUE	cosmetic
 25720	CLUE	cosmetic	Complete player-facing clan cloak colour family
 # Complete six-god Treasure Trails coif family.
-10374	CLUE	cosmetic
-10382	CLUE	cosmetic
-10390	CLUE	cosmetic
-12496	CLUE	cosmetic
-12504	CLUE	cosmetic
-12512	CLUE	cosmetic
+10374	GEAR	head	Zamorak coif: functional blessed ranged armour
+10382	GEAR	head	Guthix coif: functional blessed ranged armour
+10390	GEAR	head	Saradomin coif: functional blessed ranged armour
+12496	GEAR	head	Ancient coif: functional blessed ranged armour
+12504	GEAR	head	Bandos coif: functional blessed ranged armour
+12512	GEAR	head	Armadyl coif: functional blessed ranged armour
 # Complete six-god Treasure Trails crozier family.
 10440	CLUE	cosmetic
 10442	CLUE	cosmetic

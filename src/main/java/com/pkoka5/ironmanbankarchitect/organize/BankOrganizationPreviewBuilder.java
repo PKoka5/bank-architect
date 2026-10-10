@@ -127,6 +127,8 @@ public final class BankOrganizationPreviewBuilder
 		// Without a plan there is nothing to read a layout choice from, so the
 		// per-category blueprint keeps the recipe rows it has always had.
 		boolean main = preset.getType() == BankPresetType.MAIN;
+		boolean ammunitionMoved = plan != null && plan.destinationOf("ammunition")
+			!= BankLayoutPlan.defaultFor(preset).destinationOf("ammunition");
 		boolean herbloreRecipeRows = !main && (plan == null || BankLayoutStyles.herbloreUsesRecipeRows(plan));
 		Map<String, Integer> tagCounts = new LinkedHashMap<>();
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
@@ -166,7 +168,7 @@ public final class BankOrganizationPreviewBuilder
 				{
 					continue;
 				}
-				gearByKey.computeIfAbsent(gearKey(stats.get()), key -> new ArrayList<>())
+				gearByKey.computeIfAbsent(gearKey(catalogItem, stats.get()), key -> new ArrayList<>())
 					.add(new BankGear(GearItemSorter.score(
 						new BankPreviewItem(catalogItem, bankItem.getQuantity(), bankItem.isPlaceholder()), gearStats),
 						stats.get(), catalogItem.getItemId()));
@@ -203,6 +205,18 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
 			}
+			boolean ammoDrops = !ammunitionMoved && "combat-gear".equals(category.getKey())
+				&& PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
+					normalizedSubcategory(catalogItem), catalogItem.getDisplayName());
+			BlueprintItemOrders.Destination saved = options.itemOrders().destinations()
+				.get(catalogItem.getItemId() + "#0");
+			// Old editor moves retain their original Combat tag until the
+			// existing per-item router applies the player's saved destination.
+			if (saved != null && saved.originalTag.equals(
+				BankTags.tagFor("combat-gear", catalogItem.getSubcategory()).getKey())
+				&& (saved.isCaptured() || plan != null && plan.destinationOf(saved.tag) == saved.tab))
+				ammoDrops = false;
+			if (ammoDrops) category = preset.getCategory(ALCH_CATEGORY_KEY);
 			// The player's own choice is applied last so it wins over every
 			// automatic rule, including the quick-tool and alch overrides above.
 			// A correction names a tag, which settles the category too; one that
@@ -224,7 +238,8 @@ public final class BankOrganizationPreviewBuilder
 			}
 			MutableCategoryPreview preview;
 			BankTag routedTag = pinnedTag != null ? pinnedTag
-				: alchCandidate && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("alch") : null;
+				: alchCandidate && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("alch")
+				: ammoDrops && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("boss-loot") : null;
 			if (plan == null)
 			{
 				preview = previewsByCategory.get(category.getKey());
@@ -516,6 +531,8 @@ public final class BankOrganizationPreviewBuilder
 		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<BankGear>> gearByKey,
 		Set<Integer> realOwned, Map<Integer, String> choices)
 	{
+		if (PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
+			normalizedSubcategory(catalogItem), catalogItem.getDisplayName())) return false;
 		if (preset.getType() != BankPresetType.MAIN && preset.getType() != BankPresetType.IRONMAN)
 		{
 			return false;
@@ -549,7 +566,7 @@ public final class BankOrganizationPreviewBuilder
 			return false;
 		}
 
-		List<BankGear> gear = gearByKey.get(gearKey(stats.get()));
+		List<BankGear> gear = gearByKey.get(gearKey(catalogItem, stats.get()));
 		if (gear == null)
 		{
 			return false;
@@ -592,9 +609,10 @@ public final class BankOrganizationPreviewBuilder
 			&& strictlyBetter >= OUTCLASSED_BY_COUNT && beatenOutright;
 	}
 
-	private static String gearKey(GearStats stats)
+	private static String gearKey(CatalogItem item, GearStats stats)
 	{
-		return stats.style().ordinal() + ":" + stats.slotRank();
+		return GearItemSorter.styleOf(item.getDisplayName(), stats).ordinal()
+			+ ":" + GearItemSorter.slotOf(item.getDisplayName(), stats);
 	}
 
 	/** Exact progression facts; names alone cannot prove a replacement for alching. */
@@ -965,6 +983,10 @@ public final class BankOrganizationPreviewBuilder
 					plainRun = !HerbloreItemSorter.layoutByKindPlacesByColumn(items);
 					return BankCategoryPreview.fromLogicalItems(category,
 						recordBlocks(honorBlockOrder(honorTagOrder(HerbloreItemSorter.layoutByKind(items)))));
+				case BOSS_LOOT:
+					plainRun = true;
+					return BankCategoryPreview.fromLogicalItems(category,
+						recordBlocks(honorBlockOrder(honorTagOrder(PresetItemSorter.sort(category, items, gearStats)))));
 				default:
 					plainRun = true;
 					return BankCategoryPreview.fromLogicalItems(category,
@@ -1004,18 +1026,42 @@ public final class BankOrganizationPreviewBuilder
 					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)), false);
 			}
 
-			GearItemSorter.GearLayout gear = GearItemSorter.plan(items, gearStats);
-			List<BankPreviewItem> planned = new ArrayList<>(items.size());
-			planned.addAll(gear.getSetupRows());
-
-			List<LayoutEntry> tailEntries = entriesForItems(entries, gear.getTail());
-			int gridStartColumn = planned.size() % GearItemSorter.GRID_COLUMNS;
-			int physicalTailRows = (gridStartColumn + tailEntries.size()
-				+ GearItemSorter.GRID_COLUMNS - 1) / GearItemSorter.GRID_COLUMNS;
-			LayoutRequest tailRequest = GearSetSemanticRuleSet
-				.forEntries(tailEntries, Math.max(1, physicalTailRows))
-				.withGridStartColumn(gridStartColumn);
-			planned.addAll(semanticLayout(gear.getTail(), tailRequest, false));
+			List<BankPreviewItem> equipment = new ArrayList<>(), ammo = new ArrayList<>();
+			for (BankPreviewItem item : GearItemSorter.dense(items, gearStats))
+				(GearItemSorter.isAmmo(item, gearStats) ? ammo : equipment).add(item);
+			GearItemSorter.GearLayout gear = GearItemSorter.plan(equipment, gearStats);
+			List<BankPreviewItem> fallback = new ArrayList<>(gear.getSetupRows());
+			fallback.addAll(GearItemSorter.bySet(gear.getTail(), gearStats));
+			Map<Integer, Integer> targets = GearItemSorter.setupTargets(gear, equipment.size(), gearStats);
+			Map<String, List<BankPreviewItem>> cannons = new LinkedHashMap<>();
+			for (BankPreviewItem item : fallback)
+				if (GearSetSemanticRuleSet.isCannonPart(item.getItemId()))
+					cannons.computeIfAbsent(ItemSetCatalog.setKeyOf(item.getItemId()).get(), key -> new ArrayList<>()).add(item);
+			// Each finish gets its own physical row run; a combined run may be too wide.
+			for (List<BankPreviewItem> cannon : cannons.values())
+			{
+				for (int start = 0; start + cannon.size() <= equipment.size(); start++)
+				{
+					if (start % 8 + cannon.size() > 8) continue;
+					boolean free = true;
+					for (int i = 0; i < cannon.size(); i++) free &= !targets.containsValue(start + i);
+					if (!free) continue;
+					for (int i = 0; i < cannon.size(); i++) targets.put(cannon.get(i).getItemId(), start + i);
+					break;
+				}
+			}
+			List<LayoutEntry> anchored = new ArrayList<>();
+			for (LayoutEntry entry : entriesForItems(entries, fallback))
+			{
+				Integer target = targets.get(entry.getItem().getItemId());
+				anchored.add(target == null ? entry : entry.withLockedTarget(target));
+			}
+			int rows = (equipment.size() + 7) / 8;
+			LayoutRequest secondary = GearSetSemanticRuleSet.forEntries(
+				entriesForItems(entries, gear.getTail()), Math.max(1, rows));
+			List<BankPreviewItem> planned = semanticLayout(fallback,
+				new LayoutRequest(anchored, secondary.getRules()), false);
+			planned.addAll(ammo);
 			return planned;
 		}
 

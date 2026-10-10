@@ -1,5 +1,10 @@
 # schema=1
 # item_id	stage	display_name
+# Current Ranged/Magic progression audit: endgame accessories and powered alternative.
+31106	5	Confliction gauntlets
+31113	5	Eye of ayak
+31115	5	Eye of ayak (uncharged)
+33639	5	Necklace of rupture
 307	2	Fishing rod
 309	2	Fly fishing rod
 311	2	Harpoon
@@ -338,3 +343,12 @@
 30777	5	Radiant oathplate helm
 30779	5	Radiant oathplate chest
 30781	5	Radiant oathplate legs
+# 2026-10-09: canonical Avernic treads family; docs/testing/avernic-treads-progression-2026-10-09.md.
+31088	5	Avernic treads
+31091	5	Avernic treads (pr)
+31092	5	Avernic treads (pe)
+31093	5	Avernic treads (et)
+31094	5	Avernic treads (pr)(pe)
+31095	5	Avernic treads (pr)(et)
+31096	5	Avernic treads (pe)(et)
+31097	5	Avernic treads (max)

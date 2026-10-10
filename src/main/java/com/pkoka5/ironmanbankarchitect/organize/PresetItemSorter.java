@@ -98,6 +98,7 @@ public final class PresetItemSorter
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
 		sorted.sort(Comparator
 			.comparingInt(PresetItemSorter::bossLootRank)
+			.thenComparingInt(item -> isDropAmmunition(item) ? GearItemSorter.ammoTierRank(item) : 0)
 			.thenComparing(PresetItemSorter::bossLootFamily)
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
@@ -253,6 +254,8 @@ public final class PresetItemSorter
 
 	private static int bossLootRank(BankPreviewItem item)
 	{
+		if ("alch".equals(item.getLayoutTagKey())) return 200;
+		if (isDropAmmunition(item)) return 60 + GearItemSorter.ammoFamilyRank(item);
 		if (item.getItemCategory() == ItemCategory.UNIQUE)
 		{
 			String subcategory = normalized(item.getSubcategory());
@@ -263,9 +266,20 @@ public final class PresetItemSorter
 		}
 		if (item.getItemCategory() == ItemCategory.GEAR)
 		{
-			return 100;
+			return 150;
 		}
 		return 50;
+	}
+
+	static boolean isDropAmmunition(ItemCategory category, String subcategory, String name)
+	{
+		return category == ItemCategory.GEAR && subcategory.matches("ammo|thrown-weapon|weapon")
+			&& normalized(name).matches(".*\\b(?:arrows?|bolts?|darts?|cannonballs?)(?:\\s*\\([^)]*\\))?|bolt rack|(?:bronze|iron|steel|black|mithril|adamant|rune) brutal");
+	}
+
+	private static boolean isDropAmmunition(BankPreviewItem item)
+	{
+		return isDropAmmunition(item.getItemCategory(), normalized(item.getSubcategory()), item.getDisplayName());
 	}
 
 	private static String bossLootFamily(BankPreviewItem item)

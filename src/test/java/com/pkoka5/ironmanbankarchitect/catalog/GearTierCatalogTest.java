@@ -14,7 +14,7 @@ public class GearTierCatalogTest
 	{
 		GearTierCatalog catalog = GearTierCatalog.INSTANCE;
 
-		assertEquals(336, catalog.size());
+		assertEquals(348, catalog.size());
 		assertEquals(OptionalInt.of(5), catalog.tierOf(26382)); // Torva full helm, End
 		assertEquals(OptionalInt.of(4), catalog.tierOf(11832)); // Bandos chestplate, Late
 		assertEquals(OptionalInt.of(3), catalog.tierOf(1275)); // Rune pickaxe, Mid
@@ -27,6 +27,21 @@ public class GearTierCatalogTest
 	public void untieredItemReturnsEmpty()
 	{
 		assertFalse(GearTierCatalog.INSTANCE.tierOf(995).isPresent()); // Coins
+	}
+
+	@Test
+	public void canonicalAvernicTreadsStatesAreEndgameWithoutIncludingAdjacentIds()
+	{
+		for (int itemId : new int[]{31088, 31091, 31092, 31093, 31094, 31095, 31096, 31097})
+		{
+			assertEquals("Avernic treads state " + itemId,
+				OptionalInt.of(5), GearTierCatalog.INSTANCE.tierOf(itemId));
+		}
+		for (int itemId : new int[]{31089, 31090, 31098, 33172, 33173})
+		{
+			assertFalse("noncanonical treads ID " + itemId,
+				GearTierCatalog.INSTANCE.tierOf(itemId).isPresent());
+		}
 	}
 
 	@Test

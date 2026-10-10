@@ -85,7 +85,7 @@ public class GearStatsLayoutTest
 	}
 
 	@Test
-	public void buildsAlignedSetColumnsWhenFillerIsAvailable()
+	public void unrelatedRingsCannotPadSparseHelmetRows()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, new GearStats(GearSlot.HEAD, 5, 0, 0, 0, 0, 4, 0, 0, 40));
@@ -103,9 +103,12 @@ public class GearStatsLayoutTest
 			items.add(item(ringId, "Signet " + ringId));
 		}
 
+		GearItemSorter.GearLayout plan = GearItemSorter.plan(items, sourceOf(stats));
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(items, sourceOf(stats));
 
-		// Head row: melee, ranged, magic, prayer columns, then grouped filler.
+		// The bank compacts this into the four best helms followed by jewellery.
+		assertEquals("rings cannot create an aligned helmet row", 0, plan.getAlignedSize());
+		assertEquals("only actual best helms belong in the compact front", 4, plan.getSetupRows().size());
 		assertEquals(16, laidOut.size());
 		assertEquals("Crown of iron", laidOut.get(0).getDisplayName());
 		assertEquals("Crown of winds", laidOut.get(1).getDisplayName());
@@ -113,7 +116,7 @@ public class GearStatsLayoutTest
 		assertEquals("Crown of light", laidOut.get(3).getDisplayName());
 		for (int i = 4; i < 16; i++)
 		{
-			assertEquals("cell " + i + " should be a grouped ring", true,
+			assertEquals("tail cell " + i + " should be a grouped ring", true,
 				laidOut.get(i).getDisplayName().startsWith("Signet"));
 		}
 	}

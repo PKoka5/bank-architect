@@ -25,11 +25,8 @@ final class GearItemSorter
 	private static final List<String> CATALOG_SLOTS = Arrays.asList(
 		"head", "body", "legs", "cape", "neck", "shield", "hands", "feet", "weapon", "ammo", "ring");
 
-	// Must match the popup grid width; only full rows keep the set columns
-	// aligned once the real bank compacts everything.
+	// Must match the physical bank and blueprint grid width.
 	static final int GRID_COLUMNS = 8;
-	private static final int SET_COLUMNS = SETUP_STYLES.length;
-	private static final int MIN_STYLE_COLUMNS_PER_ROW = 2;
 	// One row per equipment slot; cell value = slot for that style column, -1 = no set cell.
 	private static final int[][] SET_ROWS = {
 		{0, 0, 0, 0},
@@ -40,23 +37,14 @@ final class GearItemSorter
 		{5, 5, 5, 5},
 		{6, 6, 6, 6},
 		{7, 7, 7, 7},
-		{8, 9, 10, -1}
+		{8, 9, 10, 8}
 	};
 
 	private GearItemSorter()
 	{
 	}
 
-	/**
-	 * Set-column layout: rows are equipment slots, the first four columns are
-	 * the melee/ranged/magic/prayer setups (best owned item first, sidegrades
-	 * below it in the same column). Remaining cells of a row are filled with
-	 * more items of the same slot (spare helms complete the helm row, tier
-	 * order), then with grouped leftover items. The bank always compacts, so a
-	 * row is only emitted when all {@link #GRID_COLUMNS} cells can be filled.
-	 * A sparse row falls back to the dense tail without blocking a later slot
-	 * row that can still be aligned entirely with real owned items.
-	 */
+	/** Logical best-gear order; the preview builder applies full-grid vertical geometry. */
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items)
 	{
 		return layout(items, GearStatsSource.NONE);
@@ -67,12 +55,7 @@ final class GearItemSorter
 		return plan(items, gearStats).allItems();
 	}
 
-	/**
-	 * Separates the physically aligned, complete setup rows from the dense tail.
-	 * Callers may apply secondary grouping rules to the tail, but must never
-	 * repack the setup rows or the four combat-style columns would be lost.
-	 */
-	/** The dense order alone, with no aligned setup rows and so nothing to pad. */
+	/** The deterministic loose order used around curated vertical columns. */
 	static List<BankPreviewItem> dense(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
 		return remainingSorted(items, new LinkedHashSet<>(), gearStats);
@@ -85,40 +68,13 @@ final class GearItemSorter
 	 */
 	static List<BankPreviewItem> bySet(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
-		Map<Integer, BankPreviewItem> byId = new LinkedHashMap<>();
-		for (BankPreviewItem item : items)
-		{
-			byId.put(item.getItemId(), item);
-		}
-
-		List<List<BankPreviewItem>> presentSets = new ArrayList<>();
-		for (List<Integer> set : GearSetSemanticRuleSet.gearSetsInSlotOrder())
-		{
-			List<BankPreviewItem> present = new ArrayList<>();
-			for (Integer itemId : set)
-			{
-				BankPreviewItem item = byId.get(itemId);
-				if (item != null)
-				{
-					present.add(item);
-				}
-			}
-			if (present.size() >= 2 || present.size() == 1
-				&& GearSetSemanticRuleSet.isCannonPart(present.get(0).getItemId()))
-			{
-				presentSets.add(present);
-			}
-		}
-		// Strongest set first: a set ranks by its best piece.
+		List<List<BankPreviewItem>> presentSets = presentSets(items);
+		// Keep secondary families in style blocks, strongest family first within each block.
 		presentSets.sort(Comparator.comparing((List<BankPreviewItem> set) ->
-			!GearSetSemanticRuleSet.isCannonPart(set.get(0).getItemId())).thenComparingInt(set -> {
-			int best = Integer.MIN_VALUE;
-			for (BankPreviewItem item : set)
-			{
-				best = Math.max(best, scoreOf(item, gearStats));
-			}
-			return -best;
-		}));
+			!GearSetSemanticRuleSet.isCannonPart(set.get(0).getItemId()))
+			.thenComparingInt(set -> familyStyle(set, gearStats))
+			.thenComparingInt(set -> -set.stream().mapToInt(item -> scoreOf(item, gearStats)).max().orElse(0))
+			.thenComparingInt(set -> set.get(0).getItemId()));
 
 		List<BankPreviewItem> laidOut = new ArrayList<>(items.size());
 		Set<Integer> used = new LinkedHashSet<>();
@@ -161,143 +117,97 @@ final class GearItemSorter
 			}
 		}
 
-		// Tier decides first; a stronger loose item still outranks a set piece.
-		// Only where the tier is equal does belonging to a family the player
+		// Reviewed navigation roles decide first, then the placement score. A stronger loose item
+		// still outranks a set piece. Only where these preferences tie does belonging to a family the player
 		// actually owns win the cell, so a full set cannot be decapitated by an
 		// equally tiered stranger that merely sorts earlier by name.
 		Map<Integer, Integer> ownedFamilySizes = GearSetSemanticRuleSet.ownedFamilySizeByItemId(items);
-		Comparator<BankPreviewItem> byTier = Comparator
-			.comparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
+		Comparator<BankPreviewItem> byPreference = Comparator
+			.comparingInt((BankPreviewItem item) -> -GearSetSemanticRuleSet.frontlinePriority(item.getItemId()))
+			.thenComparingInt(item -> -scoreOf(item, gearStats))
 			.thenComparing(item -> -ownedFamilySizes.getOrDefault(item.getItemId(), 0))
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId);
 		for (List<BankPreviewItem> candidates : setCandidates.values())
 		{
-			candidates.sort(byTier);
+			candidates.sort(byPreference);
 		}
+		List<BankPreviewItem> rangedWeapons = setCandidates.get(STYLE_RANGED + ":9");
+		if (rangedWeapons != null && GearSetSemanticRuleSet.isBowfa(rangedWeapons.get(0).getItemId()))
+			for (int slot = 0; slot < 3; slot++)
+			{
+				List<BankPreviewItem> armour = setCandidates.get(STYLE_RANGED + ":" + slot);
+				if (armour != null) armour.sort(Comparator
+					.comparing((BankPreviewItem item) -> !GearSetSemanticRuleSet.isCrystalArmour(item.getItemId()))
+					.thenComparing(byPreference));
+			}
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
-		Set<Integer> reservedPrimaryIds = reservePrimaryItems(setCandidates);
-		Set<Integer> protectedVerticalSetIds = ownedFamilySizes.keySet();
-		List<BankPreviewItem> fillerOrder = remainingSorted(items, new LinkedHashSet<>(), gearStats);
-
-		for (int[] setRow : SET_ROWS)
-		{
-			BankPreviewItem[] cells = new BankPreviewItem[GRID_COLUMNS];
-			int primaryCount = 0;
-			for (int column = 0; column < SET_COLUMNS; column++)
-			{
-				if (setRow[column] < 0)
-				{
-					continue;
-				}
-				List<BankPreviewItem> candidates = setCandidates.get(column + ":" + setRow[column]);
-				if (candidates != null && !candidates.isEmpty())
-				{
-					cells[column] = candidates.get(0);
-					primaryCount++;
-				}
-			}
-
-			if (primaryCount < MIN_STYLE_COLUMNS_PER_ROW)
-			{
-				continue;
-			}
-
-			// These primaries belong to this row. Releasing them before the
-			// feasibility check lets a skipped sparse row fall back normally,
-			// while all later rows remain protected from filler selection.
-			for (int column = 0; column < SET_COLUMNS; column++)
-			{
-				if (cells[column] != null)
-				{
-					reservedPrimaryIds.remove(cells[column].getItemId());
-					usedItemIds.add(cells[column].getItemId());
-				}
-			}
-
-			int fillersNeeded = GRID_COLUMNS - primaryCount;
-			Set<Integer> rowProtectedVerticalSetIds = protectedVerticalSetIds;
-			if (availableFillerCount(fillerOrder, usedItemIds, reservedPrimaryIds,
-				rowProtectedVerticalSetIds, gearStats) < fillersNeeded)
-			{
-				// The dense bank cannot preserve both shapes when no real alternative filler exists.
-				// Keep the primary setup row and release family protection only for this row.
-				rowProtectedVerticalSetIds = Collections.emptySet();
-				if (availableFillerCount(fillerOrder, usedItemIds, reservedPrimaryIds,
-					rowProtectedVerticalSetIds, gearStats) < fillersNeeded)
-				{
-					for (int column = 0; column < SET_COLUMNS; column++)
-					{
-						if (cells[column] != null)
-						{
-							usedItemIds.remove(cells[column].getItemId());
-							reservedPrimaryIds.add(cells[column].getItemId());
-						}
-					}
-					continue;
-				}
-			}
-			for (int column = 0; column < GRID_COLUMNS; column++)
-			{
-				if (cells[column] == null && column < SET_COLUMNS && setRow[column] >= 0)
-				{
-					cells[column] = takeBestFillerForSlot(setRow[column], fillerOrder,
-						usedItemIds, reservedPrimaryIds, rowProtectedVerticalSetIds, gearStats);
-				}
-				if (cells[column] == null)
-				{
-					cells[column] = takeBestFillerForRow(setRow, fillerOrder,
-						usedItemIds, reservedPrimaryIds, rowProtectedVerticalSetIds, gearStats);
-				}
-				if (cells[column] == null)
-				{
-					cells[column] = takeFirstFiller(fillerOrder, usedItemIds,
-						reservedPrimaryIds, rowProtectedVerticalSetIds, gearStats);
-				}
-				usedItemIds.add(cells[column].getItemId());
-				laidOut.add(cells[column]);
-			}
-		}
-
-		List<BankPreviewItem> setupRows = new ArrayList<>(laidOut);
-		List<BankPreviewItem> tail = new ArrayList<>();
-
-		// Dense fallback: best remaining item per style and slot as contiguous
-		// per-style runs, then everything else grouped by slot.
+		// Selection is independent of geometry. The full-grid planner supplies
+		// real fillers beside these columns and places secondary families vertically.
 		for (int style : SETUP_STYLES)
 		{
 			for (int slot : SETUP_SLOTS)
 			{
 				String key = style + ":" + slot;
 				List<BankPreviewItem> candidates = setCandidates.get(key);
-				if (candidates != null)
+				if (candidates != null && !candidates.isEmpty())
 				{
-					for (BankPreviewItem item : candidates)
+					BankPreviewItem item = candidates.get(0);
+					if (usedItemIds.add(item.getItemId()))
 					{
-						if (usedItemIds.add(item.getItemId()))
-						{
-							tail.add(item);
-							break;
-						}
+						laidOut.add(item);
 					}
 				}
 			}
 		}
 
-		tail.addAll(remainingSorted(items, usedItemIds, gearStats));
-		return new GearLayout(setupRows, tail);
+		return new GearLayout(laidOut, remainingSorted(items, usedItemIds, gearStats), 0);
+	}
+
+	static Map<Integer, Integer> setupTargets(GearLayout selection, int capacity, GearStatsSource gearStats)
+	{
+		Map<String, BankPreviewItem> best = new HashMap<>();
+		for (BankPreviewItem item : selection.getSetupRows())
+			best.put(styleRankOf(item, gearStats) + ":" + slotRankOf(item, gearStats), item);
+		Map<Integer, Integer> targets = new LinkedHashMap<>();
+		int start = 0;
+		for (int[] row : SET_ROWS)
+		{
+			boolean present = false;
+			for (int style : SETUP_STYLES)
+			{
+				BankPreviewItem item = best.get(style + ":" + row[style]);
+				if (item == null) continue;
+				present = true;
+				if (start + style < capacity) targets.put(item.getItemId(), start + style);
+			}
+			if (present) start += GRID_COLUMNS;
+		}
+		return targets;
+	}
+
+	static boolean isAmmo(BankPreviewItem item, GearStatsSource gearStats)
+	{
+		return slotRankOf(item, gearStats) == 11;
 	}
 
 	static final class GearLayout
 	{
 		private final List<BankPreviewItem> setupRows;
 		private final List<BankPreviewItem> tail;
+		private final int alignedSize;
 
-		private GearLayout(List<BankPreviewItem> setupRows, List<BankPreviewItem> tail)
+		private GearLayout(List<BankPreviewItem> setupRows, List<BankPreviewItem> tail, int alignedSize)
 		{
 			this.setupRows = setupRows;
 			this.tail = tail;
+			this.alignedSize = alignedSize;
+		}
+
+		int getAlignedSize()
+		{
+			return alignedSize;
 		}
 
 		List<BankPreviewItem> getSetupRows()
@@ -319,137 +229,30 @@ final class GearItemSorter
 		}
 	}
 
-	private static Set<Integer> reservePrimaryItems(Map<String, List<BankPreviewItem>> setCandidates)
+	private static int familyStyle(List<BankPreviewItem> family, GearStatsSource gearStats)
 	{
-		Set<Integer> reserved = new LinkedHashSet<>();
-		for (int[] row : SET_ROWS)
-		{
-			for (int column = 0; column < SET_COLUMNS; column++)
-			{
-				if (row[column] < 0)
-				{
-					continue;
-				}
-				List<BankPreviewItem> candidates = setCandidates.get(column + ":" + row[column]);
-				if (candidates != null && !candidates.isEmpty())
-				{
-					reserved.add(candidates.get(0).getItemId());
-				}
-			}
-		}
-		return reserved;
+		int[] counts = new int[STYLE_OTHER + 1];
+		boolean hasArmour = family.stream().anyMatch(item -> slotRankOf(item, gearStats) < 8);
+		for (BankPreviewItem item : family)
+			if (!hasArmour || slotRankOf(item, gearStats) < 8) counts[styleRankOf(item, gearStats)]++;
+		int best = 0;
+		for (int style = 1; style < counts.length; style++) if (counts[style] > counts[best]) best = style;
+		return best;
 	}
 
-	private static int availableFillerCount(List<BankPreviewItem> candidates, Set<Integer> usedItemIds,
-		Set<Integer> reservedPrimaryIds, Set<Integer> protectedVerticalSetIds,
-		GearStatsSource gearStats)
+	private static List<List<BankPreviewItem>> presentSets(List<BankPreviewItem> items)
 	{
-		int available = 0;
-		for (BankPreviewItem candidate : candidates)
+		Map<Integer, BankPreviewItem> byId = new HashMap<>();
+		for (BankPreviewItem item : items) byId.put(item.getItemId(), item);
+		List<List<BankPreviewItem>> result = new ArrayList<>();
+		for (List<Integer> family : GearSetSemanticRuleSet.gearSetsInSlotOrder())
 		{
-			if (isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
-				protectedVerticalSetIds, gearStats))
-			{
-				available++;
-			}
+			List<BankPreviewItem> present = new ArrayList<>();
+			for (int id : family) if (byId.containsKey(id)) present.add(byId.get(id));
+			if (present.size() >= 2 || present.size() == 1
+				&& GearSetSemanticRuleSet.isCannonPart(present.get(0).getItemId())) result.add(present);
 		}
-		return available;
-	}
-
-	private static BankPreviewItem takeBestFillerForSlot(int slot, List<BankPreviewItem> candidates,
-		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds,
-		Set<Integer> protectedVerticalSetIds, GearStatsSource gearStats)
-	{
-		for (BankPreviewItem candidate : candidates)
-		{
-			if (slotRankOf(candidate, gearStats) == slot
-				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
-					protectedVerticalSetIds, gearStats))
-			{
-				return candidate;
-			}
-		}
-		return null;
-	}
-
-	private static BankPreviewItem takeBestFillerForRow(int[] row, List<BankPreviewItem> candidates,
-		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds,
-		Set<Integer> protectedVerticalSetIds, GearStatsSource gearStats)
-	{
-		for (BankPreviewItem candidate : candidates)
-		{
-			int slot = slotRankOf(candidate, gearStats);
-			if (rowContainsSlot(row, slot)
-				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
-					protectedVerticalSetIds, gearStats))
-			{
-				return candidate;
-			}
-		}
-		return null;
-	}
-
-	private static BankPreviewItem takeFirstFiller(List<BankPreviewItem> candidates,
-		Set<Integer> usedItemIds, Set<Integer> reservedPrimaryIds,
-		Set<Integer> protectedVerticalSetIds, GearStatsSource gearStats)
-	{
-		// Prefer unstructured accessories (especially rings) before borrowing
-		// from another equipment row. They have no setup row of their own.
-		for (BankPreviewItem candidate : candidates)
-		{
-			int slot = slotRankOf(candidate, gearStats);
-			if ((styleRankOf(candidate, gearStats) == STYLE_OTHER || slot >= 12)
-				&& isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
-					protectedVerticalSetIds, gearStats))
-			{
-				return candidate;
-			}
-		}
-
-		// When cross-row borrowing is unavoidable, take overflow from the
-		// latest slot group (normally spare weapons) so legs, capes, necks and
-		// boots still reach their own rows. Candidate order keeps the best item
-		// within that chosen slot first.
-		int latestSlot = -1;
-		BankPreviewItem selected = null;
-		for (BankPreviewItem candidate : candidates)
-		{
-			if (!isAvailableFiller(candidate, usedItemIds, reservedPrimaryIds,
-				protectedVerticalSetIds, gearStats))
-			{
-				continue;
-			}
-			int slot = slotRankOf(candidate, gearStats);
-			if (slot > latestSlot)
-			{
-				latestSlot = slot;
-				selected = candidate;
-			}
-		}
-		return selected;
-	}
-
-	private static boolean isAvailableFiller(BankPreviewItem candidate, Set<Integer> usedItemIds,
-		Set<Integer> reservedPrimaryIds, Set<Integer> protectedVerticalSetIds,
-		GearStatsSource gearStats)
-	{
-		return slotRankOf(candidate, gearStats) != 11
-			&& !GearSetSemanticRuleSet.isCannonPart(candidate.getItemId())
-			&& !usedItemIds.contains(candidate.getItemId())
-			&& !reservedPrimaryIds.contains(candidate.getItemId())
-			&& !protectedVerticalSetIds.contains(candidate.getItemId());
-	}
-
-	private static boolean rowContainsSlot(int[] row, int slot)
-	{
-		for (int value : row)
-		{
-			if (value == slot)
-			{
-				return true;
-			}
-		}
-		return false;
+		return result;
 	}
 
 	private static List<BankPreviewItem> remainingSorted(List<BankPreviewItem> items, Set<Integer> usedItemIds,
@@ -466,8 +269,8 @@ final class GearItemSorter
 
 		remaining.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> rankOf(item, gearStats))
-			.thenComparingInt(item -> ammoFamilyRank(item, gearStats))
-			.thenComparingInt(item -> ammoTierRank(item, gearStats))
+			.thenComparingInt(item -> slotRankOf(item, gearStats) == 11 ? ammoFamilyRank(item) : 0)
+			.thenComparingInt(item -> slotRankOf(item, gearStats) == 11 ? ammoTierRank(item) : 0)
 			.thenComparing((BankPreviewItem item) -> -scoreOf(item, gearStats))
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
@@ -487,9 +290,8 @@ final class GearItemSorter
 		return slot == 11 ? 1300 : slot * 100 + styleRankOf(item, gearStats);
 	}
 
-	private static int ammoFamilyRank(BankPreviewItem item, GearStatsSource gearStats)
+	static int ammoFamilyRank(BankPreviewItem item)
 	{
-		if (slotRankOf(item, gearStats) != 11) return 0;
 		String name = normalized(item.getDisplayName());
 		if (containsAny(name, "arrow", "brutal")) return 0;
 		if (containsAny(name, "bolt", "bolt rack")) return 10;
@@ -500,10 +302,9 @@ final class GearItemSorter
 		return 60;
 	}
 
-	private static int ammoTierRank(BankPreviewItem item, GearStatsSource gearStats)
+	static int ammoTierRank(BankPreviewItem item)
 	{
-		if (slotRankOf(item, gearStats) != 11) return 0;
-		String name = normalized(item.getDisplayName());
+		String name = normalized(item.getDisplayName()).replace("runite", "rune");
 		String[] tiers = ClassificationNames.group(71);
 		for (int i = 0; i < tiers.length; i++)
 		{
@@ -514,10 +315,11 @@ final class GearItemSorter
 
 	private static int slotRankOf(BankPreviewItem item, GearStatsSource gearStats)
 	{
+		if (!GearSetSemanticRuleSet.weaponRole(item.getItemId()).isEmpty()) return 8 + styleRankOf(item, gearStats);
 		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
 		if (stats.isPresent())
 		{
-			return stats.get().slotRank();
+			return slotOf(item.getDisplayName(), stats.get());
 		}
 
 		String name = normalized(item.getDisplayName());
@@ -533,20 +335,38 @@ final class GearItemSorter
 
 	private static int styleRankOf(BankPreviewItem item, GearStatsSource gearStats)
 	{
+		if (GearSetSemanticRuleSet.isCrystalArmour(item.getItemId())) return STYLE_RANGED;
+		String role = GearSetSemanticRuleSet.weaponRole(item.getItemId());
+		if (!role.isEmpty()) return role.startsWith("weapon-ranged") ? STYLE_RANGED
+			: role.startsWith("weapon-magic") ? STYLE_MAGIC : STYLE_MELEE;
 		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
 		if (stats.isPresent())
 		{
-			return stats.get().style().ordinal();
+			return styleOf(item.getDisplayName(), stats.get()).ordinal();
 		}
-
 		return styleRank(normalized(item.getDisplayName()));
+	}
+
+	/** Casting role wins over a staff's melee attack bonuses; other gear keeps stat-based style. */
+	static GearStyle styleOf(String displayName, GearStats stats)
+	{
+		String name = normalized(displayName);
+		return stats.getSlot() == GearSlot.WEAPON
+			&& (containsAny(name, ClassificationNames.group(57)) || name.contains("blue moon spear"))
+			? GearStyle.MAGIC : stats.style();
+	}
+
+	static int slotOf(String displayName, GearStats stats)
+	{
+		GearStyle style = styleOf(displayName, stats);
+		return stats.getSlot() == GearSlot.WEAPON ? style == GearStyle.PRAYER ? 8 : 8 + style.ordinal() : stats.slotRank();
 	}
 
 	private static int scoreOf(BankPreviewItem item, GearStatsSource gearStats)
 	{
 		int score = gearScore(item);
 		Optional<GearStats> stats = gearStats.statsFor(item.getItemId());
-		return stats.isPresent() ? score + stats.get().score() : score;
+		return stats.isPresent() ? score + stats.get().score(styleOf(item.getDisplayName(), stats.get())) : score;
 	}
 
 	static int score(BankPreviewItem item, GearStatsSource gearStats)
@@ -583,25 +403,9 @@ final class GearItemSorter
 
 		String name = normalized(item.getDisplayName());
 		int score = 0;
-		score = Math.max(score, scoreIfContains(name, 1000, "torva", "ancestral", "masori", "tumeken", "twisted bow",
-			"scythe", "shadow", "zaryte", "occult", "primordial", "pegasian", "eternal", "oathplate", "rancour"));
-		score = Math.max(score, scoreIfContains(name, 800, "bandos", "armadyl", "ahrim", "karil",
-			"crystal", "bowfa", "bow of faerdhinen", "toxic blowpipe", "trident", "barrows", "serpentine",
-			"faceguard", "dragonfire", "abyssal", "whip", "tentacle", "dragon defender",
-			"blessed d'hide", "god d'hide", "malediction", "odium", "toxic", "echo boots"));
-		score = Math.max(score, scoreIfContains(name, 600, "dragon", "black d'hide", "red d'hide", "infinity", "fighter torso",
-			"rune crossbow", "rune defender", "magic shortbow", "book of darkness", "tome"));
-		score = Math.max(score, scoreIfContains(name, 400, "rune", "blue d'hide", "green d'hide",
-			"splitbark", "xerician", "adamant", "mithril", "iron", "steel",
-			"leather", "mystic", "wizard boots"));
-		score = Math.max(score, scoreIfContains(name, 600, "mystic boots"));
-		score = Math.max(score, scoreIfContains(name, 200, "wizard"));
+		for (int stage = 1; stage <= 5; stage++)
+			if (containsAny(name, ClassificationNames.group(75 + stage))) score = stage * GEAR_TIER_SCORE_STEP;
 		return score;
-	}
-
-	private static int scoreIfContains(String name, int score, String... needles)
-	{
-		return containsAny(name, needles) ? score : 0;
 	}
 
 }

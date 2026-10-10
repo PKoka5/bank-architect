@@ -235,4 +235,26 @@ public final class GearStats
 			+ Math.max(0, magicAttack);
 		return offence * 4 + Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
 	}
+
+	/** Placement score for one combat role; it is not evidence for alching. */
+	public int score(GearStyle style)
+	{
+		int offence;
+		switch (style)
+		{
+			case MELEE:
+				offence = Math.max(0, Math.max(Math.max(stabAttack, slashAttack), crushAttack))
+					+ Math.max(0, meleeStrength);
+				break;
+			case RANGED:
+				offence = Math.max(0, rangedAttack) + Math.max(0, rangedStrength);
+				break;
+			case MAGIC:
+				offence = Math.max(0, magicAttack) + Math.max(0, magicDamageTenths);
+				break;
+			default:
+				offence = 0;
+		}
+		return offence * 4 + Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
+	}
 }

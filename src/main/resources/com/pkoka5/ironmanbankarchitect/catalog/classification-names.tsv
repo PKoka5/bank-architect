@@ -48,8 +48,8 @@
 46	top	garb	jacket	shirt
 47	legs	waders	robe	trousers
 48	helmet	helm	coif	hat	mask	hood	sallet	mitre	bearhead
-49	body	platebody	robe top	hauberk	torso	chestplate	oathplate chest	cuirass	brassard	robetop	leathertop
-50	legs	platelegs	plateskirt	chaps	robe bottom	skirt	tassets	tasset	cuisse	chausses
+49	body	platebody	robe top	hauberk	torso	chestplate	oathplate chest	cuirass	brassard	robetop	leathertop	chainbody	rock-shell plate	 top
+50	legs	platelegs	plateskirt	chaps	robe bottom	skirt	tassets	tasset	cuisse	chausses	bottoms
 51	cape	cloak	ava's	avas	accumulator	assembler
 52	amulet	necklace	symbol	stole
 53	shield	defender	book	ward	offhand
@@ -59,9 +59,9 @@
 57	staff	wand	trident	sceptre	scepter	tumeken's shadow
 58	arrow	bolt	dart	javelin	cannonball	chinchompa	bolt rack	grapple	blessing
 59	proselyte	initiate	monk's	holy symbol	holy sandals	sunfire fanatic
-60	rune	dragon	barrows	bandos	torva	obsidian	fighter	berserker	defender	scimitar	whip	mace	spear	halberd	warhammer	battleaxe	maul	hasta	rapier	platebody	platelegs	plateskirt	helm	neitiznot	serpentine	faceguard	granite	justiciar	verac	dharok	guthan	torag	karamja gloves	barrows gloves	oathplate	rancour	echo boots	scythe	soulreaper axe	zombie axe	amulet of fury	amulet of blood fury	amulet of torture
-61	bow	crossbow	ballista	blowpipe	arrow	bolt	dart	javelin	chinchompa	coif	chaps	vambraces	leather	d'hide	dragonhide	karil	armadyl	ava's	avas	accumulator	assembler	masori	crystal helm	crystal body	crystal legs	necklace of anguish	ranger boots
-62	staff	wand	trident	sceptre	scepter	mystic	ahrim	ancestral	infinity	wizard	splitbark	lunar	xerician	ghostly	robe	occult	tome	tumeken's shadow
+60	rune	dragon	barrows	bandos	torva	obsidian	fighter	berserker	defender	scimitar	whip	mace	spear	halberd	warhammer	battleaxe	maul	hasta	rapier	platebody	platelegs	plateskirt	helm	neitiznot	serpentine	faceguard	granite	justiciar	verac	dharok	guthan	torag	karamja gloves	barrows gloves	oathplate	rancour	echo boots	scythe	soulreaper axe	zombie axe	amulet of fury	amulet of blood fury	amulet of torture	inquisitor	blood moon	rock-shell	yak-hide	chainbody	runner hat
+61	bow	crossbow	ballista	blowpipe	arrow	bolt	dart	javelin	chinchompa	coif	chaps	vambraces	leather	d'hide	dragonhide	karil	armadyl	ava's	avas	accumulator	assembler	masori	crystal helm	crystal body	crystal legs	necklace of anguish	ranger boots	ranger	snakeskin	spined	hueycoatl	eclipse moon	mixed hide	3rd age range	tonalztics
+62	staff	wand	trident	sceptre	scepter	mystic	ahrim	ancestral	infinity	wizard	splitbark	lunar	xerician	ghostly	robe	occult	tome	tumeken's shadow	swampbark	bloodbark	virtus	dagon'hai	skeletal	enchanted	dark squall	elder chaos	healer hat	3rd age mage	blue moon
 63	tip	head	limbs
 64	copper	tin	bronze
 65	iron	coal	steel
@@ -75,3 +75,8 @@
 73	cow	green	blue	red	black	bear	kebbit	fox	larupia	graahk	kyatt	dagannoth
 74	opal	jade	topaz	sapphire	emerald	ruby	diamond	dragonstone	onyx	zenyte
 75	shrimp	sardine	herring	anchovies	mackerel	trout	salmon	tuna	lobster	swordfish	monkfish	karambwan	shark	sea turtle	manta ray	anglerfish	eel	dark crab
+76	wizard
+77	rune	blue d'hide	green d'hide	splitbark	xerician	adamant	mithril	iron	steel	leather	mystic	wizard boots
+78	dragon	black d'hide	red d'hide	infinity	fighter torso	rune crossbow	rune defender	magic shortbow	book of darkness	tome	mystic boots
+79	bandos	armadyl	ahrim	karil	crystal	bowfa	bow of faerdhinen	toxic blowpipe	trident	barrows	serpentine	faceguard	dragonfire	abyssal	whip	tentacle	dragon defender	blessed d'hide	god d'hide	malediction	odium	toxic	echo boots
+80	torva	ancestral	masori	tumeken	twisted bow	scythe	shadow	zaryte	occult	primordial	pegasian	eternal	oathplate	rancour

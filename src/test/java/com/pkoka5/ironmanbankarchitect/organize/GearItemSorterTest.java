@@ -217,7 +217,7 @@ public class GearItemSorterTest
 	}
 
 	@Test
-	public void completeSlotRowsStayAlignedWithoutGenericFiller()
+	public void completeSlotRowsExposeBestGearTargetsWithoutBorrowingFillersDuringSelection()
 	{
 		// Two full slot rows and zero rings/utility filler: both rows must
 		// still come out aligned instead of collapsing into dense runs.
@@ -243,18 +243,18 @@ public class GearItemSorterTest
 			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
 
 		assertEquals(16, laidOut.size());
-		assertEquals("Body m", laidOut.get(0).getDisplayName());
-		assertEquals("Body r", laidOut.get(1).getDisplayName());
-		assertEquals("Body g", laidOut.get(2).getDisplayName());
-		assertEquals("Body p", laidOut.get(3).getDisplayName());
-		assertEquals("Legs m", laidOut.get(8).getDisplayName());
-		assertEquals("Legs r", laidOut.get(9).getDisplayName());
-		assertEquals("Legs g", laidOut.get(10).getDisplayName());
-		assertEquals("Legs p", laidOut.get(11).getDisplayName());
+		GearItemSorter.GearLayout selection = GearItemSorter.plan(input, stats);
+		java.util.Map<Integer, Integer> targets = GearItemSorter.setupTargets(selection, input.size(), stats);
+		for (int style = 0; style < 4; style++)
+		{
+			assertEquals(Integer.valueOf(style), targets.get(960001 + style));
+			assertEquals(Integer.valueOf(8 + style), targets.get(960011 + style));
+		}
+		assertEquals("only real best pieces are selected before geometric packing", 8, selection.getSetupRows().size());
 	}
 
 	@Test
-	public void primarySetupWinsWhenACompactBankCannotAlsoPreserveVerticalFamilies()
+	public void compactBankKeepsPrimaryFrontWithoutConsumingSecondaryFamilies()
 	{
 		List<BankPreviewItem> input = Arrays.asList(
 			item(950001, "Melee body"), item(950002, "Ranged body"),
@@ -265,7 +265,7 @@ public class GearItemSorterTest
 			if (itemId < 950001 || itemId > 950004)
 			{
 				// Keep the four exact set members out of later setup-row reservations;
-				// this fixture isolates the no-alternative-filler fallback itself.
+				// this fixture isolates protection of the secondary families.
 				return Optional.of(new GearStats(GearSlot.RING,
 					0, 0, 0, 0, 0, 0, 0, 0, 0));
 			}
@@ -275,17 +275,21 @@ public class GearItemSorterTest
 				style == 1 ? 10 : 0, 0, 0, style == 3 ? 10 : 0, 2000));
 		};
 
+		GearItemSorter.GearLayout plan = GearItemSorter.plan(input, stats);
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(input, stats);
 
 		assertEquals(Arrays.asList("Melee body", "Ranged body", "Magic body", "Prayer body"),
-			names(laidOut.subList(0, 4)));
+			names(plan.getSetupRows()));
+		assertEquals(new java.util.HashSet<>(Arrays.asList(544, 542, 4720, 4722)),
+			plan.getTail().stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
+		assertEquals(4, plan.getTail().size());
 		assertEquals(8, laidOut.size());
 		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
 	}
 
 	@Test
-	public void sparseEarlySlotDoesNotBlockLaterCompleteRow()
+	public void sparseEarlySlotKeepsLaterGearBehindCompactBestFront()
 	{
 		List<BankPreviewItem> input = Arrays.asList(
 			item(1, "Sparse helm"),
@@ -309,9 +313,11 @@ public class GearItemSorterTest
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
 			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
 
+		assertEquals("later complete rows cannot jump ahead of an owned helmet", 0,
+			GearItemSorter.plan(input, stats).getAlignedSize());
 		assertEquals(9, laidOut.size());
-		assertEquals(Arrays.asList("Body m", "Body r", "Body g", "Body p",
-			"Body spare 1", "Body spare 2", "Body spare 3", "Body spare 4", "Sparse helm"),
+		assertEquals(Arrays.asList("Sparse helm", "Body m", "Body r", "Body g", "Body p",
+			"Body spare 1", "Body spare 2", "Body spare 3", "Body spare 4"),
 			names(laidOut));
 		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
@@ -322,7 +328,7 @@ public class GearItemSorterTest
 	}
 
 	@Test
-	public void earlyRowsCannotExhaustFillersNeededByLaterStyleRows()
+	public void incompleteSlotRowsStayCompactWithoutBorrowingAnotherSlotsAccessories()
 	{
 		List<BankPreviewItem> input = Arrays.asList(
 			item(961001, "Melee helm"), item(961002, "Ranged helm"),
@@ -369,13 +375,10 @@ public class GearItemSorterTest
 		GearItemSorter.GearLayout plan = GearItemSorter.plan(input, stats);
 		List<BankPreviewItem> setup = plan.getSetupRows();
 
-		assertEquals(16, setup.size());
-		assertEquals(Arrays.asList("Melee helm", "Ranged helm", "Magic helm", "Prayer helm"),
-			names(setup.subList(0, 4)));
-		assertEquals(Arrays.asList("Ring four", "Ring one", "Ring three", "Ring two"),
-			names(setup.subList(4, 8)));
-		assertEquals(Arrays.asList("Melee cape", "Ranged cape", "Magic cape"),
-			names(setup.subList(8, 11)));
+		assertEquals("no slot has eight suitable wearable entries", 0, plan.getAlignedSize());
+		assertEquals(Arrays.asList("Melee helm", "Melee cape", "Melee amulet",
+			"Ranged helm", "Ranged cape", "Ranged amulet", "Magic helm", "Magic cape", "Prayer helm"),
+			names(setup));
 		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			GearItemSorter.layout(input, stats).stream()
 				.map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
@@ -421,9 +424,9 @@ public class GearItemSorterTest
 	{
 		assertEquals(Arrays.asList(
 			"Blood moon helm",
-			"Blue moon helm",
+			"Rune full helm",
 			"Eclipse moon helm",
-			"Rune full helm"
+			"Blue moon helm"
 		), names(GearItemSorter.dense(Arrays.asList(
 			item(1163, "Rune full helm"),
 			item(29010, "Eclipse moon helm"),

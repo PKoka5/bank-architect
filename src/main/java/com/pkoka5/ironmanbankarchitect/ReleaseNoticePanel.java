@@ -15,7 +15,7 @@ import javax.swing.*;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.9.2";
+	static final String RELEASE_ID = "0.9.3";
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -39,13 +39,13 @@ final class ReleaseNoticePanel extends JPanel
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 		JLabel notes = new JLabel("<html><div style='width:135px'>"
 			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Stable Alch and Combat</h3>"
-			+ "<p>Known armour upgrades still count when left as placeholders, even after restarting. "
-			+ "New deposits keep established Alch choices. Corrected gear tiers and slots improve Combat order.</p>"
-			+ "<h3>Fewer manual moves</h3>"
-			+ "<p>The guide can move neighboring tabs as a whole. Insert guidance and large-bank matching are more efficient.</p>"
-			+ "<p>Your corrections and saved bank blueprints still take priority.</p>"
-			+ "<p>You still move every real bank item yourself.</p></div></html>");
+			+ "<h3>Clearer Combat layouts</h3>"
+			+ "<p>Best gear leads each style column. Other sets stay together vertically, with separate weapon roles "
+			+ "and Crystal armour beside Bowfa.</p>"
+			+ "<h3>Tidier loot</h3>"
+			+ "<p>Arrows, bolts, darts and cannonballs group together in Slayer &amp; Boss Loot, followed by Alch items.</p>"
+			+ "<p>Newer gear coverage and faster dense Combat previews.</p>"
+			+ "<p>Your corrections and saved blueprints take priority. All bank moves remain manual.</p></div></html>");
 		notes.setForeground(Color.WHITE);
 		notes.setVerticalAlignment(JLabel.TOP);
 		JScrollPane scroll = new JScrollPane(notes);

@@ -50,6 +50,8 @@ public class PlaceholderGearStabilityTest
 		BankOrganizationPreview owned = session.analyze(bank(false));
 		assertTag(owned, RUNE_BODY, "alch");
 		assertTag(owned, RUNE_LEGS, "alch");
+		assertEquals(Arrays.asList(BANDOS_BODY, BANDOS_LEGS), combatIds(owned));
+		assertPhysicalContents(bank(false), owned);
 		Map<Integer, List<Integer>> established = tabIds(owned);
 
 		for (int reopen = 0; reopen < 3; reopen++)
@@ -58,6 +60,7 @@ public class PlaceholderGearStabilityTest
 			assertEquals(established, tabIds(withdrawn));
 			assertTag(withdrawn, RUNE_BODY, "alch");
 			assertTag(withdrawn, RUNE_LEGS, "alch");
+			assertPhysicalContents(bank(true), withdrawn);
 			for (int id : new int[] {BANDOS_BODY, BANDOS_LEGS})
 			{
 				assertTag(withdrawn, id, "gear");
@@ -67,12 +70,13 @@ public class PlaceholderGearStabilityTest
 		}
 		BankOrganizationPreview returned = session.analyze(bank(false));
 		assertEquals(established, tabIds(returned));
+		assertPhysicalContents(bank(false), returned);
 		assertFalse(item(returned, BANDOS_BODY).isPlaceholder());
 		assertEquals(1, item(returned, BANDOS_BODY).getQuantity());
 	}
 
 	@Test
-	public void withdrawingMeleeSetLeavesCompletedFullBisRowsCompleteInBothRearrangeModes()
+	public void withdrawingMeleeSetKeepsVerticalStyleColumnsCompleteInBothRearrangeModes()
 	{
 		Session session = new Session(preset);
 		int[][] rows = {{BANDOS_BODY, 11828, 21021, 9674}, {BANDOS_LEGS, 11830, 21024, 9676}};
@@ -98,10 +102,23 @@ public class PlaceholderGearStabilityTest
 		List<BankPreviewItem> combat = owned.getCategories()
 			.get(BankLayoutPlan.defaultFor(preset).destinationOf("gear")).getItems();
 		assertEquals(16, combat.size());
+		Set<Integer> bestPositions = new HashSet<>();
 		for (int row = 0; row < rows.length; row++)
-			for (int column = 0; column < rows[row].length; column++)
-				assertEquals("BIS row " + row + ", column " + column,
-					rows[row][column], combat.get(row * 8 + column).getItemId());
+			for (int style = 0; style < rows[row].length; style++)
+			{
+				int position = row * 8 + style;
+				assertEquals("Body and legs stay in the same style column", rows[row][style],
+					combat.get(position).getItemId());
+				bestPositions.add(position);
+			}
+		Set<Integer> ringIds = new HashSet<>();
+		for (int id : rings) ringIds.add(id);
+		Set<Integer> placedRings = new HashSet<>();
+		for (int position = 0; position < combat.size(); position++)
+			if (!bestPositions.contains(position)) placedRings.add(combat.get(position).getItemId());
+		assertEquals("Only existing rings occupy the cells beside the vertical armour columns",
+			ringIds, placedRings);
+		assertPhysicalContents(new BankSnapshot(entries), owned);
 		assertEquals(Integer.valueOf(16), owned.getTagCounts().get("gear"));
 		BankTabPlan ownedPlan = BankTabPlan.fromPreview(owned);
 		int[] physicalOrder = ownedPlan.getFlattenedItems().stream().mapToInt(BankPreviewItem::getItemId).toArray();
@@ -118,9 +135,12 @@ public class PlaceholderGearStabilityTest
 		}
 		BankOrganizationPreview withdrawn = session.analyze(new BankSnapshot(withdrawnEntries));
 		assertEquals(tabIds(owned), tabIds(withdrawn));
+		assertPhysicalContents(new BankSnapshot(withdrawnEntries), withdrawn);
 		assertEquals(Integer.valueOf(14), withdrawn.getTagCounts().get("gear"));
 		assertComplete(withdrawn, physicalOrder, tabCounts);
 		BankOrganizationPreview returned = session.analyze(new BankSnapshot(entries));
+		assertEquals(tabIds(owned), tabIds(returned));
+		assertPhysicalContents(new BankSnapshot(entries), returned);
 		assertEquals(Integer.valueOf(16), returned.getTagCounts().get("gear"));
 		assertComplete(returned, physicalOrder, tabCounts);
 	}
@@ -400,6 +420,33 @@ public class PlaceholderGearStabilityTest
 	private static void assertTag(BankOrganizationPreview preview, int id, String tag)
 	{
 		assertEquals("item " + id, tag, item(preview, id).getLayoutTagKey());
+	}
+
+	private List<Integer> combatIds(BankOrganizationPreview preview)
+	{
+		return tabIds(preview).get(BankLayoutPlan.defaultFor(preset).destinationOf("gear"));
+	}
+
+	private static void assertPhysicalContents(BankSnapshot bank, BankOrganizationPreview preview)
+	{
+		assertEquals("Every physical item remains in the blueprint", bank.getPhysicalItems().size(),
+			preview.getPlannedItemCount());
+		Set<Integer> seen = new HashSet<>();
+		for (BankCategoryPreview category : preview.getCategories())
+		{
+			assertFalse("Automatic placement is not a manual order", category.hasManualOrder());
+			for (BankPreviewItem item : category.getItems())
+			{
+				assertFalse("Do not invent row fillers", item.isBlank());
+				assertTrue("Do not duplicate items", seen.add(item.getItemId()));
+			}
+		}
+		for (BankItemSnapshot original : bank.getPhysicalItems())
+		{
+			BankPreviewItem placed = item(preview, original.getItemId());
+			assertEquals("Quantity for " + original.getItemId(), original.getQuantity(), placed.getQuantity());
+			assertEquals("Placeholder for " + original.getItemId(), original.isPlaceholder(), placed.isPlaceholder());
+		}
 	}
 
 	private static void assertComplete(BankOrganizationPreview preview, int[] physicalOrder, int[] tabCounts)

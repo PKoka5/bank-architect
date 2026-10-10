@@ -134,18 +134,10 @@ public class GearProgressionConsistencyTest
 		}
 
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(items, GearStatsSource.NONE);
-		int[][] expectedPrimaries = {
-			{30750, 11826, 21018}, {30753, 11828, 21021}, {30756, 11830, 21024},
-			{29801}, {28945, 19930, 4097}
-		};
-		for (int row = 0; row < expectedPrimaries.length; row++)
-		{
-			for (int column = 0; column < expectedPrimaries[row].length; column++)
-			{
-				assertEquals("name-only row " + row + ", column " + column,
-					expectedPrimaries[row][column], laidOut.get(row * GearItemSorter.GRID_COLUMNS + column).getItemId());
-			}
-		}
+		assertEquals("rings cannot pad armour rows; actual best pieces form style runs",
+			Arrays.asList(30750, 30753, 30756, 29801, 28945, 11826, 11828, 11830,
+				19547, 19930, 21018, 21021, 21024, 12002, 4097),
+			laidOut.subList(0, 15).stream().map(BankPreviewItem::getItemId).collect(Collectors.toList()));
 		assertEquals("preserve every supplied bank entry", items.size(), laidOut.size());
 		assertEquals(items.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
@@ -198,12 +190,12 @@ public class GearProgressionConsistencyTest
 
 				for (int row = 0; row < UPGRADE_ROWS.length; row++)
 				{
-					int start = row * GearItemSorter.GRID_COLUMNS;
-					assertEquals(context + ", melee row " + row, UPGRADE_ROWS[row][0], combat.get(start).getItemId());
-					assertEquals(context + ", ranged row " + row, UPGRADE_ROWS[row][2], combat.get(start + 1).getItemId());
-					assertEquals(context + ", magic row " + row, UPGRADE_ROWS[row][3], combat.get(start + 2).getItemId());
-					assertEquals(context + ", placeholder state row " + row, placeholders, combat.get(start).isPlaceholder());
-					assertEquals(context + ", quantity row " + row, placeholders ? 0 : 1, combat.get(start).getQuantity());
+					int position = row * 8;
+					assertEquals(context + ", melee slot " + row, UPGRADE_ROWS[row][0], combat.get(position).getItemId());
+					assertEquals(context + ", ranged slot " + row, UPGRADE_ROWS[row][2], combat.get(position + 1).getItemId());
+					assertEquals(context + ", magic slot " + row, UPGRADE_ROWS[row][3], combat.get(position + 2).getItemId());
+					assertEquals(context + ", placeholder state slot " + row, placeholders, combat.get(position).isPlaceholder());
+					assertEquals(context + ", quantity slot " + row, placeholders ? 0 : 1, combat.get(position).getQuantity());
 				}
 				assertEquals(context + ", each real bank entry appears once", bank.getItems().size(), combat.size());
 				assertEquals(context + ", item IDs are preserved",

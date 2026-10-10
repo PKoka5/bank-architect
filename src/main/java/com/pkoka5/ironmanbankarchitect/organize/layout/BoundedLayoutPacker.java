@@ -955,6 +955,9 @@ final class BoundedLayoutPacker
 
 		private void add(PendingChild child)
 		{
+			// Reject strictly worse candidates before heap insertion. Equal ties retain the old path.
+			if (worstFirst.size() == maximumSize
+				&& comparePendingChildren(child, worstFirst.peek()) > 0) return;
 			worstFirst.add(child);
 			if (worstFirst.size() > maximumSize)
 			{

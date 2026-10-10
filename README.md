@@ -220,14 +220,22 @@ They are asked separately because they are the same mechanism but not the same
 trade. You may well want the four combat-style columns held straight while being
 perfectly happy for a short recipe row to stop where it stops.
 
-- **Gear on**: the grid holds its shape, at the cost of the odd unrelated item in
-  a row. **Off**: the gear tab is laid out densely and nothing sits where it does
-  not belong. Sets still hold together as columns, since that is a different
-  rule. Turn it off if you have ever wondered why a pair of gloves is nowhere
-  near the rest of its set.
+- **Gear on**: the best owned gear uses vertical combat-style columns. Other sets
+  use vertical columns in the same grid, with real loose gear filling the space
+  around them. Very small banks stay compact when a column cannot physically fit.
+  **Off**: sets use columns without reserving best-gear
+  equipment rows. List and grid layouts share the same reviewed set families.
 - **Herblore on**: a part-finished recipe borrows from the rest of the tab so the
   next recipe still starts at the left edge. **Off**: a short row is left short
   and the recipes simply follow each other.
+
+The default Combat front gives general Strength gear and raid weapons a reviewed
+navigation priority. Torva leads the melee armour column when present; Oathplate,
+Inquisitor and tank sets remain together vertically. Slash, stab, crush and
+special-attack weapons form separate groups outside existing armour sets.
+When Bowfa leads the ranged column, owned Crystal armour accompanies it.
+Shared pieces occupy one physical slot. These are bank placement choices;
+content-specific setups still matter, and personal blueprint choices take priority.
 
 **Gather outclassed gear** sends reviewed replaced gear and tools to the
 separately placeable **Alch** tag. Main and Ironman use the same rules. The best
@@ -236,6 +244,14 @@ elemental staffs preserve rune supply, and equivalent ordinary Mystic colours
 keep one stable variant. Dragon halberds count as Alch stock by default.
 Unreviewed duplicates need conservative stat/value evidence. Personal item
 choices always win. Turn gathering off to retain the normal categories.
+
+Main and Ironman place finished arrows, bolts (including Bolt rack), darts and
+cannonballs in **Slayer & Boss Loot** by default, including placeholders.
+They form separate groups in that order, using the existing ammunition tiers;
+Alch items stay together afterward. Components and the Bolt pouch keep their
+existing roles. Assign an item to **Combat Gear** or
+**Ammunition** to keep it in Combat. Existing captured banks, valid saved editor
+destinations and relocated Ammunition groups retain the player's choice.
 
 ### Two ways to arrange Herblore
 

@@ -9,7 +9,7 @@ public class ClassificationNamesTest
 {
 	@Test public void bundledGroupsAreComplete()
 	{
-		assertEquals(76, ClassificationNames.load(ClassificationNames.class.getResourceAsStream("classification-names.tsv")).size());
+		assertEquals(81, ClassificationNames.load(ClassificationNames.class.getResourceAsStream("classification-names.tsv")).size());
 	}
 
 	@Test public void invalidResourcesFailClosed()

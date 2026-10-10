@@ -16,21 +16,21 @@ public class ReleaseNoticePanelTest
 	@Test public void newReleaseAppearsAfterPreviousReleaseWasDismissedAndStaysDismissedAfterRestart() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			assertEquals("0.9.2", ReleaseNoticePanel.RELEASE_ID);
-			AtomicReference<String> seen = new AtomicReference<>("0.9.1");
+			assertEquals("0.9.3", ReleaseNoticePanel.RELEASE_ID);
+			AtomicReference<String> seen = new AtomicReference<>("0.9.2");
 			JPanel normal = new JPanel();
 			ReleaseNoticePanel panel = new ReleaseNoticePanel(normal, seen::get, seen::set);
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.1", seen.get());
+			assertEquals("0.9.2", seen.get());
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.1", seen.get());
+			assertEquals("0.9.2", seen.get());
 			JButton dismiss = button(panel);
 			assertNotNull(dismiss);
 			dismiss.doClick();
 			assertTrue(normal.isVisible());
-			assertEquals("0.9.2", seen.get());
+			assertEquals("0.9.3", seen.get());
 			panel.opened();
 			assertTrue(normal.isVisible());
 			JPanel restarted = new JPanel();
@@ -53,11 +53,11 @@ public class ReleaseNoticePanelTest
 			layout(panel);
 			JLabel notes = notes(panel);
 			assertNotNull(notes);
-			assertTrue(notes.getText().contains("Bank Architect 0.9.2"));
-			assertTrue(notes.getText().contains("Stable Alch and Combat"));
-			assertTrue(notes.getText().contains("even after restarting"));
-			assertTrue(notes.getText().contains("Fewer manual moves"));
-			assertTrue(notes.getText().contains("saved bank blueprints"));
+			assertTrue(notes.getText().contains("Bank Architect 0.9.3"));
+			assertTrue(notes.getText().contains("Clearer Combat layouts"));
+			assertTrue(notes.getText().contains("Crystal armour beside Bowfa"));
+			assertTrue(notes.getText().contains("Tidier loot"));
+			assertTrue(notes.getText().contains("saved blueprints"));
 			JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, notes);
 			assertNotNull(scroll);
 			assertEquals(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, scroll.getHorizontalScrollBarPolicy());

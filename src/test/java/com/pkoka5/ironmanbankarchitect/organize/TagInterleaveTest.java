@@ -133,7 +133,7 @@ public class TagInterleaveTest
 				+ WOVEN_TAB + "|clues+cosmetics+collection-log|quest-items|boss-loot").get().getPlan());
 		int tab = plan.destinationOf("ammunition");
 		CategoryOverrideSource helmAsAmmunition = itemId ->
-			itemId == ADAMANT_FULL_HELM
+			itemId == ADAMANT_FULL_HELM || itemId == BRONZE_ARROW
 				? java.util.Optional.of("ammunition") : java.util.Optional.empty();
 
 		// Both ammunition-tagged items lead, because the player wrote that order.
@@ -152,7 +152,7 @@ public class TagInterleaveTest
 			"currency+frequently-used|ammunition+cleanup+gear|food+potions+potion-doses"
 				+ "|runes+teleports|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|"
 				+ WOVEN_TAB + "|clues+cosmetics+collection-log|quest-items|boss-loot");
-		CategoryOverrideSource correction = id -> id == ADAMANT_FULL_HELM
+		CategoryOverrideSource correction = id -> id == ADAMANT_FULL_HELM || id == BRONZE_ARROW
 			? java.util.Optional.of("ammunition") : java.util.Optional.empty();
 		BankOrganizationPreview preview = build(bank, GEAR_AS_LIST, plan, correction);
 		List<BankBlockDescriptor> blocks = preview.getBlockDescriptors().get("ammunition");
@@ -181,11 +181,13 @@ public class TagInterleaveTest
 				+ "|runes+teleports|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|"
 				+ WOVEN_TAB + "|clues+cosmetics+collection-log|quest-items|boss-loot").get().getPlan());
 		int gearTab = plan.destinationOf("gear");
+		CategoryOverrideSource ammunition = id -> id == BRONZE_ARROW
+			? java.util.Optional.of("ammunition") : java.util.Optional.empty();
 
 		assertEquals(Arrays.asList(ADAMANT_FULL_HELM, ROTTEN_FOOD, BRONZE_ARROW),
-			idsOn(build(bank, GEAR_AS_LIST, plan, CategoryOverrideSource.NONE), gearTab));
+			idsOn(build(bank, GEAR_AS_LIST, plan, ammunition), gearTab));
 
-		List<Integer> stacked = idsOn(build(bank, BankLayoutOptions.DEFAULTS, plan, CategoryOverrideSource.NONE), gearTab);
+		List<Integer> stacked = idsOn(build(bank, BankLayoutOptions.DEFAULTS, plan, ammunition), gearTab);
 		assertEquals(Integer.valueOf(ROTTEN_FOOD), stacked.get(2));
 	}
 
