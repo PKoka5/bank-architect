@@ -1,0 +1,137 @@
+# Public behavior captured from pre-migration compiled BankPresets/BankTags, 2026-10-11.
+PRESET	IRONMAN	ironman.all-round	Ironman - All-Round Bank
+CATEGORY	IRONMAN	0	currency-utilities	Frequently Used, Runes & Teleports	MAIN
+CATEGORY	IRONMAN	1	combat-gear	Combat Gear	GEAR
+CATEGORY	IRONMAN	2	potions-food	Potions, Food & PvM Supplies	SUPPLIES
+CATEGORY	IRONMAN	3	herblore	Herblore & Potion Making	HERBLORE
+CATEGORY	IRONMAN	4	seeds-farming	Seeds & Farming	FARMING
+CATEGORY	IRONMAN	5	skilling-tools	Skilling Tools	TOOLS
+CATEGORY	IRONMAN	6	resources	Raw & Processed Resources	RESOURCES
+CATEGORY	IRONMAN	7	slayer-boss-loot	Slayer, Boss Loot & Unique Drops	BOSS_LOOT
+CATEGORY	IRONMAN	8	clues-cosmetics	Clues, Cosmetics & Collection Log	CLUES
+CATEGORY	IRONMAN	9	storage-cleanup	Storage & Cleanup Review	REVIEW
+PRESET	MAIN	main.general	Main - All-Round Bank
+CATEGORY	MAIN	0	currency-utilities	Currency, Runes & Teleports	MAIN
+CATEGORY	MAIN	1	combat-gear	Combat Gear	GEAR
+CATEGORY	MAIN	2	potions-food	Potions & Food	SUPPLIES
+CATEGORY	MAIN	3	herblore	Herblore	HERBLORE
+CATEGORY	MAIN	4	seeds-farming	Seeds & Farming	FARMING
+CATEGORY	MAIN	5	skilling-tools	Skilling Tools	TOOLS
+CATEGORY	MAIN	6	resources	Raw & Processed Resources	RESOURCES
+CATEGORY	MAIN	7	slayer-boss-loot	Bossing & Slayer Loot	BOSS_LOOT
+CATEGORY	MAIN	8	clues-cosmetics	Clues, Cosmetics & Collection Log	CLUES
+CATEGORY	MAIN	9	storage-cleanup	Storage & Cleanup Review	REVIEW
+PRESET	PVM	pvm.general	PvM Bank
+CATEGORY	PVM	0	currency-utilities	Core Currency & Utilities	CURRENCY
+CATEGORY	PVM	1	teleports-escapes	Teleports & Escape Items	TELEPORTS
+CATEGORY	PVM	2	potions-food	Potions, Food & Restores	SUPPLIES
+CATEGORY	PVM	3	melee-gear	Melee Gear	GEAR
+CATEGORY	PVM	4	ranged-gear	Ranged Gear & Ammo	GEAR
+CATEGORY	PVM	5	magic-gear	Magic Gear & Runes	GENERIC
+CATEGORY	PVM	6	spec-switches	Spec Weapons & Switches	GEAR
+CATEGORY	PVM	7	slayer-boss-tools	Slayer & Boss Tools	GENERIC
+CATEGORY	PVM	8	loot-drops	Loot, Drops & Splits	BOSS_LOOT
+CATEGORY	PVM	9	low-use-review	Low-Use Gear & Review	REVIEW
+PRESET	PVP	pvp.general	PvP Bank
+CATEGORY	PVP	0	coins-risk	Coins, Risk & Utility	CURRENCY
+CATEGORY	PVP	1	teleports-escapes	Teleports, Escapes & Return Sets	TELEPORTS
+CATEGORY	PVP	2	food-potions	Food, Potions & Combo Eats	SUPPLIES
+CATEGORY	PVP	3	melee-pk-gear	Melee PK Gear	GEAR
+CATEGORY	PVP	4	ranged-pk-gear	Ranged PK Gear & Ammo	GEAR
+CATEGORY	PVP	5	magic-pk-gear	Magic PK Gear & Runes	GENERIC
+CATEGORY	PVP	6	spec-ko	Spec Weapons & KO Items	GEAR
+CATEGORY	PVP	7	wildy-tools	Wilderness Tools & Supplies	GENERIC
+CATEGORY	PVP	8	replacement-sets	Replacement Sets	GEAR
+CATEGORY	PVP	9	loot-keys-review	Loot, Keys & Review	REVIEW
+PRESET	SKILLER	skiller.general	Skiller Bank
+CATEGORY	SKILLER	0	currency-utilities	Currency & Utilities	CURRENCY
+CATEGORY	SKILLER	1	teleports-runes	Teleports & Runes	TELEPORTS
+CATEGORY	SKILLER	2	farming	Farming	GENERIC
+CATEGORY	SKILLER	3	herblore-materials	Herblore Materials	GENERIC
+CATEGORY	SKILLER	4	fishing-cooking	Fishing & Cooking	RESOURCES
+CATEGORY	SKILLER	5	woodcutting-fletching	Woodcutting & Fletching	RESOURCES
+CATEGORY	SKILLER	6	mining-smithing	Mining & Smithing	RESOURCES
+CATEGORY	SKILLER	7	crafting-rc-construction	Crafting, RC & Construction	RESOURCES
+CATEGORY	SKILLER	8	tools-outfits-pets	Tools, Outfits & Pets	TOOLS
+CATEGORY	SKILLER	9	loot-clues-storage	Loot, Clues & Storage Review	REVIEW
+TAG	0	frequently-used	Frequently Used	currency-utilities
+TAG	1	runes	Runes	currency-utilities
+TAG	2	teleports	Teleports	currency-utilities
+TAG	3	currency	Currency	currency-utilities
+TAG	4	gear	Combat Gear	combat-gear
+TAG	5	ammunition	Ammunition	combat-gear
+TAG	6	potions	Potions	potions-food
+TAG	7	food	Food & Drink	potions-food
+TAG	8	herb-seeds	Herb Seeds	herblore
+TAG	9	grimy-herbs	Grimy Herbs	herblore
+TAG	10	clean-herbs	Clean Herbs	herblore
+TAG	11	secondaries	Secondaries	herblore
+TAG	12	unfinished-potions	Unfinished Potions	herblore
+TAG	13	potion-doses	Part Doses	herblore
+TAG	14	herblore-other	Herblore Other	herblore
+TAG	15	seeds	Seeds	seeds-farming
+TAG	16	produce	Produce	seeds-farming
+TAG	17	tools	Skilling Tools	skilling-tools
+TAG	18	skilling-outfits	Skilling Outfits	skilling-tools
+TAG	19	containers	Containers	skilling-tools
+TAG	20	raw-resources	Raw & Processed Resources	resources
+TAG	21	gems	Gems & Jewellery	resources
+TAG	22	ammo-components	Ammo Components	resources
+TAG	23	boss-loot	Slayer & Boss Loot	slayer-boss-loot
+TAG	24	alch	Alch	slayer-boss-loot
+TAG	25	clues	Clue Scrolls & Caskets	clues-cosmetics
+TAG	26	cosmetics	Cosmetics	clues-cosmetics
+TAG	27	collection-log	Collection Log	clues-cosmetics
+TAG	28	cleanup	Storage & Cleanup	storage-cleanup
+TAG	29	quest-items	Quest Items	storage-cleanup
+ROUTE	currency-utilities	rune	runes
+ROUTE	currency-utilities	rune-container	runes
+ROUTE	currency-utilities	teleport	teleports
+ROUTE	currency-utilities	teleport-tablet	teleports
+ROUTE	currency-utilities	teleport-scroll	teleports
+ROUTE	currency-utilities	teleport-charge	teleports
+ROUTE	currency-utilities	teleport-container	teleports
+ROUTE	currency-utilities	transport-access	teleports
+ROUTE	currency-utilities	currency	currency
+FALLBACK	currency-utilities	frequently-used
+ROUTE	combat-gear	ammo	ammunition
+ROUTE	combat-gear	thrown-weapon	ammunition
+FALLBACK	combat-gear	gear
+ROUTE	potions-food	potion	potions
+ROUTE	potions-food	potion-dose-4	potions
+ROUTE	potions-food	food	food
+ROUTE	potions-food	drink	food
+FALLBACK	potions-food	potions
+ROUTE	herblore	herb-seed	herb-seeds
+ROUTE	herblore	grimy-herb	grimy-herbs
+ROUTE	herblore	clean-herb	clean-herbs
+ROUTE	herblore	secondary	secondaries
+ROUTE	herblore	unfinished-potion	unfinished-potions
+ROUTE	herblore	potion-dose-1	potion-doses
+ROUTE	herblore	potion-dose-2	potion-doses
+ROUTE	herblore	potion-dose-3	potion-doses
+ROUTE	herblore	dose-1	potion-doses
+ROUTE	herblore	dose-2	potion-doses
+ROUTE	herblore	dose-3	potion-doses
+FALLBACK	herblore	herblore-other
+ROUTE	seeds-farming	farming	seeds
+ROUTE	seeds-farming	produce	produce
+ROUTE	seeds-farming	produce-container	produce
+FALLBACK	seeds-farming	seeds
+ROUTE	skilling-tools	skilling-outfit	skilling-outfits
+ROUTE	skilling-tools	resource-container	containers
+ROUTE	skilling-tools	utility-container	containers
+FALLBACK	skilling-tools	tools
+ROUTE	resources	gem	gems
+ROUTE	resources	uncut-gem	gems
+ROUTE	resources	crafting-jewellery	gems
+ROUTE	resources	ammo-component	ammo-components
+FALLBACK	resources	raw-resources
+ROUTE	slayer-boss-loot	alch	alch
+FALLBACK	slayer-boss-loot	boss-loot
+ROUTE	clues-cosmetics	cosmetic	cosmetics
+ROUTE	clues-cosmetics	collection-trophy	collection-log
+ROUTE	clues-cosmetics	collection-pet	collection-log
+FALLBACK	clues-cosmetics	clues
+ROUTE	storage-cleanup	quest-item	quest-items
+FALLBACK	storage-cleanup	cleanup

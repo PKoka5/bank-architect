@@ -10,17 +10,17 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.*;
 import javax.swing.*;
 import javax.swing.Timer;
 import net.runelite.client.ui.*;
 import net.runelite.client.ui.components.ProgressBar;
+import net.runelite.client.util.ImageUtil;
 
 final class IronmanBankArchitectPanel extends PluginPanel
 {
 	private static final String TITLE = "Bank Architect";
-	private static final String SUMMARY = "Read-only bank blueprint planner";
-	private static final String SAFETY_NOTE = "No bank actions are automated.";
+	private static final String SUMMARY = "Read-only bank blueprint planner. No bank actions are automated.";
 	private static final String DETAILS_LABEL = "Details";
 	private static final String CATEGORY_CORRECTION_HELP =
 		"Corrections are stored locally and win over the bundled classification. "
@@ -100,9 +100,15 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BlueprintEditorPanel blueprintEditor;
 	private JButton exportBlueprintButton;
 	private ReleaseNoticePanel releaseNotice;
+	private Runnable settingsAction = () -> {}, issuesAction = () -> {};
 
-	void configureReleaseNotice(java.util.function.Supplier<String> lastSeen,
-		java.util.function.Consumer<String> acknowledge)
+	void configureHeaderActions(Runnable settings, Runnable issues)
+	{
+		settingsAction = settings;
+		issuesAction = issues;
+	}
+
+	void configureReleaseNotice(Supplier<String> lastSeen, Consumer<String> acknowledge)
 	{
 		JComponent normal = (JComponent) ((BorderLayout) getLayout()).getLayoutComponent(BorderLayout.CENTER);
 		remove(normal);
@@ -319,7 +325,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	/** Name and profile on two lines, next to the same mark as the toolbar button. */
 	private JPanel identityStrip()
 	{
-		JPanel strip = new JPanel(new BorderLayout(8, 0));
+		JPanel strip = new JPanel(new BorderLayout(8, 4));
 		strip.setOpaque(false);
 		strip.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createMatteBorder(0, 0, 1, 0, ColorScheme.BORDER_COLOR),
@@ -349,8 +355,30 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		strip.add(mark, BorderLayout.WEST);
 		strip.add(who, BorderLayout.CENTER);
-		strip.setToolTipText(SUMMARY + ". " + SAFETY_NOTE);
+		strip.setToolTipText(SUMMARY);
+		JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 0));
+		actions.setOpaque(false);
+		actions.add(headerButton("Updates", "updates", "Read all Bank Architect updates", () -> {
+			if (releaseNotice != null) releaseNotice.showHistory();
+		}));
+		actions.add(headerButton("Settings", "settings", "Open Bank Architect's RuneLite settings", () -> settingsAction.run()));
+		actions.add(headerButton("GitHub issues", "issues", "Report a problem on GitHub", () -> issuesAction.run()));
+		strip.add(actions, BorderLayout.NORTH);
 		return strip;
+	}
+
+	private JButton headerButton(String name, String icon, String tooltip, Runnable action)
+	{
+		JButton button = new JButton(new ImageIcon(ImageUtil.loadImageResource(getClass(), "header-" + icon + ".png")));
+		button.setPreferredSize(new Dimension(24, 24));
+		button.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		button.setContentAreaFilled(false);
+		button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		button.setToolTipText(tooltip);
+		button.setActionCommand(name);
+		button.getAccessibleContext().setAccessibleName(name);
+		button.addActionListener(event -> action.run());
+		return button;
 	}
 
 	/**
@@ -1607,7 +1635,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		});
 	}
 
-	private static BufferedImage drawIcon(java.util.function.Consumer<Graphics2D> painter)
+	private static BufferedImage drawIcon(Consumer<Graphics2D> painter)
 	{
 		BufferedImage icon = new BufferedImage(14, 14, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = icon.createGraphics();

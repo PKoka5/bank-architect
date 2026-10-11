@@ -1,0 +1,31 @@
+# schema=1
+currency-utilities	frequently-used	Frequently Used	
+currency-utilities	runes	Runes	rune,rune-container
+currency-utilities	teleports	Teleports	teleport,teleport-tablet,teleport-scroll,teleport-charge,teleport-container,transport-access
+currency-utilities	currency	Currency	currency
+combat-gear	gear	Combat Gear	
+combat-gear	ammunition	Ammunition	ammo,thrown-weapon
+potions-food	potions	Potions	potion,potion-dose-4
+potions-food	food	Food & Drink	food,drink
+herblore	herb-seeds	Herb Seeds	herb-seed
+herblore	grimy-herbs	Grimy Herbs	grimy-herb
+herblore	clean-herbs	Clean Herbs	clean-herb
+herblore	secondaries	Secondaries	secondary
+herblore	unfinished-potions	Unfinished Potions	unfinished-potion
+herblore	potion-doses	Part Doses	potion-dose-1,potion-dose-2,potion-dose-3,dose-1,dose-2,dose-3
+herblore	herblore-other	Herblore Other	
+seeds-farming	seeds	Seeds	farming
+seeds-farming	produce	Produce	produce,produce-container
+skilling-tools	tools	Skilling Tools	
+skilling-tools	skilling-outfits	Skilling Outfits	skilling-outfit
+skilling-tools	containers	Containers	resource-container,utility-container
+resources	raw-resources	Raw & Processed Resources	
+resources	gems	Gems & Jewellery	gem,uncut-gem,crafting-jewellery
+resources	ammo-components	Ammo Components	ammo-component
+slayer-boss-loot	boss-loot	Slayer & Boss Loot	
+slayer-boss-loot	alch	Alch	alch
+clues-cosmetics	clues	Clue Scrolls & Caskets	
+clues-cosmetics	cosmetics	Cosmetics	cosmetic
+clues-cosmetics	collection-log	Collection Log	collection-trophy,collection-pet
+storage-cleanup	cleanup	Storage & Cleanup	
+storage-cleanup	quest-items	Quest Items	quest-item

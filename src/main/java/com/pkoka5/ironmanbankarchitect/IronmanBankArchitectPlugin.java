@@ -27,12 +27,12 @@ import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.eventbus.*;
 import net.runelite.client.events.*;
 import net.runelite.client.game.*;
 import net.runelite.client.plugins.*;
 import net.runelite.client.ui.*;
-import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.ui.overlay.*;
 import net.runelite.client.util.*;
 import org.slf4j.*;
 
@@ -76,6 +76,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	@Inject
 	private ConfigManager configManager;
+	@Inject
+	private EventBus eventBus;
 	private PresetSettings settings;
 
 	@Inject
@@ -119,6 +121,10 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon,
 			this::resetCategoryOverrides, bankLayoutModel());
 		panel.configureReleaseNotice(config::lastSeenRelease, config::setLastSeenRelease);
+		panel.configureHeaderActions(() -> {
+			if (guideOverlay != null) eventBus.post(new OverlayMenuClicked(
+				new OverlayMenuEntry(MenuAction.RUNELITE_OVERLAY_CONFIG, "Configure", PLUGIN_NAME), guideOverlay));
+		}, () -> LinkBrowser.browse("https://github.com/PKoka5/bank-architect/issues/new"));
 		navigationButton = NavigationButton.builder()
 			.tooltip(PLUGIN_NAME)
 			.icon(createIcon())

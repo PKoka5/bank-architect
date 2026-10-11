@@ -1,0 +1,51 @@
+# schema=1
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	currency-utilities	Frequently Used, Runes & Teleports	MAIN
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	combat-gear	Combat Gear	GEAR
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	potions-food	Potions, Food & PvM Supplies	SUPPLIES
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	herblore	Herblore & Potion Making	HERBLORE
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	seeds-farming	Seeds & Farming	FARMING
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	skilling-tools	Skilling Tools	TOOLS
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	resources	Raw & Processed Resources	RESOURCES
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	slayer-boss-loot	Slayer, Boss Loot & Unique Drops	BOSS_LOOT
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	clues-cosmetics	Clues, Cosmetics & Collection Log	CLUES
+IRONMAN	ironman.all-round	Ironman - All-Round Bank	storage-cleanup	Storage & Cleanup Review	REVIEW
+MAIN	main.general	Main - All-Round Bank	currency-utilities	Currency, Runes & Teleports	MAIN
+MAIN	main.general	Main - All-Round Bank	combat-gear	Combat Gear	GEAR
+MAIN	main.general	Main - All-Round Bank	potions-food	Potions & Food	SUPPLIES
+MAIN	main.general	Main - All-Round Bank	herblore	Herblore	HERBLORE
+MAIN	main.general	Main - All-Round Bank	seeds-farming	Seeds & Farming	FARMING
+MAIN	main.general	Main - All-Round Bank	skilling-tools	Skilling Tools	TOOLS
+MAIN	main.general	Main - All-Round Bank	resources	Raw & Processed Resources	RESOURCES
+MAIN	main.general	Main - All-Round Bank	slayer-boss-loot	Bossing & Slayer Loot	BOSS_LOOT
+MAIN	main.general	Main - All-Round Bank	clues-cosmetics	Clues, Cosmetics & Collection Log	CLUES
+MAIN	main.general	Main - All-Round Bank	storage-cleanup	Storage & Cleanup Review	REVIEW
+PVM	pvm.general	PvM Bank	currency-utilities	Core Currency & Utilities	CURRENCY
+PVM	pvm.general	PvM Bank	teleports-escapes	Teleports & Escape Items	TELEPORTS
+PVM	pvm.general	PvM Bank	potions-food	Potions, Food & Restores	SUPPLIES
+PVM	pvm.general	PvM Bank	melee-gear	Melee Gear	GEAR
+PVM	pvm.general	PvM Bank	ranged-gear	Ranged Gear & Ammo	GEAR
+PVM	pvm.general	PvM Bank	magic-gear	Magic Gear & Runes	GENERIC
+PVM	pvm.general	PvM Bank	spec-switches	Spec Weapons & Switches	GEAR
+PVM	pvm.general	PvM Bank	slayer-boss-tools	Slayer & Boss Tools	GENERIC
+PVM	pvm.general	PvM Bank	loot-drops	Loot, Drops & Splits	BOSS_LOOT
+PVM	pvm.general	PvM Bank	low-use-review	Low-Use Gear & Review	REVIEW
+PVP	pvp.general	PvP Bank	coins-risk	Coins, Risk & Utility	CURRENCY
+PVP	pvp.general	PvP Bank	teleports-escapes	Teleports, Escapes & Return Sets	TELEPORTS
+PVP	pvp.general	PvP Bank	food-potions	Food, Potions & Combo Eats	SUPPLIES
+PVP	pvp.general	PvP Bank	melee-pk-gear	Melee PK Gear	GEAR
+PVP	pvp.general	PvP Bank	ranged-pk-gear	Ranged PK Gear & Ammo	GEAR
+PVP	pvp.general	PvP Bank	magic-pk-gear	Magic PK Gear & Runes	GENERIC
+PVP	pvp.general	PvP Bank	spec-ko	Spec Weapons & KO Items	GEAR
+PVP	pvp.general	PvP Bank	wildy-tools	Wilderness Tools & Supplies	GENERIC
+PVP	pvp.general	PvP Bank	replacement-sets	Replacement Sets	GEAR
+PVP	pvp.general	PvP Bank	loot-keys-review	Loot, Keys & Review	REVIEW
+SKILLER	skiller.general	Skiller Bank	currency-utilities	Currency & Utilities	CURRENCY
+SKILLER	skiller.general	Skiller Bank	teleports-runes	Teleports & Runes	TELEPORTS
+SKILLER	skiller.general	Skiller Bank	farming	Farming	GENERIC
+SKILLER	skiller.general	Skiller Bank	herblore-materials	Herblore Materials	GENERIC
+SKILLER	skiller.general	Skiller Bank	fishing-cooking	Fishing & Cooking	RESOURCES
+SKILLER	skiller.general	Skiller Bank	woodcutting-fletching	Woodcutting & Fletching	RESOURCES
+SKILLER	skiller.general	Skiller Bank	mining-smithing	Mining & Smithing	RESOURCES
+SKILLER	skiller.general	Skiller Bank	crafting-rc-construction	Crafting, RC & Construction	RESOURCES
+SKILLER	skiller.general	Skiller Bank	tools-outfits-pets	Tools, Outfits & Pets	TOOLS
+SKILLER	skiller.general	Skiller Bank	loot-clues-storage	Loot, Clues & Storage Review	REVIEW

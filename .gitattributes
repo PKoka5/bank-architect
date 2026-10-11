@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Empty final fields are part of this TSV schema.
+src/main/resources/com/pkoka5/ironmanbankarchitect/organize/bank-tags.tsv whitespace=-blank-at-eol

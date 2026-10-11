@@ -15,50 +15,11 @@ public final class BankTags
 	static
 	{
 		Map<String, List<Split>> splits = new LinkedHashMap<>();
-		// Order matters twice over: it is the order the tags are offered in, and
-		// the default order they fill their category's destination in.
-		splits.put("currency-utilities", Arrays.asList(
-			split("frequently-used", "Frequently Used"),
-			split("runes", "Runes", "rune", "rune-container"),
-			split("teleports", "Teleports",
-				"teleport", "teleport-tablet", "teleport-scroll", "teleport-charge",
-				"teleport-container", "transport-access"),
-			split("currency", "Currency", "currency")));
-		splits.put("combat-gear", Arrays.asList(
-			split("gear", "Combat Gear"),
-			split("ammunition", "Ammunition", "ammo", "thrown-weapon")));
-		splits.put("potions-food", Arrays.asList(
-			split("potions", "Potions", "potion", "potion-dose-4"),
-			split("food", "Food & Drink", "food", "drink")));
-		splits.put("herblore", Arrays.asList(
-			split("herb-seeds", "Herb Seeds", "herb-seed"),
-			split("grimy-herbs", "Grimy Herbs", "grimy-herb"),
-			split("clean-herbs", "Clean Herbs", "clean-herb"),
-			split("secondaries", "Secondaries", "secondary"),
-			split("unfinished-potions", "Unfinished Potions", "unfinished-potion"),
-			split("potion-doses", "Part Doses",
-				"potion-dose-1", "potion-dose-2", "potion-dose-3", "dose-1", "dose-2", "dose-3"),
-			split("herblore-other", "Herblore Other")));
-		splits.put("seeds-farming", Arrays.asList(
-			split("seeds", "Seeds", "farming"),
-			split("produce", "Produce", "produce", "produce-container")));
-		splits.put("skilling-tools", Arrays.asList(
-			split("tools", "Skilling Tools"),
-			split("skilling-outfits", "Skilling Outfits", "skilling-outfit"),
-			split("containers", "Containers", "resource-container", "utility-container")));
-		splits.put("resources", Arrays.asList(
-			split("raw-resources", "Raw & Processed Resources"),
-			split("gems", "Gems & Jewellery", "gem", "uncut-gem", "crafting-jewellery"),
-			split("ammo-components", "Ammo Components", "ammo-component")));
-		splits.put("slayer-boss-loot", Arrays.asList(
-			split("boss-loot", "Slayer & Boss Loot"), split("alch", "Alch", "alch")));
-		splits.put("clues-cosmetics", Arrays.asList(
-			split("clues", "Clue Scrolls & Caskets"),
-			split("cosmetics", "Cosmetics", "cosmetic"),
-			split("collection-log", "Collection Log", "collection-trophy", "collection-pet")));
-		splits.put("storage-cleanup", Arrays.asList(
-			split("cleanup", "Storage & Cleanup"),
-			split("quest-items", "Quest Items", "quest-item")));
+		for (String[] row : BankDefinitionRows.read("bank-tags.tsv", 4))
+		{
+			splits.computeIfAbsent(row[0], key -> new ArrayList<>()).add(
+				new Split(row[1], row[2], row[3].isEmpty() ? new String[0] : row[3].split(",")));
+		}
 
 		List<BankTag> tags = new ArrayList<>();
 		Map<String, BankTag> byKey = new LinkedHashMap<>();

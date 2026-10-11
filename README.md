@@ -96,6 +96,12 @@ After an update, the first sidebar opening shows **What's new**. Select
 **Got it - continue** to return to the normal plugin. This is remembered locally
 for that release; release notes are bundled with the plugin and require no network request.
 
+The three header icons provide **Updates** (all bundled release notes), **Settings**
+(this plugin's RuneLite configuration), and **GitHub issues** (a new issue in your
+browser). Reading update history preserves your blueprint and does not dismiss
+an unread update notice. Copy a bank layout with **Copy Blueprint Export** in the
+blueprint dialog when including it in a bug report.
+
 Open **Open Blueprint**, select a tab, then **Edit this tab**. Click an item to select
 it with a green border, choose **Swap** or **Insert**, then click the target slot.
 Swap exchanges the two items. Insert puts the selected item at the clicked slot

@@ -1,8 +1,9 @@
 package com.pkoka5.ironmanbankarchitect;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
+import java.awt.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.function.*;
 import javax.swing.*;
 
@@ -15,7 +16,8 @@ import javax.swing.*;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.9.4";
+	static final String RELEASE_ID = "0.9.5";
+	private static final Properties NOTES = loadNotes();
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;
 	private final Consumer<String> acknowledge;
@@ -37,25 +39,7 @@ final class ReleaseNoticePanel extends JPanel
 		JPanel notice = new JPanel(new BorderLayout(0, 12));
 		notice.setOpaque(false);
 		notice.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
-		JLabel notes = new JLabel("<html><div style='width:135px'>"
-			+ "<h2>What's new</h2><p>Bank Architect " + releaseId + "</p>"
-			+ "<h3>Scrolling while dragging</h3>"
-			+ "<p>Destination markers stay visible while dragging and scrolling through long bank tabs.</p>"
-			+ "<h3>Clearer Combat layouts</h3>"
-			+ "<p>Best gear leads each style column. Other sets stay together vertically, with separate weapon roles "
-			+ "and Crystal armour beside Bowfa.</p>"
-			+ "<h3>Tidier loot</h3>"
-			+ "<p>Arrows, bolts, darts and cannonballs group together in Slayer &amp; Boss Loot, followed by Alch items.</p>"
-			+ "<p>Newer gear coverage and faster dense Combat previews.</p>"
-			+ "<p>Your corrections and saved blueprints take priority. All bank moves remain manual.</p></div></html>");
-		notes.setForeground(Color.WHITE);
-		notes.setVerticalAlignment(JLabel.TOP);
-		JScrollPane scroll = new JScrollPane(notes);
-		scroll.setBorder(BorderFactory.createEmptyBorder());
-		scroll.setOpaque(false);
-		scroll.getViewport().setOpaque(false);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		notice.add(scroll, BorderLayout.CENTER);
+		notice.add(scroll(notes(NOTES.getProperty("notice").replace("{version}", releaseId))), BorderLayout.CENTER);
 		JButton dismiss = new JButton("Got it - continue");
 		dismiss.addActionListener(event -> {
 			this.acknowledge.accept(this.releaseId);
@@ -63,11 +47,62 @@ final class ReleaseNoticePanel extends JPanel
 		});
 		notice.add(dismiss, BorderLayout.SOUTH);
 		add(notice, "notice");
+		JPanel history = new JPanel(new BorderLayout(0, 8));
+		history.setOpaque(false);
+		JComboBox<String> versions = new JComboBox<>(NOTES.getProperty("versions").split(","));
+		versions.getAccessibleContext().setAccessibleName("Release version");
+		versions.setToolTipText("Choose a Bank Architect update");
+		JLabel details = notes(NOTES.getProperty(versions.getItemAt(0)));
+		JScrollPane historyScroll = scroll(details);
+		versions.addActionListener(event -> {
+			details.setText(html(NOTES.getProperty((String) versions.getSelectedItem())));
+			historyScroll.getVerticalScrollBar().setValue(0);
+		});
+		history.add(versions, BorderLayout.NORTH);
+		history.add(historyScroll, BorderLayout.CENTER);
+		JButton back = new JButton("Back to planner");
+		back.addActionListener(event -> opened());
+		history.add(back, BorderLayout.SOUTH);
+		add(history, "history");
 		cards.show(this, "normal");
 	}
+
+	void showHistory() { cards.show(this, "history"); }
 
 	void opened()
 	{
 		cards.show(this, releaseId.equals(lastSeen.get()) ? "normal" : "notice");
+	}
+
+	private static String html(String body) { return "<html><div style='width:135px'>" + body + "</div></html>"; }
+
+	private static JLabel notes(String body)
+	{
+		JLabel label = new JLabel(html(body));
+		label.setForeground(Color.WHITE);
+		label.setVerticalAlignment(JLabel.TOP);
+		return label;
+	}
+
+	private static JScrollPane scroll(JLabel notes)
+	{
+		JScrollPane scroll = new JScrollPane(notes);
+		scroll.setBorder(BorderFactory.createEmptyBorder());
+		scroll.setOpaque(false);
+		scroll.getViewport().setOpaque(false);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		return scroll;
+	}
+
+	private static Properties loadNotes()
+	{
+		Properties notes = new Properties();
+		try (Reader reader = new InputStreamReader(Objects.requireNonNull(
+			ReleaseNoticePanel.class.getResourceAsStream("release-notes.properties")), StandardCharsets.UTF_8))
+		{
+			notes.load(reader);
+			return notes;
+		}
+		catch (IOException e) { throw new IllegalStateException("Cannot load bundled update history", e); }
 	}
 }
