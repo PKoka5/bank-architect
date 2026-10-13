@@ -2,17 +2,12 @@ package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.regex.Pattern;
 import org.junit.Test;
 
 public class LayoutScoreTest
@@ -43,6 +38,7 @@ public class LayoutScoreTest
 	{
 		assertEquals(18, LayoutScore.COMPONENT_COUNT);
 		assertEquals(18, COMPONENT_NAMES.length);
+		assertEquals(18, LayoutScore.Component.values().length);
 		assertEquals(18, LayoutScore.zero().toComponentArray().length);
 	}
 
@@ -53,7 +49,7 @@ public class LayoutScoreTest
 	}
 
 	@Test
-	public void namedGettersMapToComponentPositionsInDocumentOrder()
+	public void namedComponentsMapToPositionsInDocumentOrder()
 	{
 		int[] values = new int[18];
 		for (int index = 0; index < values.length; index++)
@@ -62,24 +58,24 @@ public class LayoutScoreTest
 		}
 		LayoutScore score = score(values);
 
-		assertEquals(1, score.getHighMissedRelations());
-		assertEquals(2, score.getHighMissedCompleteness());
-		assertEquals(3, score.getMediumMissedRelations());
-		assertEquals(4, score.getMediumMissedCompleteness());
-		assertEquals(5, score.getLowMissedRelations());
-		assertEquals(6, score.getLowMissedCompleteness());
-		assertEquals(7, score.getOrientationEvidenceRegret());
-		assertEquals(8, score.getWidthEvidenceRegret());
-		assertEquals(9, score.getSemanticFragmentation());
-		assertEquals(10, score.getSemanticRowBreaks());
-		assertEquals(11, score.getStartColumnDeviation());
-		assertEquals(12, score.getLockedPrefixSpillover());
-		assertEquals(13, score.getSpilloverCompatibilityCost());
-		assertEquals(14, score.getSpilloverTransitions());
-		assertEquals(15, score.getNominalFootprintSlack());
-		assertEquals(16, score.getSemanticSpan());
-		assertEquals(17, score.getUnrestrictedSwapLowerBound());
-		assertEquals(18, score.getTotalRankDisplacement());
+		assertEquals(1, score.get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
+		assertEquals(2, score.get(LayoutScore.Component.HIGH_MISSED_COMPLETENESS));
+		assertEquals(3, score.get(LayoutScore.Component.MEDIUM_MISSED_RELATIONS));
+		assertEquals(4, score.get(LayoutScore.Component.MEDIUM_MISSED_COMPLETENESS));
+		assertEquals(5, score.get(LayoutScore.Component.LOW_MISSED_RELATIONS));
+		assertEquals(6, score.get(LayoutScore.Component.LOW_MISSED_COMPLETENESS));
+		assertEquals(7, score.get(LayoutScore.Component.ORIENTATION_EVIDENCE_REGRET));
+		assertEquals(8, score.get(LayoutScore.Component.WIDTH_EVIDENCE_REGRET));
+		assertEquals(9, score.get(LayoutScore.Component.SEMANTIC_FRAGMENTATION));
+		assertEquals(10, score.get(LayoutScore.Component.SEMANTIC_ROW_BREAKS));
+		assertEquals(11, score.get(LayoutScore.Component.START_COLUMN_DEVIATION));
+		assertEquals(12, score.get(LayoutScore.Component.LOCKED_PREFIX_SPILLOVER));
+		assertEquals(13, score.get(LayoutScore.Component.SPILLOVER_COMPATIBILITY_COST));
+		assertEquals(14, score.get(LayoutScore.Component.SPILLOVER_TRANSITIONS));
+		assertEquals(15, score.get(LayoutScore.Component.NOMINAL_FOOTPRINT_SLACK));
+		assertEquals(16, score.get(LayoutScore.Component.SEMANTIC_SPAN));
+		assertEquals(17, score.get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(18, score.get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 		assertArrayEquals(values, score.toComponentArray());
 	}
 
@@ -124,8 +120,8 @@ public class LayoutScoreTest
 	{
 		LayoutScore score = LayoutScore.builder().movement(unprovenRequest(), 7, 19).build();
 
-		assertEquals(0, score.getUnrestrictedSwapLowerBound());
-		assertEquals(0, score.getTotalRankDisplacement());
+		assertEquals(0, score.get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(0, score.get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 	}
 
 	@Test
@@ -136,8 +132,8 @@ public class LayoutScoreTest
 			.movement(unprovenRequest(), 7, 19)
 			.build();
 
-		assertEquals(0, score.getUnrestrictedSwapLowerBound());
-		assertEquals(0, score.getTotalRankDisplacement());
+		assertEquals(0, score.get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(0, score.get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 	}
 
 	@Test
@@ -149,19 +145,31 @@ public class LayoutScoreTest
 
 		LayoutScore score = LayoutScore.builder().movement(invalid, 7, 19).build();
 
-		assertEquals(0, score.getUnrestrictedSwapLowerBound());
-		assertEquals(0, score.getTotalRankDisplacement());
+		assertEquals(0, score.get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(0, score.get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 	}
 
 	@Test
-	public void sourceExposesNoDirectMovementComponentSetters() throws Exception
+	public void genericSetterCannotBypassProvenMovementOrder()
 	{
-		String source = new String(Files.readAllBytes(Paths.get(
-			"src/main/java/com/pkoka5/ironmanbankarchitect/organize/layout/LayoutScore.java")),
-			StandardCharsets.UTF_8);
-
-		assertFalse(Pattern.compile("\\bBuilder\\s+unrestrictedSwapLowerBound\\s*\\(").matcher(source).find());
-		assertFalse(Pattern.compile("\\bBuilder\\s+totalRankDisplacement\\s*\\(").matcher(source).find());
+		for (LayoutScore.Component component : Arrays.asList(
+			LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND,
+			LayoutScore.Component.TOTAL_RANK_DISPLACEMENT))
+		{
+			for (int value : new int[]{0, 7})
+			{
+				LayoutScore.Builder builder = LayoutScore.builder();
+				try
+				{
+					builder.set(component, value);
+					fail("generic setter must reject movement component " + component);
+				}
+				catch (IllegalArgumentException expected)
+				{
+					assertArrayEquals(new int[18], builder.build().toComponentArray());
+				}
+			}
+		}
 	}
 
 	@Test
@@ -169,21 +177,25 @@ public class LayoutScoreTest
 	{
 		LayoutScore score = LayoutScore.builder().movement(provenRequest(), 7, 19).build();
 
-		assertEquals(7, score.getUnrestrictedSwapLowerBound());
-		assertEquals(19, score.getTotalRankDisplacement());
+		assertEquals(7, score.get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(19, score.get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 	}
 
 	@Test
 	public void rejectsNegativeComponents()
 	{
-		try
+		for (int index = 0; index < 16; index++)
 		{
-			LayoutScore.builder().semanticSpan(-1);
-			fail("expected IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected)
-		{
-			// expected
+			LayoutScore.Component component = LayoutScore.Component.values()[index];
+			try
+			{
+				LayoutScore.builder().set(component, -1);
+				fail("expected IllegalArgumentException for " + component);
+			}
+			catch (IllegalArgumentException expected)
+			{
+				// expected
+			}
 		}
 
 		try
@@ -225,7 +237,7 @@ public class LayoutScoreTest
 		int[] components = score.toComponentArray();
 		components[0] = 99;
 
-		assertEquals(0, score.getHighMissedRelations());
+		assertEquals(0, score.get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
 	}
 
 	@Test
@@ -267,22 +279,22 @@ public class LayoutScoreTest
 	private static LayoutScore score(int[] values)
 	{
 		return LayoutScore.builder()
-			.highMissedRelations(values[0])
-			.highMissedCompleteness(values[1])
-			.mediumMissedRelations(values[2])
-			.mediumMissedCompleteness(values[3])
-			.lowMissedRelations(values[4])
-			.lowMissedCompleteness(values[5])
-			.orientationEvidenceRegret(values[6])
-			.widthEvidenceRegret(values[7])
-			.semanticFragmentation(values[8])
-			.semanticRowBreaks(values[9])
-			.startColumnDeviation(values[10])
-			.lockedPrefixSpillover(values[11])
-			.spilloverCompatibilityCost(values[12])
-			.spilloverTransitions(values[13])
-			.nominalFootprintSlack(values[14])
-			.semanticSpan(values[15])
+			.set(LayoutScore.Component.HIGH_MISSED_RELATIONS, values[0])
+			.set(LayoutScore.Component.HIGH_MISSED_COMPLETENESS, values[1])
+			.set(LayoutScore.Component.MEDIUM_MISSED_RELATIONS, values[2])
+			.set(LayoutScore.Component.MEDIUM_MISSED_COMPLETENESS, values[3])
+			.set(LayoutScore.Component.LOW_MISSED_RELATIONS, values[4])
+			.set(LayoutScore.Component.LOW_MISSED_COMPLETENESS, values[5])
+			.set(LayoutScore.Component.ORIENTATION_EVIDENCE_REGRET, values[6])
+			.set(LayoutScore.Component.WIDTH_EVIDENCE_REGRET, values[7])
+			.set(LayoutScore.Component.SEMANTIC_FRAGMENTATION, values[8])
+			.set(LayoutScore.Component.SEMANTIC_ROW_BREAKS, values[9])
+			.set(LayoutScore.Component.START_COLUMN_DEVIATION, values[10])
+			.set(LayoutScore.Component.LOCKED_PREFIX_SPILLOVER, values[11])
+			.set(LayoutScore.Component.SPILLOVER_COMPATIBILITY_COST, values[12])
+			.set(LayoutScore.Component.SPILLOVER_TRANSITIONS, values[13])
+			.set(LayoutScore.Component.NOMINAL_FOOTPRINT_SLACK, values[14])
+			.set(LayoutScore.Component.SEMANTIC_SPAN, values[15])
 			.movement(provenRequest(), values[16], values[17])
 			.build();
 	}

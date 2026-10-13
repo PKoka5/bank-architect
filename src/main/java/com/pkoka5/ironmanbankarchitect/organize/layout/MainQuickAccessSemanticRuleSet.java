@@ -220,14 +220,20 @@ public final class MainQuickAccessSemanticRuleSet
 			}
 		}
 
+		List<LayoutEntry> candidates = new ArrayList<>(chosen);
+		// Unknown names retain the legacy fallback rather than duplicating an unrecognized slot.
+		if (chosen.stream().allMatch(entry -> GRACEFUL_PIECE_ORDER.stream()
+			.anyMatch(piece -> piece.equalsIgnoreCase(entry.getItem().getDisplayName().trim()))))
+			byFamily.values().forEach(candidates::addAll);
 		List<Integer> column = new ArrayList<>(chosen.size());
 		for (String piece : GRACEFUL_PIECE_ORDER)
 		{
-			for (LayoutEntry entry : chosen)
+			for (LayoutEntry entry : candidates)
 			{
 				if (piece.equalsIgnoreCase(entry.getItem().getDisplayName().trim()))
 				{
 					column.add(entry.getItem().getItemId());
+					break;
 				}
 			}
 		}

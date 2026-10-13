@@ -1,0 +1,163 @@
+# Item identities and normalized 0/1 quantities from the reported Tools layout; no original stock amounts.
+# id	name	category	subcategory	quantity
+6	Cannon base	TOOL	cannon-part	1
+8	Cannon stand	TOOL	cannon-part	1
+10	Cannon barrels	TOOL	cannon-part	1
+12	Cannon furnace	TOOL	cannon-part	1
+13258	Angler hat	TOOL	skilling-outfit	1
+10941	Lumberjack hat	TOOL	skilling-outfit	0
+12013	Prospector helmet	TOOL	skilling-outfit	1
+20708	Pyromancer hood	TOOL	skilling-outfit	1
+5554	Rogue mask	TOOL	skilling-outfit	1
+26856	Boots of the eye	TOOL	skilling-outfit	1
+24878	Carpenter's boots	TOOL	skilling-outfit	1
+29478	Prospector boots	TOOL	skilling-outfit	1
+13259	Angler top	TOOL	skilling-outfit	1
+10939	Lumberjack top	TOOL	skilling-outfit	0
+12014	Prospector jacket	TOOL	skilling-outfit	1
+20704	Pyromancer garb	TOOL	skilling-outfit	1
+5553	Rogue top	TOOL	skilling-outfit	1
+9805	Firemaking cape(t)	TOOL	skilling-outfit	1
+9799	Fishing cape(t)	TOOL	skilling-outfit	1
+25539	Celestial ring (uncharged)	TOOL	skilling-utility	1
+13260	Angler waders	TOOL	skilling-outfit	1
+10940	Lumberjack legs	TOOL	skilling-outfit	0
+12015	Prospector legs	TOOL	skilling-outfit	1
+20706	Pyromancer robe	TOOL	skilling-outfit	1
+5555	Rogue trousers	TOOL	skilling-outfit	1
+776	Goldsmith gauntlets	TOOL	skilling-utility	1
+5013	Mining helmet	TOOL	skilling-utility	1
+6313	Opal machete	TOOL	tool	1
+13261	Angler boots	TOOL	skilling-outfit	1
+10933	Lumberjack boots	TOOL	skilling-outfit	0
+10132	Strung rabbit foot	TOOL	skilling-utility	1
+20710	Pyromancer boots	TOOL	skilling-outfit	1
+5556	Rogue gloves	TOOL	skilling-outfit	1
+10129	Barb-tail harpoon	TOOL	tool	1
+11323	Barbarian rod	TOOL	tool	1
+305	Big fishing net	TOOL	tool	1
+307	Fishing rod	TOOL	tool	1
+309	Fly fishing rod	TOOL	tool	1
+3159	Karambwan vessel	TOOL	tool	1
+301	Lobster pot	TOOL	tool	1
+5557	Rogue boots	TOOL	skilling-outfit	1
+1585	Oily fishing rod	TOOL	tool	1
+303	Small fishing net	TOOL	tool	1
+5340	Watering can(8)	TOOL	tool	1
+1438	Air talisman	RUNE	runecrafting-focus	1
+1444	Water talisman	RUNE	runecrafting-focus	1
+1442	Fire talisman	RUNE	runecrafting-focus	1
+5529	Mind tiara	RUNE	runecrafting-focus	1
+1456	Death talisman	RUNE	runecrafting-focus	1
+1462	Nature talisman	RUNE	runecrafting-focus	1
+1458	Law talisman	RUNE	runecrafting-focus	1
+1448	Mind talisman	RUNE	runecrafting-focus	1
+1440	Earth talisman	RUNE	runecrafting-focus	1
+1446	Body talisman	RUNE	runecrafting-focus	1
+1454	Cosmic talisman	RUNE	runecrafting-focus	1
+1452	Chaos talisman	RUNE	runecrafting-focus	1
+5509	Small pouch	RUNE	rune-container	1
+5510	Medium pouch	RUNE	rune-container	1
+5512	Large pouch	RUNE	rune-container	1
+5514	Giant pouch	RUNE	rune-container	1
+5521	Binding necklace	RUNE	runecrafting-utility	1
+5325	Gardening trowel	TOOL	tool	1
+7409	Magic secateurs	TOOL	tool	1
+5341	Rake	TOOL	tool	1
+5343	Seed dibber	TOOL	tool	1
+9625	Crystal saw	TOOL	tool	1
+8794	Saw	TOOL	tool	1
+1785	Glassblowing pipe	TOOL	tool	1
+22586	Looting bag	TOOL	utility-container	1
+24478	Open herb sack	TOOL	resource-container	1
+24482	Open seed box	TOOL	resource-container	1
+19634	Soul bearer	TOOL	utility-container	1
+12019	Coal bag	TOOL	resource-container	1
+24481	Open gem bag	TOOL	resource-container	1
+25584	Open fish barrel	TOOL	resource-container	1
+28140	Log basket	TOOL	resource-container	0
+24882	Plank sack	TOOL	resource-container	1
+1733	Needle	TOOL	tool	1
+10006	Bird snare	TOOL	tool	1
+10008	Box trap	TOOL	tool	1
+10010	Butterfly net	TOOL	tool	1
+29303	Large fur pouch	TOOL	hunter-tool	1
+29297	Large meat pouch	TOOL	hunter-tool	1
+10150	Noose wand	TOOL	skilling-utility	1
+10031	Rabbit snare	TOOL	tool	1
+10029	Teasing stick	TOOL	tool	1
+29325	House keys	TOOL	tool	1
+1523	Lockpick	TOOL	tool	1
+24740	Strange old lockpick (full)	TOOL	tool	1
+9065	Emerald lantern	TOOL	light-source	1
+590	Tinderbox	TOOL	tool	1
+596	Unlit torch	TOOL	light-source	1
+20712	Warm gloves	TOOL	skilling-utility	1
+1887	Cake tin	TOOL	cooking-tool	1
+775	Cooking gauntlets	TOOL	skilling-utility	1
+233	Pestle and mortar	TOOL	tool	1
+31733	Barrel stand	TOOL	sailing-upgrade	1
+31989	Boat bottle (empty)	TOOL	sailing-utility	1
+1923	Bowl	TOOL	cooking-tool	1
+1757	Brown apron	TOOL	skilling-utility	1
+31986	Captain's log	TOOL	sailing-utility	1
+31745	Captured wind mote	TOOL	sailing-upgrade	1
+26798	Catalytic talisman	RUNE	runecrafting-focus	1
+6666	Flippers	TOOL	skilling-utility	1
+31757	Heart of ithell	TOOL	sailing-upgrade	1
+1580	Ice gloves	TOOL	skilling-utility	1
+946	Knife	TOOL	tool	1
+9419	Mith grapple	TOOL	skilling-utility	1
+2871	Ogre bellows	TOOL	tool	1
+10071	Spottier cape	TOOL	skilling-utility	1
+4446	Steel key ring	TOOL	skilling-utility	1
+4600	Willow blackjack	TOOL	skilling-utility	1
+4	Ammo mould	TOOL	crafting-mould	1
+1595	Amulet mould	TOOL	crafting-mould	1
+9434	Bolt mould	TOOL	crafting-mould	1
+11065	Bracelet mould	TOOL	crafting-mould	1
+1599	Holy mould	TOOL	crafting-mould	1
+1597	Necklace mould	TOOL	crafting-mould	1
+1592	Ring mould	TOOL	crafting-mould	1
+5523	Tiara mould	TOOL	crafting-mould	1
+4161	Bag of salt	TOOL	slayer-tool	1
+4155	Enchanted gem	TOOL	slayer-tool	1
+6696	Ice cooler	TOOL	slayer-tool	1
+7159	Insulated boots	TOOL	slayer-tool	1
+7053	Lit bug lantern	TOOL	slayer-tool	1
+4156	Mirror shield	TOOL	slayer-tool	1
+3337	Pointed myre snelm	TOOL	slayer-tool	1
+4162	Rock hammer	TOOL	slayer-tool	1
+6720	Slayer gloves	TOOL	slayer-tool	1
+31398	Tortugan shield	TOOL	slayer-tool	1
+28136	Forestry kit	TOOL	resource-container	1
+22997	Bottomless compost bucket	TOOL	resource-container	1
+1825	Waterskin(3)	TOOL	utility-container	1
+1831	Waterskin(0)	TOOL	utility-container	1
+5376	Basket	TOOL	utility-container	1
+1925	Bucket	TOOL	utility-container	1
+1929	Bucket of water	TOOL	utility-container	1
+1935	Jug	TOOL	utility-container	1
+1937	Jug of water	TOOL	utility-container	1
+1931	Pot	TOOL	utility-container	1
+6544	Catspeak amulet(e)	TOOL	quest-utility	1
+28577	Crystal chime	TOOL	quest-utility	1
+2958	Druid pouch	TOOL	quest-utility	1
+22435	Enchanted emerald sickle (b)	TOOL	quest-utility	1
+1506	Gas mask	TOOL	quest-utility	1
+552	Ghostspeak amulet	TOOL	quest-utility	1
+4567	Gold helmet	TOOL	quest-utility	1
+4026	Gorilla greegree	TOOL	quest-utility	1
+4031	Karamjan monkey greegree	TOOL	quest-utility	1
+4021	M'speak amulet	TOOL	quest-utility	1
+4024	Ninja monkey greegree	TOOL	quest-utility	1
+10890	Prayer book	TOOL	quest-utility	1
+6465	Ring of charos(a)	TOOL	quest-utility	1
+4657	Ring of visibility	TOOL	quest-utility	1
+9083	Seal of passage	TOOL	quest-utility	1
+7534	Fishbowl helmet	TOOL	quest-utility	1
+7535	Diving apparatus	TOOL	quest-utility	1
+24676	Vyre noble top	TOOL	quest-utility	1
+24678	Vyre noble legs	TOOL	quest-utility	1
+24680	Vyre noble shoes	TOOL	quest-utility	1
+4030	Zombie monkey greegree	TOOL	quest-utility	1

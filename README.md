@@ -10,11 +10,19 @@ custom preset from the single chooser at the top of the sidebar. Both bundled
 presets sort owned items into ten purpose-driven destinations. Editing a bundled
 layout creates a custom preset, preserving the original defaults.
 
-Main groups runes and teleports in one tab, all combat styles together, potions
-in 4–3–2–1 dose order, and herbs, seeds and unfinished potions by stage. Ironman
-retains its original recipe-oriented arrangement. Both use the same reviewed
+Main groups runes and teleports in one tab, all combat styles together, complete
+4–3–2–1 potion families before incomplete families, and herbs, seeds and unfinished potions by stage. Ironman
+puts complete recipe rows first, then compact incomplete ingredients by kind. Both use the same reviewed
 Alch rules: replaced gear and tools can move to Alch, while best-owned tools,
 staff rune supply and your personal corrections remain protected.
+
+Combat keeps the best owned Melee, Ranged and Magic gear at the front, with remaining sets
+arranged vertically in combat-style and progression order. Loose alternatives
+group by style and equipment slot. Teleport tablets group by their reviewed
+icon colors, alphabetically within each color. Saved manual orders take priority.
+For an odd number of complete potion families, four real food or utility items
+can finish the row so incomplete families start below it. If those items are
+unavailable, the incomplete section uses the remaining half-row. The bank stays dense.
 
 Taking out gear while leaving its placeholders preserves established Gear/Alch
 placement during the same RuneLite session, including when new items are deposited.
@@ -56,6 +64,25 @@ Bank Architect has no separate installer, account, or external service.
 
 You can also copy the text blueprint for personal review without starting the
 move guide.
+
+### Preview the blueprint on your bank
+
+With your bank open, **Open Blueprint** also previews the blueprint
+over the bank's item area, using its current background and normal item spacing.
+The native tab row, Bank Tags, scrollbar and bottom controls stay visible.
+Use the bank's own tabs to switch views without ending preview. **Main / All
+items** shows the Main section followed by all planned numbered tabs, with each
+section starting on a new row. Empty numbered destinations are skipped, as in
+the real bank. Scroll over the item area to inspect the planned rows; each view
+remembers its preview scroll position. Draft edits are visible before saving;
+**Undo** and **Cancel** restore the earlier view.
+
+The **Preview on bank** checkbox switches this temporary view on or off.
+Other bank clicks dismiss the preview and consume that gesture; subsequent
+clicks use the real bank normally. Dragging a native bank tab ends preview and
+leaves that manual gesture to the real bank. Closing the blueprint or bank also
+ends preview. It never moves items or creates a usable virtual bank. The manual
+sorting guide resumes when preview ends.
 
 ## Correcting a classification
 
@@ -207,33 +234,28 @@ loot and sort it later. Every tag always has a tab, so nothing falls out of the
 blueprint.
 
 Some bundles are laid out as a whole: the Herblore tags form recipe rows, the
-resource tags follow their skill zones, and combat gear builds setup rows. Those
+resource tags follow their skill zones, and combat gear builds equipment columns. Those
 layouts survive as long as the tags stay on one tab. Split them across tabs and
 each side is arranged on its own, which loses the rows rather than breaking
 them — a trade you are free to make.
 
-### Two settings in the layout editor
+### Shape settings in the layout editor
 
 Both sit under the help text in **Tab Layout**, beside the tabs they affect.
 They are also in the client's plugin settings under Bank Architect, since they
 are stored there.
 
-**Fill part-empty gear rows** and **Fill part-empty Herblore rows** decide what
-happens when a group does not fill a row. A bank tab cannot hold an empty slot,
-so an aligned row only keeps its shape if real items fill it.
-
-They are asked separately because they are the same mechanism but not the same
-trade. You may well want the four combat-style columns held straight while being
-perfectly happy for a short recipe row to stop where it stops.
+**Fill part-empty gear rows** and **Complete Herblore recipe rows** control
+the shapes built inside their tabs. A bank tab cannot hold an empty slot, so
+columns and rows only keep their shape when real items fill the grid.
 
 - **Gear on**: the best owned gear uses vertical combat-style columns. Other sets
   use vertical columns in the same grid, with real loose gear filling the space
   around them. Very small banks stay compact when a column cannot physically fit.
   **Off**: sets use columns without reserving best-gear
   equipment rows. List and grid layouts share the same reviewed set families.
-- **Herblore on**: a part-finished recipe borrows from the rest of the tab so the
-  next recipe still starts at the left edge. **Off**: a short row is left short
-  and the recipes simply follow each other.
+- **Herblore on**: Ironman builds complete eight-item recipe rows first. Remaining
+  ingredients follow compactly by kind. **Off**: all ingredients run by kind.
 
 The default Combat front gives general Strength gear and raid weapons a reviewed
 navigation priority. Torva leads the melee armour column when present; Oathplate,
@@ -261,8 +283,11 @@ destinations and relocated Ammunition groups retain the player's choice.
 
 ### Two ways to arrange Herblore
 
-Ironman's default Herblore tab is a **row per recipe**: grimy herb, clean herb,
-seed, unfinished potion, secondary, then the 3, 2 and 1 dose.
+Ironman's default Herblore tab starts with each **complete recipe row**: grimy
+herb, clean herb, seed, unfinished potion, secondary, then the 3, 2 and 1 dose.
+Incomplete recipes follow by kind: grimy herbs, clean herbs, seeds, unfinished
+potions, secondaries and doses. Placeholders count as present; no missing items
+or empty cells are invented.
 Main starts with dense runs by kind and keeps finished potion families in 4–3–2–1
 dose order with Food & Potions.
 
@@ -285,7 +310,7 @@ client restart.
 ## Safety and privacy
 
 Reviewing this for the Plugin Hub? [docs/for-reviewers.md](docs/for-reviewers.md)
-points at the four files that touch live client state and answers the usual
+points at the files that touch live client state and answers the usual
 questions about the bundled data, the menu entries, and threading.
 
 Bank Architect is analysis and guidance software, not bank automation.
@@ -421,3 +446,9 @@ Start the local RuneLite development client:
 
 The pinned data-source manifest is
 [`item-sort-metadata-sources.tsv`](src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-sort-metadata-sources.tsv).
+
+### Combat layout verification
+
+The automatic Combat planner has three primary styles, without a fixed Prayer column. Best rings and weapons stay near the front. Remaining armour and functional weapon groups occupy contiguous style sections; sets prefer vertical columns and use complete compact rectangles or canonical runs when their own dense section is too small. Condition variants stay with their canonical equipment slot.
+
+Cannon components move together to Tools, with separate normal and ornamented finish groups. Cannonballs and other ammunition keep their Drops destination. Personal category corrections and saved physical order win over automatic defaults. Independent development quality reports are documented in tools/research/combat-layout-simulation/QUALITY-REPORT.md.

@@ -4,6 +4,17 @@
 # Combat quality audit: docs/testing/combat-layout-quality-2026-10-09.md.
 # Finished ammunition: official cached RuneLite stats identify an ammo slot.
 # Endgame audit: exact equipment remains gear even without runtime equipment metadata.
+# Two Main exports: exact non-combat items must not inherit equipment from name keywords.
+1921	SKILLING	cooking-material	Bowl of water
+9858	SKILLING	construction-material	Marble magic wardrobe flatpack
+21163	TOOL	herblore-tool	Amulet of chemistry
+6656	CLUE	cosmetic	Camo helmet
+6657	CLUE	cosmetic	Camo top
+6658	CLUE	cosmetic	Camo bottoms
+26914	TELEPORT	teleport-reusable	Amulet of the eye
+26990	TELEPORT	teleport-reusable	Amulet of the eye red
+26992	TELEPORT	teleport-reusable	Amulet of the eye green
+26994	TELEPORT	teleport-reusable	Amulet of the eye blue
 22325	GEAR	weapon	Scythe of vitur
 22486	GEAR	weapon	Scythe of vitur (uncharged)
 25736	GEAR	weapon	Holy scythe of vitur
@@ -205,11 +216,11 @@
 # Wiki: https://oldschool.runescape.wiki/w/Cannon_barrels_(or)?oldid=15190733
 # Only the barrels of the ornamented cannon were listed here, so its
 # other three parts scattered across generic gear and storage cleanup.
-10	GEAR	cannon-part	Cannon barrels
-26524	GEAR	cannon-part	Reversible ornamented cannon barrels
-26520	GEAR	cannon-part	Cannon base (or)
-26522	GEAR	cannon-part	Cannon stand (or)
-26526	GEAR	cannon-part	Cannon furnace (or)
+10	TOOL	cannon-part	Cannon barrels
+26524	TOOL	cannon-part	Reversible ornamented cannon barrels
+26520	TOOL	cannon-part	Cannon base (or)
+26522	TOOL	cannon-part	Cannon stand (or)
+26526	TOOL	cannon-part	Cannon furnace (or)
 805	GEAR	thrown-weapon	Rune thrownaxe
 # Wiki: https://oldschool.runescape.wiki/w/Morrigan's_throwing_axe_(bh)?oldid=15191344
 27912	GEAR	thrown-weapon
@@ -1946,9 +1957,9 @@
 # The furnace was missing from this list, so three quarters of the
 # cannon sat in combat gear and the fourth part in storage cleanup.
 # Wiki: https://oldschool.runescape.wiki/w/Cannon_furnace?oldid=15184080
-6	GEAR	cannon-part
-8	GEAR	cannon-part
-12	GEAR	cannon-part
+6	TOOL	cannon-part
+8	TOOL	cannon-part
+12	TOOL	cannon-part
 8839	GEAR	body	Void knight top
 13072	GEAR	body	Elite void top
 15737	GEAR	body	Elite void top, duplicate cache record
@@ -2423,7 +2434,7 @@
 12608	GEAR	magic-offhand	Book of war
 12610	GEAR	magic-offhand	Book of law
 12612	GEAR	magic-offhand	Book of darkness
-12863	GEAR	cannon-part	Dwarf cannon set
+12863	TOOL	cannon-part	Dwarf cannon set
 # Player-facing ballista weapons and previously unclassified assembly stages.
 19478	GEAR	weapon	Light ballista
 19481	GEAR	weapon	Heavy ballista
@@ -3107,3 +3118,38 @@
 # Reviewed recent melee gear: docs/testing/combat-progression-consistency-2026-10-08.md.
 30753	GEAR	body	Oathplate chest: functional melee body armour
 30779	GEAR	body	Radiant oathplate chest: cosmetic appearance of functional Oathplate armour
+# GitHub #44: ordinary and trimmed Construction capes have abbreviated cache names.
+9789	TELEPORT	teleport	Construct. cape: reusable house and estate-agent teleports
+9790	TELEPORT	teleport	Construct. cape(t): reusable house and estate-agent teleports
+# https://oldschool.runescape.wiki/w/Crafting_cape
+9780	TELEPORT	teleport	Crafting cape: reusable Crafting Guild bank teleport
+9781	TELEPORT	teleport	Crafting cape(t): reusable Crafting Guild bank teleport
+# Exact recipe ingredients also form one compact secondary run when recipes are incomplete.
+223	HERBLORE	secondary	Red spiders' eggs: super restore secondary
+225	HERBLORE	secondary	Limpwurt root: strength and super strength secondary
+231	HERBLORE	secondary	Snape grass: prayer potion secondary
+239	HERBLORE	secondary	White berries: super defence secondary
+2970	HERBLORE	secondary	Mort myre fungus: super energy secondary
+# Exact ordinary outfit variants retain the Skilling Outfits tag, including without equipment stats.
+29472	TOOL	skilling-outfit	Prospector helmet: alternate ordinary form
+29474	TOOL	skilling-outfit	Prospector jacket: alternate ordinary form
+29476	TOOL	skilling-outfit	Prospector legs: alternate ordinary form
+29478	TOOL	skilling-outfit	Prospector boots: alternate ordinary form
+28173	TOOL	skilling-outfit	Forestry hat: Lumberjack variant
+28169	TOOL	skilling-outfit	Forestry top: Lumberjack variant
+28171	TOOL	skilling-outfit	Forestry legs: Lumberjack variant
+28175	TOOL	skilling-outfit	Forestry boots: Lumberjack variant
+21061	TOOL	skilling-outfit	Graceful hood: Agility Arena variant
+21064	TOOL	skilling-outfit	Graceful cape: Agility Arena variant
+21067	TOOL	skilling-outfit	Graceful top: Agility Arena variant
+21070	TOOL	skilling-outfit	Graceful legs: Agility Arena variant
+21073	TOOL	skilling-outfit	Graceful gloves: Agility Arena variant
+21076	TOOL	skilling-outfit	Graceful boots: Agility Arena variant
+# GitHub #42: exact Deadman equipment slots also work without runtime equipment stats.
+33021	GEAR	weapon	Bow of faerdhinen (c): Deadman appearance
+33031	GEAR	head	Crystal helm: Deadman appearance
+33033	GEAR	head	Crystal helm (inactive): Deadman appearance
+33023	GEAR	body	Crystal body: Deadman appearance
+33025	GEAR	body	Crystal body (inactive): Deadman appearance
+33027	GEAR	legs	Crystal legs: Deadman appearance
+33029	GEAR	legs	Crystal legs (inactive): Deadman appearance

@@ -223,9 +223,5 @@ final class WikiItemCategories
 			return category;
 		}
 
-		boolean isFunctional()
-		{
-			return functional;
-		}
 	}
 }

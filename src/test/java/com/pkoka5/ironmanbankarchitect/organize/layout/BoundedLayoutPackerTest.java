@@ -178,7 +178,7 @@ public class BoundedLayoutPackerTest
 
 		assertEquals(2, outcome.getTieKey().getBlocks().size());
 		assertPositions(outcome, positions(1, 0, 2, 1, 3, 2, 4, 3, 5, 4));
-		assertEquals(2, outcome.getScore().getNominalFootprintSlack());
+		assertEquals(2, outcome.getScore().get(LayoutScore.Component.NOMINAL_FOOTPRINT_SLACK));
 		assertValid(request, outcome);
 	}
 
@@ -200,8 +200,8 @@ public class BoundedLayoutPackerTest
 			entriesWithLocks(itemIds, positions(10, 0, 21, 17)), stage);
 		BoundedLayoutPacker.Outcome inconsistent = plan(inconsistentRequest, itemIds);
 		assertTrue(inconsistent.getTieKey().getBlocks().isEmpty());
-		assertEquals(2, inconsistent.getScore().getHighMissedRelations());
-		assertEquals(2000, inconsistent.getScore().getHighMissedCompleteness());
+		assertEquals(2, inconsistent.getScore().get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
+		assertEquals(2000, inconsistent.getScore().get(LayoutScore.Component.HIGH_MISSED_COMPLETENESS));
 		assertPositions(inconsistent, positions(10, 0, 21, 17));
 		assertValid(inconsistentRequest, inconsistent);
 	}
@@ -235,7 +235,7 @@ public class BoundedLayoutPackerTest
 		LayoutRequest tripleRequest = request(entriesWithLocks(fallback, positions(1, 8)), triple);
 		BoundedLayoutPacker.Outcome tripleOutcome = plan(tripleRequest, fallback);
 		assertTrue(tripleOutcome.getTieKey().getBlocks().isEmpty());
-		assertEquals(2, tripleOutcome.getScore().getHighMissedRelations());
+		assertEquals(2, tripleOutcome.getScore().get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
 		assertValid(tripleRequest, tripleOutcome);
 	}
 
@@ -251,8 +251,8 @@ public class BoundedLayoutPackerTest
 		BoundedLayoutPacker.Outcome outcome = plan(request, fallback);
 
 		assertTrue(outcome.getTieKey().getBlocks().isEmpty());
-		assertEquals(8, outcome.getScore().getHighMissedRelations());
-		assertEquals(1000, outcome.getScore().getHighMissedCompleteness());
+		assertEquals(8, outcome.getScore().get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
+		assertEquals(1000, outcome.getScore().get(LayoutScore.Component.HIGH_MISSED_COMPLETENESS));
 		assertEquals(fallback, targetOrder(outcome));
 		assertValid(request, outcome);
 	}
@@ -267,11 +267,11 @@ public class BoundedLayoutPackerTest
 
 		BoundedLayoutPacker.Outcome outcome = plan(request, fallback);
 
-		assertEquals(2, outcome.getScore().getNominalFootprintSlack());
-		assertEquals(8, outcome.getScore().getSpilloverCompatibilityCost());
-		assertEquals(1, outcome.getScore().getSpilloverTransitions());
-		assertEquals(3, outcome.getScore().getSemanticSpan());
-		assertEquals(0, outcome.getScore().getSemanticRowBreaks());
+		assertEquals(2, outcome.getScore().get(LayoutScore.Component.NOMINAL_FOOTPRINT_SLACK));
+		assertEquals(8, outcome.getScore().get(LayoutScore.Component.SPILLOVER_COMPATIBILITY_COST));
+		assertEquals(1, outcome.getScore().get(LayoutScore.Component.SPILLOVER_TRANSITIONS));
+		assertEquals(3, outcome.getScore().get(LayoutScore.Component.SEMANTIC_SPAN));
+		assertEquals(0, outcome.getScore().get(LayoutScore.Component.SEMANTIC_ROW_BREAKS));
 		assertValid(request, outcome);
 	}
 
@@ -287,13 +287,13 @@ public class BoundedLayoutPackerTest
 			widths(3), Collections.emptySet(), atom("block.family", 1, 2));
 		BoundedLayoutPacker.Outcome typed = plan(
 			request(typedEntries, typedOnly, foreignSingleton), fallback);
-		assertEquals(1, typed.getScore().getSpilloverCompatibilityCost());
+		assertEquals(1, typed.getScore().get(LayoutScore.Component.SPILLOVER_COMPATIBILITY_COST));
 
 		SemanticRule explicit = rule("a.block", ShapePrimitive.HORIZONTAL_RUN, ConfidenceTier.HIGH,
 			widths(3), Collections.singleton("b.foreign"), atom("block.family", 1, 2));
 		BoundedLayoutPacker.Outcome compatible = plan(
 			request(typedEntries, explicit, foreignSingleton), fallback);
-		assertEquals(0, compatible.getScore().getSpilloverCompatibilityCost());
+		assertEquals(0, compatible.getScore().get(LayoutScore.Component.SPILLOVER_COMPATIBILITY_COST));
 	}
 
 	@Test
@@ -303,19 +303,19 @@ public class BoundedLayoutPackerTest
 		List<LayoutEntry> entries = entries(ids(1, 4));
 		LayoutRequest proven = new LayoutRequest(entries, Collections.emptyList(), ids(1, 4));
 		BoundedLayoutPacker.Outcome moved = plan(proven, fallback);
-		assertEquals(2, moved.getScore().getUnrestrictedSwapLowerBound());
-		assertEquals(4, moved.getScore().getTotalRankDisplacement());
+		assertEquals(2, moved.getScore().get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(4, moved.getScore().get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 
 		BoundedLayoutPacker.Outcome unproven = plan(
 			new LayoutRequest(entries, Collections.emptyList()), fallback);
-		assertEquals(0, unproven.getScore().getUnrestrictedSwapLowerBound());
-		assertEquals(0, unproven.getScore().getTotalRankDisplacement());
+		assertEquals(0, unproven.getScore().get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(0, unproven.getScore().get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 
 		BoundedLayoutPacker.Outcome threeCycleAndFixedPoint = plan(
 			new LayoutRequest(entries, Collections.emptyList(), ids(1, 4)),
 			Arrays.asList(2, 3, 1, 4));
-		assertEquals(2, threeCycleAndFixedPoint.getScore().getUnrestrictedSwapLowerBound());
-		assertEquals(4, threeCycleAndFixedPoint.getScore().getTotalRankDisplacement());
+		assertEquals(2, threeCycleAndFixedPoint.getScore().get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(4, threeCycleAndFixedPoint.getScore().get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 	}
 
 	@Test
@@ -367,8 +367,8 @@ public class BoundedLayoutPackerTest
 		assertEquals(first.getTieKey(), repeated.getTieKey());
 		assertEquals(plannedOrder, targetOrder(replanned));
 		assertEquals(first.getTieKey(), replanned.getTieKey());
-		assertEquals(0, replanned.getScore().getUnrestrictedSwapLowerBound());
-		assertEquals(0, replanned.getScore().getTotalRankDisplacement());
+		assertEquals(0, replanned.getScore().get(LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND));
+		assertEquals(0, replanned.getScore().get(LayoutScore.Component.TOTAL_RANK_DISPLACEMENT));
 		assertValid(proven, replanned);
 	}
 
@@ -413,12 +413,12 @@ public class BoundedLayoutPackerTest
 		assertTrue(outcome.getStats().isCapReached());
 		assertEquals(0, outcome.getStats().getCandidateOriginEvaluations());
 		assertTrue(outcome.getTieKey().getBlocks().isEmpty());
-		assertEquals(1, outcome.getScore().getHighMissedRelations());
-		assertEquals(1000, outcome.getScore().getHighMissedCompleteness());
-		assertEquals(2, outcome.getScore().getMediumMissedRelations());
-		assertEquals(1000, outcome.getScore().getMediumMissedCompleteness());
-		assertEquals(1, outcome.getScore().getLowMissedRelations());
-		assertEquals(666, outcome.getScore().getLowMissedCompleteness());
+		assertEquals(1, outcome.getScore().get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
+		assertEquals(1000, outcome.getScore().get(LayoutScore.Component.HIGH_MISSED_COMPLETENESS));
+		assertEquals(2, outcome.getScore().get(LayoutScore.Component.MEDIUM_MISSED_RELATIONS));
+		assertEquals(1000, outcome.getScore().get(LayoutScore.Component.MEDIUM_MISSED_COMPLETENESS));
+		assertEquals(1, outcome.getScore().get(LayoutScore.Component.LOW_MISSED_RELATIONS));
+		assertEquals(666, outcome.getScore().get(LayoutScore.Component.LOW_MISSED_COMPLETENESS));
 		assertEquals(fallback, targetOrder(outcome));
 		assertValid(request, outcome);
 	}
@@ -525,8 +525,8 @@ public class BoundedLayoutPackerTest
 		assertTrue(forward.getStats().getMaximumBeamSize() <= 2);
 		assertEquals(1, forward.getTieKey().getBlocks().size());
 		assertEquals("a.rule", forward.getTieKey().getBlocks().get(0).getRuleKey());
-		assertEquals(2, forward.getScore().getHighMissedRelations());
-		assertEquals(2000, forward.getScore().getHighMissedCompleteness());
+		assertEquals(2, forward.getScore().get(LayoutScore.Component.HIGH_MISSED_RELATIONS));
+		assertEquals(2000, forward.getScore().get(LayoutScore.Component.HIGH_MISSED_COMPLETENESS));
 		assertEquals(targetOrder(forward), targetOrder(reverse));
 		assertEquals(forward.getScore(), reverse.getScore());
 		assertEquals(forward.getTieKey(), reverse.getTieKey());

@@ -263,7 +263,7 @@ public class AmmoDropsPlacementTest
 		assertPlacement(preview, 9419, "tools", plan.destinationOf("tools"));
 		assertPlacement(preview, 865, "gear", plan.destinationOf("gear"));
 		assertPlacement(preview, 825, "gear", plan.destinationOf("gear"));
-		for (int id : new int[] {6, 8, 10, 12}) assertPlacement(preview, id, "gear", plan.destinationOf("gear"));
+		for (int id : new int[] {6, 8, 10, 12}) assertPlacement(preview, id, "tools", plan.destinationOf("tools"));
 		for (int id : new int[] {52, 53, 44, 9187, 822, 823, 9375, 11876, 11887})
 			assertPlacement(preview, id, "ammo-components", plan.destinationOf("ammo-components"));
 		assertPlacement(preview, 687, "cleanup", plan.destinationOf("cleanup"));

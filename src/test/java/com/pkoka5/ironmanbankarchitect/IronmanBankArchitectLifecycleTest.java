@@ -15,7 +15,6 @@ import com.pkoka5.ironmanbankarchitect.organize.BlockArrangements;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintOrderProfiles;
 import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,7 +52,7 @@ public class IronmanBankArchitectLifecycleTest
 		set(plugin, "config", config);
 		Map<String, String> values = new LinkedHashMap<>();
 		PresetTestSettings.attach(plugin, config, values);
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		set(plugin, "guideController", controller);
 		EventBus events = new EventBus();
 		events.register(plugin);
@@ -374,7 +373,7 @@ public class IronmanBankArchitectLifecycleTest
 		private final QueuedClientThread clientThread = new QueuedClientThread();
 		private final Deque<Runnable> background = new ArrayDeque<>();
 		private final EventBus events = new EventBus();
-		private final BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		private final BankGuideController controller = new BankGuideController();
 		private final BankAnalysis analysis;
 
 		private Fixture() throws Exception

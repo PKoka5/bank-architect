@@ -66,7 +66,7 @@ public final class BankCategoryOverlay extends Overlay
 		// Tied to assign mode rather than drawn whenever a scan exists: a
 		// coloured bank now means a mode is running, and closing the mode
 		// gives the player their ordinary bank back.
-		if (!config.showCategoryOverlay() || !guideController.isCategoryAssignMode())
+		if (reservations.previewActive || !config.showCategoryOverlay() || !guideController.isCategoryAssignMode())
 		{
 			return null;
 		}

@@ -19,17 +19,29 @@ public final class ToolOutfitSemanticRuleSet
 			"/com/pkoka5/ironmanbankarchitect/catalog/tool-layout-families.tsv"), 0, false);
 	private static final RequiredResource<List<OutfitFact>> OUTFITS =
 		new RequiredResource<>("tool outfits", ToolOutfitSemanticRuleSet::buildOutfits);
-	private static final RequiredResource<List<ToolFamilyFact>> TOOL_FAMILIES = new RequiredResource<>("tool families", () ->
+	private static final RequiredResource<List<OutfitFact>> TOOL_FAMILIES = new RequiredResource<>("tool families", () ->
 	{
-		List<ToolFamilyFact> families = new ArrayList<>();
-		TABLE.group("families").forEach((key, ids) -> families.add(tools(key, ids)));
+		List<OutfitFact> families = new ArrayList<>();
+		TABLE.group("families").forEach((key, ids) -> families.add(outfit(key, ids)));
 		return Collections.unmodifiableList(families);
 	});
 
 	private static List<OutfitFact> buildOutfits()
 	{
 		List<OutfitFact> outfits = new ArrayList<>();
-		TABLE.group("outfits").forEach((key, ids) -> outfits.add(outfit(key, ids.stream().mapToInt(Integer::intValue).toArray())));
+		TABLE.group("outfits").forEach((key, ids) ->
+		{
+			if (key.equals("outfit.farmer"))
+			{
+				for (int variant = 0; variant < 2; variant++)
+				{
+					List<Integer> pieces = new ArrayList<>();
+					for (int slot = variant; slot < ids.size(); slot += 2) pieces.add(ids.get(slot));
+					outfits.add(outfit(key + "-" + variant, pieces));
+				}
+			}
+			else outfits.add(outfit(key, ids));
+		});
 
 		Set<Integer> reserved = new LinkedHashSet<>();
 		for (OutfitFact outfit : outfits)
@@ -38,6 +50,7 @@ public final class ToolOutfitSemanticRuleSet
 		}
 		for (ItemSetCatalog.SetDefinition definition : ItemSetCatalog.sets("tools"))
 		{
+			if (definition.getKey().startsWith("gear.dwarf-cannon")) continue;
 			boolean overlaps = false;
 			for (Integer itemId : definition.getItemIds())
 			{
@@ -49,13 +62,8 @@ public final class ToolOutfitSemanticRuleSet
 			}
 			if (!overlaps)
 			{
-				int[] itemIds = new int[definition.getItemIds().size()];
-				for (int index = 0; index < itemIds.length; index++)
-				{
-					itemIds[index] = definition.getItemIds().get(index);
-					reserved.add(itemIds[index]);
-				}
-				outfits.add(outfit(definition.getKey(), itemIds));
+				reserved.addAll(definition.getItemIds());
+				outfits.add(outfit(definition.getKey(), definition.getItemIds()));
 			}
 		}
 		return Collections.unmodifiableList(outfits);
@@ -83,6 +91,26 @@ public final class ToolOutfitSemanticRuleSet
 		return new LayoutRequest(anchored, rules);
 	}
 
+	public static Set<Integer> outfitItemIds(List<LayoutEntry> entries)
+	{
+		Set<Integer> present = new HashSet<>(), protectedIds = new HashSet<>();
+		for (LayoutEntry entry : entries) present.add(entry.getItem().getItemId());
+		for (OutfitFact outfit : outfitsFor(entries))
+		{
+			List<Integer> owned = presentIds(outfit.itemIds, present);
+			if (owned.size() >= 2) protectedIds.addAll(owned);
+		}
+		return protectedIds;
+	}
+
+	/** Dense fallback keeps each owned column together when the physical grid cannot fit it. */
+	public static List<Integer> outfitOrder(List<LayoutEntry> entries)
+	{
+		List<Integer> order = new ArrayList<>();
+		for (OutfitFact outfit : outfitsFor(entries)) order.addAll(outfit.itemIds);
+		return order;
+	}
+
 	private static List<LayoutEntry> anchoredEntries(List<LayoutEntry> entries)
 	{
 		Set<Integer> present = new LinkedHashSet<>();
@@ -96,17 +124,28 @@ public final class ToolOutfitSemanticRuleSet
 		}
 
 		Map<Integer, Integer> lockedTargets = new LinkedHashMap<>();
-		int outfitColumn = 0;
 		int maxOutfitHeight = 0;
 		for (OutfitFact outfit : outfitsFor(entries))
 		{
 			List<Integer> owned = presentIds(outfit.itemIds, present);
-			if (owned.size() < 2 || outfitColumn >= 8)
+			if (owned.size() < 2)
 			{
 				continue;
 			}
-			lockedTargets.put(owned.get(0), outfitColumn++);
-			maxOutfitHeight = Math.max(maxOutfitHeight, owned.size());
+			for (int stride : new int[]{8, 1})
+			{
+				if (lockedTargets.containsKey(owned.get(0))) break;
+				for (int origin = 0; origin + (owned.size() - 1) * stride < entries.size(); origin++)
+				{
+					boolean free = true;
+					for (int row = 0; row < owned.size(); row++)
+						if (lockedTargets.containsValue(origin + row * stride)) free = false;
+					if (!free) continue;
+					for (int row = 0; row < owned.size(); row++) lockedTargets.put(owned.get(row), origin + row * stride);
+					maxOutfitHeight = Math.max(maxOutfitHeight, (origin + (owned.size() - 1) * stride) / 8 + 1);
+					break;
+				}
+			}
 		}
 
 		int priorityRow = maxOutfitHeight;
@@ -121,7 +160,7 @@ public final class ToolOutfitSemanticRuleSet
 		// A sparse tab may end before the row below its tallest outfit exists.
 		if (runecraftingRows == 0 && containerRows == 0 && maxOutfitHeight * 8 < entries.size())
 		{
-			for (ToolFamilyFact family : TOOL_FAMILIES.get())
+			for (OutfitFact family : TOOL_FAMILIES.get())
 			{
 				List<Integer> owned = presentIds(family.itemIds, present);
 				if (owned.size() >= 2)
@@ -167,16 +206,6 @@ public final class ToolOutfitSemanticRuleSet
 		return rows;
 	}
 
-	private static List<Integer> presentIds(int[] itemIds, Set<Integer> present)
-	{
-		List<Integer> owned = new ArrayList<>();
-		for (int itemId : itemIds)
-		{
-			if (present.contains(itemId)) owned.add(itemId);
-		}
-		return owned;
-	}
-
 	private static List<Integer> presentIds(List<Integer> itemIds, Set<Integer> present)
 	{
 		List<Integer> owned = new ArrayList<>();
@@ -192,9 +221,7 @@ public final class ToolOutfitSemanticRuleSet
 		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>(OUTFITS.get().size());
 		for (OutfitFact outfit : outfitsFor(entries))
 		{
-			List<Integer> itemIds = new ArrayList<>(outfit.itemIds.length);
-			for (int itemId : outfit.itemIds) itemIds.add(itemId);
-			definitions.add(ItemSetCatalog.definition("tools", outfit.key, outfit.key, itemIds));
+			definitions.add(ItemSetCatalog.definition("tools", outfit.key, outfit.key, outfit.itemIds));
 		}
 		return VerticalItemSetRuleFactory.build(OUTFIT_RULE_KEY, entries, definitions);
 	}
@@ -203,7 +230,38 @@ public final class ToolOutfitSemanticRuleSet
 	{
 		Set<Integer> present = new LinkedHashSet<>();
 		for (LayoutEntry entry : entries) present.add(entry.getItem().getItemId());
-		List<OutfitFact> outfits = new ArrayList<>(OUTFITS.get());
+		Map<String, List<OutfitFact>> families = new LinkedHashMap<>();
+		for (OutfitFact outfit : OUTFITS.get())
+			families.computeIfAbsent(outfitFamily(outfit.key), key -> new ArrayList<>()).add(outfit);
+		Set<Integer> unused = new LinkedHashSet<>(present);
+		List<OutfitFact> outfits = new ArrayList<>();
+		for (Map.Entry<String, List<OutfitFact>> family : families.entrySet())
+		{
+			for (OutfitFact variant : family.getValue())
+			{
+				if (unused.containsAll(variant.itemIds))
+				{
+					outfits.add(variant);
+					unused.removeAll(variant.itemIds);
+				}
+			}
+			int slots = family.getValue().stream().mapToInt(variant -> variant.itemIds.size()).max().orElse(0);
+			for (int column = 0; ; column++)
+			{
+				List<Integer> pieces = new ArrayList<>();
+				for (int slot = 0; slot < slots; slot++)
+				{
+					for (OutfitFact variant : family.getValue())
+						if (slot < variant.itemIds.size() && unused.remove(variant.itemIds.get(slot)))
+						{ pieces.add(variant.itemIds.get(slot)); break; }
+				}
+				if (pieces.isEmpty()) break;
+				outfits.add(outfit(family.getKey() + "-mixed-" + column, pieces));
+			}
+		}
+		if (outfits.stream().noneMatch(outfit -> outfit.key.startsWith("outfit.raiments-eye"))
+			&& !Collections.disjoint(present, TABLE.ids("EYE_SHARED")))
+			outfits.add(outfit("outfit.raiments-eye", Collections.emptyList()));
 		int best = -1;
 		int count = -1;
 		for (int i = 0; i < outfits.size(); i++)
@@ -221,13 +279,24 @@ public final class ToolOutfitSemanticRuleSet
 			OutfitFact outfit = outfits.get(best);
 			List<Integer> ids = presentIds(outfit.itemIds, present);
 			ids.addAll(presentIds(TABLE.ids("EYE_SHARED"), present));
-			outfits.set(best, outfit(outfit.key, ids.stream().mapToInt(Integer::intValue).toArray()));
+			outfits.set(best, outfit(outfit.key, ids));
 		}
 		return outfits;
 	}
 
+	private static String outfitFamily(String key)
+	{
+		if (key.startsWith("tools.graceful-")) return "outfit.graceful";
+		if (key.equals("outfit.golden-prospector")) return "outfit.prospector";
+		if (key.equals("outfit.spirit-angler")) return "outfit.angler";
+		for (String family : Arrays.asList("outfit.graceful", "outfit.prospector", "outfit.lumberjack",
+			"outfit.raiments-eye", "outfit.farmer", "outfit.smiths"))
+			if (key.startsWith(family + "-")) return family;
+		return key;
+	}
+
 	private static SemanticRule buildPresentRows(List<LayoutEntry> entries, String ruleKey,
-		List<ToolFamilyFact> families)
+		List<OutfitFact> families)
 	{
 		Set<Integer> present = new LinkedHashSet<>();
 		for (LayoutEntry entry : entries)
@@ -236,7 +305,7 @@ public final class ToolOutfitSemanticRuleSet
 		}
 
 		List<SemanticAtom> atoms = new ArrayList<>();
-		for (ToolFamilyFact family : families)
+		for (OutfitFact family : families)
 		{
 			if (family.key.equals("tool.utility-containers") && !present.contains(19634))
 			{
@@ -275,38 +344,22 @@ public final class ToolOutfitSemanticRuleSet
 			.build();
 	}
 
-	private static OutfitFact outfit(String key, int... itemIds)
+	private static OutfitFact outfit(String key, List<Integer> itemIds)
 	{
 		return new OutfitFact(key, itemIds);
 	}
 
 
-	private static ToolFamilyFact tools(String key, List<Integer> itemIds)
-	{
-		return new ToolFamilyFact(key, itemIds);
-	}
-
 	private static final class OutfitFact
-	{
-		private final String key;
-		private final int[] itemIds;
-
-		private OutfitFact(String key, int[] itemIds)
-		{
-			this.key = key;
-			this.itemIds = itemIds;
-		}
-	}
-
-	private static final class ToolFamilyFact
 	{
 		private final String key;
 		private final List<Integer> itemIds;
 
-		private ToolFamilyFact(String key, List<Integer> itemIds)
+		private OutfitFact(String key, List<Integer> itemIds)
 		{
 			this.key = key;
 			this.itemIds = itemIds;
 		}
 	}
+
 }

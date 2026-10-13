@@ -77,17 +77,6 @@ public final class BankOrganizationPreview
 		return Collections.unmodifiableList(items);
 	}
 
-	public int getExpectedItemId(int slotIndex)
-	{
-		List<BankPreviewItem> items = getPlannedItems();
-		if (slotIndex < 0 || slotIndex >= items.size())
-		{
-			return -1;
-		}
-
-		return items.get(slotIndex).getItemId();
-	}
-
 	public int getPlannedItemCount()
 	{
 		int count = 0;
@@ -97,21 +86,6 @@ public final class BankOrganizationPreview
 		}
 
 		return count;
-	}
-
-	public int getPlannedSlotIndex(int itemId)
-	{
-		List<BankPreviewItem> items = getPlannedItems();
-		for (int i = 0; i < items.size(); i++)
-		{
-			BankPreviewItem item = items.get(i);
-			if (!item.isBlank() && item.getItemId() == itemId)
-			{
-				return i;
-			}
-		}
-
-		return -1;
 	}
 
 	public String toPreviewText()

@@ -322,14 +322,14 @@ gear	gear.virtus	Virtus	5	26243
 gear	gear.virtus	Virtus	7	26245
 gear	gear.zamorak-monk	Zamorak Monk	5	1035
 gear	gear.zamorak-monk	Zamorak Monk	7	1033
-gear	gear.dwarf-cannon	Dwarf multicannon	0	6
-gear	gear.dwarf-cannon	Dwarf multicannon	1	8
-gear	gear.dwarf-cannon	Dwarf multicannon	2	10
-gear	gear.dwarf-cannon	Dwarf multicannon	3	12
-gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	0	26520
-gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	1	26522
-gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	2	26524
-gear	gear.dwarf-cannon-or	Dwarf multicannon (or)	3	26526
+tools	gear.dwarf-cannon	Dwarf multicannon	0	6
+tools	gear.dwarf-cannon	Dwarf multicannon	1	8
+tools	gear.dwarf-cannon	Dwarf multicannon	2	10
+tools	gear.dwarf-cannon	Dwarf multicannon	3	12
+tools	gear.dwarf-cannon-or	Dwarf multicannon (or)	0	26520
+tools	gear.dwarf-cannon-or	Dwarf multicannon (or)	1	26522
+tools	gear.dwarf-cannon-or	Dwarf multicannon (or)	2	26524
+tools	gear.dwarf-cannon-or	Dwarf multicannon (or)	3	26526
 tools	tools.graceful-arceuus	Graceful (Arceuus)	0	13579
 tools	tools.graceful-arceuus	Graceful (Arceuus)	1	13581
 tools	tools.graceful-arceuus	Graceful (Arceuus)	5	13583
@@ -413,6 +413,20 @@ tools	tools.rogue	Rogue	5	5553
 tools	tools.rogue	Rogue	7	5555
 tools	tools.rogue	Rogue	8	5556
 tools	tools.rogue	Rogue	9	5557
+tools	tools.prospector-fossil	Prospector (alternate forms)	0	29472
+tools	tools.prospector-fossil	Prospector (alternate forms)	5	29474
+tools	tools.prospector-fossil	Prospector (alternate forms)	7	29476
+tools	tools.prospector-fossil	Prospector (alternate forms)	9	29478
+tools	tools.lumberjack-forestry	Forestry Lumberjack	0	28173
+tools	tools.lumberjack-forestry	Forestry Lumberjack	5	28169
+tools	tools.lumberjack-forestry	Forestry Lumberjack	7	28171
+tools	tools.lumberjack-forestry	Forestry Lumberjack	9	28175
+tools	tools.graceful-agility-arena	Graceful (Agility Arena)	0	21061
+tools	tools.graceful-agility-arena	Graceful (Agility Arena)	1	21064
+tools	tools.graceful-agility-arena	Graceful (Agility Arena)	5	21067
+tools	tools.graceful-agility-arena	Graceful (Agility Arena)	7	21070
+tools	tools.graceful-agility-arena	Graceful (Agility Arena)	8	21073
+tools	tools.graceful-agility-arena	Graceful (Agility Arena)	9	21076
 # Colour families: recoloured cosmetics whose names lead with a colour word,
 # grouped so sorting keeps each family adjacent. Read only by the clue sorter;
 # the domain is invisible to tab routing and to the grid outfit rules.

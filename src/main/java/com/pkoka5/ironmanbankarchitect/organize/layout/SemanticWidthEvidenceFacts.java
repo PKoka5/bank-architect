@@ -13,9 +13,6 @@ final class SemanticWidthEvidenceFacts
 		Arrays.asList(0, 2, 0, 0, 5, 0, 0, 0),
 		Arrays.asList(0, 5, 0, 0, 5, 0, 0, 0));
 
-	static final WidthEvidence HERB_WORKFLOW = new WidthEvidence(7,
-		Arrays.asList(0, 1, 6, 1, 0, 0, 0, 0),
-		Arrays.asList(0, 10, 14, 4, 0, 0, 0, 0));
 
 	private SemanticWidthEvidenceFacts()
 	{

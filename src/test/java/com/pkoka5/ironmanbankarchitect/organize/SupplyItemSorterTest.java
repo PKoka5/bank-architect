@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemSortMetadataCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -166,6 +167,65 @@ public class SupplyItemSorterTest
 		assertEquals(0, sorted.get(1).getQuantity());
 	}
 
+	@Test
+	public void byFamilyPlacesCompleteDoseGroupsBeforeEarlierIncompleteFamilies()
+	{
+		List<BankPreviewItem> input = Arrays.asList(
+			item(179, "Antipoison(1)", "potion-dose-1"),
+			item(2428, "Attack potion(4)", "potion-dose-4"),
+			item(121, "Attack potion(3)", "potion-dose-3"),
+			item(123, "Attack potion(2)", "potion-dose-2"),
+			item(125, "Attack potion(1)", "potion-dose-1"),
+			item(2434, "Prayer potion(4)", "potion-dose-4"),
+			item(139, "Prayer potion(3)", "potion-dose-3"),
+			item(141, "Prayer potion(2)", "potion-dose-2"),
+			item(143, "Prayer potion(1)", "potion-dose-1"));
+		List<BankPreviewItem> sorted = SupplyItemSorter.sort(input,
+			ResourceItemSortMetadataCatalog.INSTANCE,
+			PotionDoseOrder.BY_FAMILY);
+
+		assertEquals(Arrays.asList(2428, 121, 123, 125, 2434, 139, 141, 143, 179), ids(sorted));
+		assertEquals(Arrays.asList(179, 2428, 121, 123, 125, 2434, 139, 141, 143),
+			ids(SupplyItemSorter.sort(input)));
+	}
+
+	@Test
+	public void realPlaceholderCountsAsPresentDoseForCompleteFamilyPriority()
+	{
+		BankPreviewItem placeholder = new BankPreviewItem(new CatalogItem(139, "Prayer potion(3)",
+			ItemCategory.POTION, "potion-dose-3", Collections.emptySet(), null), 0, true);
+		List<BankPreviewItem> sorted = SupplyItemSorter.sort(Arrays.asList(
+			item(179, "Antipoison(1)", "potion-dose-1"),
+			item(2428, "Attack potion(4)", "potion-dose-4"),
+			item(2434, "Prayer potion(4)", "potion-dose-4"), placeholder,
+			item(141, "Prayer potion(2)", "potion-dose-2"),
+			item(143, "Prayer potion(1)", "potion-dose-1")),
+			ResourceItemSortMetadataCatalog.INSTANCE,
+			PotionDoseOrder.BY_FAMILY);
+
+		assertEquals(Arrays.asList(2434, 139, 141, 143, 179, 2428), ids(sorted));
+		assertTrue(sorted.get(1).isPlaceholder());
+		assertEquals(0, sorted.get(1).getQuantity());
+	}
+
+	@Test
+	public void repeatedDoseEntriesCannotTurnAnIncompleteFamilyIntoFourDifferentDoses()
+	{
+		List<BankPreviewItem> sorted = SupplyItemSorter.sort(Arrays.asList(
+			item(175, "Antipoison(3)", "potion-dose-3"),
+			item(177, "Antipoison(2)", "potion-dose-2"),
+			item(179, "Antipoison(1)", "potion-dose-1"),
+			item(179, "Antipoison(1)", "potion-dose-1"),
+			item(2434, "Prayer potion(4)", "potion-dose-4"),
+			item(139, "Prayer potion(3)", "potion-dose-3"),
+			item(141, "Prayer potion(2)", "potion-dose-2"),
+			item(143, "Prayer potion(1)", "potion-dose-1")),
+			ResourceItemSortMetadataCatalog.INSTANCE,
+			PotionDoseOrder.BY_FAMILY);
+
+		assertEquals(Arrays.asList(2434, 139, 141, 143, 175, 177, 179, 179), ids(sorted));
+	}
+
 	private static BankPreviewItem item(int id, String name, String subcategory)
 	{
 		return new BankPreviewItem(new CatalogItem(id, name, ItemCategory.POTION, subcategory,
@@ -175,5 +235,10 @@ public class SupplyItemSorterTest
 	private static List<String> names(List<BankPreviewItem> items)
 	{
 		return items.stream().map(BankPreviewItem::getDisplayName).collect(Collectors.toList());
+	}
+
+	private static List<Integer> ids(List<BankPreviewItem> items)
+	{
+		return items.stream().map(BankPreviewItem::getItemId).collect(Collectors.toList());
 	}
 }

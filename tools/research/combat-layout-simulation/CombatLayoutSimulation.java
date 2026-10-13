@@ -138,7 +138,7 @@ public final class CombatLayoutSimulation
 				result.put("combat", encode(combat, frontIds, stats)); result.put("alch", encode(alch, Collections.emptySet(), stats));
 				result.put("drops", encode(drops, Collections.emptySet(), stats));
 				result.put("dropsGroups", dropsGroups(drops));
-				result.put("frontCount", frontIds.size()); result.put("alignedRows", gear.getAlignedSize() / 8);
+				result.put("frontCount", frontIds.size()); result.put("alignedRows", primaryTargets.values().stream().mapToInt(target -> target / 8 + 1).max().orElse(0));
 				result.put("primaryTargets",primaryTargets);
 				result.put("primaryRows",primaryTargets.values().stream().map(i -> i / 8).distinct().count());
 				result.put("combatStatCount", combat.stream().filter(i -> stats.containsKey(i.getItemId())).count());

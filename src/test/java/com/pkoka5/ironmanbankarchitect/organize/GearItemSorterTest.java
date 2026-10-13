@@ -183,10 +183,9 @@ public class GearItemSorterTest
 	}
 
 	@Test
-	public void spareSameSlotItemsCompleteTheRowInTierOrder()
+	public void spareHelmsFollowThreePrimaryStylesAndPrayerRemainsInTheTail()
 	{
-		// Four style helms plus four spare helms: the helm row fills itself
-		// with the spares (best first) instead of needing generic filler.
+		// Prayer is retained as useful secondary gear, without a fourth primary column.
 		List<BankPreviewItem> input = Arrays.asList(
 			item(1, "Melee helm"), item(2, "Ranged helm"), item(3, "Magic helm"),
 			item(4, "Prayer helm"), item(5, "Spare helm strong"), item(6, "Spare helm weak"),
@@ -211,16 +210,15 @@ public class GearItemSorterTest
 			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
 
 		assertEquals(Arrays.asList(
-			"Melee helm", "Ranged helm", "Magic helm", "Prayer helm",
-			"Spare helm strong", "Spare helm medium", "Spare helm minor", "Spare helm weak"
+			"Melee helm", "Ranged helm", "Magic helm",
+			"Spare helm strong", "Spare helm medium", "Spare helm minor", "Spare helm weak", "Prayer helm"
 		), names(laidOut));
 	}
 
 	@Test
-	public void completeSlotRowsExposeBestGearTargetsWithoutBorrowingFillersDuringSelection()
+	public void realSecondaryGearSuppliesCapacityBesideFullPrimaryColumns()
 	{
-		// Two full slot rows and zero rings/utility filler: both rows must
-		// still come out aligned instead of collapsing into dense runs.
+		// Real secondary entries fill the other cells; they never become selected primary pieces.
 		List<BankPreviewItem> input = Arrays.asList(
 			item(960001, "Body m"), item(960002, "Body r"), item(960003, "Body g"), item(960004, "Body p"),
 			item(960005, "Body s1"), item(960006, "Body s2"), item(960007, "Body s3"), item(960008, "Body s4"),
@@ -244,13 +242,57 @@ public class GearItemSorterTest
 
 		assertEquals(16, laidOut.size());
 		GearItemSorter.GearLayout selection = GearItemSorter.plan(input, stats);
-		java.util.Map<Integer, Integer> targets = GearItemSorter.setupTargets(selection, input.size(), stats);
-		for (int style = 0; style < 4; style++)
+		java.util.Map<Integer, Integer> targets = GearItemSorter.setupTargets(selection, input.size());
+		assertEquals("all six selected pieces have real physical targets", 6, targets.size());
+		for (int style = 0; style < 3; style++)
 		{
 			assertEquals(Integer.valueOf(style), targets.get(960001 + style));
 			assertEquals(Integer.valueOf(8 + style), targets.get(960011 + style));
 		}
-		assertEquals("only real best pieces are selected before geometric packing", 8, selection.getSetupRows().size());
+		assertEquals("only three styles are primary", 6, selection.getSetupRows().size());
+		assertEquals(Arrays.asList("Body m", "Legs m", "Body r", "Legs r", "Body g", "Legs g"),
+			names(selection.getSetupRows()));
+	}
+
+	@Test
+	public void fullStyleColumnsUseRealBankCapacityAndFallBackWithoutInventedCells()
+	{
+		GearSlot[] slots = {GearSlot.HEAD, GearSlot.BODY, GearSlot.LEGS, GearSlot.WEAPON,
+			GearSlot.RING, GearSlot.NECK, GearSlot.CAPE};
+		List<BankPreviewItem> items = new java.util.ArrayList<>();
+		java.util.Map<Integer, GearStats> statsById = new java.util.LinkedHashMap<>();
+		for (int style = 0; style < 3; style++)
+			for (int slot = 0; slot < slots.length; slot++)
+			{
+				int id = 964000 + style * 100 + slot;
+				items.add(item(id, "Primary " + style + " " + slots[slot]));
+				statsById.put(id, new GearStats(slots[slot], style == 0 ? 10 : 0, 0, 0,
+					style == 2 ? 10 : 0, style == 1 ? 10 : 0, 0, 0, 0, 10));
+			}
+		GearStatsSource source = id -> Optional.ofNullable(statsById.get(id));
+		GearItemSorter.GearLayout full = GearItemSorter.plan(items, source);
+		java.util.Map<Integer, Integer> targets = GearItemSorter.setupTargets(full, items.size());
+		assertTrue("twenty-one physical entries cannot accommodate seven full rows", targets.isEmpty());
+		targets = GearItemSorter.setupTargets(full, 500);
+		assertEquals("every selected equipment slot receives a column target", 21, targets.size());
+		int[] rows = {0, 1, 2, 5, 6, 4, 3};
+		for (int style = 0; style < 3; style++)
+			for (int slot = 0; slot < slots.length; slot++)
+				assertEquals("independently specified full-column cell", Integer.valueOf(rows[slot] * 8 + style),
+					targets.get(964000 + style * 100 + slot));
+		for (int style = 0; style < 3; style++)
+		{
+			int removeId = 964006 + style * 100;
+			items.removeIf(item -> item.getItemId() == removeId);
+		}
+		GearItemSorter.GearLayout sparse = GearItemSorter.plan(items, source);
+		assertEquals(18, sparse.getSetupRows().size());
+		assertTrue("eighteen physical entries cannot hold six full rows",
+			GearItemSorter.setupTargets(sparse, items.size()).isEmpty());
+		assertEquals("real spare capacity permits all six rows", 18,
+			GearItemSorter.setupTargets(sparse, 500).size());
+		assertEquals("compact fallback preserves every actual primary entry", 18,
+			sparse.getSetupRows().size());
 	}
 
 	@Test
@@ -267,7 +309,7 @@ public class GearItemSorterTest
 				// Keep the four exact set members out of later setup-row reservations;
 				// this fixture isolates protection of the secondary families.
 				return Optional.of(new GearStats(GearSlot.RING,
-					0, 0, 0, 0, 0, 0, 0, 0, 0));
+					0, 0, 0, 0, 0, 0, 0, 1, 0));
 			}
 			int style = itemId - 950001;
 			return Optional.of(new GearStats(GearSlot.BODY,
@@ -278,11 +320,11 @@ public class GearItemSorterTest
 		GearItemSorter.GearLayout plan = GearItemSorter.plan(input, stats);
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(input, stats);
 
-		assertEquals(Arrays.asList("Melee body", "Ranged body", "Magic body", "Prayer body"),
+		assertEquals(Arrays.asList("Melee body", "Ranged body", "Magic body"),
 			names(plan.getSetupRows()));
-		assertEquals(new java.util.HashSet<>(Arrays.asList(544, 542, 4720, 4722)),
+		assertEquals(new java.util.HashSet<>(Arrays.asList(950004, 544, 542, 4720, 4722)),
 			plan.getTail().stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
-		assertEquals(4, plan.getTail().size());
+		assertEquals(5, plan.getTail().size());
 		assertEquals(8, laidOut.size());
 		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
@@ -313,11 +355,9 @@ public class GearItemSorterTest
 		List<BankPreviewItem> laidOut = PresetItemSorter.sort(
 			BankPresets.IRONMAN.getCategory("combat-gear"), input, stats);
 
-		assertEquals("later complete rows cannot jump ahead of an owned helmet", 0,
-			GearItemSorter.plan(input, stats).getAlignedSize());
 		assertEquals(9, laidOut.size());
-		assertEquals(Arrays.asList("Sparse helm", "Body m", "Body r", "Body g", "Body p",
-			"Body spare 1", "Body spare 2", "Body spare 3", "Body spare 4"),
+		assertEquals(Arrays.asList("Sparse helm", "Body m", "Body r", "Body g",
+			"Body spare 1", "Body spare 2", "Body spare 3", "Body spare 4", "Body p"),
 			names(laidOut));
 		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			laidOut.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
@@ -375,9 +415,8 @@ public class GearItemSorterTest
 		GearItemSorter.GearLayout plan = GearItemSorter.plan(input, stats);
 		List<BankPreviewItem> setup = plan.getSetupRows();
 
-		assertEquals("no slot has eight suitable wearable entries", 0, plan.getAlignedSize());
 		assertEquals(Arrays.asList("Melee helm", "Melee cape", "Melee amulet",
-			"Ranged helm", "Ranged cape", "Ranged amulet", "Magic helm", "Magic cape", "Prayer helm"),
+			"Ranged helm", "Ranged cape", "Ranged amulet", "Magic helm", "Magic cape"),
 			names(setup));
 		assertEquals(input.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()),
 			GearItemSorter.layout(input, stats).stream()

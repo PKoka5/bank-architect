@@ -1208,25 +1208,13 @@ final class BoundedLayoutPacker
 
 		private LayoutScore build(LayoutRequest request, int swapLowerBound, int rankDisplacement)
 		{
-			return LayoutScore.builder()
-				.highMissedRelations(components[0])
-				.highMissedCompleteness(components[1])
-				.mediumMissedRelations(components[2])
-				.mediumMissedCompleteness(components[3])
-				.lowMissedRelations(components[4])
-				.lowMissedCompleteness(components[5])
-				.orientationEvidenceRegret(components[6])
-				.widthEvidenceRegret(components[7])
-				.semanticFragmentation(components[8])
-				.semanticRowBreaks(components[9])
-				.startColumnDeviation(components[10])
-				.lockedPrefixSpillover(components[11])
-				.spilloverCompatibilityCost(components[12])
-				.spilloverTransitions(components[13])
-				.nominalFootprintSlack(components[14])
-				.semanticSpan(components[15])
-				.movement(request, swapLowerBound, rankDisplacement)
-				.build();
+			LayoutScore.Builder builder = LayoutScore.builder();
+			for (LayoutScore.Component component : LayoutScore.Component.values())
+			{
+				if (component == LayoutScore.Component.UNRESTRICTED_SWAP_LOWER_BOUND) break;
+				builder.set(component, components[component.ordinal()]);
+			}
+			return builder.movement(request, swapLowerBound, rankDisplacement).build();
 		}
 	}
 

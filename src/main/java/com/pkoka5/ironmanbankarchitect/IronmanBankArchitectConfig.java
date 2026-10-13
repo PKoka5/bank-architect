@@ -168,8 +168,8 @@ public interface IronmanBankArchitectConfig extends Config
 		keyName = "fillHerbloreRows",
 		section = herbloreSection,
 		position = 0,
-		name = "Fill part-empty Herblore rows",
-		description = "Fill incomplete recipe rows with other items so the next recipe starts at the left edge. Off keeps short rows followed immediately by the next recipe."
+		name = "Complete Herblore recipe rows",
+		description = "Keep complete eight-item recipes together. Group incomplete recipes by kind. Off groups all items by kind."
 	)
 	default boolean fillHerbloreRows()
 	{

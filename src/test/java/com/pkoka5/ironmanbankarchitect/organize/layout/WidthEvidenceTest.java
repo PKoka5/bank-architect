@@ -38,7 +38,7 @@ public class WidthEvidenceTest
 	@Test
 	public void herbFactUsesFloorDivisionAndDenseEvidenceRanks()
 	{
-		WidthEvidence evidence = SemanticWidthEvidenceFacts.HERB_WORKFLOW;
+		WidthEvidence evidence = TestWidthEvidenceFacts.HERB_WORKFLOW;
 
 		assertEquals(Arrays.asList(0, 1, 6, 1, 0, 0, 0, 0),
 			evidence.getDistinctTemplateSupportByWidth());
@@ -152,7 +152,7 @@ public class WidthEvidenceTest
 
 		assertEquals(SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED, copy);
 		assertEquals(SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED.hashCode(), copy.hashCode());
-		assertNotEquals(copy, SemanticWidthEvidenceFacts.HERB_WORKFLOW);
+		assertNotEquals(copy, TestWidthEvidenceFacts.HERB_WORKFLOW);
 		assertTrue(copy.toString().contains("eligible=7"));
 	}
 

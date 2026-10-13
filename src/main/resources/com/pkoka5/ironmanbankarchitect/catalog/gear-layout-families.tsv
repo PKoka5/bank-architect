@@ -1,5 +1,7 @@
 # schema=1
 # Reviewed family order; Barrows members remain heads, weapons, bodies, legs (including each state).
+gear.shayzien-5	13379,13381,13380,13377,13378
+gear.elite-black	29560,29562,29564
 gear.iron	1153,1323,1115,1191,1067,1081
 gear.steel	1157,1325,1119,1193,1069,1083
 gear.mithril	1159,1329,1121,1197,1071,1085
@@ -80,3 +82,4 @@ gear.crystal-trahaearn	27741,27743,27733,27735,27737,27739
 gear.crystal-cadarn	27753,27755,27745,27747,27749,27751
 gear.crystal-crwys	27765,27767,27757,27759,27761,27763
 gear.crystal-amlodd	27777,27779,27769,27771,27773,27775
+gear.crystal-deadman	33031,33033,33023,33025,33027,33029

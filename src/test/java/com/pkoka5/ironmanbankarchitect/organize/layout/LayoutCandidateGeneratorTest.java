@@ -24,7 +24,7 @@ public class LayoutCandidateGeneratorTest
 		SemanticRule rule = rule("potion.doses", ShapePrimitive.HORIZONTAL_RUN, widths(1, 2, 3, 4, 5, 6, 7, 8),
 			atom("potion.prayer", 40, 30, 20, 10));
 
-		List<LayoutCandidate> actual = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> actual = runCandidates(
 			request(Arrays.asList(10, 20, 30, 40), rule));
 		List<LayoutCandidate> expected = new ArrayList<>();
 		for (int width = 4; width <= 8; width++)
@@ -42,14 +42,14 @@ public class LayoutCandidateGeneratorTest
 		SemanticRule rule = rule("rune.family", ShapePrimitive.HORIZONTAL_RUN, widths(1, 2, 3, 4),
 			atom("rune.elemental", 10, 20, 30, 40));
 
-		List<LayoutCandidate> missingMiddle = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> missingMiddle = runCandidates(
 			request(Arrays.asList(999, 40, 10, 30), rule));
 		assertEquals(Arrays.asList(
 			candidate("rune.family", ShapePrimitive.HORIZONTAL_RUN, 3, "rune.elemental", row(0, 10, 30, 40)),
 			candidate("rune.family", ShapePrimitive.HORIZONTAL_RUN, 4, "rune.elemental", row(0, 10, 30, 40))),
 			missingMiddle);
 
-		List<LayoutCandidate> missingFirstAndMiddle = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> missingFirstAndMiddle = runCandidates(
 			request(Arrays.asList(40, 20), rule));
 		assertEquals(Arrays.asList(
 			candidate("rune.family", ShapePrimitive.HORIZONTAL_RUN, 2, "rune.elemental", row(0, 20, 40)),
@@ -70,7 +70,7 @@ public class LayoutCandidateGeneratorTest
 			.widthEvidence(SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED)
 			.build();
 
-		List<LayoutCandidate> candidates = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> candidates = runCandidates(
 			request(Arrays.asList(30, 20, 10), rule));
 
 		assertEquals(Arrays.asList(3, 4, 5), candidateWidths(candidates));
@@ -86,7 +86,7 @@ public class LayoutCandidateGeneratorTest
 		SemanticRule rule = rule("charge.family", ShapePrimitive.VERTICAL_RUN, widths(8, 4, 1, 2),
 			atom("charge.glory", 10, 20, 30, 40));
 
-		List<LayoutCandidate> actual = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> actual = runCandidates(
 			request(Arrays.asList(40, 10, 30), rule));
 
 		assertEquals(Collections.singletonList(candidate("charge.family", ShapePrimitive.VERTICAL_RUN, 1,
@@ -94,7 +94,7 @@ public class LayoutCandidateGeneratorTest
 
 		SemanticRule withoutWidthOne = rule("charge.other", ShapePrimitive.VERTICAL_RUN, widths(2, 4, 8),
 			atom("charge.ring", 50, 60));
-		assertTrue(LayoutCandidateGenerator.generateRunCandidates(
+		assertTrue(runCandidates(
 			request(Arrays.asList(50, 60), withoutWidthOne)).isEmpty());
 	}
 
@@ -104,7 +104,7 @@ public class LayoutCandidateGeneratorTest
 		SemanticRule rule = rule("tool.families", ShapePrimitive.HORIZONTAL_RUN, widths(1, 2, 3),
 			atom("tool.absent", 10, 20), atom("tool.singleton", 30, 40), atom("tool.present", 50, 60));
 
-		List<LayoutCandidate> candidates = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> candidates = runCandidates(
 			request(Arrays.asList(999, 30, 60, 50), rule));
 
 		assertEquals(Arrays.asList(
@@ -131,13 +131,13 @@ public class LayoutCandidateGeneratorTest
 			candidate("z.rule", ShapePrimitive.HORIZONTAL_RUN, 2, "family.a", row(0, 20, 21)),
 			candidate("z.rule", ShapePrimitive.HORIZONTAL_RUN, 3, "family.a", row(0, 20, 21)),
 			candidate("z.rule", ShapePrimitive.HORIZONTAL_RUN, 4, "family.a", row(0, 20, 21)));
-		List<LayoutCandidate> forward = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> forward = runCandidates(
 			request(itemIds, laterRule, earlierRule));
 		List<Integer> reversedItemIds = new ArrayList<>(itemIds);
 		Collections.reverse(reversedItemIds);
-		List<LayoutCandidate> reversedEntries = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> reversedEntries = runCandidates(
 			request(reversedItemIds, laterRule, earlierRule));
-		List<LayoutCandidate> reversedRules = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> reversedRules = runCandidates(
 			request(itemIds, earlierRule, laterRule));
 
 		assertEquals(expected, forward);
@@ -155,14 +155,14 @@ public class LayoutCandidateGeneratorTest
 		SemanticRule run = rule("c.run", ShapePrimitive.HORIZONTAL_RUN, widths(1, 2, 3),
 			atom("run.family", 10, 20));
 
-		List<LayoutCandidate> candidates = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> candidates = runCandidates(
 			request(Arrays.asList(60, 50, 40, 30, 20, 10), rowMatrix, run, stageMatrix));
 
 		assertEquals(Arrays.asList(
 			candidate("c.run", ShapePrimitive.HORIZONTAL_RUN, 2, "run.family", row(0, 10, 20)),
 			candidate("c.run", ShapePrimitive.HORIZONTAL_RUN, 3, "run.family", row(0, 10, 20))),
 			candidates);
-		assertTrue(LayoutCandidateGenerator.generateRunCandidates(
+		assertTrue(runCandidates(
 			request(Arrays.asList(30, 40), stageMatrix)).isEmpty());
 	}
 
@@ -204,7 +204,7 @@ public class LayoutCandidateGeneratorTest
 		SemanticRule rule = rule("placeholder.rule", ShapePrimitive.HORIZONTAL_RUN, widths(2),
 			atom("placeholder.family", 10, 20));
 
-		List<LayoutCandidate> candidates = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> candidates = runCandidates(
 			new LayoutRequest(Arrays.asList(regular, placeholder), Collections.singletonList(rule)));
 
 		assertEquals(Collections.singletonList(candidate("placeholder.rule", ShapePrimitive.HORIZONTAL_RUN, 2,
@@ -217,17 +217,17 @@ public class LayoutCandidateGeneratorTest
 		int[] nineIds = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 		SemanticRule horizontal = rule("long.horizontal", ShapePrimitive.HORIZONTAL_RUN,
 			widths(1, 2, 3, 4, 5, 6, 7, 8), atom("long.family", nineIds));
-		assertTrue(LayoutCandidateGenerator.generateRunCandidates(
+		assertTrue(runCandidates(
 			request(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9), horizontal)).isEmpty());
 
-		List<LayoutCandidate> projectedEight = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> projectedEight = runCandidates(
 			request(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8), horizontal));
 		assertEquals(Collections.singletonList(candidate("long.horizontal", ShapePrimitive.HORIZONTAL_RUN, 8,
 			"long.family", row(0, 1, 2, 3, 4, 5, 6, 7, 8))), projectedEight);
 
 		SemanticRule vertical = rule("long.vertical", ShapePrimitive.VERTICAL_RUN, widths(1, 8),
 			atom("long.family", nineIds));
-		List<LayoutCandidate> verticalCandidates = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> verticalCandidates = runCandidates(
 			request(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9), vertical));
 		assertEquals(1, verticalCandidates.size());
 		assertEquals(9, verticalCandidates.get(0).getRows().size());
@@ -240,7 +240,7 @@ public class LayoutCandidateGeneratorTest
 	{
 		SemanticRule rule = rule("immutable.rule", ShapePrimitive.HORIZONTAL_RUN, widths(2),
 			atom("immutable.family", 10, 20));
-		List<LayoutCandidate> candidates = LayoutCandidateGenerator.generateRunCandidates(
+		List<LayoutCandidate> candidates = runCandidates(
 			request(Arrays.asList(10, 20), rule));
 
 		try
@@ -259,7 +259,7 @@ public class LayoutCandidateGeneratorTest
 	{
 		try
 		{
-			LayoutCandidateGenerator.generateRunCandidates(null);
+			runCandidates(null);
 			fail("expected NullPointerException");
 		}
 		catch (NullPointerException expected)
@@ -341,7 +341,7 @@ public class LayoutCandidateGeneratorTest
 	{
 		try
 		{
-			LayoutCandidateGenerator.generateRunCandidates(request);
+			runCandidates(request);
 			fail("expected IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected)
@@ -349,4 +349,19 @@ public class LayoutCandidateGeneratorTest
 			// expected
 		}
 	}
+	/** Run-only projection for these geometry tests; production consumes every eligible group. */
+	private static List<LayoutCandidate> runCandidates(LayoutRequest request)
+	{
+		List<LayoutCandidate> candidates = new ArrayList<>();
+		for (LayoutCandidateGroup group : LayoutCandidateGenerator.generate(request))
+		{
+			if (group.getShapePrimitive() == ShapePrimitive.HORIZONTAL_RUN
+				|| group.getShapePrimitive() == ShapePrimitive.VERTICAL_RUN)
+			{
+				candidates.addAll(group.getCandidates());
+			}
+		}
+		return Collections.unmodifiableList(candidates);
+	}
+
 }

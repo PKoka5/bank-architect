@@ -111,7 +111,7 @@ public class SemanticRuleTest
 	public void rejectsPreferredWidthOutsideAllowedWidths()
 	{
 		assertBuildFails(validBuilder().allowedWidths(widths(4, 5))
-			.widthEvidence(SemanticWidthEvidenceFacts.HERB_WORKFLOW));
+			.widthEvidence(TestWidthEvidenceFacts.HERB_WORKFLOW));
 	}
 
 	@Test

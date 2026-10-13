@@ -31,7 +31,14 @@ public class EndgameCombatPlacementTest
 	private static final List<Integer> SCYTHES = Arrays.asList(22325,22486,25736,25738,25739,25741);
 	private static final List<Integer> SHADOWS = Arrays.asList(27275,27277);
 	private static final int[][] PRIMARY_ARMOUR = {
-		{26382,26384,26386}, {27235,27238,27241}, {21018,21021,21024}, {28933,28936,28939}
+		{26382,26384,26386}, {27235,27238,27241}, {21018,21021,21024}
+	};
+	// Complete owned setups, in head/body/legs/cape/boots/neck/weapon/shield/hands/ring order.
+	// Shared Treads belong to Melee once; the owned Pegasians remain the Ranged boots.
+	private static final int[][] PRIMARY_COLUMNS = {
+		{26382,26384,26386,21295,31097,29801,22325,22322,22981,28307},
+		{27235,27238,27241,28951,13237,33639,20997,21000,26235},
+		{21018,21021,21024,21791,13235,12002,27275,27251,31106}
 	};
 	private static final int[][] SPECIALIST_ARMOUR = {
 		{30750,30753,30756}, {24419,24420,24421}, {22326,22327,22328}
@@ -40,6 +47,8 @@ public class EndgameCombatPlacementTest
 	private static final List<Integer> CANNON = Arrays.asList(6,8,10,12);
 	private static final Set<Integer> WITHDRAWN = new HashSet<>(Arrays.asList(
 		26382,26384,26386,27235,27238,27241,21018,21021,21024,22325,20997,27275,
+		21295,31097,29801,22322,22981,28307,28951,13237,33639,21000,26235,
+		21791,13235,12002,27251,31106,
 		30750,30753,30756,24419,24420,24421,22326,22327,22328));
 	private final BankPreset preset;
 	private final BankLayoutPlan plan;
@@ -62,14 +71,13 @@ public class EndgameCombatPlacementTest
 		BankSnapshot bank = endgameBank(Collections.emptySet(), 1, false);
 		BankOrganizationPreview preview = build(bank);
 		List<Integer> combat = ids(combat(preview));
-		assertTrue("exercise a fully filled setup grid", combat.size() >= 72);
-		for (int column = 0; column < PRIMARY_ARMOUR.length; column++)
-			for (int row = 0; row < PRIMARY_ARMOUR[column].length; row++)
-				assertEquals("independent armour target " + column + ":" + row,
-					PRIMARY_ARMOUR[column][row], (int) combat.get(row * 8 + column));
-		assertEquals("general Melee frontline weapon", 22325, (int) combat.get(8 * 8));
-		assertEquals("general Ranged frontline weapon", 20997, (int) combat.get(8 * 8 + 1));
-		assertEquals("general Magic frontline weapon", 27275, (int) combat.get(8 * 8 + 2));
+		assertTrue("exercise a large endgame Combat tab", combat.size() >= 72);
+		for (int column = 0; column < PRIMARY_COLUMNS.length; column++)
+			for (int row = 0; row < PRIMARY_COLUMNS[column].length; row++)
+				assertEquals("independent complete setup target " + column + ":" + row,
+					PRIMARY_COLUMNS[column][row], (int) combat.get(row * 8 + column));
+		assertCanonicalBlock(combat,new int[] {28933,28936,28939});
+		assertSecondary(combat,13239);
 		assertPreserved(bank, preview);
 	}
 
@@ -134,7 +142,7 @@ public class EndgameCombatPlacementTest
 	}
 
 	@Test
-	public void aBowfaFrontUsesItsCrystalArmourAndKeepsUnusedMasoriVertical()
+	public void aBowfaFrontUsesItsCrystalArmourAndKeepsUnusedMasoriCohesive()
 	{
 		List<Integer> ids = endgameBank(Collections.emptySet(),1,false).getItems().stream()
 			.map(BankItemSnapshot::getItemId).filter(id -> id != 20997).collect(Collectors.toList());
@@ -145,11 +153,11 @@ public class EndgameCombatPlacementTest
 			BankSnapshot bank = bank(ids,placeholders,1,false);
 			BankOrganizationPreview preview = build(bank);
 			List<Integer> combat = ids(combat(preview));
-			assertEquals("Bowfa is the available Ranged frontline", 25867, (int) combat.get(8 * 8 + 1));
+			assertEquals("Bowfa is the available Ranged frontline", 25867, (int) combat.get(49));
 			int[] crystal = {23971,23975,23979};
 			for (int row = 0; row < crystal.length; row++)
 				assertEquals("Crystal matches the Bowfa setup " + row, crystal[row], (int) combat.get(row * 8 + 1));
-			assertVertical(combat,PRIMARY_ARMOUR[1]);
+			assertCanonicalBlock(combat,PRIMARY_ARMOUR[1]);
 			if (expected == null) expected = combat;
 			else assertEquals("withdrawing Bowfa kit retains intended armour synergy", expected,combat);
 			assertPreserved(bank,preview);
@@ -174,11 +182,11 @@ public class EndgameCombatPlacementTest
 			BankSnapshot bank = bank(ids,placeholders,1,false);
 			BankOrganizationPreview preview = build(bank);
 			List<Integer> combat = ids(combat(preview));
-			assertEquals("inactive Bowfa retains the Ranged weapon role",25862,(int) combat.get(8 * 8 + 1));
+			assertEquals("inactive Bowfa retains the Ranged weapon role",25862,(int) combat.get(49));
 			for (int row = 0; row < inactive.length; row++)
 				assertEquals("inactive Crystal retains the Ranged armour role " + row,inactive[row],
 					(int) combat.get(row * 8 + 1));
-			assertVertical(combat,PRIMARY_ARMOUR[1]);
+			assertCanonicalBlock(combat,PRIMARY_ARMOUR[1]);
 			if (expected == null) expected = combat;
 			else assertEquals("inactive kit placeholders keep the same Ranged setup",expected,combat);
 			assertPreserved(bank,preview);
@@ -194,7 +202,7 @@ public class EndgameCombatPlacementTest
 				Collections.emptySet(),1,false);
 			for (BankOrganizationPreview preview : Arrays.asList(build(bank),buildWithoutStats(bank)))
 			{
-				assertEquals("Eye of ayak is the available primary Magic weapon " + eye,
+				assertEquals("Eye of ayak is the available primary Magic weapon " + eye + ": " + ids(combat(preview)),
 					eye, combat(preview).get(2).getItemId());
 				assertEquals(ItemCategory.GEAR,item(preview,eye).getItemCategory());
 				assertEquals("weapon",item(preview,eye).getSubcategory());
@@ -208,12 +216,14 @@ public class EndgameCombatPlacementTest
 	{
 		BankSnapshot bank = endgameBank(Collections.emptySet(),1,false);
 		BankOrganizationPreview preview = build(bank);
-		assertEquals("Confliction improves the Tormented magic hand slot",31106,
-			combat(preview).get(6 * 8 + 2).getItemId());
-		assertEquals("Rupture improves the Anguish ranged neck slot",33639,
-			combat(preview).get(4 * 8 + 1).getItemId());
+		List<Integer> combatIds = ids(combat(preview));
+		assertEquals("Confliction occupies the Magic hands row",66,combatIds.indexOf(31106));
+		assertSecondary(combatIds,19544);
+		assertEquals("Rupture occupies the Ranged neck row",41,combatIds.indexOf(33639));
+		assertSecondary(combatIds,19547);
 		assertEquals("Shadow remains primary when Eye is also available",27275,
-			combat(preview).get(8 * 8 + 2).getItemId());
+			combat(preview).get(50).getItemId());
+		assertSecondary(combatIds,31113);
 		assertPreserved(bank,preview);
 		BankSnapshot sparse = bank(Arrays.asList(31106,33639),Collections.emptySet(),1,false);
 		BankOrganizationPreview fallback = buildWithoutStats(sparse);
@@ -225,7 +235,7 @@ public class EndgameCombatPlacementTest
 	}
 
 	@Test
-	public void sanguineTorvaUsesTheSameStrengthFrontAndKeepsSpecialistArmourVertical()
+	public void sanguineTorvaUsesTheSameStrengthFrontAndKeepsSpecialistArmourCohesive()
 	{
 		List<Integer> ids = endgameBank(Collections.emptySet(),1,false).getItems().stream()
 			.map(BankItemSnapshot::getItemId).collect(Collectors.toList());
@@ -236,7 +246,9 @@ public class EndgameCombatPlacementTest
 		List<Integer> combat = ids(combat(preview));
 		for (int row = 0; row < 3; row++)
 			assertEquals("Sanguine strength target " + row, 28254 + row * 2, (int) combat.get(row * 8));
-		for (int[] family : SPECIALIST_ARMOUR) assertVertical(combat,family);
+		assertVertical(combat,SPECIALIST_ARMOUR[0]);
+		assertVertical(combat,SPECIALIST_ARMOUR[1]);
+		assertCanonicalBlock(combat,SPECIALIST_ARMOUR[2]);
 		assertPreserved(bank,preview);
 	}
 
@@ -255,20 +267,28 @@ public class EndgameCombatPlacementTest
 	}
 
 	@Test
-	public void specialistArmourRemainsVerticalAndCannonRemainsOnePhysicalBlock()
+	public void specialistArmourAndWeaponRolesStayCohesiveWhileCannonMovesToTools()
 	{
 		BankSnapshot bank = endgameBank(Collections.emptySet(), 1, false);
 		BankOrganizationPreview preview = build(bank);
 		List<Integer> combat = ids(combat(preview));
-		for (int[] family : SPECIALIST_ARMOUR) assertVertical(combat, family);
+		assertVertical(combat,SPECIALIST_ARMOUR[0]);
+		assertVertical(combat,SPECIALIST_ARMOUR[1]);
+		assertCanonicalBlock(combat,SPECIALIST_ARMOUR[2]);
 		for (int id : SPECIALIST_WEAPONS)
 			assertEquals("specialist weapon is useful Combat gear " + id, "gear", item(preview,id).getLayoutTagKey());
-		assertSameVerticalBlock(combat,Arrays.asList(28338,29796)); // Slash alternatives.
-		assertSameVerticalBlock(combat,Arrays.asList(26219,22324,22978)); // Stab alternatives.
-		assertSameVerticalBlock(combat,Arrays.asList(11802,11804,21003,13576)); // Special-attack switches.
-		assertVertical(combat,new int[] {4716,4718,4720,4722}); // Dharok weapon belongs to its armour set.
-		assertVertical(combat,new int[] {4753,4755,4757,4759}); // Verac weapon belongs to its armour set.
-		assertRectangle(combat, CANNON);
+		assertCompactRole(combat,Arrays.asList(28338,29796)); // Slash alternatives.
+		assertCompactRole(combat,Arrays.asList(26219,22324,22978)); // Stab alternatives.
+		assertCompactRole(combat,Arrays.asList(11802,11804,21003,13576)); // Special-attack switches.
+		assertCanonicalBlock(combat,new int[] {4716,4718,4720,4722}); // Dharok weapon belongs to its armour set.
+		assertCanonicalBlock(combat,new int[] {4753,4755,4757,4759}); // Verac weapon belongs to its armour set.
+		List<Integer> tools = ids(preview.getCategories().get(plan.destinationOf("tools")).getItems());
+		assertRectangle(tools, CANNON);
+		for (int id : CANNON)
+		{
+			assertFalse("cannon is absent from Combat", combat.contains(id));
+			assertEquals("cannon parts route to Tools", "tools", item(preview,id).getLayoutTagKey());
+		}
 		assertPreserved(bank, preview);
 	}
 
@@ -401,6 +421,15 @@ public class EndgameCombatPlacementTest
 				first + row * 8, combat.indexOf(family[row]));
 	}
 
+	private static void assertSecondary(List<Integer> combat, int id)
+	{
+		int position = combat.indexOf(id);
+		assertTrue("secondary gear is retained " + id,position >= 0);
+		for (int column = 0; column < PRIMARY_COLUMNS.length; column++)
+			for (int row = 0; row < PRIMARY_COLUMNS[column].length; row++)
+				assertTrue("secondary gear cannot occupy a primary setup cell " + id,position != row * 8 + column);
+	}
+
 	private static void assertRectangle(List<Integer> combat, List<Integer> family)
 	{
 		List<Integer> positions = family.stream().map(combat::indexOf).collect(Collectors.toList());
@@ -413,13 +442,27 @@ public class EndgameCombatPlacementTest
 			(maxRow - minRow + 1) * (maxCol - minCol + 1));
 	}
 
-	private static void assertSameVerticalBlock(List<Integer> combat, List<Integer> family)
+	private static void assertCompactRole(List<Integer> combat, List<Integer> family)
 	{
 		List<Integer> positions = family.stream().map(combat::indexOf).sorted().collect(Collectors.toList());
 		assertTrue("all weapon-role members exist " + family, positions.get(0) >= 0);
-		for (int row = 1; row < positions.size(); row++)
-			assertEquals("one vertical weapon-role block " + family, positions.get(0) + row * 8,
-				positions.get(row).intValue());
+		for (int index = 1; index < positions.size(); index++)
+			assertEquals("one compact weapon-role block " + family, positions.get(0) + index,
+				positions.get(index).intValue());
+	}
+
+	private static void assertCanonicalBlock(List<Integer> combat, int[] family)
+	{
+		int first = combat.indexOf(family[0]);
+		assertTrue("missing family " + family[0], first >= 0);
+		boolean vertical = true, dense = true;
+		for (int index = 0; index < family.length; index++)
+		{
+			vertical &= combat.indexOf(family[index]) == first + index * 8;
+			dense &= combat.indexOf(family[index]) == first + index;
+		}
+		assertTrue("canonical family stays whole in a vertical column or compact run " + Arrays.toString(family),
+			vertical || dense);
 	}
 
 	// RuneLite item-stats snapshot, cached 2026-10-09. Each row is ID, equipment slot,

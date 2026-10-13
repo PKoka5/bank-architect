@@ -14,7 +14,6 @@ import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import com.pkoka5.ironmanbankarchitect.organize.BlockArrangements;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
 import com.pkoka5.ironmanbankarchitect.organize.BlueprintOrderProfiles;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -225,7 +224,7 @@ public class BankCaptureLifecycleTest
 	{
 		private final Map<String, String> values = new LinkedHashMap<>();
 		private final QueuedClientThread clientThread = new QueuedClientThread();
-		private final BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		private final BankGuideController controller = new BankGuideController();
 		private final BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN).withTagAt("runes", 7);
 		private final BankOrganizationPreview preview = preview();
 		private final AtomicReference<Boolean> result = new AtomicReference<>();

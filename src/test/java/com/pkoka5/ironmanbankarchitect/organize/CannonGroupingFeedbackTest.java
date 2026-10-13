@@ -43,7 +43,7 @@ public class CannonGroupingFeedbackTest
 	}
 
 	@Test
-	public void busyCombatTabsKeepCannonsTogetherBesideVerticalBestGear()
+	public void busyCombatTabsMoveCannonsIntoCompactToolsBlocks()
 	{
 		Fixture fixture = new Fixture().addPrimaries(GearSlot.HEAD, 0)
 			.addPrimaries(GearSlot.BODY, 1).addUtility(24)
@@ -53,22 +53,10 @@ public class CannonGroupingFeedbackTest
 		{
 			for (GearLayout layout : GearLayout.values())
 			{
-				BankCategoryPreview combat = combat(build(fixture, preset, options(preset, layout, true)), preset);
-				assertBlocksAndContents(fixture, combat);
-				if (layout == GearLayout.GRID_STYLES)
-				{
-					List<Integer> target = ids(combat);
-					for (int style = 0; style < 4; style++)
-					{
-						assertEquals("Best helmets stay in their style columns", primaryId(0, style),
-							(int) target.get(style));
-						assertEquals("Best bodies stay under their helmets", primaryId(1, style),
-							(int) target.get(8 + style));
-					}
-					assertEquals("Best melee legs remain in the melee column", 4722, (int) target.get(16));
-					assertEquals("Best prayer legs remain in the prayer column", 9676, (int) target.get(19));
-					assertEquals("Best melee weapon remains in the melee column", 4718, (int) target.get(24));
-				}
+				BankOrganizationPreview preview = build(fixture, preset, options(preset, layout, true));
+				assertBlocksAndContents(fixture, tools(preview, preset));
+				for (int id : bothCannons()) assertFalse("Cannon parts cannot remain in automatic Combat",
+					ids(combat(preview, preset)).contains(id));
 			}
 		}
 	}
@@ -101,14 +89,9 @@ public class CannonGroupingFeedbackTest
 			{
 				for (GearLayout layout : GearLayout.values())
 				{
-					BankCategoryPreview combat = combat(build(fixture, preset, options(preset, layout, true)), preset);
-					assertBlocksAndContents(fixture, combat);
-					assertCompactRectangle(ids(combat), bothCannons());
-					if (parts.size() == 1 && layout != GearLayout.GRID_STYLES)
-					{
-						assertEquals("A lone cannon component must stay before the gear-set run",
-							parts.get(0), ids(combat).get(0));
-					}
+					BankCategoryPreview tools = tools(build(fixture, preset, options(preset, layout, true)), preset);
+					assertBlocksAndContents(fixture, tools);
+					assertCompactRectangle(ids(tools), bothCannons());
 				}
 			}
 		}
@@ -151,28 +134,34 @@ public class CannonGroupingFeedbackTest
 			for (GearLayout layout : GearLayout.values())
 			{
 				assertBlocksAndContents(fixture,
-					combat(build(fixture, preset, options(preset, layout, fillRows)), preset));
+					tools(build(fixture, preset, options(preset, layout, fillRows)), preset));
 			}
 		}
 	}
 
-	private static void assertBlocksAndContents(Fixture fixture, BankCategoryPreview combat)
+	private static void assertBlocksAndContents(Fixture fixture, BankCategoryPreview tools)
 	{
-		assertFalse("Automatic cannon grouping is not a manual order", combat.hasManualOrder());
-		assertContents(fixture, combat);
-		assertCompactRectangle(ids(combat), NORMAL);
-		assertCompactRectangle(ids(combat), ORNAMENTED);
+		assertFalse("Automatic cannon grouping is not a manual order", tools.hasManualOrder());
+		assertContents(fixture, tools, true);
+		assertCompactRectangle(ids(tools), NORMAL);
+		assertCompactRectangle(ids(tools), ORNAMENTED);
 	}
 
 	private static void assertContents(Fixture fixture, BankCategoryPreview combat)
 	{
+		assertContents(fixture, combat, false);
+	}
+
+	private static void assertContents(Fixture fixture, BankCategoryPreview category, boolean onlyCannons)
+	{
 		List<Integer> expected = new ArrayList<>(fixture.items.keySet());
-		List<Integer> actual = ids(combat);
+		if (onlyCannons) expected.retainAll(bothCannons());
+		List<Integer> actual = ids(category);
 		assertEquals("Unexpected item loss or duplication", expected.size(), actual.size());
 		Collections.sort(expected);
 		Collections.sort(actual);
-		assertEquals("Combat contents changed", expected, actual);
-		for (BankPreviewItem item : combat.getItems())
+		assertEquals("Cannon fixture contents changed", expected, actual);
+		for (BankPreviewItem item : category.getItems())
 		{
 			assertFalse("Cannon grouping inserted an empty bank slot", item.isBlank());
 			assertFalse("Owned cannon fixture items cannot become placeholders", item.isPlaceholder());
@@ -219,6 +208,11 @@ public class CannonGroupingFeedbackTest
 	private static BankCategoryPreview combat(BankOrganizationPreview preview, BankPreset preset)
 	{
 		return preview.getCategories().get(BankLayoutPlan.defaultFor(preset).destinationOf("gear"));
+	}
+
+	private static BankCategoryPreview tools(BankOrganizationPreview preview, BankPreset preset)
+	{
+		return preview.getCategories().get(BankLayoutPlan.defaultFor(preset).destinationOf("tools"));
 	}
 
 	private static List<Integer> ids(BankCategoryPreview category)

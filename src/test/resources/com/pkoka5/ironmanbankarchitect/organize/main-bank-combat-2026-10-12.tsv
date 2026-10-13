@@ -1,0 +1,197 @@
+# Bank2 Combat export, 2026-10-12: complete194item section; bank1 export was truncated.
+# Only public item metadata and placeholder state are retained. Owned quantities are normalized to1.
+# itemId	placeholder	category	subcategory	displayName
+30750	false	GEAR	head	Oathplate helm
+27705	false	GEAR	head	Crystal helm
+26241	false	GEAR	head	Virtus mask
+9672	false	GEAR	head	Proselyte sallet
+6	false	GEAR	cannon-part	Cannon base
+8	false	GEAR	cannon-part	Cannon stand
+10	false	GEAR	cannon-part	Cannon barrels
+12	false	GEAR	cannon-part	Cannon furnace
+30753	false	GEAR	body	Oathplate chest
+27697	false	GEAR	body	Crystal body
+26243	false	GEAR	body	Virtus robe top
+9674	false	GEAR	body	Proselyte hauberk
+1161	true	GEAR	head	Adamant full helm
+29047	true	GEAR	head	Blood moon helm
+25413	false	GEAR	head	Bloodbark helm
+29566	false	GEAR	head	Dark squall hood
+30756	false	GEAR	legs	Oathplate legs
+27701	false	GEAR	legs	Crystal legs
+26245	false	GEAR	legs	Virtus robe bottom
+9676	false	GEAR	legs	Proselyte cuisse
+1091	true	GEAR	legs	Adamant plateskirt
+28997	false	GEAR	weapon	Dual macuahuitl
+25404	false	GEAR	body	Bloodbark body
+29568	false	GEAR	body	Dark squall robe top
+6570	false	GEAR	cape	Fire cape
+10499	false	GEAR	cape	Ava's accumulator
+12931	false	GEAR	head	Serpentine helm
+10828	false	GEAR	head	Helm of neitiznot
+5574	false	GEAR	head	Initiate sallet
+9096	false	GEAR	head	Lunar helm
+25416	false	GEAR	legs	Bloodbark legs
+29570	false	GEAR	legs	Dark squall robe bottom
+29801	false	GEAR	neck	Amulet of rancour
+19547	false	GEAR	neck	Necklace of anguish
+12002	false	GEAR	neck	Occult necklace
+10588	false	GEAR	neck	Salve amulet (e)
+5575	false	GEAR	body	Initiate hauberk
+9101	false	GEAR	cape	Lunar cape
+27238	false	GEAR	body	Masori body (f)
+13576	false	GEAR	weapon	Dragon warhammer
+11283	false	GEAR	shield	Dragonfire shield
+21000	false	GEAR	shield	Twisted buckler
+25985	false	GEAR	shield	Elidinis' ward
+13119	false	GEAR	shield	Falador shield 3
+5576	false	GEAR	legs	Initiate cuisse
+9102	false	GEAR	neck	Lunar amulet
+27241	false	GEAR	legs	Masori chaps (f)
+23987	false	GEAR	weapon	Crystal halberd
+7462	false	GEAR	hands	Barrows gloves
+26235	false	GEAR	hands	Zaryte vambraces
+31106	false	GEAR	hands	Confliction gauntlets
+3387	false	GEAR	body	Splitbark body
+11665	false	GEAR	head	Void melee helm
+9097	false	CLEANUP	quest-item	Lunar torso
+11864	true	GEAR	head	Slayer helmet
+1215	false	GEAR	weapon	Dragon dagger
+28945	false	GEAR	feet	Echo boots
+29286	false	GEAR	feet	Mixed hide boots
+25410	false	GEAR	feet	Bloodbark boots
+3391	false	GEAR	hands	Splitbark gauntlets
+11664	false	GEAR	head	Void ranger helm
+9098	false	GEAR	legs	Lunar legs
+1147	true	GEAR	head	Rune med helm
+5680	false	GEAR	weapon	Dragon dagger(p+)
+28810	false	GEAR	weapon	Zombie axe
+25886	false	GEAR	weapon	Bow of faerdhinen (c)
+22323	false	GEAR	weapon	Sanguinesti staff
+11200	false	GEAR	head	Dwarven helmet
+11663	false	GEAR	head	Void mage helm
+9099	false	GEAR	hands	Lunar gloves
+4502	false	GEAR	head	Bearhead
+5698	false	GEAR	weapon	Dragon dagger(p++)
+23785	false	GEAR	head	Ardougne knight helm
+7539	false	GEAR	head	Crab helmet
+9733	false	GEAR	head	Mind helmet
+25177	true	GEAR	head	Slayer helmet (i)
+13072	false	GEAR	body	Elite void top
+9100	false	GEAR	feet	Lunar boots
+26674	false	GEAR	head	Slayer helmet (i)
+3749	false	GEAR	head	Archer helm
+13379	false	GEAR	head	Shayzien helm (5)
+29560	false	GEAR	head	Elite black full helm
+10551	false	GEAR	body	Fighter torso
+1113	true	GEAR	body	Rune chainbody
+13073	false	GEAR	legs	Elite void robe
+9104	false	GEAR	ring	Lunar ring
+1111	true	GEAR	body	Adamant chainbody
+23787	false	GEAR	body	Ardougne knight platebody
+1133	false	GEAR	body	Studded body
+13381	false	GEAR	body	Shayzien body (5)
+6107	false	GEAR	body	Ghostly robe
+29562	false	GEAR	body	Elite black platebody
+8842	false	GEAR	hands	Void knight gloves
+29283	false	GEAR	legs	Mixed hide legs
+13380	false	GEAR	legs	Shayzien greaves (5)
+29564	false	GEAR	legs	Elite black platelegs
+13123	false	GEAR	cape	Ardougne cloak 3
+1052	false	GEAR	cape	Cape of legends
+6585	false	GEAR	neck	Amulet of fury
+24780	false	GEAR	neck	Amulet of blood fury
+12853	false	GEAR	neck	Amulet of the damned
+589	false	GEAR	neck	Gnome amulet
+11666	false	GEAR	neck	Void seal(8)
+21163	false	GEAR	neck	Amulet of chemistry
+26914	false	GEAR	neck	Amulet of the eye
+29486	false	GEAR	neck	Cursed amulet of magic
+7803	false	GEAR	neck	Yin yang amulet
+34428	false	GEAR	neck	Unknown item #34428
+26782	false	GEAR	neck	Salve amulet(ei)
+19722	false	GEAR	shield	Dragon defender (t)
+20461	false	GEAR	gear	Rune defender (broken)
+1201	false	GEAR	shield	Rune kiteshield
+1185	false	GEAR	shield	Rune sq shield
+24266	false	GEAR	shield	V's shield
+10826	false	GEAR	shield	Neitiznot shield
+33101	false	GEAR	shield	Mooleta
+9731	false	GEAR	shield	Mind shield
+2890	false	GEAR	shield	Elemental shield
+30064	false	GEAR	shield	Tome of earth
+20714	true	GEAR	shield	Tome of fire
+25574	false	GEAR	shield	Tome of water
+9858	false	GEAR	gear	Marble magic wardrobe
+1495	false	GEAR	hands	Klank's gauntlets
+21177	false	GEAR	hands	Expeditious bracelet
+13377	false	GEAR	hands	Shayzien gloves (5)
+3105	false	GEAR	feet	Climbing boots
+28672	false	GEAR	feet	Fancier boots
+23037	false	GEAR	feet	Boots of stone
+22951	false	GEAR	feet	Boots of brimstone
+13378	false	GEAR	feet	Shayzien boots (5)
+29806	false	GEAR	feet	Aranea boots
+13271	false	GEAR	weapon	Abyssal dagger (p++)
+29796	true	GEAR	weapon	Noxious halberd
+5730	false	GEAR	weapon	Dragon spear(p++)
+34027	true	GEAR	weapon	Unknown item #34027
+1373	true	GEAR	weapon	Rune battleaxe
+31248	false	GEAR	weapon	Belle's folly
+10888	false	GEAR	weapon	Barrelchest anchor
+3101	false	GEAR	weapon	Rune claws
+1432	false	GEAR	weapon	Rune mace
+20727	false	GEAR	weapon	Leaf-bladed battleaxe
+1301	false	GEAR	weapon	Adamant longsword
+29084	false	GEAR	weapon	Sulphur blades
+24699	false	GEAR	weapon	Blisterwood flail
+28792	false	GEAR	weapon	Bone mace
+22398	false	GEAR	weapon	Ivandis flail
+7668	false	GEAR	weapon	Gadderhammer
+35	false	GEAR	weapon	Excalibur
+19675	false	GEAR	weapon	Arclight
+11061	false	GEAR	weapon	Ancient mace
+2952	false	GEAR	weapon	Wolfbane
+13109	false	GEAR	weapon	Wilderness sword 2
+1217	false	GEAR	weapon	Black dagger
+747	false	GEAR	weapon	Glowing dagger
+23983	false	GEAR	weapon	Crystal bow
+21902	false	GEAR	weapon	Dragon crossbow
+9185	false	GEAR	weapon	Rune crossbow
+861	false	GEAR	weapon	Magic shortbow
+28922	false	GEAR	weapon	Tonalztics of ralos
+805	false	GEAR	weapon	Rune thrownaxe
+27655	false	GEAR	weapon	Webweaver bow
+868	false	GEAR	weapon	Rune knife
+843	true	GEAR	weapon	Oak shortbow
+11959	false	GEAR	weapon	Black chinchompa
+29000	false	GEAR	weapon	Eclipse atlatl
+10034	false	GEAR	weapon	Red chinchompa
+28794	false	GEAR	weapon	Bone shortbow
+859	false	GEAR	weapon	Magic longbow
+10033	true	GEAR	weapon	Chinchompa
+4827	false	GEAR	weapon	Comp ogre bow
+2883	false	GEAR	weapon	Ogre bow
+31583	false	GEAR	weapon	Rosewood blowpipe
+869	false	GEAR	weapon	Black knife
+1921	false	GEAR	gear	Bowl of water
+30070	false	GEAR	weapon	Dragon hunter wand
+22296	false	GEAR	weapon	Staff of light
+12658	false	GEAR	weapon	Iban's staff (u)
+1405	false	GEAR	weapon	Mystic air staff
+1407	false	GEAR	weapon	Mystic earth staff
+1401	false	GEAR	weapon	Mystic fire staff
+1403	false	GEAR	weapon	Mystic water staff
+4675	false	GEAR	weapon	Ancient staff
+30634	false	GEAR	weapon	Twinflame staff
+25975	true	GEAR	ring	Lightbearer
+25264	false	GEAR	ring	Berserker ring (i)
+30895	false	GEAR	ring	Steel ring
+2550	false	GEAR	ring	Ring of recoil
+21140	false	GEAR	ring	Efaritay's aid
+2570	false	GEAR	ring	Ring of life
+21126	false	GEAR	ring	Ring of pursuit
+24670	false	GEAR	gear	Twisted ancestral colour kit
+25248	true	GEAR	ring	Ring of suffering (ri)
+13127	false	GEAR	ring	Explorer's ring 3
+9433	false	GEAR	ammo	Bolt pouch

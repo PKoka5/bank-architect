@@ -5,7 +5,6 @@ import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresetType;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics2D;
@@ -32,13 +31,13 @@ public class MainPresetPanelTest
 			IronmanBankArchitectPanel panel = panel(model);
 			try
 			{
-				JComboBox<String> chooser = panel.getPresetChooser();
+				JComboBox<String> chooser = panel.presetChooser;
 				assertEquals(2, chooser.getItemCount());
 				assertEquals("Ironman", chooser.getItemAt(0));
 				assertEquals("Main", chooser.getItemAt(1));
 				assertEquals("Ironman", chooser.getSelectedItem());
 				assertEquals(0, model.presetSelections);
-				assertEquals(model.plan().serialize(), panel.getLayoutPlan().serialize());
+				assertEquals(model.plan().serialize(), panel.layoutPlan.serialize());
 			}
 			finally { panel.shutdown(); }
 		});
@@ -52,27 +51,27 @@ public class MainPresetPanelTest
 			IronmanBankArchitectPanel panel = panel(model);
 			try
 			{
-				panel.getTabOrderButton().doClick();
+				panel.tabOrderButton.doClick();
 				String ironmanContext = model.editingContext();
-				assertTrue(panel.getAlchPileBox().isVisible());
-				assertEquals("Ironman", panel.getPresetChooser().getSelectedItem());
+				assertTrue(panel.alchPileBox.isVisible());
+				assertEquals("Ironman", panel.presetChooser.getSelectedItem());
 				assertFalse(button(panel, "Delete").isEnabled());
-				panel.getPresetChooser().setSelectedItem("Main");
+				panel.presetChooser.setSelectedItem("Main");
 				assertEquals(1, model.presetSelections);
 				assertSame(BankPresets.MAIN, model.preset());
-				assertTrue(panel.getAlchPileBox().isVisible());
-				assertEquals(model.plan().serialize(), panel.getLayoutPlan().serialize());
-				assertEquals(1, panel.getLayoutPlan().destinationOf("runes"));
-				assertEquals(4, panel.getLayoutPlan().destinationOf("grimy-herbs"));
+				assertTrue(panel.alchPileBox.isVisible());
+				assertEquals(model.plan().serialize(), panel.layoutPlan.serialize());
+				assertEquals(1, panel.layoutPlan.destinationOf("runes"));
+				assertEquals(4, panel.layoutPlan.destinationOf("grimy-herbs"));
 				assertNotEquals(ironmanContext, model.editingContext());
-				assertEquals("Main", panel.getPresetChooser().getSelectedItem());
+				assertEquals("Main", panel.presetChooser.getSelectedItem());
 				assertFalse(button(panel, "Delete").isEnabled());
 				button(panel, "Delete").doClick();
 				assertEquals(0, model.profileDeletions);
-				panel.getPresetChooser().setSelectedItem("Ironman");
+				panel.presetChooser.setSelectedItem("Ironman");
 				assertEquals(2, model.presetSelections);
-				assertEquals(originalIronman, panel.getLayoutPlan().serialize());
-				assertTrue(panel.getAlchPileBox().isVisible());
+				assertEquals(originalIronman, panel.layoutPlan.serialize());
+				assertTrue(panel.alchPileBox.isVisible());
 				assertEquals(ironmanContext, model.editingContext());
 				assertFalse(button(panel, "Delete").isEnabled());
 			}
@@ -87,20 +86,20 @@ public class MainPresetPanelTest
 			IronmanBankArchitectPanel panel = panel(model);
 			try
 			{
-				panel.getTabOrderButton().doClick();
+				panel.tabOrderButton.doClick();
 				model.active = BankPresetType.MAIN;
 				panel.refreshSettings();
 				panel.refreshSettings();
-				assertEquals("Main", panel.getPresetChooser().getSelectedItem());
-				assertTrue(panel.getAlchPileBox().isVisible());
-				assertEquals(model.plan().serialize(), panel.getLayoutPlan().serialize());
-				assertEquals("Main", panel.getPresetChooser().getSelectedItem());
+				assertEquals("Main", panel.presetChooser.getSelectedItem());
+				assertTrue(panel.alchPileBox.isVisible());
+				assertEquals(model.plan().serialize(), panel.layoutPlan.serialize());
+				assertEquals("Main", panel.presetChooser.getSelectedItem());
 				assertEquals(0, model.presetSelections);
 				model.active = BankPresetType.IRONMAN;
 				panel.refreshSettings();
-				assertEquals("Ironman", panel.getPresetChooser().getSelectedItem());
-				assertTrue(panel.getAlchPileBox().isVisible());
-				assertEquals(model.plan().serialize(), panel.getLayoutPlan().serialize());
+				assertEquals("Ironman", panel.presetChooser.getSelectedItem());
+				assertTrue(panel.alchPileBox.isVisible());
+				assertEquals(model.plan().serialize(), panel.layoutPlan.serialize());
 				assertEquals(0, model.presetSelections);
 			}
 			finally { panel.shutdown(); }
@@ -120,8 +119,8 @@ public class MainPresetPanelTest
 				{
 					panel.setSize(width, 800);
 					layout(panel);
-					Rectangle chooser = SwingUtilities.convertRectangle(panel.getPresetChooser().getParent(),
-						panel.getPresetChooser().getBounds(), panel);
+					Rectangle chooser = SwingUtilities.convertRectangle(panel.presetChooser.getParent(),
+						panel.presetChooser.getBounds(), panel);
 					assertTrue("Preset chooser exceeds sidebar", chooser.x >= 0 && chooser.x + chooser.width <= width);
 					assertTrue("Preset chooser is not readable", chooser.height >= 18);
 					JScrollPane scroll = find(panel, JScrollPane.class);
@@ -141,7 +140,7 @@ public class MainPresetPanelTest
 
 	private static IronmanBankArchitectPanel panel(Model model)
 	{
-		return new IronmanBankArchitectPanel(new BankGuideController(AllRoundIronmanPreset.create()),
+		return TestBankLayoutModel.panel(new BankGuideController(),
 			() -> {}, (item, label) -> {}, () -> {}, model);
 	}
 
@@ -179,7 +178,7 @@ public class MainPresetPanelTest
 		for (Component component : container.getComponents()) if (component instanceof Container) layout((Container) component);
 	}
 
-	private static final class Model implements BankLayoutModel
+	private static final class Model extends TestBankLayoutModel
 	{
 		private BankPresetType active = BankPresetType.IRONMAN;
 		private int presetSelections;

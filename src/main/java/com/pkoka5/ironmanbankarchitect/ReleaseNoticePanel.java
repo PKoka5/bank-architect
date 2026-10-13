@@ -16,7 +16,7 @@ import javax.swing.*;
 final class ReleaseNoticePanel extends JPanel
 {
 	// Update both this ID and the notes when preparing a player-facing release.
-	static final String RELEASE_ID = "0.9.5";
+	static final String RELEASE_ID = "0.9.6";
 	private static final Properties NOTES = loadNotes();
 	private final CardLayout cards = new CardLayout();
 	private final Supplier<String> lastSeen;

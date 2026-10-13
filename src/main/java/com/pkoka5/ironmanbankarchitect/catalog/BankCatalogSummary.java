@@ -71,20 +71,10 @@ public final class BankCatalogSummary
 		return count == null ? 0 : count;
 	}
 
-	public Map<ItemCategory, Integer> getCountsByCategory()
-	{
-		return countsByCategory;
-	}
-
 	public int countForPresetCategory(String categoryKey)
 	{
 		Integer count = countsByPresetCategory.get(categoryKey);
 		return count == null ? 0 : count;
-	}
-
-	public Map<String, Integer> getCountsByPresetCategory()
-	{
-		return countsByPresetCategory;
 	}
 
 	public List<BankItemReviewEntry> getReviewEntries()

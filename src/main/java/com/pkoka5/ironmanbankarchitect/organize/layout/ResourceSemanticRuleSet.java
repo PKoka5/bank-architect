@@ -52,9 +52,9 @@ public final class ResourceSemanticRuleSet
 		private final List<SemanticRule> rules = Collections.unmodifiableList(Arrays.asList(
 			stageMatrix(METAL_RULE_KEY, metalFamilies, null),
 			stageMatrix(GEM_RULE_KEY, gemFamilies, SemanticWidthEvidenceFacts.GEM_RAW_PROCESSED),
-			rowGroupMatrix(WOOD_RULE_KEY, woodRows),
-			rowGroupMatrix(CRAFTING_RULE_KEY, craftingRows),
-			horizontalRuns(FLETCHING_RULE_KEY, fletchingRows)));
+			rowRule(WOOD_RULE_KEY, woodRows, ShapePrimitive.ROW_GROUP_MATRIX),
+			rowRule(CRAFTING_RULE_KEY, craftingRows, ShapePrimitive.ROW_GROUP_MATRIX),
+			rowRule(FLETCHING_RULE_KEY, fletchingRows, ShapePrimitive.HORIZONTAL_RUN)));
 	}
 
 	private static List<RowFact> rows(String group)
@@ -86,12 +86,7 @@ public final class ResourceSemanticRuleSet
 	public static LayoutRequest forEntries(List<LayoutEntry> entries)
 	{
 		Objects.requireNonNull(entries, "entries");
-		validateRows(DATA.get().metalRows);
-		validateMetadata(Collections.singletonList(DATA.get().opalFamily));
-		validateMetadata(DATA.get().gemFamilies);
-		validateRows(DATA.get().woodRows);
-		validateRows(DATA.get().craftingRows);
-		validateRows(DATA.get().fletchingRows);
+		validateData();
 		return new LayoutRequest(anchoredEntries(entries), rulesForEntries(entries));
 	}
 
@@ -106,14 +101,19 @@ public final class ResourceSemanticRuleSet
 	public static LayoutRequest forZoneEntries(List<LayoutEntry> entries)
 	{
 		Objects.requireNonNull(entries, "entries");
+		validateData();
+		return new LayoutRequest(anchoredEntries(entries),
+			decoupleRowGroupMatrices(rulesForEntries(entries)));
+	}
+
+	private static void validateData()
+	{
 		validateRows(DATA.get().metalRows);
 		validateMetadata(Collections.singletonList(DATA.get().opalFamily));
 		validateMetadata(DATA.get().gemFamilies);
 		validateRows(DATA.get().woodRows);
 		validateRows(DATA.get().craftingRows);
 		validateRows(DATA.get().fletchingRows);
-		return new LayoutRequest(anchoredEntries(entries),
-			decoupleRowGroupMatrices(rulesForEntries(entries)));
 	}
 
 	private static List<SemanticRule> decoupleRowGroupMatrices(List<SemanticRule> rules)
@@ -328,25 +328,13 @@ public final class ResourceSemanticRuleSet
 		}
 	}
 
-	private static SemanticRule horizontalRuns(String ruleKey, List<RowFact> rows)
-	{
-		List<SemanticAtom> atoms = atomsForRows(rows);
-		return SemanticRule.builder()
-			.ruleKey(ruleKey)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.HORIZONTAL_RUN)
-			.allowedWidths(ALL_WIDTHS)
-			.build();
-	}
-
-	private static SemanticRule rowGroupMatrix(String ruleKey, List<RowFact> rows)
+	private static SemanticRule rowRule(String ruleKey, List<RowFact> rows, ShapePrimitive shape)
 	{
 		return SemanticRule.builder()
 			.ruleKey(ruleKey)
 			.atoms(atomsForRows(rows))
 			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.ROW_GROUP_MATRIX)
+			.shapePrimitive(shape)
 			.allowedWidths(ALL_WIDTHS)
 			.build();
 	}

@@ -28,12 +28,6 @@ final class BankOverlayText
 		return FontManager.getRunescapeFont();
 	}
 
-	/** Bold game font, for the guidance heading. */
-	static Font boldFont()
-	{
-		return FontManager.getRunescapeBoldFont();
-	}
-
 	/** Narrower game font, for labels that must fit inside a bank slot. */
 	static Font smallFont()
 	{

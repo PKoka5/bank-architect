@@ -41,14 +41,14 @@ public class LayoutCandidateScorerTest
 	public void herbRowGroupUsesEvidenceWithoutInventingFragmentation()
 	{
 		SemanticRule rule = rule("herb.workflow", ShapePrimitive.ROW_GROUP_MATRIX, widths(2, 3, 4),
-			SemanticWidthEvidenceFacts.HERB_WORKFLOW,
+			TestWidthEvidenceFacts.HERB_WORKFLOW,
 			atom("herb.guam", 10, 11), atom("herb.marrentill", 20, 21));
 		LayoutCandidateGroup group = onlyGroup(request(Arrays.asList(10, 11, 20, 21), rule));
 
-		assertEquals(715, LayoutCandidateScorer.score(group, candidate(group, 2)).getWidthEvidenceRegret());
-		assertEquals(0, LayoutCandidateScorer.score(group, candidate(group, 3)).getWidthEvidenceRegret());
-		assertEquals(715, LayoutCandidateScorer.score(group, candidate(group, 4)).getWidthEvidenceRegret());
-		assertEquals(0, LayoutCandidateScorer.score(group, candidate(group, 2)).getSemanticFragmentation());
+		assertEquals(715, LayoutCandidateScorer.score(group, candidate(group, 2)).get(LayoutScore.Component.WIDTH_EVIDENCE_REGRET));
+		assertEquals(0, LayoutCandidateScorer.score(group, candidate(group, 3)).get(LayoutScore.Component.WIDTH_EVIDENCE_REGRET));
+		assertEquals(715, LayoutCandidateScorer.score(group, candidate(group, 4)).get(LayoutScore.Component.WIDTH_EVIDENCE_REGRET));
+		assertEquals(0, LayoutCandidateScorer.score(group, candidate(group, 2)).get(LayoutScore.Component.SEMANTIC_FRAGMENTATION));
 		assertEquals(1, LayoutCandidateScorer.widthPreferenceRank(group, candidate(group, 2)));
 		assertEquals(0, LayoutCandidateScorer.widthPreferenceRank(group, candidate(group, 3)));
 		assertEquals(1, LayoutCandidateScorer.widthPreferenceRank(group, candidate(group, 4)));

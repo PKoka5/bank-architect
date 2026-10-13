@@ -1,8 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
-import com.pkoka5.ironmanbankarchitect.blueprint.*;
-import com.pkoka5.ironmanbankarchitect.match.BlockMatchResult;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
 import java.util.*;
 import java.util.List;
@@ -29,11 +27,7 @@ public final class BankGuideController
 	public static final String ASSIGN_MODE_HINT =
 		"Right-click a bank item and pick a tag to correct where it lands.";
 
-	private final List<VisualBlock> availableBlocks;
-	private final AtomicReference<BankGuideState> state;
-	private final AtomicReference<BlockMatchResult> latestMatchResult = new AtomicReference<>();
-	private final AtomicReference<String> analysisText = new AtomicReference<>(NO_ANALYSIS_STATUS);
-	private final AtomicReference<String> analysisDetailText = new AtomicReference<>("");
+	private final AtomicReference<Boolean> guideEnabled = new AtomicReference<>(false);
 	private final AtomicReference<BankAnalysisStatus> bankAnalysisStatus =
 		new AtomicReference<>(BankAnalysisStatus.notStarted());
 	private final AtomicReference<String> guideProgressText = new AtomicReference<>(NO_GUIDANCE_PROGRESS_STATUS);
@@ -44,43 +38,15 @@ public final class BankGuideController
 	private final AtomicBoolean categoryAssignMode = new AtomicBoolean(false);
 	private final AtomicInteger categoryOverrideCount = new AtomicInteger(0);
 
-	public BankGuideController(BankProfile profile)
-	{
-		Objects.requireNonNull(profile, "profile");
-		this.availableBlocks = collectBlocks(profile);
-		if (availableBlocks.isEmpty())
-		{
-			throw new IllegalArgumentException("profile must contain at least one block");
-		}
-
-		this.state = new AtomicReference<>(new BankGuideState(availableBlocks.get(0).getKey(), false));
-	}
-
-	public List<VisualBlock> getAvailableBlocks()
-	{
-		return availableBlocks;
-	}
-
-	public VisualBlock getSelectedBlock()
-	{
-		return findBlock(state.get().getSelectedBlockKey());
-	}
-
-	public void selectBlock(String blockKey)
-	{
-		findBlock(blockKey);
-		state.updateAndGet(current -> current.withSelectedBlockKey(blockKey));
-	}
-
 	public boolean isGuideEnabled()
 	{
-		return state.get().isGuideEnabled();
+		return guideEnabled.get();
 	}
 
 	public void setGuideEnabled(boolean enabled)
 	{
 		guideArmedAutomatically.set(false);
-		state.updateAndGet(current -> current.withGuideEnabled(enabled));
+		guideEnabled.set(enabled);
 		if (enabled)
 		{
 			categoryAssignMode.set(false);
@@ -90,9 +56,7 @@ public final class BankGuideController
 	public void toggleGuide()
 	{
 		guideArmedAutomatically.set(false);
-		boolean enabled = state
-			.updateAndGet(current -> current.withGuideEnabled(!current.isGuideEnabled()))
-			.isGuideEnabled();
+		boolean enabled = guideEnabled.updateAndGet(current -> !current);
 		if (enabled)
 		{
 			categoryAssignMode.set(false);
@@ -125,7 +89,7 @@ public final class BankGuideController
 		categoryAssignMode.set(enabled);
 		if (enabled)
 		{
-			state.updateAndGet(current -> current.withGuideEnabled(false));
+			guideEnabled.set(false);
 		}
 	}
 
@@ -202,20 +166,9 @@ public final class BankGuideController
 		return isGuideEnabled() ? GUIDE_ACTIVE_STATUS : GUIDE_DISABLED_STATUS;
 	}
 
-	public BankGuideState getState()
-	{
-		return state.get();
-	}
-
 	public synchronized void publishBankAnalysis(BankAnalysisStatus status)
 	{
 		Objects.requireNonNull(status, "status");
-		if (status.kind() == BankAnalysisStatus.Kind.BANK_CLOSED)
-		{
-			latestMatchResult.set(null);
-			analysisText.set(ANALYSIS_BANK_CLOSED_STATUS);
-			analysisDetailText.set("");
-		}
 
 		if (status.kind() == BankAnalysisStatus.Kind.SUCCESS)
 		{
@@ -228,29 +181,6 @@ public final class BankGuideController
 		bankAnalysisStatus.set(status);
 		guideProgressText.set(NO_GUIDANCE_PROGRESS_STATUS);
 		guideProgressPercent.set(-1);
-	}
-
-	public void publishMatchResult(BlockMatchResult result)
-	{
-		Objects.requireNonNull(result, "result");
-		latestMatchResult.set(result);
-		analysisText.set(result.toCompactSummary());
-		analysisDetailText.set(result.toSlotDetailText());
-	}
-
-	public BlockMatchResult getLatestMatchResult()
-	{
-		return latestMatchResult.get();
-	}
-
-	public String getAnalysisText()
-	{
-		return analysisText.get();
-	}
-
-	public String getAnalysisDetailText()
-	{
-		return analysisDetailText.get();
 	}
 
 	public BankAnalysisStatus bankAnalysisStatus()
@@ -315,30 +245,4 @@ public final class BankGuideController
 		return guideProgressText.get();
 	}
 
-	private VisualBlock findBlock(String key)
-	{
-		for (VisualBlock block : availableBlocks)
-		{
-			if (block.getKey().equals(key))
-			{
-				return block;
-			}
-		}
-
-		throw new IllegalArgumentException("Unknown block key: " + key);
-	}
-
-	private static List<VisualBlock> collectBlocks(BankProfile profile)
-	{
-		List<VisualBlock> blocks = new ArrayList<>();
-		for (BlueprintTab tab : profile.getTabs())
-		{
-			for (BlueprintSection section : tab.getSections())
-			{
-				blocks.addAll(section.getBlocks());
-			}
-		}
-
-		return Collections.unmodifiableList(blocks);
-	}
 }

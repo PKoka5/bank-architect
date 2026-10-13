@@ -97,6 +97,21 @@ public class OrderedItemFamiliesTest
 	{
 		Map<String, List<Integer>> families = new OrderedItemFamilies(OrderedItemFamiliesTest.class
 			.getResourceAsStream(name + "-layout-families.tsv"), width, !name.equals("tool") && !name.equals("resource")).entries();
+		if (name.equals("gear"))
+		{
+			families = new java.util.LinkedHashMap<>(families);
+			assertEquals(List.of(13379,13381,13380,13377,13378), families.remove("gear.shayzien-5"));
+			assertEquals(List.of(29560,29562,29564), families.remove("gear.elite-black"));
+			assertEquals(List.of(33031,33033,33023,33025,33027,33029), families.remove("gear.crystal-deadman"));
+		}
+		if (name.equals("tool"))
+		{
+			families = new java.util.LinkedHashMap<>(families);
+			assertEquals(List.of(29472,29474,29476,29478), families.remove("outfits/outfit.prospector-fossil"));
+			assertEquals(List.of(28173,28169,28171,28175), families.remove("outfits/outfit.lumberjack-forestry"));
+			assertEquals(List.of(21061,21064,21067,21070,21073,21076), families.remove("outfits/outfit.graceful-agility-arena"));
+			assertEquals(List.of(27023,27025,27027,27031), families.remove("outfits/outfit.smiths-ice"));
+		}
 		assertEquals(rows, families.size());
 		StringBuilder canonical = new StringBuilder();
 		families.forEach((key, ids) -> canonical.append(key).append('\t')

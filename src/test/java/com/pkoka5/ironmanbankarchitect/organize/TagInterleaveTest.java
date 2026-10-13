@@ -98,7 +98,7 @@ public class TagInterleaveTest
 		BankLayoutPlan plan = planWithHerbTab(
 			"herb-seeds+grimy-herbs+clean-herbs+secondaries+unfinished-potions+herblore-other+seeds+produce");
 
-		assertEquals(Arrays.asList(GRIMY_RANARR, CLEAN_RANARR, RANARR_UNF, BIRD_NEST, RANARR_SEED,
+		assertEquals(Arrays.asList(GRIMY_RANARR, CLEAN_RANARR, RANARR_SEED, RANARR_UNF, BIRD_NEST,
 				POTATO_SEED, STRAWBERRY),
 			idsOn(build(FARMING_AS_LIST, plan), plan.destinationOf("grimy-herbs")));
 	}
@@ -191,9 +191,9 @@ public class TagInterleaveTest
 		assertEquals(Integer.valueOf(ROTTEN_FOOD), stacked.get(2));
 	}
 
-	/** Recipe rows are a shaped layout, so a herb tab that keeps its doses stacks. */
+	/** An explicit tag sequence takes priority over automatic recipe grouping. */
 	@Test
-	public void recipeRowsKeepTheBlocksStacked()
+	public void keepingPartDosesDoesNotOverrideThePlayersCustomTagSequence()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.parse(BankPresets.IRONMAN, BankLayoutShareCode.decode(
 			"BAv1~Rows~currency+frequently-used|gear+ammunition|food+potions"
@@ -203,9 +203,8 @@ public class TagInterleaveTest
 
 		List<Integer> ids = idsOn(build(FARMING_AS_LIST, plan), plan.destinationOf("grimy-herbs"));
 
-		assertEquals(Arrays.asList(POTATO_SEED, STRAWBERRY), ids.subList(5, 7));
-		assertEquals(new java.util.HashSet<>(Arrays.asList(GRIMY_RANARR, CLEAN_RANARR, RANARR_SEED,
-			RANARR_UNF, BIRD_NEST)), new java.util.HashSet<>(ids.subList(0, 5)));
+		assertEquals(Arrays.asList(GRIMY_RANARR, CLEAN_RANARR, STRAWBERRY, RANARR_SEED,
+			POTATO_SEED, RANARR_UNF, BIRD_NEST), ids);
 	}
 
 	/** Part doses stay with the potions so the herb tab is a plain run, not recipe rows. */

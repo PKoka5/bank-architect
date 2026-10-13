@@ -72,18 +72,6 @@ public final class BankGuideOverlay extends Overlay
 	private Map<Integer, Integer> cachedPlannedSlotByItemId;
 
 	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
-		IronmanBankArchitectConfig config)
-	{
-		this(plugin, client, guideController, config, new BankOverlayReservations());
-	}
-
-	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
-		IronmanBankArchitectConfig config, BankOverlayReservations reservations)
-	{
-		this(plugin, client, guideController, config, reservations, null);
-	}
-
-	public BankGuideOverlay(Plugin plugin, Client client, BankGuideController guideController,
 		IronmanBankArchitectConfig config, BankOverlayReservations reservations,
 		java.util.function.Supplier<BankLayoutPlan> layoutPlan)
 	{
@@ -106,7 +94,7 @@ public final class BankGuideOverlay extends Overlay
 		Widget bankItemsContainer = client.getWidget(InterfaceID.Bankmain.ITEMS_CONTAINER);
 		boolean bankIsOpen = bankItems != null && !bankItems.isHidden();
 		guideController.setBankOpen(bankIsOpen);
-		if (!bankIsOpen || !guideController.isGuideEnabled())
+		if (reservations.previewActive || !bankIsOpen || !guideController.isGuideEnabled())
 		{
 			return null;
 		}

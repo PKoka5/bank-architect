@@ -176,7 +176,7 @@ public class BlueprintCapturePanelTest
 		return null;
 	}
 
-	private static final class Model implements BankLayoutModel
+	private static final class Model extends TestBankLayoutModel
 	{
 		private int captures;
 		private int edits;

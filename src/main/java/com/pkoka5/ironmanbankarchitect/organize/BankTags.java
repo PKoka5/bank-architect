@@ -121,11 +121,6 @@ public final class BankTags
 		return BY_KEY.get(fallback == null ? splits.get(0).key : fallback.key);
 	}
 
-	private static Split split(String key, String name, String... subcategories)
-	{
-		return new Split(key, name, subcategories);
-	}
-
 	/** A tag plus the subcategories that route to it; empty means catch-all. */
 	private static final class Split
 	{

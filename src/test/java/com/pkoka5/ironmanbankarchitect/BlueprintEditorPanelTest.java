@@ -20,6 +20,210 @@ import static org.junit.Assert.*;
 
 public class BlueprintEditorPanelTest
 {
+	@Test public void bankPreviewPublishesAllPhysicalTabsWithoutSavingOrChangingProfile() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			BlueprintEditorPanel panel = panel(model);
+			PreviewCapture capture = new PreviewCapture();
+			panel.configureBankPreview(capture);
+			BankPreviewItem duplicate = new BankPreviewItem(
+				com.pkoka5.ironmanbankarchitect.catalog.CatalogItem.unknown(7), 6, false, Arrays.asList(2, 0, 4));
+			BankCategoryPreview main = BankCategoryPreview.fromLogicalItems(
+				BankPresets.IRONMAN.getCategories().get(0), Arrays.asList(duplicate, BankPreviewItem.blank(), item(995)));
+			BankCategoryPreview combat = new BankCategoryPreview(
+				BankPresets.IRONMAN.getCategories().get(1), Arrays.asList(item(4151), BankPreviewItem.blank()));
+			String originalPlan = model.plan().serialize();
+			BankOrganizationPreview original = new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(main, combat));
+			panel.setPreview(original);
+			assertSame(original, capture.snapshot);
+			assertEquals(2, capture.snapshot.getCategories().size());
+			assertEquals(Arrays.asList(7, 7, 7, -1, 995), ids(capture.items(0)));
+			assertEquals(2, capture.items(0).get(0).getQuantity());
+			assertTrue(capture.items(0).get(1).isPlaceholder());
+			assertEquals(4, capture.items(0).get(2).getQuantity());
+			assertTrue(capture.items(0).get(3).isBlank());
+			List<BankPreviewItem> mainSnapshot = capture.items(0);
+			javax.swing.JTabbedPane tabs = (javax.swing.JTabbedPane) panel.getComponent(0);
+			tabs.setSelectedIndex(1);
+			assertSame("Editor tab selection cannot narrow the bank snapshot", original, capture.snapshot);
+			assertEquals(Arrays.asList(7, 7, 7, -1, 995), ids(capture.items(0)));
+			assertEquals(Arrays.asList(4151, -1), ids(capture.items(1)));
+			assertEquals(Arrays.asList(7, 7, 7, -1, 995), ids(mainSnapshot));
+			assertThrows(UnsupportedOperationException.class, () -> capture.snapshot.getCategories().clear());
+			assertThrows(UnsupportedOperationException.class, () -> capture.items(0).clear());
+			assertEquals(1, tabs.getSelectedIndex());
+			assertEquals(0, model.saves);
+			assertNull(model.orders);
+			assertSame(BankPresets.IRONMAN, model.preset());
+			assertEquals("profile", model.context);
+			assertEquals(originalPlan, model.plan().serialize());
+		});
+	}
+
+	@Test public void bankPreviewShowsSwapAndInsertDraftsWhileUndoAndCancelPreserveQueuedSnapshots() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			for (String movement : new String[]{"Swap", "Insert"})
+			{
+				Model model = new Model();
+				BlueprintEditorPanel panel = panel(model);
+				PreviewCapture capture = new PreviewCapture();
+				panel.configureBankPreview(capture);
+				button(panel, "Edit this tab").doClick();
+				mode(panel).setSelectedItem(movement);
+				click(panel, "995");
+				click(panel, "13204");
+				List<Integer> expected = "Swap".equals(movement)
+					? Arrays.asList(13204, 2347, 995) : Arrays.asList(2347, 13204, 995);
+				assertEquals(movement, expected, ids(capture.items(0)));
+				List<BankPreviewItem> queuedSnapshot = capture.items(0);
+				assertThrows(UnsupportedOperationException.class, queuedSnapshot::clear);
+				assertEquals(0, model.saves);
+				assertNull(model.orders);
+				button(panel, "Undo").doClick();
+				assertEquals(Arrays.asList(995, 2347, 13204), ids(capture.items(0)));
+				assertEquals("Undo must not alter an already published snapshot", expected, ids(queuedSnapshot));
+				click(panel, "995");
+				click(panel, "13204");
+				button(panel, "Cancel").doClick();
+				assertEquals(Arrays.asList(995, 2347, 13204), ids(capture.items(0)));
+				assertEquals(expected, ids(queuedSnapshot));
+				assertEquals(0, model.saves);
+				button(panel, "Edit this tab").doClick();
+				click(panel, "995");
+				click(panel, "13204");
+				button(panel, "Save").doClick();
+				assertEquals(1, model.saves);
+				assertEquals(expected, model.ids);
+				assertEquals(0, ((javax.swing.JTabbedPane) panel.getComponent(0)).getSelectedIndex());
+				assertSame(BankPresets.IRONMAN, model.preset());
+				assertEquals("profile", model.context);
+			}
+		});
+	}
+
+	@Test public void bankPreviewStopsForNewAnalysisChangedProfileAndPendingSaveUntilDraftCancelled() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			for (int reason = 0; reason < 3; reason++)
+			{
+				Model model = new Model();
+				BlueprintEditorPanel panel = panel(model);
+				BankOrganizationPreview original = new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
+					new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0),
+						Arrays.asList(item(995), item(2347), item(13204))),
+					new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(1), Arrays.asList(item(4151)))));
+				panel.setPreview(original);
+				PreviewCapture capture = new PreviewCapture();
+				panel.configureBankPreview(capture);
+				button(panel, "Edit this tab").doClick();
+				click(panel, "995");
+				click(panel, "13204");
+				assertNotNull(capture.snapshot);
+				BankOrganizationPreview queuedDraft = capture.snapshot;
+				if (reason == 0) panel.setPreview(new BankOrganizationPreview(BankPresets.IRONMAN, original.getCategories()));
+				else if (reason == 1)
+				{
+					model.context = "different profile";
+					((javax.swing.JTabbedPane) panel.getComponent(0)).setSelectedIndex(1);
+				}
+				else
+				{
+					model.deferSave = true;
+					button(panel, "Save").doClick();
+					assertFalse(button(panel, "Cancel").isEnabled());
+				}
+				assertNull("Stale/busy preview must be withdrawn for case " + reason, capture.snapshot);
+				assertEquals(Arrays.asList(13204, 2347, 995), ids(queuedDraft.getCategories().get(0).getItems()));
+				assertEquals(Arrays.asList(4151), ids(queuedDraft.getCategories().get(1).getItems()));
+				if (reason == 2)
+				{
+					model.pending.accept(false);
+					assertNull("A rejected save cannot revive its stale draft", capture.snapshot);
+				}
+				button(panel, "Cancel").doClick();
+				assertNotNull(capture.snapshot);
+				assertEquals(2, capture.snapshot.getCategories().size());
+				assertEquals(Arrays.asList(995, 2347, 13204), ids(capture.items(0)));
+				assertEquals(Arrays.asList(4151), ids(capture.items(1)));
+				assertEquals(reason == 2 ? 1 : 0, model.saves);
+				assertSame(BankPresets.IRONMAN, model.preset());
+			}
+		});
+	}
+
+	@Test public void allTabDraftSnapshotsPreserveTransfersAndDoNotChangeTheSelectedEditTab() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			BlueprintEditorPanel panel = panel(model);
+			panel.setPreview(new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0),
+					Arrays.asList(item(995).withLayoutTag("currency"), BankPreviewItem.blank(), item(13204).withLayoutTag("currency"))),
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(1),
+					Arrays.asList(item(4151).withLayoutTag("gear"), BankPreviewItem.blank())),
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(2), java.util.Collections.emptyList()))));
+			PreviewCapture capture = new PreviewCapture();
+			panel.configureBankPreview(capture);
+			javax.swing.JTabbedPane tabs = (javax.swing.JTabbedPane) panel.getComponent(0);
+			button(panel, "Edit this tab").doClick();
+			panel.publishBankPreview();
+			assertEquals(0, tabs.getSelectedIndex());
+			assertEquals(3, capture.snapshot.getCategories().size());
+			assertTrue("The empty category keeps its logical index", capture.items(2).isEmpty());
+			click(panel, "995");
+			click(panel, "13204");
+			assertEquals("Reading all categories cannot move draft edits onto another tab",
+				Arrays.asList(13204, -1, 995), ids(capture.items(0)));
+			assertEquals(Arrays.asList(4151, -1), ids(capture.items(1)));
+			BankOrganizationPreview beforeTransfer = capture.snapshot;
+			layout(panel);
+			JLabel source = (JLabel) find(panel, "995");
+			java.awt.Rectangle targetHeader = tabs.getBoundsAt(1);
+			dragTo(source, SwingUtilities.convertPoint(tabs, new Point(targetHeader.x + 5, targetHeader.y + 5), source));
+			assertEquals(1, tabs.getSelectedIndex());
+			assertEquals(Arrays.asList(13204, -1), ids(capture.items(0)));
+			assertEquals(Arrays.asList(4151, -1, 995), ids(capture.items(1)));
+			BankOrganizationPreview transferred = capture.snapshot;
+			assertThrows(UnsupportedOperationException.class, () -> transferred.getCategories().clear());
+			assertThrows(UnsupportedOperationException.class, () -> transferred.getCategories().get(1).getItems().clear());
+			panel.publishBankPreview();
+			assertEquals(1, tabs.getSelectedIndex());
+			clickCell((JLabel) find((Container) tabs.getSelectedComponent(), "4151"));
+			clickCell((JLabel) find((Container) tabs.getSelectedComponent(), "995"));
+			assertEquals(Arrays.asList(995, -1, 4151), ids(capture.items(1)));
+			assertEquals(Arrays.asList(13204, -1), ids(capture.items(0)));
+			button(panel, "Undo").doClick();
+			assertEquals(Arrays.asList(4151, -1, 995), ids(capture.items(1)));
+			button(panel, "Undo").doClick();
+			assertEquals(Arrays.asList(13204, -1, 995), ids(capture.items(0)));
+			assertEquals(Arrays.asList(4151, -1), ids(capture.items(1)));
+			button(panel, "Cancel").doClick();
+			assertEquals(Arrays.asList(995, -1, 13204), ids(capture.items(0)));
+			assertEquals(Arrays.asList(4151, -1), ids(capture.items(1)));
+			assertEquals(Arrays.asList(13204, -1, 995), ids(beforeTransfer.getCategories().get(0).getItems()));
+			assertEquals(Arrays.asList(4151, -1), ids(beforeTransfer.getCategories().get(1).getItems()));
+			assertEquals(Arrays.asList(13204, -1), ids(transferred.getCategories().get(0).getItems()));
+			assertEquals(Arrays.asList(4151, -1, 995), ids(transferred.getCategories().get(1).getItems()));
+			assertEquals(0, model.saves);
+			assertNull(model.orders);
+			assertEquals("profile", model.context);
+			assertSame(BankPresets.IRONMAN, model.preset());
+		});
+	}
+
+	private static List<Integer> ids(List<BankPreviewItem> items)
+	{
+		return items.stream().map(BankPreviewItem::getItemId).collect(java.util.stream.Collectors.toList());
+	}
+	private static final class PreviewCapture implements Consumer<BankOrganizationPreview>
+	{
+		BankOrganizationPreview snapshot;
+		List<BankPreviewItem> items(int tab) { return snapshot.getCategories().get(tab).getItems(); }
+		@Override public void accept(BankOrganizationPreview snapshot) { this.snapshot = snapshot; }
+	}
+
 	@Test public void assigningCategoryWithinSameTabCanBeUndoneCancelledAndSaved() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
@@ -194,7 +398,10 @@ public class BlueprintEditorPanelTest
 	}
 	private static void click(BlueprintEditorPanel panel, String id)
 	{
-		JLabel cell = (JLabel) find(panel, id);
+		clickCell((JLabel) find(panel, id));
+	}
+	private static void clickCell(JLabel cell)
+	{
 		cell.dispatchEvent(new MouseEvent(cell, MouseEvent.MOUSE_PRESSED, 0, 0, 5, 10, 1, false, MouseEvent.BUTTON1));
 		cell.dispatchEvent(new MouseEvent(cell, MouseEvent.MOUSE_RELEASED, 1, 0, 5, 10, 1, false, MouseEvent.BUTTON1));
 		cell.dispatchEvent(new MouseEvent(cell, MouseEvent.MOUSE_CLICKED, 2, 0, 5, 10, 1, false, MouseEvent.BUTTON1));
@@ -437,7 +644,7 @@ public class BlueprintEditorPanelTest
 			point.x, point.y, 0, false, MouseEvent.NOBUTTON));
 		source.dispatchEvent(new MouseEvent(source, MouseEvent.MOUSE_RELEASED, 2, 0, point.x, point.y, 1, false, MouseEvent.BUTTON1));
 	}
-	private static final class Model implements BankLayoutModel
+	private static final class Model extends TestBankLayoutModel
 	{
 		int saves;
 		List<Integer> ids;

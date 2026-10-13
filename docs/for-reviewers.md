@@ -21,6 +21,7 @@ These files contain the supported bank/client adapters:
 | `IronmanBankArchitectPlugin.java` | Plugin lifecycle, bank analysis adapter, local blueprint persistence and the bank right-click menu entries below. |
 | `overlay/BankGuideOverlay.java` | Reads visible bank/widget state and draws manual move guidance. |
 | `overlay/BankCategoryOverlay.java` | Reads bank widgets and draws destination colours. |
+| `overlay/BankBlueprintOverlay.java` | Draws a temporary blueprint preview over the bank item area, preserving native controls. |
 
 ```sh
 rg -l 'net\.runelite\.api\.(Client|widgets|ItemContainer|MenuEntry|events|Menu;)' src/main/java
@@ -63,6 +64,14 @@ draft only; Save persists the draft to plugin config after fresh bank and
 profile checks. The sidebar Layout editor assigns categories and tags. Dialogs
 are disposed during shutdown. Copy/export actions use the clipboard.
 
+**Temporary bank preview.** `BankBlueprintOverlay` draws owned items on a
+graphics surface; it never writes to bank widgets or changes their item IDs,
+visibility, positions or actions. Its registered mouse listeners switch preview
+tabs and scroll the temporary view. Other bank clicks dismiss preview and consume
+that gesture so a displayed preview item cannot trigger the real slot beneath it.
+Native tab dragging ends preview and leaves the manual drag to the player.
+Listeners are removed during shutdown; guidance is suspended during preview.
+
 **Capture the current bank.** **Save current bank...** reads the full supported
 bank container and tab counts on the client thread and saves them as a new named
 active layout. It rejects fillers, invalid tab boundaries, stale contents and
@@ -100,11 +109,9 @@ were built from, and `./gradlew aggregateCleanupReview` replays 1,800 generated 
 through the whole planner and asserts every one reaches a complete, dense layout
 with no stalled or non-terminating route.
 
-Separately: most organisers render a *virtual* layout, repainting the bank
-interface so it looks organised while the real bank is untouched. This plugin
-does the opposite — it guides the player through physically rearranging the real
-bank, one manual drag at a time. That is why it never writes to a bank widget at
-all, which is stricter than the rules require.
+The preview helps the player inspect the planned bank before manually sorting
+it. It is temporary and offers no item-withdrawal or deposit actions. The manual
+guide follows changes to the real bank. Neither feature writes to a bank widget.
 
 ## Fail-closed behaviour
 
@@ -132,7 +139,7 @@ The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.9.2 release record](release-0.9.2.md) documents final tests, outstanding live
+The [0.9.6 release record](release-0.9.6.md) documents final tests, outstanding live
 checks, jar checksum, changed scope and calibrated review-token estimates.
 Local estimates are not the official Plugin Hub count.
 

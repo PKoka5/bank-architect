@@ -217,6 +217,10 @@ public final class BankOrganizationPreviewBuilder
 				&& (saved.isCaptured() || plan != null && plan.destinationOf(saved.tag) == saved.tab))
 				ammoDrops = false;
 			if (ammoDrops) category = preset.getCategory(ALCH_CATEGORY_KEY);
+			if (GearSetSemanticRuleSet.isCannonPart(catalogItem.getItemId()) && saved != null
+				&& "gear".equals(saved.originalTag)
+				&& (saved.isCaptured() || plan != null && plan.destinationOf(saved.tag) == saved.tab))
+				category = preset.getCategory("combat-gear");
 			// The player's own choice is applied last so it wins over every
 			// automatic rule, including the quick-tool and alch overrides above.
 			// A correction names a tag, which settles the category too; one that
@@ -262,8 +266,7 @@ public final class BankOrganizationPreviewBuilder
 				routedTag = tag;
 				if (!bankItem.isPlaceholder())
 				{
-					Integer counted = tagCounts.get(tag.getKey());
-					tagCounts.put(tag.getKey(), counted == null ? 1 : counted + 1);
+					tagCounts.merge(tag.getKey(),1,Integer::sum);
 				}
 				int destination = plan.destinationOf(tag.getKey());
 				if (destination < 0)
@@ -295,7 +298,7 @@ public final class BankOrganizationPreviewBuilder
 			Map<String, List<BankBlockDescriptor>> blockDescriptors = new LinkedHashMap<>();
 			for (MutableCategoryPreview mutable : previewsByCategory.values())
 			{
-				blockDescriptors.putAll(mutable.getBlockDescriptors());
+				blockDescriptors.putAll(mutable.blockDescriptors);
 			}
 			return options.itemOrders().apply(new BankOrganizationPreview(preset, destinations, tagCounts, blockDescriptors), plan);
 		}
@@ -388,18 +391,8 @@ public final class BankOrganizationPreviewBuilder
 	 */
 	private static boolean weavesByTag(Collection<MutableCategoryPreview> buckets)
 	{
-		if (buckets.size() < 2)
-		{
-			return false;
-		}
-		for (MutableCategoryPreview bucket : buckets)
-		{
-			if (!bucket.arrangedByPlayer() || !bucket.isPlainRun())
-			{
-				return false;
-			}
-		}
-		return true;
+		return buckets.size() >= 2 && buckets.stream()
+			.allMatch(bucket -> !bucket.destinationTags.isEmpty() && bucket.plainRun);
 	}
 
 	/** The blocks one after another, each whole, in the order they were met. */
@@ -491,6 +484,12 @@ public final class BankOrganizationPreviewBuilder
 
 	private static CatalogItem effectiveCatalogItem(CatalogItem item, int itemId, GearStatsSource gearStats)
 	{
+		if (GearSetSemanticRuleSet.isCannonPart(itemId) && item.getCategory() != ItemCategory.TOOL)
+			return new CatalogItem(itemId, item.getDisplayName(), ItemCategory.TOOL, "cannon-part", item.getTags(), null);
+		if (!GearSetSemanticRuleSet.weaponRole(itemId).isEmpty()
+			&& (item.getCategory() == ItemCategory.CLEANUP || item.getCategory() == ItemCategory.UNKNOWN
+				|| item.getCategory() == ItemCategory.UNCATEGORIZED))
+			return new CatalogItem(itemId, item.getDisplayName(), ItemCategory.GEAR, "weapon", item.getTags(), null);
 		if (item.getCategory() == ItemCategory.CLEANUP && "quest-item".equals(item.getSubcategory())) return item;
 		Optional<GearStats> stats = gearStats.statsFor(itemId);
 		if (stats.isPresent() && (item.getCategory() == ItemCategory.GEAR
@@ -541,6 +540,7 @@ public final class BankOrganizationPreviewBuilder
 		if (catalogItem.getItemId() == net.runelite.api.gameval.ItemID.DRAGON_HALBERD)
 			return itemValues.highAlchValue(catalogItem.getItemId()) > 0;
 		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());
+		if (!reviewedAlchable && !GearSetSemanticRuleSet.weaponRole(catalogItem.getItemId()).isEmpty()) return false;
 		if (catalogItem.getTags().stream().anyMatch(tag -> !reviewedAlchable || !"clue-required".equals(tag))
 			|| WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
 		{
@@ -573,11 +573,11 @@ public final class BankOrganizationPreviewBuilder
 		}
 		if (reviewedAlchable)
 		{
-			int tier = alchTier(catalogItem.getItemId());
+			int tier = IronmanAlchCandidateCatalog.tierOf(catalogItem.getItemId());
 			boolean armour = stats.get().getSlot() != GearSlot.WEAPON && stats.get().getSlot() != GearSlot.AMMO;
 			for (BankGear candidate : gear)
 				if (realOwned.contains(candidate.itemId) && candidate.stats.dominates(stats.get())
-					|| (armour && tier > 0 && alchTier(candidate.itemId) > tier)) return true;
+					|| (armour && tier > 0 && IronmanAlchCandidateCatalog.tierOf(candidate.itemId) > tier)) return true;
 			return false;
 		}
 
@@ -613,21 +613,6 @@ public final class BankOrganizationPreviewBuilder
 	{
 		return GearItemSorter.styleOf(item.getDisplayName(), stats).ordinal()
 			+ ":" + GearItemSorter.slotOf(item.getDisplayName(), stats);
-	}
-
-	/** Exact progression facts; names alone cannot prove a replacement for alching. */
-	private static int alchTier(int itemId)
-	{
-		switch (itemId)
-		{
-			case 1101: case 1103: case 1105: case 1107: case 1109: case 1111: case 1113:
-			case 1137: case 1139: case 1141: case 1143: case 1145: case 1147: case 1151:
-				return 2; // Ordinary metal chainbodies and med helms, matching plate/full helm stages.
-			case 1149: case 3140: return 3; // Ordinary Dragon med helm and chainbody.
-			case 11826: case 11828: case 11830: return 4; // Armadyl armour.
-			case 27226: case 27229: case 27232: return 5; // Unfortified Masori armour.
-			default: return GearTierCatalog.INSTANCE.tierOf(itemId).orElse(0);
-		}
 	}
 
 	/** Bank gear including placeholders, kept per style/slot bucket for bounded comparisons. */
@@ -674,25 +659,6 @@ public final class BankOrganizationPreviewBuilder
 		 * sequence, order within a tag untouched. Bundle layouts that span
 		 * tags by design - Herblore's recipe rows, the gear grid - are exempt.
 		 */
-		/** Whether the player has rearranged the tags of this bucket's tab. */
-		private boolean arrangedByPlayer()
-		{
-			return !destinationTags.isEmpty();
-		}
-
-		/**
-		 * Whether the layout this bucket last produced is a plain run: the
-		 * sorter's order, wrapping row by row, with nothing placed by column.
-		 * Only such a run can be woven with another category's block without
-		 * losing its shape. Each layout path declares itself as it runs, and a
-		 * path that says nothing counts as shaped, so an oversight stacks the
-		 * tab rather than scrambling a grid.
-		 */
-		private boolean isPlainRun()
-		{
-			return plainRun;
-		}
-
 		private List<BankPreviewItem> honorTagOrder(List<BankPreviewItem> sorted)
 		{
 			if (destinationTags.size() < 2)
@@ -882,9 +848,9 @@ public final class BankOrganizationPreviewBuilder
 			return ordered;
 		}
 
-		Map<String, List<BankBlockDescriptor>> getBlockDescriptors()
+		private List<BankPreviewItem> orderBlocks(List<BankPreviewItem> sorted)
 		{
-			return blockDescriptors;
+			return recordBlocks(honorBlockOrder(honorTagOrder(sorted)));
 		}
 
 		private String tagKeyOf(BankPreviewItem item)
@@ -930,35 +896,36 @@ public final class BankOrganizationPreviewBuilder
 			{
 				plainRun = true;
 				return BankCategoryPreview.fromLogicalItems(category,
-					recordBlocks(honorBlockOrder(honorTagOrder(HerbloreItemSorter.layoutMain(items)))));
+					orderBlocks(HerbloreItemSorter.layoutMain(items)));
 			}
 				switch (category.getSortMode())
 				{
 				case MAIN:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						recordBlocks(honorBlockOrder(honorTagOrder(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())))),
+						orderBlocks(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.MAIN)));
 				case RESOURCES:
 					return BankCategoryPreview.fromLogicalItems(category, resourceLayout(items));
 				case TELEPORTS:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						recordBlocks(honorBlockOrder(honorTagOrder(TeleportItemSorter.sort(items)))), RuneSemanticRuleSet.forEntries(entries),
+						orderBlocks(TeleportItemSorter.sort(items)), RuneSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.TELEPORTS)));
 				case SUPPLIES:
-					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						recordBlocks(honorBlockOrder(honorTagOrder(SupplyItemSorter.sort(items,
+					List<BankPreviewItem> supplies = semanticLayout(
+						orderBlocks(SupplyItemSorter.sort(items,
 							com.pkoka5.ironmanbankarchitect.catalog.ResourceItemSortMetadataCatalog.INSTANCE,
-							main ? PotionDoseOrder.BY_FAMILY : options.potionDoses())))),
+							main ? PotionDoseOrder.BY_FAMILY : options.potionDoses())),
 						PotionDoseSemanticRuleSet.forEntries(entries),
-						sequential(BankCategorySortMode.SUPPLIES)));
+						sequential(BankCategorySortMode.SUPPLIES));
+					return BankCategoryPreview.fromLogicalItems(category, !sequential(BankCategorySortMode.SUPPLIES)
+						&& (main || options.potionDoses() == PotionDoseOrder.BY_FAMILY)
+						? SupplyItemSorter.finishCompleteRows(supplies) : supplies);
 				case TOOLS:
-					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						recordBlocks(honorBlockOrder(honorTagOrder(ToolItemSorter.sort(items)))), ToolOutfitSemanticRuleSet.forEntries(entries),
-						sequential(BankCategorySortMode.TOOLS)));
+					return BankCategoryPreview.fromLogicalItems(category, toolLayout(items));
 				case CURRENCY:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						recordBlocks(honorBlockOrder(honorTagOrder(CurrencyItemSorter.sort(items)))), AchievementDiarySemanticRuleSet.forEntries(entries),
+						orderBlocks(CurrencyItemSorter.sort(items)), AchievementDiarySemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CURRENCY)));
 				case FARMING:
 					plainRun = sequential(BankCategorySortMode.FARMING);
@@ -969,24 +936,25 @@ public final class BankOrganizationPreviewBuilder
 					return BankCategoryPreview.fromLogicalItems(category, gearLayout(items, gearStats));
 				case CLUES:
 					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
-						recordBlocks(honorBlockOrder(honorTagOrder(PresetItemSorter.sort(category, items, gearStats)))),
+						orderBlocks(PresetItemSorter.sort(category, items, gearStats)),
 						CosmeticSetSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.CLUES)));
 				case HERBLORE:
 					// The only layout the plan can talk out of its default shape:
 					// see BankLayoutStyles for why moving the doses changes it.
-					if (herbloreRecipeRows)
+					if (herbloreRecipeRows && options.fillHerbloreRows() && destinationTags.isEmpty()
+						&& items.stream().noneMatch(item -> options.blockArrangements().orders().containsKey(tagKeyOf(item))))
 					{
 						return BankCategoryPreview.fromLogicalItems(category,
-							HerbloreItemSorter.layout(items, options.fillHerbloreRows()));
+							HerbloreItemSorter.layout(items));
 					}
 					plainRun = !HerbloreItemSorter.layoutByKindPlacesByColumn(items);
 					return BankCategoryPreview.fromLogicalItems(category,
-						recordBlocks(honorBlockOrder(honorTagOrder(HerbloreItemSorter.layoutByKind(items)))));
+						orderBlocks(HerbloreItemSorter.layoutByKind(items)));
 				case BOSS_LOOT:
 					plainRun = true;
 					return BankCategoryPreview.fromLogicalItems(category,
-						recordBlocks(honorBlockOrder(honorTagOrder(PresetItemSorter.sort(category, items, gearStats)))));
+						orderBlocks(PresetItemSorter.sort(category, items, gearStats)));
 				default:
 					plainRun = true;
 					return BankCategoryPreview.fromLogicalItems(category,
@@ -999,68 +967,100 @@ public final class BankOrganizationPreviewBuilder
 			return options.orderFor(mode) == TabOrder.SEQUENTIAL;
 		}
 
+		private List<BankPreviewItem> toolLayout(List<BankPreviewItem> items)
+		{
+			List<BankPreviewItem> cannon = new ArrayList<>(), tools = new ArrayList<>();
+			for (BankPreviewItem item : items)
+				(GearSetSemanticRuleSet.isCannonPart(item.getItemId()) ? cannon : tools).add(item);
+			cannon = GearItemSorter.bySet(cannon, GearStatsSource.NONE);
+			List<BankPreviewItem> sorted = ToolItemSorter.sort(tools);
+			Map<Integer, Integer> outfitOrder = new HashMap<>();
+			for (Integer id : ToolOutfitSemanticRuleSet.outfitOrder(entriesForItems(entries, sorted)))
+				outfitOrder.put(id, outfitOrder.size());
+			sorted.sort(Comparator.comparingInt(item -> outfitOrder.getOrDefault(item.getItemId(), Integer.MAX_VALUE)));
+			sorted = honorBlockOrder(honorTagOrder(sorted));
+			List<BankPreviewItem> planned = semanticLayout(sorted, ToolOutfitSemanticRuleSet.forEntries(entriesForItems(entries, sorted)),
+				sequential(BankCategorySortMode.TOOLS));
+			Set<Integer> outfitIds = ToolOutfitSemanticRuleSet.outfitItemIds(entriesForItems(entries, sorted));
+			int preferred = planned.size(), outfitEnd = 0;
+			for (int i = 0; i < planned.size(); i++)
+			{
+				int role = ToolItemSorter.roleRank(planned.get(i));
+				if (outfitIds.contains(planned.get(i).getItemId())) outfitEnd = i + 1;
+				if (role == 40 && preferred == planned.size()) preferred = i;
+			}
+			Map<String, List<BankPreviewItem>> finishes = new LinkedHashMap<>();
+			for (BankPreviewItem item : cannon)
+				finishes.computeIfAbsent(BlockKeys.blockKeyOf(item), key -> new ArrayList<>()).add(item);
+			for (List<BankPreviewItem> finish : finishes.values())
+			{
+				int at = -1, distance = Integer.MAX_VALUE;
+				int count = finish.stream().mapToInt(BankPreviewItem::physicalBankSlotCount).sum();
+				int physical = 0;
+				for (int i = 0; i <= planned.size(); i++)
+				{
+					if (i >= outfitEnd && physical % 8 + count <= 8 && Math.abs(i - preferred) < distance)
+					{ at = i; distance = Math.abs(i - preferred); }
+					if (i < planned.size()) physical += planned.get(i).physicalBankSlotCount();
+				}
+				if (at < 0)
+				{
+					planned = new ArrayList<>(cannon);
+					planned.addAll(semanticLayout(sorted, ToolOutfitSemanticRuleSet.forEntries(entriesForItems(entries, sorted))
+						.withGridStartColumn(planned.stream().mapToInt(BankPreviewItem::physicalBankSlotCount).sum() % 8), sequential(BankCategorySortMode.TOOLS)));
+					break;
+				}
+				planned.addAll(at, finish); preferred = at + finish.size(); outfitEnd = Math.max(outfitEnd, preferred);
+			}
+			boolean customCannon = cannon.stream().anyMatch(item -> options.blockArrangements().orders()
+				.getOrDefault(tagKeyOf(item), Collections.emptyList()).contains(BlockKeys.blockKeyOf(item)));
+			return recordBlocks(customCannon ? honorBlockOrder(planned) : planned);
+		}
+
 		/**
 		 * Gear is the one category with two curated grid shapes, so its layout
-		 * carries three values: the four-style best-in-slot matrix (the
+		 * carries three values: the three-style best-gear overview (the
 		 * default), each set as a vertical column, or each set as one run.
 		 */
 		private List<BankPreviewItem> gearLayout(List<BankPreviewItem> items, GearStatsSource gearStats)
 		{
 			if (options.gearLayout() == GearLayout.LIST)
 			{
-				// Each set reads as one run, strongest first, loose gear
-				// flowing after like text.
 				plainRun = true;
-				return new ArrayList<>(recordBlocks(honorBlockOrder(honorTagOrder(GearItemSorter.bySet(items, gearStats)))));
+				return new ArrayList<>(orderBlocks(GearItemSorter.bySet(items, gearStats)));
 			}
-			if (options.gearLayout() == GearLayout.GRID_SETS || !options.fillGearRows())
-			{
-				// The semantic engine stacks each curated set as a vertical
-				// column and arranges the rest of the kit around it, so the
-				// columns stay straight without borrowing filler.
-				List<BankPreviewItem> dense = GearItemSorter.dense(items, gearStats);
-				List<LayoutEntry> denseEntries = entriesForItems(entries, dense);
-				int rows = (denseEntries.size() + GearItemSorter.GRID_COLUMNS - 1)
-					/ GearItemSorter.GRID_COLUMNS;
-				return semanticLayout(dense,
-					GearSetSemanticRuleSet.forEntries(denseEntries, Math.max(1, rows)), false);
-			}
-
 			List<BankPreviewItem> equipment = new ArrayList<>(), ammo = new ArrayList<>();
-			for (BankPreviewItem item : GearItemSorter.dense(items, gearStats))
+			for (BankPreviewItem item : items)
 				(GearItemSorter.isAmmo(item, gearStats) ? ammo : equipment).add(item);
-			GearItemSorter.GearLayout gear = GearItemSorter.plan(equipment, gearStats);
-			List<BankPreviewItem> fallback = new ArrayList<>(gear.getSetupRows());
-			fallback.addAll(GearItemSorter.bySet(gear.getTail(), gearStats));
-			Map<Integer, Integer> targets = GearItemSorter.setupTargets(gear, equipment.size(), gearStats);
-			Map<String, List<BankPreviewItem>> cannons = new LinkedHashMap<>();
-			for (BankPreviewItem item : fallback)
-				if (GearSetSemanticRuleSet.isCannonPart(item.getItemId()))
-					cannons.computeIfAbsent(ItemSetCatalog.setKeyOf(item.getItemId()).get(), key -> new ArrayList<>()).add(item);
-			// Each finish gets its own physical row run; a combined run may be too wide.
-			for (List<BankPreviewItem> cannon : cannons.values())
+			ammo = GearItemSorter.dense(ammo, gearStats);
+			List<BankPreviewItem> planned = new ArrayList<>();
+			List<BankPreviewItem> tail = equipment;
+			if (options.gearLayout() != GearLayout.GRID_SETS && options.fillGearRows())
 			{
-				for (int start = 0; start + cannon.size() <= equipment.size(); start++)
+				GearItemSorter.GearLayout gear = GearItemSorter.plan(equipment, gearStats);
+				boolean repeated = equipment.stream().anyMatch(item -> item.physicalBankSlotCount() > 1);
+				Map<Integer,Integer> targets = repeated ? Collections.emptyMap() : GearItemSorter.setupTargets(gear,equipment.size());
+				if (!targets.isEmpty())
 				{
-					if (start % 8 + cannon.size() > 8) continue;
-					boolean free = true;
-					for (int i = 0; i < cannon.size(); i++) free &= !targets.containsValue(start + i);
-					if (!free) continue;
-					for (int i = 0; i < cannon.size(); i++) targets.put(cannon.get(i).getItemId(), start + i);
-					break;
+					List<BankPreviewItem> dense = new ArrayList<>(gear.getSetupRows());
+					dense.addAll(GearItemSorter.bySet(gear.getTail(),gearStats));
+					Map<Integer,Integer> slots = new HashMap<>();
+					for (BankPreviewItem item : dense) slots.put(item.getItemId(),GearItemSorter.slotRankOf(item,gearStats));
+					planned.addAll(GearSetSemanticRuleSet.packSections(dense,0,slots::get,targets));
+					planned.addAll(ammo); return planned;
 				}
+				planned.addAll(gear.getSetupRows());
+				tail = gear.getTail();
 			}
-			List<LayoutEntry> anchored = new ArrayList<>();
-			for (LayoutEntry entry : entriesForItems(entries, fallback))
+			for (List<BankPreviewItem> section : GearItemSorter.sections(tail, gearStats).values())
 			{
-				Integer target = targets.get(entry.getItem().getItemId());
-				anchored.add(target == null ? entry : entry.withLockedTarget(target));
+				List<BankPreviewItem> dense = GearItemSorter.bySet(section, gearStats);
+				int start = planned.stream().mapToInt(BankPreviewItem::physicalBankSlotCount).sum();
+				Map<Integer, Integer> slots = new HashMap<>();
+				for (BankPreviewItem item : dense) slots.put(item.getItemId(), GearItemSorter.slotRankOf(item, gearStats));
+				planned.addAll(dense.stream().anyMatch(item -> item.physicalBankSlotCount() > 1)
+					? dense : GearSetSemanticRuleSet.packSections(dense, start, slots::get));
 			}
-			int rows = (equipment.size() + 7) / 8;
-			LayoutRequest secondary = GearSetSemanticRuleSet.forEntries(
-				entriesForItems(entries, gear.getTail()), Math.max(1, rows));
-			List<BankPreviewItem> planned = semanticLayout(fallback,
-				new LayoutRequest(anchored, secondary.getRules()), false);
 			planned.addAll(ammo);
 			return planned;
 		}

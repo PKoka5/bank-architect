@@ -109,12 +109,9 @@ public final class BankLayoutOptions
 	}
 
 	/**
-	 * Whether a short Herblore recipe row may be padded out to eight columns.
-	 *
-	 * <p>On, a part-finished recipe borrows from the rest of the tab so the next
-	 * recipe still starts at the left edge. Off, a short row is left short and
-	 * the recipes simply follow each other. A sequential Herblore order implies
-	 * off, since padding is a row concern.</p>
+	 * Whether complete eight-cell Herblore recipes lead the compact by-kind
+	 * remainder. Off groups the entire tab by kind. The stored key is retained
+	 * from the previous row-fill option so existing custom presets still load.
 	 */
 	public boolean fillHerbloreRows()
 	{

@@ -5,40 +5,27 @@ import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * The Herblore tab is arranged one of two ways, and the plan is what decides
- * which: recipe rows while the part doses sit with the herbs, runs by kind once
- * the player moves them onto the tab holding the full potions.
- */
+/** Complete Ironman recipes form rows; remaining ingredients form runs by kind. */
 public class HerbloreLayoutStyleTest
 {
-	// Grimy and clean ranarr and toadflax, a secondary, a seed, an unfinished
-	// potion and three prayer potion doses.
-	private static final BankSnapshot BANK = new BankSnapshot(Arrays.asList(
-		new BankItemSnapshot(207, 5, 0),
-		new BankItemSnapshot(257, 5, 1),
-		new BankItemSnapshot(3049, 4, 2),
-		new BankItemSnapshot(2998, 4, 3),
-		new BankItemSnapshot(231, 20, 4),
-		new BankItemSnapshot(5296, 3, 5),
-		new BankItemSnapshot(99, 4, 6),
-		new BankItemSnapshot(139, 2, 7),
-		new BankItemSnapshot(141, 2, 8),
-		new BankItemSnapshot(143, 2, 9)));
+	private static final int[] RANARR = {207, 257, 5295, 99, 231, 139, 141, 143};
+	private static final BankSnapshot BANK = bank(207, 257, 3049, 2998, 231, 5295,
+		99, 139, 141, 143);
 
 	@Test
 	public void recipeRowsStayWhileThePartDosesSitWithTheHerbs()
 	{
-		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
-
-		assertTrue(BankLayoutStyles.herbloreUsesRecipeRows(plan));
+		assertTrue(BankLayoutStyles.herbloreUsesRecipeRows(BankLayoutPlan.defaultFor(BankPresets.IRONMAN)));
 	}
 
 	@Test
@@ -51,7 +38,6 @@ public class HerbloreLayoutStyleTest
 		assertFalse(BankLayoutStyles.herbloreUsesRecipeRows(plan));
 	}
 
-	/** Moving the doses somewhere else entirely is not the same statement. */
 	@Test
 	public void movingThePartDosesToAnUnrelatedTabKeepsTheRecipeRows()
 	{
@@ -64,101 +50,202 @@ public class HerbloreLayoutStyleTest
 	}
 
 	@Test
-	public void runsByKindKeepEachKindTogetherInChainOrder()
+	public void runsByKindKeepEachKindTogetherInHerbProgressionOrder()
 	{
 		int potionsTab = BankLayoutPlan.defaultFor(BankPresets.IRONMAN).destinationOf("potions");
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
 			.withTagAt("potion-doses", potionsTab);
 		int herbloreTab = plan.destinationOf("clean-herbs");
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			CategoryOverrideSource.NONE, BankLayoutOptions.DEFAULTS);
 
-		List<String> kinds = kindsOn(build(plan), herbloreTab);
-
-		// Each kind appears as one unbroken run: as many runs as distinct kinds.
-		assertEquals(kinds.toString(),
-			new java.util.LinkedHashSet<>(kinds).size(), runCount(kinds));
-
-		// And the runs follow the chain a herb travels, whichever kinds the bank
-		// happens to hold.
-		List<String> expected = Arrays.asList("grimy-herbs", "clean-herbs",
-			"unfinished-potions", "secondaries", "herb-seeds", "potion-doses", "herblore-other");
-		int previous = -1;
-		for (String kind : new java.util.LinkedHashSet<>(kinds))
-		{
-			int position = expected.indexOf(kind);
-			assertTrue(kind + " out of chain order in " + kinds, position > previous);
-			previous = position;
-		}
+		assertEquals(Arrays.asList(207, 3049, 257, 2998, 5295, 99, 231), idsOn(preview, herbloreTab));
+		assertRunsInStageOrder(kindsOn(preview, herbloreTab));
+		assertEquals(10, countItems(preview));
 	}
 
 	@Test
-	public void recipeRowsInterleaveTheKindsInsteadOfRunningThem()
+	public void aCompleteRecipePrecedesTheIncompleteMaterials()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
 		int herbloreTab = plan.destinationOf("clean-herbs");
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			CategoryOverrideSource.NONE, BankLayoutOptions.DEFAULTS);
 
-		List<String> kinds = kindsOn(build(plan), herbloreTab);
+		List<Integer> expected = Arrays.stream(RANARR).boxed().collect(Collectors.toCollection(ArrayList::new));
+		expected.addAll(Arrays.asList(3049, 2998));
+		assertEquals(expected, idsOn(preview, herbloreTab));
+		assertTrue(runCount(kindsOn(preview, herbloreTab)) >
+			new LinkedHashSet<>(kindsOn(preview, herbloreTab)).size());
+	}
 
-		// A row per recipe puts a grimy herb next to its clean one, so the kinds
-		// alternate rather than forming one run each.
-		assertTrue(kinds.toString(), runCount(kinds) > new java.util.LinkedHashSet<>(kinds).size());
+	@Test
+	public void eachMissingRecipeCellMakesTheDefaultIronmanTabUseDenseStageRuns()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int destination = plan.destinationOf("clean-herbs");
+		for (int missing : RANARR)
+		{
+			List<BankItemSnapshot> remaining = BANK.getItems().stream()
+				.filter(item -> item.getItemId() != missing).collect(Collectors.toList());
+			BankOrganizationPreview preview = build(new BankSnapshot(remaining), BankPresets.IRONMAN,
+				plan, CategoryOverrideSource.NONE, BankLayoutOptions.DEFAULTS);
+			List<Integer> expected = new ArrayList<>(Arrays.asList(207, 3049, 257, 2998,
+				5295, 99, 231, 139, 141, 143));
+			expected.remove(Integer.valueOf(missing));
+			assertEquals("Missing recipe ingredient " + missing, expected, idsOn(preview, destination));
+			assertRunsInStageOrder(kindsOn(preview, destination));
+			assertEquals(9, countItems(preview));
+		}
 	}
 
 	@Test
 	public void switchingStyleNeverLosesAnItem()
 	{
 		BankLayoutPlan rows = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
-		int potionsTab = rows.destinationOf("potions");
-		BankLayoutPlan runs = rows.withTagAt("potion-doses", potionsTab);
+		BankLayoutPlan runs = rows.withTagAt("potion-doses", rows.destinationOf("potions"));
 
-		assertEquals(countItems(build(rows)), countItems(build(runs)));
+		assertEquals(countItems(build(BANK, BankPresets.IRONMAN, rows, CategoryOverrideSource.NONE,
+			BankLayoutOptions.DEFAULTS)), countItems(build(BANK, BankPresets.IRONMAN, runs,
+			CategoryOverrideSource.NONE, BankLayoutOptions.DEFAULTS)));
 	}
 
-	private static BankOrganizationPreview build(BankLayoutPlan plan)
+	@Test
+	public void mainPresetKeepsDenseMaterialRunsAndPotionsOnTheirOwnTab()
 	{
-		return BankOrganizationPreviewBuilder.build(BANK, CompositeItemCatalog.DEFAULT,
-			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
-			CategoryOverrideSource.NONE, plan);
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.MAIN);
+		BankOrganizationPreview preview = build(BANK, BankPresets.MAIN, plan,
+			CategoryOverrideSource.NONE, BankLayoutOptions.defaultFor(BankPresets.MAIN));
+
+		assertEquals(Arrays.asList(207, 3049, 257, 2998, 5295, 99, 231),
+			idsOn(preview, plan.destinationOf("clean-herbs")));
+		assertEquals(Arrays.asList(139, 141, 143), idsOn(preview, plan.destinationOf("potions")));
+		assertEquals(10, countItems(preview));
+	}
+
+	@Test
+	public void savedPhysicalBlueprintOrderWinsOverTheHybridRecipeLayout()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		int destination = plan.destinationOf("clean-herbs");
+		List<Integer> chosen = Arrays.asList(2998, 143, 257, 5295, 3049, 99, 141, 207, 231, 139);
+		BankLayoutOptions options = BankLayoutOptions.DEFAULTS.withItemOrders(
+			BlueprintItemOrders.EMPTY.withTab(destination, chosen));
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			CategoryOverrideSource.NONE, options);
+
+		assertEquals(chosen, idsOn(preview, destination));
+		assertEquals(10, countItems(preview));
+	}
+
+	@Test
+	public void customTagOrderWinsOverTheCompleteRecipeLayout()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN)
+			.withTagShifted("clean-herbs", -1);
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			CategoryOverrideSource.NONE, BankLayoutOptions.DEFAULTS);
+
+		assertEquals(Arrays.asList(5295, 257, 2998, 207, 3049, 231, 99, 139, 141, 143),
+			idsOn(preview, plan.destinationOf("clean-herbs")));
+		assertEquals(10, countItems(preview));
+	}
+
+	@Test
+	public void relevantSavedBlockOrderWinsOverTheCompleteRecipeLayout()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		BankLayoutOptions options = BankLayoutOptions.DEFAULTS.withBlockArrangements(
+			BlockArrangements.EMPTY.withTag("clean-herbs", Arrays.asList("item:2998", "item:257")));
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			CategoryOverrideSource.NONE, options);
+
+		assertEquals(Arrays.asList(207, 3049, 2998, 257, 5295, 99, 231, 139, 141, 143),
+			idsOn(preview, plan.destinationOf("clean-herbs")));
+		assertEquals(10, countItems(preview));
+	}
+
+	@Test
+	public void unrelatedCombatBlockOrderDoesNotDisableTheCompleteHerbloreRow()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		BankLayoutOptions options = BankLayoutOptions.DEFAULTS.withBlockArrangements(
+			BlockArrangements.EMPTY.withTag("gear", Arrays.asList("item:11832")));
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			CategoryOverrideSource.NONE, options);
+
+		assertEquals(Arrays.stream(RANARR).boxed().collect(Collectors.toList()),
+			idsOn(preview, plan.destinationOf("clean-herbs")).subList(0, 8));
+		assertEquals(10, countItems(preview));
+	}
+
+	@Test
+	public void manualSecondaryDestinationPreventsAForcedRecipeRow()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
+		BankOrganizationPreview preview = build(BANK, BankPresets.IRONMAN, plan,
+			id -> id == 231 ? Optional.of("raw-resources") : Optional.empty(), BankLayoutOptions.DEFAULTS);
+
+		assertEquals(Arrays.asList(207, 3049, 257, 2998, 5295, 99, 139, 141, 143),
+			idsOn(preview, plan.destinationOf("clean-herbs")));
+		assertEquals(Arrays.asList(231), idsOn(preview, plan.destinationOf("raw-resources")));
+		assertEquals(10, countItems(preview));
+	}
+
+	private static BankSnapshot bank(int... ids)
+	{
+		List<BankItemSnapshot> items = new ArrayList<>();
+		for (int index = 0; index < ids.length; index++) items.add(new BankItemSnapshot(ids[index], 5, index));
+		return new BankSnapshot(items);
+	}
+
+	private static BankOrganizationPreview build(BankSnapshot bank, BankPreset preset,
+		BankLayoutPlan plan, CategoryOverrideSource overrides, BankLayoutOptions options)
+	{
+		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+			GearStatsSource.NONE, ItemValueSource.NONE, overrides, plan, options);
+	}
+
+	private static List<Integer> idsOn(BankOrganizationPreview preview, int destination)
+	{
+		return preview.getCategories().get(destination).getItems().stream()
+			.map(BankPreviewItem::getItemId).collect(Collectors.toList());
 	}
 
 	private static List<String> kindsOn(BankOrganizationPreview preview, int destination)
 	{
-		List<String> kinds = new ArrayList<>();
-		for (BankPreviewItem item : preview.getCategories().get(destination).getItems())
-		{
-			if (!item.isBlank())
-			{
-				kinds.add(BankTags.tagFor("herblore", item.getSubcategory()).getKey());
-			}
-		}
-
-		return kinds;
+		return preview.getCategories().get(destination).getItems().stream()
+			.map(item -> BankTags.tagFor("herblore", item.getSubcategory()).getKey())
+			.collect(Collectors.toList());
 	}
 
-	/** How many times the kind changes as the tab is read left to right. */
+	private static void assertRunsInStageOrder(List<String> kinds)
+	{
+		assertEquals(kinds.toString(), new LinkedHashSet<>(kinds).size(), runCount(kinds));
+		List<String> expected = Arrays.asList("grimy-herbs", "clean-herbs", "herb-seeds",
+			"unfinished-potions", "secondaries", "potion-doses", "herblore-other");
+		int previous = -1;
+		for (String kind : new LinkedHashSet<>(kinds))
+		{
+			int position = expected.indexOf(kind);
+			assertTrue(kind + " out of stage order in " + kinds, position > previous);
+			previous = position;
+		}
+	}
+
 	private static int runCount(List<String> kinds)
 	{
 		int runs = 0;
 		String previous = null;
 		for (String kind : kinds)
 		{
-			if (!kind.equals(previous))
-			{
-				runs++;
-				previous = kind;
-			}
+			if (!kind.equals(previous)) { runs++; previous = kind; }
 		}
-
 		return runs;
 	}
 
 	private static int countItems(BankOrganizationPreview preview)
 	{
-		int count = 0;
-		for (BankCategoryPreview category : preview.getCategories())
-		{
-			count += category.getItemCount();
-		}
-
-		return count;
+		return preview.getCategories().stream().mapToInt(BankCategoryPreview::getItemCount).sum();
 	}
 }

@@ -974,7 +974,7 @@ public class BankOrganizationPreviewBuilderTest
 			List<Integer> expectedSupplies = preset.getType() == BankPresetType.IRONMAN
 				? Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739, 2434, 385)
 				: preset.getType() == BankPresetType.MAIN
-					? Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739, 2434, 139, 141, 143, 385)
+					? Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452, 2446, 2428, 9739, 385)
 					: expected;
 			assertEquals(preset.getType().name(), expectedSupplies, itemIds(supplies));
 			for (BankPreviewItem item : supplies)
@@ -1333,13 +1333,9 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		for (int row = 0; row < rows.length; row++)
-		{
-			assertEquals("melee/strength column", Integer.valueOf(rows[row][0]), target.get(row * 8));
-			assertEquals("ranged column", Integer.valueOf(rows[row][1]), target.get(row * 8 + 1));
-			assertEquals("magic column", Integer.valueOf(rows[row][2]), target.get(row * 8 + 2));
-			assertEquals("prayer column", Integer.valueOf(rows[row][3]), target.get(row * 8 + 3));
-		}
+		for (int style = 0; style < 3; style++)
+			for (int row = 0; row < rows.length; row++)
+				assertEquals("every selected slot stays in its full style column", Integer.valueOf(rows[row][style]), target.get(row * 8 + style));
 		assertEquals(32, new HashSet<>(target).size());
 	}
 
@@ -1389,14 +1385,9 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		for (int row = 0; row < slots.length; row++)
-		{
-			for (int style = 0; style < 4; style++)
-			{
-				assertEquals("best gear keeps its vertical style column",
-					Integer.valueOf(935000 + row * 10 + style), target.get(row * 8 + style));
-			}
-		}
+		for (int style = 0; style < 3; style++)
+			for (int row = 0; row < slots.length; row++)
+				assertEquals("whole primary column uses real bank cells beside secondary families", Integer.valueOf(935000 + row * 10 + style), target.get(row * 8 + style));
 		assertGroupedFamily(target, monk);
 		assertGroupedFamily(target, dharok);
 		assertEquals(snapshots.size(), target.size());
@@ -1458,13 +1449,9 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		assertEquals("Lunar gloves remain the best hands in the Magic column",
-			Integer.valueOf(9099), target.get(6 * 8 + 2));
-		int first = target.indexOf(9096);
-		assertTrue("Lunar remainder uses a spare column beside the best gear", first % 8 >= 4);
+		assertEquals("best Magic gloves occupy their full-column equipment row", 8 * 8 + 2, target.indexOf(9099));
 		List<Integer> remainder = Arrays.asList(9096, 9101, 9102, 9084, 9097, 9098, 9100, 9104);
-		for (int i = 0; i < remainder.size(); i++)
-			assertEquals("Lunar remainder remains vertical", first + i * 8, target.indexOf(remainder.get(i)));
+		assertGroupedFamily(target, remainder);
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
@@ -1514,7 +1501,7 @@ public class BankOrganizationPreviewBuilderTest
 			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
 
-		assertVerticalFamily(target, Arrays.asList(9672, 9674, 9676));
+		assertGroupedFamily(target, Arrays.asList(9672, 9674, 9676));
 		assertEquals(32, new HashSet<>(target).size());
 	}
 
@@ -1565,8 +1552,8 @@ public class BankOrganizationPreviewBuilderTest
 			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
 
-		assertVerticalFamily(target, monk);
-		assertVerticalFamily(target, dharok);
+		assertGroupedFamily(target, monk);
+		assertGroupedFamily(target, dharok);
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
@@ -1632,7 +1619,7 @@ public class BankOrganizationPreviewBuilderTest
 			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
 
-		assertVerticalFamily(target, lunar);
+		assertGroupedFamily(target, lunar);
 		assertEquals(snapshots.size(), target.size());
 		assertEquals(new HashSet<>(itemIdsFromSnapshots(snapshots)), new HashSet<>(target));
 	}
@@ -1897,8 +1884,8 @@ public class BankOrganizationPreviewBuilderTest
 			2434, 139, 141, 143, 3024, 2450, 385);
 		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
 
-		List<Integer> expected = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
-			3024, 2450, 385, 2434, 139, 141, 143);
+		List<Integer> expected = Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452,
+			2446, 2428, 9739, 3024, 2450, 385);
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
 		assertEquals(expected,
@@ -2016,10 +2003,9 @@ public class BankOrganizationPreviewBuilderTest
 			2434, 139, 141, 143, 3024, 385);
 		assertEquals(fallbackOrder, itemIds(SupplyItemSorter.sort(fallbackInput)));
 
-		// Two singles behind the run fill the two-column gap; the run then
-		// starts the second row whole.
-		List<Integer> expected = Arrays.asList(12905, 12913, 2452, 2446, 2428, 9739,
-			3024, 385, 2434, 139, 141, 143);
+		// Main's complete family leads; the default grab-area sorter remains unchanged.
+		List<Integer> expected = Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452,
+			2446, 2428, 9739, 3024, 385);
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
 		assertEquals(expected,

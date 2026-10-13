@@ -572,7 +572,7 @@ public class ResourceItemRegistryTest
 	}
 
 	@Test
-	public void raimentsOfTheEyeOutfitIsFullyRecognizedWithoutTouchingTheAmulet()
+	public void raimentsOfTheEyeOutfitAndItsTeleportAmuletHaveSeparateRoles()
 	{
 		assertCategory(26850, "Hat of the eye", ItemCategory.TOOL);
 		assertCategory(26852, "Robe top of the eye", ItemCategory.TOOL);
@@ -608,13 +608,12 @@ public class ResourceItemRegistryTest
 		assertSubcategory(26872, "skilling-outfit");
 		assertSubcategory(26874, "skilling-outfit");
 
-		// Negative controls: Amulet of the eye shares the "of the eye" phrase but
-		// not the "hat"/"robe top"/"robe bottoms"/"boots" prefix, so it must stay
-		// GEAR and never be swept into the skilling-outfit rule.
-		assertCategory(26914, "Amulet of the eye", ItemCategory.GEAR);
-		assertCategory(26990, "Amulet of the eye", ItemCategory.GEAR);
-		assertCategory(26992, "Amulet of the eye", ItemCategory.GEAR);
-		assertCategory(26994, "Amulet of the eye", ItemCategory.GEAR);
+		// The reusable teleport amulet is separate from the skilling outfit in every color.
+		for (int id : new int[]{26914,26990,26992,26994})
+		{
+			assertCategory(id, "Amulet of the eye", ItemCategory.TELEPORT);
+			assertSubcategory(id, "teleport-reusable");
+		}
 	}
 
 	@Test
@@ -790,7 +789,7 @@ public class ResourceItemRegistryTest
 	public void canonicalBlueDragonScaleAndCombatUtilitiesUseSpecificSemantics()
 	{
 		assertClassification(243, "Blue dragon scale", ItemCategory.HERBLORE, "secondary");
-		assertClassification(10, "Cannon barrels", ItemCategory.GEAR, "cannon-part");
+		assertClassification(10, "Cannon barrels", ItemCategory.TOOL, "cannon-part");
 		assertClassification(805, "Rune thrownaxe", ItemCategory.GEAR, "thrown-weapon");
 		assertClassifications(
 			new int[] {20714, 25574, 30064},
@@ -1244,7 +1243,7 @@ public class ResourceItemRegistryTest
 		// Wiki: https://oldschool.runescape.wiki/w/Runner_hat?oldid=15260301
 		assertAuditFamily(new int[] {20507, 20509, 20511, 24531}, ItemCategory.GEAR, "head");
 		// Wiki: https://oldschool.runescape.wiki/w/Cannon_barrels_(or)?oldid=15190733
-		assertAuditFamily(new int[] {26524}, ItemCategory.GEAR, "cannon-part");
+		assertAuditFamily(new int[] {26524}, ItemCategory.TOOL, "cannon-part");
 		// Wiki: https://oldschool.runescape.wiki/w/Dragon_battleaxe_(cr)?oldid=15191318
 		assertAuditFamily(new int[] {28037}, ItemCategory.GEAR, "weapon");
 
@@ -1667,7 +1666,7 @@ public class ResourceItemRegistryTest
 	{
 		// Every linked revision page and relevant creation/use chain was read in
 		// full. The exact source URLs are documented beside the production cases.
-		assertAuditFamily(new int[] {6, 8, 10}, ItemCategory.GEAR, "cannon-part");
+		assertAuditFamily(new int[] {6, 8, 10}, ItemCategory.TOOL, "cannon-part");
 		assertAuditFamily(new int[] {2886, 9715}, ItemCategory.TOOL, "quest-utility");
 		assertAuditFamily(new int[] {721, 722, 723, 724, 725, 726},
 			ItemCategory.TOOL, "quest-utility");

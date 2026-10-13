@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect;
 
+import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics2D;
@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class HeaderActionsPanelTest
 {
 	private static final String[] VERSIONS = {
-		"0.9.5", "0.9.4", "0.9.3", "0.9.2", "0.9.1", "0.9.0",
+		"0.9.6", "0.9.5", "0.9.4", "0.9.3", "0.9.2", "0.9.1", "0.9.0",
 		"0.8.1", "0.8.0", "0.7.1", "0.7.0", "0.6.0"
 	};
 
@@ -40,7 +40,7 @@ public class HeaderActionsPanelTest
 			try
 			{
 				fixture.panel.onActivate();
-				assertTrue(visible(fixture.panel.getAnalyzeButton(), fixture.panel));
+				assertTrue(visible(fixture.panel.analyzeButton, fixture.panel));
 				for (String action : new String[] {"Updates", "Settings", "GitHub issues"})
 				{
 					JButton shortcut = button(fixture.panel, action);
@@ -53,15 +53,15 @@ public class HeaderActionsPanelTest
 				callbacks(fixture, 1);
 				button(fixture.panel, "Updates").doClick();
 				assertTrue(visible(versions(fixture.panel), fixture.panel));
-				assertFalse(visible(fixture.panel.getAnalyzeButton(), fixture.panel));
+				assertFalse(visible(fixture.panel.analyzeButton, fixture.panel));
 				callbacks(fixture, 2);
 				button(fixture.panel, "Back to planner").doClick();
-				assertTrue(visible(fixture.panel.getAnalyzeButton(), fixture.panel));
+				assertTrue(visible(fixture.panel.analyzeButton, fixture.panel));
 				assertEquals(0, fixture.acknowledgements.get());
 
 				fixture.seen.set("0.9.4");
 				fixture.panel.onActivate();
-				assertFalse(visible(fixture.panel.getAnalyzeButton(), fixture.panel));
+				assertFalse(visible(fixture.panel.analyzeButton, fixture.panel));
 				assertTrue(visible(button(fixture.panel, "Got it - continue"), fixture.panel));
 				callbacks(fixture, 3);
 				button(fixture.panel, "Updates").doClick();
@@ -75,7 +75,7 @@ public class HeaderActionsPanelTest
 				assertEquals(ReleaseNoticePanel.RELEASE_ID, fixture.seen.get());
 				assertEquals(1, fixture.acknowledgements.get());
 				fixture.panel.onActivate();
-				assertTrue(visible(fixture.panel.getAnalyzeButton(), fixture.panel));
+				assertTrue(visible(fixture.panel.analyzeButton, fixture.panel));
 				button(fixture.panel, "Updates").doClick();
 				button(fixture.panel, "Back to planner").doClick();
 				assertEquals(1, fixture.acknowledgements.get());
@@ -93,10 +93,10 @@ public class HeaderActionsPanelTest
 			{
 				fixture.controller.setBankOpen(true);
 				fixture.controller.setGuideEnabled(true);
-				fixture.panel.getTabOrderButton().doClick();
-				String plan = fixture.panel.getLayoutPlan().serialize();
-				Object profile = fixture.panel.getPresetChooser().getSelectedItem();
-				String selectedBlock = fixture.controller.getSelectedBlock().getKey();
+				fixture.panel.tabOrderButton.doClick();
+				String plan = fixture.panel.layoutPlan.serialize();
+				Object profile = fixture.panel.presetChooser.getSelectedItem();
+				BankAnalysisStatus analysis = fixture.controller.bankAnalysisStatus();
 				fixture.panel.onActivate();
 				button(fixture.panel, "Updates").doClick();
 				JComboBox<?> chooser = versions(fixture.panel);
@@ -115,12 +115,13 @@ public class HeaderActionsPanelTest
 					assertEquals(0, fixture.analyses.get());
 				}
 				button(fixture.panel, "Back to planner").doClick();
-				assertTrue(visible(fixture.panel.getAnalyzeButton(), fixture.panel));
+				assertTrue(visible(fixture.panel.analyzeButton, fixture.panel));
 				assertTrue("An already open layout editor should remain open",
-					visible(fixture.panel.getLayoutRows(), fixture.panel));
-				assertEquals(plan, fixture.panel.getLayoutPlan().serialize());
-				assertEquals(profile, fixture.panel.getPresetChooser().getSelectedItem());
-				assertEquals(selectedBlock, fixture.controller.getSelectedBlock().getKey());
+					visible(fixture.panel.layoutRows, fixture.panel));
+				assertEquals(plan, fixture.panel.layoutPlan.serialize());
+				assertEquals(profile, fixture.panel.presetChooser.getSelectedItem());
+				assertSame("Browsing releases must not replace the current bank analysis",
+					analysis, fixture.controller.bankAnalysisStatus());
 				assertTrue(fixture.controller.isGuideEnabled());
 				assertTrue(fixture.controller.isBankOpen());
 				assertFalse(fixture.controller.isCategoryAssignMode());
@@ -146,7 +147,7 @@ public class HeaderActionsPanelTest
 					render(fixture.panel, width, "planner");
 					for (String action : new String[] {"Updates", "Settings", "GitHub issues"})
 						assertFits(fixture.panel, button(fixture.panel, action));
-					assertFits(fixture.panel, fixture.panel.getPresetChooser());
+					assertFits(fixture.panel, fixture.panel.presetChooser);
 					fixture.seen.set("0.9.4");
 					fixture.panel.onActivate();
 					render(fixture.panel, width, "notice");
@@ -318,13 +319,13 @@ public class HeaderActionsPanelTest
 		private final AtomicInteger settings = new AtomicInteger();
 		private final AtomicInteger issues = new AtomicInteger();
 		private final AtomicInteger analyses = new AtomicInteger();
-		private final BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		private final BankGuideController controller = new BankGuideController();
 		private final IronmanBankArchitectPanel panel;
 
 		private Fixture(String seen)
 		{
 			this.seen = new AtomicReference<>(seen);
-			panel = new IronmanBankArchitectPanel(controller, analyses::incrementAndGet);
+			panel = TestBankLayoutModel.panel(controller, analyses::incrementAndGet);
 			panel.configureReleaseNotice(this.seen::get, release -> {
 				acknowledgements.incrementAndGet();
 				this.seen.set(release);

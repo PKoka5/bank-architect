@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.9.5'
+version = '0.9.6'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
@@ -99,8 +99,8 @@ tasks.register('verifySimulationBaselines') {
 	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
 	doLast {
 		def expected = [
-			// Reviewed endgame roles/classifications: docs/testing/endgame-combat-roles-2026-10-10.md.
-			'report.tsv': 'f935328b87c53256136a41ddaf690897ecddd5c330a120c73aee18f3d756de39',
+			// Reviewed compact Herblore: docs/testing/ironman-herblore-hybrid-2026-10-13.md.
+			'report.tsv': '28adedb12c406913a836b193ffc92fc20f10471e7c00bd97fe1b27e4d3ffb2ee',
 			'cleanup-review.tsv': '309480b04ce63ce74996f4b15768e6c9a84e16611338e44c5abf689148bb3091',
 			'aggregate/cleanup-review.tsv': 'fce40d023f6950a6813d97276f3836c73ab801e7c0c2c13235a4e7423f207ce3',
 			'aggregate/metadata.tsv': '76901b09b75f9d8219f3e1ba8b522940af373160718cd09cbf40439db088c3fe'

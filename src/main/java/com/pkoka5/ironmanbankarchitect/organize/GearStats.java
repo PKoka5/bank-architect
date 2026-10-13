@@ -9,6 +9,7 @@ import java.util.Objects;
  */
 public final class GearStats
 {
+	private static final int[] SLOT_RANKS = {0,3,4,8,1,5,2,6,7,12,11};
 	private final GearSlot slot;
 	private final int stabAttack;
 	private final int slashAttack;
@@ -193,33 +194,8 @@ public final class GearStats
 	 */
 	public int slotRank()
 	{
-		switch (slot)
-		{
-			case HEAD:
-				return 0;
-			case BODY:
-				return 1;
-			case LEGS:
-				return 2;
-			case CAPE:
-				return 3;
-			case NECK:
-				return 4;
-			case SHIELD:
-				return 5;
-			case HANDS:
-				return 6;
-			case FEET:
-				return 7;
-			case WEAPON:
-				// Prayer has no weapon column; group prayer weapons with melee.
-				return style() == GearStyle.PRAYER ? 8 : 8 + style().ordinal();
-			case AMMO:
-				return 11;
-			case RING:
-			default:
-				return 12;
-		}
+		return slot == GearSlot.WEAPON ? style() == GearStyle.PRAYER ? 8 : 8 + style().ordinal()
+			: SLOT_RANKS[slot.ordinal()];
 	}
 
 	/**
@@ -234,6 +210,20 @@ public final class GearStats
 			+ Math.max(0, rangedStrength)
 			+ Math.max(0, magicAttack);
 		return offence * 4 + Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
+	}
+
+	/** Whether this accessory has a positive offensive contribution to this style. */
+	public boolean supports(GearStyle style)
+	{
+		return style == GearStyle.MELEE ? Math.max(Math.max(stabAttack,slashAttack),crushAttack) > 0 || meleeStrength > 0
+			: style == GearStyle.RANGED ? rangedAttack > 0 || rangedStrength > 0
+			: style == GearStyle.MAGIC && (magicAttack > 0 || magicDamageTenths > 0);
+	}
+
+	public int power(GearStyle style)
+	{
+		return style == GearStyle.MELEE ? meleeStrength : style == GearStyle.RANGED ? rangedStrength
+			: style == GearStyle.MAGIC ? magicDamageTenths : 0;
 	}
 
 	/** Placement score for one combat role; it is not evidence for alching. */

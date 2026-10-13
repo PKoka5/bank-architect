@@ -76,7 +76,7 @@ public class PlaceholderGearStabilityTest
 	}
 
 	@Test
-	public void withdrawingMeleeSetKeepsVerticalStyleColumnsCompleteInBothRearrangeModes()
+	public void withdrawingMeleeSetKeepsCompactPrimaryStyleRunsCompleteInBothRearrangeModes()
 	{
 		Session session = new Session(preset);
 		int[][] rows = {{BANDOS_BODY, 11828, 21021, 9674}, {BANDOS_LEGS, 11830, 21024, 9676}};
@@ -102,21 +102,33 @@ public class PlaceholderGearStabilityTest
 		List<BankPreviewItem> combat = owned.getCategories()
 			.get(BankLayoutPlan.defaultFor(preset).destinationOf("gear")).getItems();
 		assertEquals(16, combat.size());
+		// Six primary armour pieces and one selected ring cannot fill a vertical
+		// nineteen-cell core. Keep three compact style runs instead; Prayer stays secondary.
+		int[][] positions = {{0, 3, 5}, {1, 4, 6}};
 		Set<Integer> bestPositions = new HashSet<>();
 		for (int row = 0; row < rows.length; row++)
-			for (int style = 0; style < rows[row].length; style++)
+			for (int style = 0; style < 3; style++)
 			{
-				int position = row * 8 + style;
-				assertEquals("Body and legs stay in the same style column", rows[row][style],
+				int position = positions[row][style];
+				assertEquals("Body and legs stay in their compact primary style run", rows[row][style],
 					combat.get(position).getItemId());
 				bestPositions.add(position);
 			}
 		Set<Integer> ringIds = new HashSet<>();
 		for (int id : rings) ringIds.add(id);
+		assertTrue("A selected real ring stays beside the best Melee armour",
+			ringIds.contains(combat.get(2).getItemId()));
+		List<Integer> combatOrder = combatIds(owned);
+		int prayerBody = combatOrder.indexOf(9674);
+		int prayerLegs = combatOrder.indexOf(9676);
+		assertTrue("Prayer armour is retained together behind the three primary styles",
+			prayerBody >= 7 && prayerLegs == prayerBody + 1);
+		bestPositions.add(prayerBody);
+		bestPositions.add(prayerLegs);
 		Set<Integer> placedRings = new HashSet<>();
 		for (int position = 0; position < combat.size(); position++)
 			if (!bestPositions.contains(position)) placedRings.add(combat.get(position).getItemId());
-		assertEquals("Only existing rings occupy the cells beside the vertical armour columns",
+		assertEquals("Only real rings remain around the compact primary and secondary armour runs",
 			ringIds, placedRings);
 		assertPhysicalContents(new BankSnapshot(entries), owned);
 		assertEquals(Integer.valueOf(16), owned.getTagCounts().get("gear"));

@@ -190,7 +190,7 @@ public class KeepCurrentOrderPanelTest
 		for (Component component : panel.getComponents()) if (component instanceof Container) layout((Container) component);
 	}
 
-	private static final class Model implements BankLayoutModel
+	private static final class Model extends TestBankLayoutModel
 	{
 		private BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
 		private int planSaves;

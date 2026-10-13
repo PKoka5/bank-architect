@@ -40,7 +40,7 @@ public class CleanupReviewCurationTest
 		assertGodBookFamily(12610, 12617, 12618, 12619, 12620); // Armadyl
 		assertGodBookFamily(12612, 12621, 12622, 12623, 12624); // Ancient
 
-		assertFamily(ItemCategory.GEAR, "combat-gear", 12863); // Dwarf cannon set
+		assertFamily(ItemCategory.TOOL, "skilling-tools", 12863); // Dwarf cannon set
 		assertFamily(ItemCategory.GEAR, "combat-gear", 19478, 19481, 26712); // Ballista weapons
 		assertFamily(ItemCategory.SKILLING, "resources",
 			19586, 19589, 19592, 19595, 19598, 19604, 19607); // Ballista assembly

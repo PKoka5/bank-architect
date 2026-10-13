@@ -120,7 +120,9 @@ public class GearSlotCoverageTest
 		Collections.reverse(items);
 
 		assertEquals("declared slots place pieces correctly even when the names suggest rings",
-			expected, ids(GearItemSorter.layout(items, GearStatsSource.NONE)));
+			Arrays.asList(expected.get(0), expected.get(1), expected.get(2), expected.get(3), expected.get(7),
+				expected.get(4), expected.get(8), expected.get(5), expected.get(6), expected.get(9), expected.get(10)),
+			ids(GearItemSorter.layout(items, GearStatsSource.NONE)));
 	}
 
 	@Test
@@ -139,11 +141,15 @@ public class GearSlotCoverageTest
 			expected.add(itemId);
 		}
 		Collections.reverse(items);
-		assertEquals(expected, ids(GearItemSorter.dense(items, GearStatsSource.NONE)));
+		assertEquals("loose pieces keep Melee, Ranged, Magic, Prayer and neutral groups in slot order",
+			Arrays.asList(expected.get(4), expected.get(8), expected.get(11), expected.get(9),
+				expected.get(10), expected.get(0), expected.get(1), expected.get(2), expected.get(7),
+				expected.get(3), expected.get(5), expected.get(6), expected.get(12)),
+			ids(GearItemSorter.dense(items, GearStatsSource.NONE)));
 	}
 
 	@Test
-	public void specificPrayerGearStaysInItsColumnWhenItsNameContainsRobe()
+	public void specificPrayerGearIsRetainedWithoutCreatingAFourthPrimaryColumn()
 	{
 		List<BankPreviewItem> items = new ArrayList<>();
 		items.add(new BankPreviewItem(catalogItem(542, "Monk's robe", "legs"), 1));
@@ -155,8 +161,10 @@ public class GearSlotCoverageTest
 			items.add(new BankPreviewItem(catalogItem(FIXTURE_BASE + 600 + index, "Signet " + index, "ring"), 1));
 		}
 		List<BankPreviewItem> layout = GearItemSorter.layout(items, GearStatsSource.NONE);
-		assertEquals("melee, ranged, magic and prayer retain their own cells",
+		assertEquals("Prayer gear follows the three primary styles in a compact sparse bank",
 			Arrays.asList(1079, 2497, 4093, 542), ids(layout.subList(0, 4)));
+		assertEquals("only three offensive styles are selected at the front",
+			Arrays.asList(1079, 2497, 4093), ids(GearItemSorter.plan(items, GearStatsSource.NONE).getSetupRows()));
 		assertEquals(items.size(), layout.size());
 	}
 
@@ -174,34 +182,34 @@ public class GearSlotCoverageTest
 
 	private static void assertGridSlots(String context, List<BankPreviewItem> combat, Fixture fixture)
 	{
-		for (int row = 0; row < WEARABLE_ROWS.length; row++)
-		{
-			for (int style = 0; style < GearStyle.values().length; style++)
-			{
-				assertEquals(context + ", " + WEARABLE_ROWS[row] + " " + GearStyle.values()[style],
-					primaryId(row, style), combat.get(row * GearItemSorter.GRID_COLUMNS + style).getItemId());
-			}
-			for (int column = 0; column < GearItemSorter.GRID_COLUMNS; column++)
-			{
-				assertEquals(context + ", wearable row contains only its own slot",
-					WEARABLE_ROWS[row], fixture.stats.get(combat.get(row * 8 + column).getItemId()).getSlot());
-			}
-		}
+		// Fixture slot rows are independent of the production setup sequence.
+		int[] targetRows = {0, 1, 2, 3, 5, 7, 8, 4};
+		java.util.Set<Integer> primaryCells = new java.util.HashSet<>();
 		for (int style = 0; style < 3; style++)
 		{
-			assertEquals(context + ", weapon style " + GearStyle.values()[style],
-				primaryId(8, style), combat.get(64 + style).getItemId());
+			for (int sourceRow = 0; sourceRow < WEARABLE_ROWS.length; sourceRow++)
+			{
+				int target = targetRows[sourceRow] * 8 + style;
+				primaryCells.add(target);
+				assertEquals(context + ", full-column " + WEARABLE_ROWS[sourceRow] + " " + GearStyle.values()[style],
+					primaryId(sourceRow, style), combat.get(target).getItemId());
+			}
+			primaryCells.add(6 * 8 + style);
+			assertEquals(context + ", weapon remains below its style's accessories", primaryId(8, style),
+				combat.get(6 * 8 + style).getItemId());
 		}
+		primaryCells.add(9 * 8);
+		assertEquals(context + ", the selected Melee ring ends its own column", FIXTURE_BASE + 100,
+			combat.get(9 * 8).getItemId());
+		assertTrue(context + ", spare ring uses a secondary cell",
+			!primaryCells.contains(ids(combat).indexOf(FIXTURE_BASE + 101)));
 		for (int index = 0; index < combat.size(); index++)
 		{
-			GearSlot slot = fixture.stats.get(combat.get(index).getItemId()).getSlot();
-			if (slot == GearSlot.RING)
-			{
-				assertTrue(context + ", rings may fill rows but do not occupy a setup primary",
-					index >= 64 && index % 8 >= 3);
-			}
+			GearStats stats = fixture.stats.get(combat.get(index).getItemId());
+			if (stats.style() == GearStyle.PRAYER)
+				assertTrue(context + ", Prayer gear never displaces a selected primary", !primaryCells.contains(index));
 			assertEquals(context + ", ammunition follows all equipment at cell " + index,
-				index >= 72, slot == GearSlot.AMMO);
+				index >= 73, stats.getSlot() == GearSlot.AMMO);
 		}
 	}
 
@@ -271,6 +279,8 @@ public class GearSlotCoverageTest
 				add(FIXTURE_BASE + 100 + index, "Wizard hat ring token " + index,
 					fullStats(GearSlot.RING, GearStyle.MELEE, 1));
 			}
+			// One actual secondary entry makes the final ring target (72) possible.
+			add(FIXTURE_BASE + 120, "Prayer ring token", fullStats(GearSlot.RING, GearStyle.PRAYER, 1));
 			for (int index = 0; index < 3; index++)
 			{
 				add(FIXTURE_BASE + 110 + index, "Wizard hat ammo token " + index,

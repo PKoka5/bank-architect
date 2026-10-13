@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -27,9 +30,9 @@ public class GearSetSemanticRuleSetTest
 			ids.add(900000 + index);
 		}
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, proselyte);
 		assertVertical(result, mixedHide);
 	}
@@ -44,9 +47,9 @@ public class GearSetSemanticRuleSetTest
 			ids.add(900000 + index);
 		}
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, voidSet);
 	}
 
@@ -64,9 +67,9 @@ public class GearSetSemanticRuleSetTest
 			ids.add(900000 + index);
 		}
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, blueMoon);
 	}
 
@@ -79,9 +82,9 @@ public class GearSetSemanticRuleSetTest
 			ids.add(900000 + index);
 		}
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertEquals(targetFor(result, 9674) + 8, targetFor(result, 9676));
 	}
 
@@ -98,9 +101,9 @@ public class GearSetSemanticRuleSetTest
 			ids.add(901000 + index);
 		}
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, monk);
 		assertVertical(result, dharok);
 	}
@@ -112,9 +115,9 @@ public class GearSetSemanticRuleSetTest
 		List<Integer> ids = new ArrayList<>(mixedDharok);
 		for (int index = 0; index < 28; index++) ids.add(902000 + index);
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, mixedDharok);
 	}
 
@@ -125,9 +128,9 @@ public class GearSetSemanticRuleSetTest
 		List<Integer> ids = new ArrayList<>(mixedCrystal);
 		for (int index = 0; index < 20; index++) ids.add(904000 + index);
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, mixedCrystal);
 	}
 
@@ -141,9 +144,9 @@ public class GearSetSemanticRuleSetTest
 		ids.addAll(justiciar);
 		for (int index = 0; index < 28; index++) ids.add(903000 + index);
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, justiciar);
 		assertVertical(result, blueMoon);
 	}
@@ -155,9 +158,9 @@ public class GearSetSemanticRuleSetTest
 		List<Integer> ids = new ArrayList<>(lunar);
 		for (int index = 0; index < 64; index++) ids.add(905000 + index);
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, lunar);
 	}
 
@@ -169,11 +172,9 @@ public class GearSetSemanticRuleSetTest
 		List<Integer> ids = new ArrayList<>(lunarWithoutBisGloves);
 		for (int index = 0; index < 42; index++) ids.add(907000 + index);
 
-		LayoutRequest request = request(ids);
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(
-			GearSetSemanticRuleSet.forEntries(request.getEntries(), 7), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		int first = targetFor(result, 9096);
 		assertEquals(first + 1, targetFor(result, 9097));
 		assertEquals(first + 8, targetFor(result, 9101));
@@ -191,10 +192,45 @@ public class GearSetSemanticRuleSetTest
 		List<Integer> ids = new ArrayList<>(ghostly);
 		for (int index = 0; index < 42; index++) ids.add(906000 + index);
 
-		LayoutResult result = new SemanticBlockLayoutEngine().plan(request(ids), ids);
+		List<BankPreviewItem> result = pack(ids);
 
-		assertTrue(result.getConflicts().toString(), result.isSuccess());
+		assertPreserved(ids, result);
 		assertVertical(result, ghostly);
+	}
+
+	@Test
+	public void conditionVariantsUseAdjacentCellsWithinTheirEquipmentSlotRows()
+	{
+		List<Integer> crystal = Arrays.asList(23971,23973,23975,23977,23979,23981);
+		List<Integer> ids = new ArrayList<>(crystal);
+		for (int index = 0; index < 12; index++) ids.add(908000 + index);
+		List<BankPreviewItem> result = pack(ids);
+		assertPreserved(ids, result);
+		int first = targetFor(result, 23971);
+		assertEquals(first + 1, targetFor(result, 23973));
+		assertEquals(first + 8, targetFor(result, 23975));
+		assertEquals(first + 9, targetFor(result, 23977));
+		assertEquals(first + 16, targetFor(result, 23979));
+		assertEquals(first + 17, targetFor(result, 23981));
+	}
+
+	@Test
+	public void sparseSetUsesCanonicalDenseOrderInsteadOfInventingVerticalGaps()
+	{
+		List<Integer> ids = Arrays.asList(9672,9674,9676);
+		List<BankPreviewItem> result = pack(ids);
+		assertPreserved(ids, result);
+		assertEquals(ids, result.stream().map(BankPreviewItem::getItemId).collect(Collectors.toList()));
+	}
+
+	@Test
+	public void alternativeWeaponsStayOneCompactCanonicalRoleBlock()
+	{
+		List<Integer> ids = Arrays.asList(22978,22324,26219);
+		List<BankPreviewItem> result = pack(ids);
+		assertPreserved(ids, result);
+		assertEquals(Arrays.asList(26219,22324,22978),
+			result.stream().map(BankPreviewItem::getItemId).collect(Collectors.toList()));
 	}
 
 	@Test
@@ -204,20 +240,37 @@ public class GearSetSemanticRuleSetTest
 			item(544), item(542), item(4716), item(999999));
 
 		assertEquals(Arrays.asList(544, 542),
-			new ArrayList<>(GearSetSemanticRuleSet.presentFamilyItemIds(items)));
+			new ArrayList<>(GearSetSemanticRuleSet.ownedFamilySizeByItemId(items).keySet()));
 	}
 
-	private static LayoutRequest request(List<Integer> ids)
+	private static final Map<Integer, Integer> SLOTS = new LinkedHashMap<>();
+	static
 	{
-		List<LayoutEntry> entries = new ArrayList<>();
-		for (int index = 0; index < ids.size(); index++)
-		{
-			BankPreviewItem item = new BankPreviewItem(new CatalogItem(ids.get(index),
-				"Gear " + ids.get(index), ItemCategory.GEAR, "gear",
-				Collections.emptySet(), null), 1);
-			entries.add(LayoutEntry.of(item, 100 + index));
-		}
-		return GearSetSemanticRuleSet.forEntries(entries);
+		// Independently specified slots; source IDs are never queried from production families.
+		for (int id : new int[] {9672,11665,29019,4716,4881,23971,23973,22326,9096,6109}) SLOTS.put(id, 0);
+		for (int id : new int[] {9674,29280,8839,29013,544,4720,4894,23975,23977,22327,9097,6107}) SLOTS.put(id, 1);
+		for (int id : new int[] {9676,29283,8840,29016,542,4722,4901,23979,23981,22328,9098,6108}) SLOTS.put(id, 2);
+		for (int id : new int[] {9101,6111}) SLOTS.put(id, 3);
+		SLOTS.put(9102, 4);
+		for (int id : new int[] {8842,9099,6110}) SLOTS.put(id, 6);
+		for (int id : new int[] {29286,9100,6106}) SLOTS.put(id, 7);
+		for (int id : new int[] {4718,4889,26219,22324,22978}) SLOTS.put(id, 8);
+		for (int id : new int[] {28988,9084}) SLOTS.put(id, 10);
+		SLOTS.put(9104, 12);
+	}
+
+	private static List<BankPreviewItem> pack(List<Integer> ids)
+	{
+		List<BankPreviewItem> items = ids.stream().map(GearSetSemanticRuleSetTest::item).collect(Collectors.toList());
+		return GearSetSemanticRuleSet.packSections(items, 0, id -> SLOTS.getOrDefault(id, 13));
+	}
+
+	private static void assertPreserved(List<Integer> expected, List<BankPreviewItem> actual)
+	{
+		assertEquals("only actual owned items occupy cells", expected.size(), actual.size());
+		assertEquals("every source ID survives exactly once", new java.util.HashSet<>(expected),
+			actual.stream().map(BankPreviewItem::getItemId).collect(Collectors.toSet()));
+		assertTrue("no invented bank gap", actual.stream().noneMatch(BankPreviewItem::isBlank));
 	}
 
 	private static BankPreviewItem item(int itemId)
@@ -226,7 +279,7 @@ public class GearSetSemanticRuleSetTest
 			ItemCategory.GEAR, "gear", Collections.emptySet(), null), 1);
 	}
 
-	private static void assertVertical(LayoutResult result, List<Integer> ids)
+	private static void assertVertical(List<BankPreviewItem> result, List<Integer> ids)
 	{
 		int first = targetFor(result, ids.get(0));
 		for (int index = 0; index < ids.size(); index++)
@@ -235,15 +288,10 @@ public class GearSetSemanticRuleSetTest
 		}
 	}
 
-	private static int targetFor(LayoutResult result, int itemId)
+	private static int targetFor(List<BankPreviewItem> result, int itemId)
 	{
-		for (LayoutPlacement placement : result.getPlacements())
-		{
-			if (placement.getItem().getItemId() == itemId)
-			{
-				return placement.getTargetIndex();
-			}
-		}
+		for (int index = 0; index < result.size(); index++)
+			if (result.get(index).getItemId() == itemId) return index;
 		throw new AssertionError("missing itemId " + itemId);
 	}
 }

@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class BankOverlayReservations
 {
+	volatile boolean previewActive;
 	private final AtomicReference<Rectangle> legendBounds = new AtomicReference<>();
 
 	/** Records where the legend is drawn this frame. */

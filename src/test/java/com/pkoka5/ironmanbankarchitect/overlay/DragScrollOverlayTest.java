@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectConfig;
 import com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPlugin;
 import com.pkoka5.ironmanbankarchitect.analysis.BankAnalysisStatus;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import com.pkoka5.ironmanbankarchitect.catalog.BankCatalogSummary;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
@@ -237,7 +236,7 @@ public class DragScrollOverlayTest
 		private final Rectangle[] slotBounds = new Rectangle[48];
 		private final boolean[] hidden = new boolean[48];
 		private final Widget[] children = new Widget[48];
-		private final BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		private final BankGuideController controller = new BankGuideController();
 		private final Move move;
 		private final BankGuideOverlay overlay;
 		private final RearrangeMode mode;
@@ -330,7 +329,8 @@ public class DragScrollOverlayTest
 			controller.publishBankAnalysis(BankAnalysisStatus.success(new BankCatalogSummary(48, 0,
 				new EnumMap<>(ItemCategory.class)), preview));
 			controller.setGuideEnabled(true);
-			overlay = new BankGuideOverlay(new IronmanBankArchitectPlugin(), client, controller, config);
+			overlay = new BankGuideOverlay(new IronmanBankArchitectPlugin(), client, controller, config,
+				new BankOverlayReservations(), null);
 		}
 
 		private void startDrag() { dragging = true; draggedWidget = children[move.getFromSlot()]; }

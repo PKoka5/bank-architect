@@ -7,6 +7,9 @@ import static org.junit.Assert.assertTrue;
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
+import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,34 +55,34 @@ public class CombatVerticalLayoutRegressionTest
 			BankOrganizationPreview preview = build(bank, preset, controlledStats());
 			List<BankPreviewItem> combat = combat(preview, preset);
 			List<Integer> ids = ids(combat);
-			assertTrue("fixture must exercise a bank with room for vertical setups", combat.size() >= 80);
+			assertTrue("fixture supplies enough real entries for complete style columns", combat.size() >= 73);
 			for (int style = 0; style < BEST_ARMOUR.length; style++)
 			{
 				assertVerticalColumn(preset.getType() + " primary style " + style,
 					ids, integers(BEST_ARMOUR[style]), style, 0);
 			}
-			assertVerticalColumn(preset.getType() + " Prayer body and legs", ids,
-				Arrays.asList(9674, 9676), 3, 1);
+			assertEquals(preset.getType() + " Range-only synthetic Treads occupy the Ranged boots row",33,ids.indexOf(31088));
+			assertCanonicalBlock(preset.getType() + " retained Prayer armour",ids,Arrays.asList(9674,9676));
 			assertPreserved(bank, preview);
 		}
 	}
 
 	@Test
-	public void secondaryMixedHideAndMonkFamiliesRemainVerticalBesideTheBestGear()
+	public void secondaryMixedHideAndMonkFamiliesStayWholeInsideTheirOwnStyleSections()
 	{
 		for (BankPreset preset : PRESETS)
 		{
 			List<BankItemSnapshot> bank = realBank(false);
 			BankOrganizationPreview preview = build(bank, preset, controlledStats());
 			List<Integer> ids = ids(combat(preview, preset));
-			assertVerticalColumn(preset.getType() + " secondary Mixed hide", ids, MIXED_HIDE);
-			assertVerticalColumn(preset.getType() + " secondary Monk robes", ids, MONK);
+			assertCanonicalBlock(preset.getType() + " secondary Mixed hide", ids, MIXED_HIDE);
+			assertCanonicalBlock(preset.getType() + " secondary Monk robes", ids, MONK);
 			assertPreserved(bank, preview);
 		}
 	}
 
 	@Test
-	public void aBestOwnedMixedHideBootKeepsItsSetupTargetWhileItsRemainingFamilyStaysVertical()
+	public void aBestOwnedMixedHideBootJoinsTheFrontWhileItsRemainingFamilyStaysWhole()
 	{
 		GearStatsSource allStats = controlledStats();
 		GearStatsSource withoutStrongerBoot = id -> id == 31088 ? Optional.empty() : allStats.statsFor(id);
@@ -88,31 +91,59 @@ public class CombatVerticalLayoutRegressionTest
 			List<BankItemSnapshot> bank = realBank(false);
 			BankOrganizationPreview preview = build(bank, preset, withoutStrongerBoot);
 			List<Integer> ids = ids(combat(preview, preset));
-			assertEquals(preset.getType() + " best boot stays in the Ranged feet row", 7 * 8 + 1, ids.indexOf(29286));
-			assertVerticalColumn(preset.getType() + " remaining Mixed hide pieces", ids, MIXED_HIDE.subList(0, 2));
+			assertEquals(preset.getType() + " best Ranged boot occupies the full Ranged boots row",
+				33,ids.indexOf(29286));
+			assertCanonicalBlock(preset.getType() + " remaining Mixed hide pieces", ids, MIXED_HIDE.subList(0, 2));
 			assertPreserved(bank, preview);
 		}
 	}
 
 	@Test
-	public void aFullCannonUsesOneFreeRowWithoutShiftingTheBestGearColumns()
+	public void aFullCannonFormsOneToolsBlockWithoutShiftingTheBestCombatColumns()
 	{
 		for (BankPreset preset : PRESETS)
 		{
 			List<BankItemSnapshot> bank = realBank(false);
 			BankOrganizationPreview preview = build(bank, preset, controlledStats());
 			List<Integer> ids = ids(combat(preview, preset));
-			int first = ids.indexOf(CANNON.get(0));
+			List<Integer> tools = ids(preview.getCategories().get(BankLayoutPlan.defaultFor(preset).destinationOf("tools")).getItems());
+			int first = tools.indexOf(CANNON.get(0));
 			assertTrue(preset.getType() + " missing cannon", first >= 0);
 			assertEquals(preset.getType() + " canonical cannon components form one run", CANNON,
-				ids.subList(first, first + CANNON.size()));
+				tools.subList(first, first + CANNON.size()));
 			assertEquals(preset.getType() + " cannon cannot wrap across opposite bank edges",
 				first / 8, (first + CANNON.size() - 1) / 8);
+			assertFalse(preset.getType() + " cannon is no longer Combat gear", ids.stream().anyMatch(CANNON::contains));
 			for (int style = 0; style < BEST_ARMOUR.length; style++)
 				assertVerticalColumn(preset.getType() + " cannon preserves setup " + style,
 					ids, integers(BEST_ARMOUR[style]), style, 0);
 			assertPreserved(bank, preview);
 		}
+	}
+
+	@Test
+	public void secondaryArmourRemainsVerticalWhenItsOwnSectionProvidesThePhysicalSpace()
+	{
+		int[][] families = {{30750,30753,30756}, {24419,24420,24421}, {22326,22327,22328}};
+		List<BankPreviewItem> section = new ArrayList<>();
+		Map<Integer, Integer> slots = new LinkedHashMap<>();
+		for (int[] family : families)
+			for (int slot = 0; slot < family.length; slot++)
+			{
+				section.add(new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(family[slot]), 1));
+				slots.put(family[slot], slot);
+			}
+		for (int index = 0; index < 12; index++)
+			section.add(new BankPreviewItem(new CatalogItem(988000 + index, "Owned melee support " + index,
+				ItemCategory.GEAR, "ring", Collections.emptySet(), null), 1));
+		List<BankPreviewItem> packed = GearSetSemanticRuleSet.packSections(section, 2, slots::get);
+		List<Integer> packedIds = ids(packed);
+		for (int[] family : families)
+			assertVerticalColumn("owned three-piece family has sufficient section space", packedIds, integers(family));
+		assertEquals("actual same-section support fills the cells between columns", section.size(), packed.size());
+		assertEquals("no invented or missing entries", ids(section).stream().collect(Collectors.toSet()),
+			packedIds.stream().collect(Collectors.toSet()));
+		assertFalse("physical gaps cannot become fabricated bank entries", packed.stream().anyMatch(BankPreviewItem::isBlank));
 	}
 
 	@Test
@@ -254,6 +285,19 @@ public class CombatVerticalLayoutRegressionTest
 		for (int index = 0; index < family.size(); index++)
 			assertEquals(context + " must read down one physical bank column", first + index * 8,
 				ids.indexOf(family.get(index)));
+	}
+
+	private static void assertCanonicalBlock(String context, List<Integer> ids, List<Integer> family)
+	{
+		int first = ids.indexOf(family.get(0));
+		assertTrue(context + " missing first member", first >= 0);
+		boolean vertical = true, compact = true;
+		for (int index = 0; index < family.size(); index++)
+		{
+			vertical &= ids.indexOf(family.get(index)) == first + index * 8;
+			compact &= ids.indexOf(family.get(index)) == first + index;
+		}
+		assertTrue(context + " must remain canonical and cohesive without borrowed padding", vertical || compact);
 	}
 
 	private static void assertPreserved(List<BankItemSnapshot> bank, BankOrganizationPreview preview)

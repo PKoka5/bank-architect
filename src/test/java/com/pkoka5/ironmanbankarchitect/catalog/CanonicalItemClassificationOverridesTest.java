@@ -22,6 +22,18 @@ import static org.junit.Assert.*;
 public class CanonicalItemClassificationOverridesTest
 {
 	@Test
+	public void reportedNonCombatItemsRetainTheirFunctionalCategories()
+	{
+		int[] ids = {1921,9858,21163,6656,6657,6658,26914,26990,26992,26994};
+		ItemCategory[] categories = {ItemCategory.SKILLING,ItemCategory.SKILLING,ItemCategory.TOOL,
+			ItemCategory.CLUE,ItemCategory.CLUE,ItemCategory.CLUE,ItemCategory.TELEPORT,
+			ItemCategory.TELEPORT,ItemCategory.TELEPORT,ItemCategory.TELEPORT};
+		for (int i = 0; i < ids.length; i++)
+			assertEquals("functional category for item " + ids[i], categories[i],
+				CompositeItemCatalog.DEFAULT.describeOrUnknown(ids[i]).getCategory());
+	}
+
+	@Test
 	public void missingResourceBlocksAnalysisWithoutPoisoningCatalogClasses()
 	{
 		assertUnavailable(getClass().getResourceAsStream("/missing-override-test.tsv"));

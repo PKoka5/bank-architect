@@ -22,7 +22,6 @@ import com.pkoka5.ironmanbankarchitect.organize.CategoryOverrideSource;
 import com.pkoka5.ironmanbankarchitect.organize.GearLayout;
 import com.pkoka5.ironmanbankarchitect.organize.GearStatsSource;
 import com.pkoka5.ironmanbankarchitect.organize.ItemValueSource;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
@@ -135,12 +134,12 @@ public class IronmanBankArchitectPanelTest
 	public void analyzeButtonRunsCallback()
 	{
 		AtomicInteger calls = new AtomicInteger();
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
-			new BankGuideController(AllRoundIronmanPreset.create()),
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(
+			new BankGuideController(),
 			calls::incrementAndGet
 		);
 
-		panel.getAnalyzeButton().doClick();
+		panel.analyzeButton.doClick();
 
 		assertEquals(1, calls.get());
 		panel.shutdown();
@@ -149,7 +148,7 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void panelRendersCompactBankScanOverviewFromCatalogSummary()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(209, 1, 1),
@@ -157,16 +156,16 @@ public class IronmanBankArchitectPanelTest
 		));
 		controller.publishBankAnalysis(success(snapshot));
 
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
-		panel.getAnalyzeButton().doClick();
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {});
+		panel.analyzeButton.doClick();
 
-		String labelText = panel.getCatalogSummaryLabel().getText();
+		String labelText = panel.catalogSummaryLabel.getText();
 		assertTrue(labelText.contains("Bank Scan Overview"));
 		assertTrue(labelText.contains("Recognized item IDs: 2"));
 		assertTrue(labelText.contains("Unrecognized IDs: 1"));
 		assertFalse(labelText.contains("Categories:"));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Blueprint ready"));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("3 item IDs sorted"));
+		assertTrue(panel.organizationPreviewLabel.getText().contains("Blueprint ready"));
+		assertTrue(panel.organizationPreviewLabel.getText().contains("3 item IDs sorted"));
 
 		panel.shutdown();
 	}
@@ -174,21 +173,21 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void panelFramesWholeBankOrganizationAsPrimaryFlow()
 	{
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
-			new BankGuideController(AllRoundIronmanPreset.create()),
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(
+			new BankGuideController(),
 			() -> {});
 
 		String panelText = String.join("\n", collectLabelText(panel));
 
-		assertEquals("Ironman", panel.getPresetChooser().getSelectedItem());
-		assertEquals(2, panel.getPresetChooser().getItemCount());
+		assertEquals("Ironman", panel.presetChooser.getSelectedItem());
+		assertEquals(2, panel.presetChooser.getItemCount());
 		assertTrue(panelText.contains("Analyze Bank"));
 		assertTrue(panelText.contains("Analyze your bank, then open the blueprint."));
 		assertTrue(panelText.contains("Guided mode highlights one manual bank action"));
 		assertTrue(panelText.contains("in Swap or Insert mode"));
 		assertTrue(panelText.contains("Guides tab creation and item order"));
 		assertTrue(panelText.contains("Every move stays manual"));
-		assertTrue(panel.getGuideProgressLabel().getText().contains("Analyze your bank"));
+		assertTrue(panel.guideProgressLabel.getText().contains("Analyze your bank"));
 		assertFalse(panelText.contains("Advanced preview block"));
 		assertFalse(panelText.contains("Owned:"));
 		assertFalse(panelText.contains("Missing:"));
@@ -199,22 +198,22 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void restingPanelShowsTheDestinationGridAndKeepsProseFolded()
 	{
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
-			new BankGuideController(AllRoundIronmanPreset.create()),
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(
+			new BankGuideController(),
 			() -> {});
 
 		// One cell per blueprint destination, and the prose starts out of sight.
-		assertEquals(10, panel.getDestinationCells().size());
-		assertFalse("details must start folded", panel.getDetailsPanel().isVisible());
+		assertEquals(10, panel.destinationCells.size());
+		assertFalse("details must start folded", panel.detailsPanel.isVisible());
 		assertTrue("the summary lives inside the folded details",
-			isInside(panel.getDetailsPanel(), panel.getCatalogSummaryLabel()));
-		assertTrue(isInside(panel.getDetailsPanel(), panel.getOrganizationPreviewLabel()));
-		assertTrue(isInside(panel.getDetailsPanel(), panel.getResetOverridesButton()));
+			isInside(panel.detailsPanel, panel.catalogSummaryLabel));
+		assertTrue(isInside(panel.detailsPanel, panel.organizationPreviewLabel));
+		assertTrue(isInside(panel.detailsPanel, panel.resetOverridesButton));
 
 		// Without a scan every cell is empty, so no count is painted.
-		for (IronmanBankArchitectPanel.DestinationCell cell : panel.getDestinationCells())
+		for (IronmanBankArchitectPanel.DestinationCell cell : panel.destinationCells)
 		{
-			assertEquals("", cell.getCount());
+			assertEquals("", cell.count);
 		}
 
 		panel.shutdown();
@@ -223,7 +222,7 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void aScanFillsEveryDestinationCellThatHasItems()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(209, 1, 1),
@@ -231,61 +230,50 @@ public class IronmanBankArchitectPanelTest
 		));
 		controller.publishBankAnalysis(success(snapshot));
 
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
-		panel.getAnalyzeButton().doClick();
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {});
+		panel.analyzeButton.doClick();
 
 		// Herblore holds the two seeds, cleanup review holds the unknown item.
-		assertEquals("2", panel.getDestinationCells().get(3).getCount());
-		assertEquals("1", panel.getDestinationCells().get(9).getCount());
-		assertEquals("", panel.getDestinationCells().get(1).getCount());
+		assertEquals("2", panel.destinationCells.get(3).count);
+		assertEquals("1", panel.destinationCells.get(9).count);
+		assertEquals("", panel.destinationCells.get(1).count);
 
 		panel.shutdown();
-	}
-
-	@Test
-	public void theNextMoveLineKeepsOneSentenceAndParksTheRestInTheTooltip()
-	{
-		assertEquals("", IronmanBankArchitectPanel.firstSentence(""));
-		assertEquals("Drag Mind helmet to tab 2.", IronmanBankArchitectPanel.firstSentence(
-			"Distributing: 99%\nDrag Mind helmet to tab 2. Main is processed top to bottom."));
-		assertEquals("Blueprint complete.",
-			IronmanBankArchitectPanel.firstSentence("Sorting: 100%\nBlueprint complete."));
 	}
 
 	@Test
 	public void categoryCorrectionCardTracksAssignModeAndRecordedCount()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		boolean[] reset = {false};
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {},
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {},
 			(item, label) -> {}, () -> reset[0] = true);
 
 		// The switch carries its state in the tooltip, not in a flipping label.
-		assertEquals("Assign categories", panel.getAssignCategoriesButton().getToolTipText());
-		assertTrue(panel.getCategoryOverrideLabel().getText().contains("No category corrections"));
-		assertFalse(panel.getResetOverridesButton().isEnabled());
+		assertEquals("Assign categories", panel.assignCategoriesButton.getToolTipText());
+		assertTrue(panel.categoryOverrideLabel.getText().contains("No category corrections"));
+		assertFalse(panel.resetOverridesButton.isEnabled());
 
-		panel.getAssignCategoriesButton().doClick();
+		panel.assignCategoriesButton.doClick();
 		assertTrue(controller.isCategoryAssignMode());
-		assertTrue(panel.getAssignCategoriesButton().getToolTipText().contains("right-click"));
-		assertTrue(panel.getCategoryOverrideLabel().getText().contains("Right-click a bank item"));
+		assertTrue(panel.assignCategoriesButton.getToolTipText().contains("right-click"));
+		assertTrue(panel.categoryOverrideLabel.getText().contains("Right-click a bank item"));
 
 		controller.publishCategoryOverrideCount(2);
-		panel.getAssignCategoriesButton().doClick();
+		panel.assignCategoriesButton.doClick();
 		assertFalse(controller.isCategoryAssignMode());
-		assertTrue(panel.getCategoryOverrideLabel().getText().contains("2 items are corrected"));
-		assertTrue(panel.getResetOverridesButton().isEnabled());
+		assertTrue(panel.categoryOverrideLabel.getText().contains("2 items are corrected"));
+		assertTrue(panel.resetOverridesButton.isEnabled());
 
-		panel.getResetOverridesButton().doClick();
+		panel.resetOverridesButton.doClick();
 		assertTrue(reset[0]);
 		panel.shutdown();
 	}
 
 	@Test
-	public void selectedBlockMatchDetailsDoNotRenderInMainOrganizerSidebar()
+	public void organizationPreviewDoesNotRenderPrototypeMatchDetails()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
-		controller.selectBlock("irit-super-attack");
+		BankGuideController controller = new BankGuideController();
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(209, 1, 1),
@@ -293,13 +281,13 @@ public class IronmanBankArchitectPanelTest
 		));
 		controller.publishBankAnalysis(success(snapshot));
 
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
-		panel.getAnalyzeButton().doClick();
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {});
+		panel.analyzeButton.doClick();
 
 		String panelText = String.join("\n", collectLabelText(panel));
-		assertTrue(panel.getCatalogSummaryLabel().getText().contains("Bank Scan Overview"));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains("Blueprint ready"));
-		assertFalse(panel.getOrganizationPreviewLabel().getText().contains("Irit seed"));
+		assertTrue(panel.catalogSummaryLabel.getText().contains("Bank Scan Overview"));
+		assertTrue(panel.organizationPreviewLabel.getText().contains("Blueprint ready"));
+		assertFalse(panel.organizationPreviewLabel.getText().contains("Irit seed"));
 		assertFalse(panelText.contains("Owned:"));
 		assertFalse(panelText.contains("Missing:"));
 
@@ -309,40 +297,40 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void guideProgressBarOnlyShowsWithAMeaningfulPercent()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(new BankItemSnapshot(5297, 1, 0)));
 		controller.publishBankAnalysis(success(snapshot));
 		controller.setBankOpen(true);
 		controller.toggleGuide();
 		controller.publishGuideProgress("Sorting", 42);
 
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {});
 
-		assertTrue(panel.getGuideProgressBar().isVisible());
-		assertEquals(42, panel.getGuideProgressBar().getPercentage());
+		assertTrue(panel.guideProgressBar.isVisible());
+		assertEquals(42, panel.guideProgressBar.getPercentage());
 		panel.shutdown();
 	}
 
 	@Test
 	public void guideProgressBarStaysHiddenWithoutGuidance()
 	{
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
-			new BankGuideController(AllRoundIronmanPreset.create()), () -> {});
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(
+			new BankGuideController(), () -> {});
 
-		assertFalse(panel.getGuideProgressBar().isVisible());
+		assertFalse(panel.guideProgressBar.isVisible());
 		panel.shutdown();
 	}
 
 	@Test
 	public void failedAnalysisReplacesBothOutputsWithTheGenericFailure()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		controller.publishBankAnalysis(BankAnalysisStatus.failed());
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {});
 
-		assertTrue(panel.getCatalogSummaryLabel().getText().contains(BankAnalysisStatus.FAILED_TEXT));
-		assertTrue(panel.getOrganizationPreviewLabel().getText().contains(BankAnalysisStatus.FAILED_TEXT));
-		assertFalse(panel.getShowBankButton().isEnabled());
+		assertTrue(panel.catalogSummaryLabel.getText().contains(BankAnalysisStatus.FAILED_TEXT));
+		assertTrue(panel.organizationPreviewLabel.getText().contains(BankAnalysisStatus.FAILED_TEXT));
+		assertFalse(panel.showBankButton.isEnabled());
 
 		panel.shutdown();
 	}
@@ -350,8 +338,8 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void sidebarCardsAndButtonsStayInsideTheVisibleViewport()
 	{
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(
-			new BankGuideController(AllRoundIronmanPreset.create()), () -> {});
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(
+			new BankGuideController(), () -> {});
 		panel.setSize(225, 400);
 		layoutTree(panel);
 
@@ -363,10 +351,10 @@ public class IronmanBankArchitectPanelTest
 			scrollPane.getViewport().getView().getPreferredSize().width <= viewportWidth);
 
 		Rectangle analyzeBounds = SwingUtilities.convertRectangle(
-			panel.getAnalyzeButton().getParent(), panel.getAnalyzeButton().getBounds(),
+			panel.analyzeButton.getParent(), panel.analyzeButton.getBounds(),
 			scrollPane.getViewport());
 		Rectangle showBankBounds = SwingUtilities.convertRectangle(
-			panel.getShowBankButton().getParent(), panel.getShowBankButton().getBounds(),
+			panel.showBankButton.getParent(), panel.showBankButton.getBounds(),
 			scrollPane.getViewport());
 		assertTrue(analyzeBounds.x >= 0
 			&& analyzeBounds.x + analyzeBounds.width <= viewportWidth);
@@ -462,7 +450,7 @@ public class IronmanBankArchitectPanelTest
 
 	private static String layoutTagText(IronmanBankArchitectPanel panel, String tagName)
 	{
-		for (String text : collectLabelText(panel.getLayoutRows()))
+		for (String text : collectLabelText(panel.layoutRows))
 		{
 			if (text.contains(tagName))
 			{
@@ -485,7 +473,7 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	/** A model backed by a plan in memory, standing in for the config. */
-	private static final class RecordingLayoutModel implements BankLayoutModel
+	private static final class RecordingLayoutModel extends TestBankLayoutModel
 	{
 		private BankLayoutPlan stored = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
 		private int saves;
@@ -512,8 +500,8 @@ public class IronmanBankArchitectPanelTest
 
 	private static IronmanBankArchitectPanel panelWith(BankLayoutModel model)
 	{
-		return new IronmanBankArchitectPanel(
-			new BankGuideController(AllRoundIronmanPreset.create()), () -> {}, (item, label) -> {},
+		return TestBankLayoutModel.panel(
+			new BankGuideController(), () -> {}, (item, label) -> {},
 			() -> {}, model);
 	}
 
@@ -522,10 +510,10 @@ public class IronmanBankArchitectPanelTest
 	{
 		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
 
-		assertTrue(panel.getTabOrderButton().isEnabled());
+		assertTrue(panel.tabOrderButton.isEnabled());
 		assertFalse(panel.isLayoutEditorVisible());
 
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		assertTrue(panel.isLayoutEditorVisible());
 		panel.shutdown();
@@ -534,7 +522,7 @@ public class IronmanBankArchitectPanelTest
 	@Test
 	public void openLayoutEditorRepopulatesCountsWhenAnalysisSucceeds()
 	{
-		BankGuideController controller = new BankGuideController(AllRoundIronmanPreset.create());
+		BankGuideController controller = new BankGuideController();
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(209, 1, 1),
@@ -548,17 +536,17 @@ public class IronmanBankArchitectPanelTest
 			.orElseThrow(AssertionError::new);
 		String tagName = BankTags.byKey(populatedTag.getKey()).getName();
 		controller.publishBankAnalysis(successfulAnalysis);
-		IronmanBankArchitectPanel panel = new IronmanBankArchitectPanel(controller, () -> {});
-		panel.getTabOrderButton().doClick();
+		IronmanBankArchitectPanel panel = TestBankLayoutModel.panel(controller, () -> {});
+		panel.tabOrderButton.doClick();
 
 		assertTrue(layoutTagText(panel, tagName).contains(">" + populatedTag.getValue() + " items<"));
 
 		controller.publishBankAnalysis(BankAnalysisStatus.running());
-		panel.getAnalyzeButton().doClick();
+		panel.analyzeButton.doClick();
 		assertTrue(layoutTagText(panel, tagName).contains(">0 items<"));
 
 		controller.publishBankAnalysis(successfulAnalysis);
-		panel.getAnalyzeButton().doClick();
+		panel.analyzeButton.doClick();
 		assertTrue(layoutTagText(panel, tagName).contains(">" + populatedTag.getValue() + " items<"));
 
 		panel.shutdown();
@@ -573,7 +561,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 		int gearTab = model.plan().destinationOf("gear");
 
 		panel.moveTagTo("runes", gearTab);
@@ -589,7 +577,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		for (String key : new ArrayList<>(
 			model.plan().getTagKeys(BankLayoutPlan.MAIN_DESTINATION_INDEX)))
@@ -607,7 +595,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		panel.removeFromTab("potions");
 
@@ -621,7 +609,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 		int before = model.plan().destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY);
 
 		panel.removeFromTab(BankLayoutPlan.FALLBACK_TAG_KEY);
@@ -637,7 +625,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		panel.moveTagTo("gems", 2);
 		panel.moveTagTo("food", 2);
@@ -654,10 +642,10 @@ public class IronmanBankArchitectPanelTest
 	public void everyTagGetsARowSoNoneIsUnreachable()
 	{
 		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().size(),
-			countRows(panel.getLayoutRows()));
+			countRows(panel.layoutRows));
 		panel.shutdown();
 	}
 	/**
@@ -669,31 +657,31 @@ public class IronmanBankArchitectPanelTest
 	public void tabsAreNumberedFromTheFirstRealTabNotFromTheMainSection()
 	{
 		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		panel.selectDestination(BankLayoutPlan.MAIN_DESTINATION_INDEX);
-		assertTrue(headingOf(panel).contains("Main section"));
+		assertTrue(destinationText(panel, BankLayoutPlan.MAIN_DESTINATION_INDEX).startsWith("Main section"));
 
 		panel.selectDestination(3);
-		String heading = headingOf(panel);
-		assertTrue(heading, heading.contains("Tab 3"));
+		String heading = destinationText(panel, 3);
+		assertTrue(heading, heading.startsWith("Tab 3"));
 		assertFalse(heading, heading.contains("Tab 4"));
 		panel.shutdown();
 	}
 
-	/** The heading names what the destination holds, not just its number. */
+	/** The visible destination section names the categories placed on that tab. */
 	@Test
-	public void theHeadingSpellsOutWhichCategoriesAreOnTheShownTab()
+	public void theVisibleSectionSpellsOutWhichCategoriesAreOnTheShownTab()
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 		int storage = model.plan().destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY);
 
 		panel.moveTagTo("cosmetics", storage);
 		panel.selectDestination(storage);
 
-		String heading = headingOf(panel);
+		String heading = destinationText(panel, storage);
 		assertTrue(heading, heading.contains(
 			com.pkoka5.ironmanbankarchitect.organize.BankTags.byKey("cosmetics").getName()));
 		assertTrue(heading, heading.contains(
@@ -708,10 +696,10 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		List<String> headings = new ArrayList<>();
-		for (Component child : panel.getLayoutRows().getComponents())
+		for (Component child : panel.layoutRows.getComponents())
 		{
 			if (child instanceof JLabel)
 			{
@@ -739,7 +727,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		for (String key : new ArrayList<>(
 			model.plan().getTagKeys(BankLayoutPlan.MAIN_DESTINATION_INDEX)))
@@ -748,7 +736,7 @@ public class IronmanBankArchitectPanelTest
 		}
 
 		boolean sawEmptyNote = false;
-		for (Component child : panel.getLayoutRows().getComponents())
+		for (Component child : panel.layoutRows.getComponents())
 		{
 			sawEmptyNote = sawEmptyNote || (child instanceof JLabel
 				&& ((JLabel) child).getText().startsWith("Empty"));
@@ -766,10 +754,10 @@ public class IronmanBankArchitectPanelTest
 	public void everyRowInTheEditorSharesOneLeftEdgeAndOneWidth()
 	{
 		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		int width = -1;
-		for (Component child : panel.getLayoutRows().getComponents())
+		for (Component child : panel.layoutRows.getComponents())
 		{
 			if (child instanceof Box.Filler)
 			{
@@ -793,11 +781,11 @@ public class IronmanBankArchitectPanelTest
 	{
 		RecordingLayoutModel model = new RecordingLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		int rows = 0;
 		int enabledRemovals = 0;
-		for (Component child : panel.getLayoutRows().getComponents())
+		for (Component child : panel.layoutRows.getComponents())
 		{
 			if (!(child instanceof JPanel))
 			{
@@ -828,13 +816,13 @@ public class IronmanBankArchitectPanelTest
 	{
 		ProfileLayoutModel model = new ProfileLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
-		assertEquals("Ironman", panel.getPresetChooser().getSelectedItem());
+		assertEquals("Ironman", panel.presetChooser.getSelectedItem());
 
 		panel.moveTagTo("runes", 6);
 
-		assertEquals("Ironman: Custom layout", panel.getPresetChooser().getSelectedItem());
+		assertEquals("Ironman: Custom layout", panel.presetChooser.getSelectedItem());
 		panel.shutdown();
 	}
 
@@ -843,15 +831,15 @@ public class IronmanBankArchitectPanelTest
 	{
 		ProfileLayoutModel model = new ProfileLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		panel.moveTagTo("runes", 6);
-		model.saveProfile("Maugor setup", panel.getLayoutPlan());
-		panel.getTabOrderButton().doClick();
-		panel.getTabOrderButton().doClick();
+		model.saveProfile("Maugor setup", panel.layoutPlan);
+		panel.tabOrderButton.doClick();
+		panel.tabOrderButton.doClick();
 
-		assertEquals("Ironman", panel.getPresetChooser().getItemAt(0));
-		assertEquals("Ironman: Maugor setup", panel.getPresetChooser().getSelectedItem());
+		assertEquals("Ironman", panel.presetChooser.getItemAt(0));
+		assertEquals("Ironman: Maugor setup", panel.presetChooser.getSelectedItem());
 		panel.shutdown();
 	}
 
@@ -863,7 +851,7 @@ public class IronmanBankArchitectPanelTest
 			IronmanBankArchitectPanel panel = panelWith(model);
 			try
 			{
-				panel.getTabOrderButton().doClick();
+				panel.tabOrderButton.doClick();
 				BankLayoutPlan incoming = model.plan().withTagAt("runes", 9).withTagAt("food", 8);
 				model.save(incoming);
 				try
@@ -876,7 +864,7 @@ public class IronmanBankArchitectPanelTest
 				{
 					throw new AssertionError(ex);
 				}
-				assertEquals(incoming.getDestinations(), panel.getLayoutPlan().getDestinations());
+				assertEquals(incoming.getDestinations(), panel.layoutPlan.getDestinations());
 			}
 			finally { panel.shutdown(); }
 		});
@@ -890,7 +878,7 @@ public class IronmanBankArchitectPanelTest
 			IronmanBankArchitectPanel panel = panelWith(model);
 			try
 			{
-				panel.getTabOrderButton().doClick();
+				panel.tabOrderButton.doClick();
 				BankLayoutPlan incoming = model.plan().withTagAt("runes", 9);
 				model.save(incoming);
 				panel.moveTagTo("food", 8);
@@ -908,7 +896,7 @@ public class IronmanBankArchitectPanelTest
 			IronmanBankArchitectPanel panel = panelWith(model);
 			try
 			{
-				panel.getTabOrderButton().doClick();
+				panel.tabOrderButton.doClick();
 				BankLayoutPlan incoming = model.plan().withTagAt("runes", 9)
 					.withTagAt("food", 8).withTagAt("cosmetics", 8);
 				model.save(incoming);
@@ -929,22 +917,22 @@ public class IronmanBankArchitectPanelTest
 			IronmanBankArchitectPanel panel = panelWith(model);
 			try
 			{
-				panel.getTabOrderButton().doClick();
-				assertEquals("Ironman: Profile A", panel.getPresetChooser().getSelectedItem());
-				assertTrue(panel.getAlchPileBox().isSelected());
-				assertFalse(panel.getShowBankButton().isEnabled());
+				panel.tabOrderButton.doClick();
+				assertEquals("Ironman: Profile A", panel.presetChooser.getSelectedItem());
+				assertTrue(panel.alchPileBox.isSelected());
+				assertFalse(panel.showBankButton.isEnabled());
 				model.profiles = BankLayoutProfiles.parse("", "").withProfile("Profile B", unchangedPlan.serialize());
 				model.working = unchangedPlan;
 				model.layoutOptions = new BankLayoutOptions(false, false, false);
 
 				panel.refreshSettings();
 
-				assertEquals("Ironman: Profile B", panel.getPresetChooser().getSelectedItem());
-				assertEquals(3, panel.getPresetChooser().getItemCount());
-				assertEquals("Ironman: Profile B", panel.getPresetChooser().getItemAt(2));
-				assertFalse(panel.getAlchPileBox().isSelected());
-				assertEquals(unchangedPlan.getDestinations(), panel.getLayoutPlan().getDestinations());
-				assertFalse(panel.getShowBankButton().isEnabled());
+				assertEquals("Ironman: Profile B", panel.presetChooser.getSelectedItem());
+				assertEquals(3, panel.presetChooser.getItemCount());
+				assertEquals("Ironman: Profile B", panel.presetChooser.getItemAt(2));
+				assertFalse(panel.alchPileBox.isSelected());
+				assertEquals(unchangedPlan.getDestinations(), panel.layoutPlan.getDestinations());
+				assertFalse(panel.showBankButton.isEnabled());
 			}
 			finally { panel.shutdown(); }
 		});
@@ -960,11 +948,11 @@ public class IronmanBankArchitectPanelTest
 	{
 		ProfileLayoutModel model = new ProfileLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
-		assertTrue(panel.getAlchPileBox().isSelected());
+		assertTrue(panel.alchPileBox.isSelected());
 
-		panel.getAlchPileBox().doClick();
+		panel.alchPileBox.doClick();
 
 		assertFalse(model.options().alchPile());
 		panel.shutdown();
@@ -980,7 +968,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		ProfileLayoutModel model = new ProfileLayoutModel();
 		IronmanBankArchitectPanel panel = panelWith(model);
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
 		JComboBox<?> chooser = findChooserOver(panel, GearLayout.class);
 		assertNotNull("the gear tab should carry a layout choice", chooser);
@@ -1002,7 +990,7 @@ public class IronmanBankArchitectPanelTest
 	public void theLayoutChooserNamesItselfWhileClosed()
 	{
 		IronmanBankArchitectPanel panel = panelWith(new ProfileLayoutModel());
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 		JComboBox<?> chooser = findChooserOver(panel, GearLayout.class);
 		ListCellRenderer<Object> renderer =
 			(ListCellRenderer<Object>) chooser.getRenderer();
@@ -1052,9 +1040,9 @@ public class IronmanBankArchitectPanelTest
 		model.saveOptions(new BankLayoutOptions(false, false, false));
 		IronmanBankArchitectPanel panel = panelWith(model);
 
-		panel.getTabOrderButton().doClick();
+		panel.tabOrderButton.doClick();
 
-		assertFalse(panel.getAlchPileBox().isSelected());
+		assertFalse(panel.alchPileBox.isSelected());
 		panel.shutdown();
 	}
 
@@ -1069,14 +1057,14 @@ public class IronmanBankArchitectPanelTest
 		IronmanBankArchitectPanel panel = panelWith(model);
 		try
 		{
-			panel.getTabOrderButton().doClick();
-			panel.getAlchPileBox().doClick();
+			panel.tabOrderButton.doClick();
+			panel.alchPileBox.doClick();
 			assertEquals(GearLayout.LIST, model.options().gearLayout());
 			assertFalse(model.options().fillHerbloreRows());
 			assertFalse(model.options().gatherFrequentlyUsed());
 			assertTrue(model.options().alchPile());
-			assertEquals("Ironman: Custom layout", panel.getPresetChooser().getSelectedItem());
-			JComboBox<?> gear = findChooserOver(panel.getLayoutRows(), GearLayout.class);
+			assertEquals("Ironman: Custom layout", panel.presetChooser.getSelectedItem());
+			JComboBox<?> gear = findChooserOver(panel.layoutRows, GearLayout.class);
 			gear.setSelectedItem(GearLayout.GRID_SETS);
 			assertFalse(model.options().gatherFrequentlyUsed());
 			assertFalse(model.options().fillHerbloreRows());
@@ -1085,7 +1073,7 @@ public class IronmanBankArchitectPanelTest
 	}
 
 	/** A model that keeps its profiles in memory, standing in for the config. */
-	private static final class ProfileLayoutModel implements BankLayoutModel
+	private static final class ProfileLayoutModel extends TestBankLayoutModel
 	{
 		private BankLayoutPlan working = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
 		private BankLayoutProfiles profiles = BankLayoutProfiles.parse("", "");
@@ -1172,9 +1160,32 @@ public class IronmanBankArchitectPanelTest
 		}
 	}
 
-	private static String headingOf(IronmanBankArchitectPanel panel)
+	private static String destinationText(IronmanBankArchitectPanel panel, int destination)
 	{
-		return panel.getLayoutHeading().getText();
+		String expected = destination == 0 ? "Main section" : "Tab " + destination;
+		StringBuilder text = new StringBuilder();
+		boolean collecting = false;
+		for (Component child : panel.layoutRows.getComponents())
+		{
+			if (child instanceof JLabel)
+			{
+				String label = ((JLabel) child).getText();
+				boolean header = label.startsWith("Main section") || label.matches("Tab [1-9]( -.*)?");
+				if (header)
+				{
+					if (collecting) break;
+					collecting = label.equals(expected) || label.startsWith(expected + " -");
+				}
+				if (collecting) text.append(label).append('\n');
+			}
+			else if (collecting && child instanceof Container)
+			{
+				assertTrue("Destination content must be visible", child.isVisible());
+				collectLabelText((Container) child).forEach(label -> text.append(label).append('\n'));
+			}
+		}
+		assertTrue("Missing visible heading for " + expected, text.length() > 0);
+		return text.toString();
 	}
 
 	private static int countRows(JPanel rows)

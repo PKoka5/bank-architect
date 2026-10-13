@@ -25,7 +25,7 @@
 0/weapon-demonbane/emberlight	29589
 0/weapon-demonbane/arclight	19675
 100/weapon-ranged-bow/twisted	20997
-0/weapon-ranged-bow/bowfa	25862,25865,25867,25884,25886,25888,25890,25892,25894,25896
+0/weapon-ranged-bow/bowfa	25862,25865,25867,25884,25886,25888,25890,25892,25894,25896,33021
 0/weapon-ranged-bow/venator	27610,27612
 0/weapon-ranged-demonbane/scorching	29591
 0/weapon-ranged-wilderness/webweaver	27655,27652
@@ -46,3 +46,29 @@
 0/weapon-magic-special/nightmare	24424,24425
 0/weapon-magic-special/accursed	27662,27665,27676,27679
 0/weapon-defence/bulwark	21015
+
+# Reviewed midgame roles from the reported bank and public RuneLite equipment snapshot, 2026-10-12.
+0/support-ring/lightbearer	25975
+-1/support-slayer/witchwood	8923
+0/weapon-slash/dragon-scimitar	4587
+-1/weapon-quest/shadow-sword	10858
+0/weapon-stab/abyssal-dagger	13265,13267,13269,13271
+0/weapon-crush/macuahuitl	28997
+0/weapon-crush/temotli	29889
+-1/weapon-special/anchor	10887
+-1/weapon-special/prayer-restore	11061
+0/weapon-demonbane/darklight	6746
+0/weapon-task/vampyre	24699
+0/weapon-task/turoth	4158
+0/weapon-task/shade	7668
+0/weapon-ranged-bow/crystal	23985
+0/weapon-ranged-bow/shortbow	12788
+0/weapon-ranged-bow/longbow	859,855,847
+0/weapon-ranged-crossbow/dorgeshuun	8880
+0/weapon-ranged-thrown/throwing	805,865
+0/weapon-ranged-area/chinchompa	10033,10034
+0/weapon-ranged-task/ogre	4827
+0/weapon-magic-spell/iban	12658
+0/weapon-magic-elemental/staves	1381,1383,1385,1393,3053
+0/weapon-magic-transport/lunar	9084
+0/weapon-magic-casting/ancient-basic	4675

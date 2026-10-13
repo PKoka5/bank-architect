@@ -82,7 +82,7 @@ public class CombatGearGroupingRegressionTest
 	}
 
 	@Test
-	public void compactFrontContainsOnlyBestPiecesAndKeepsWholeSecondaryFamiliesInTheTail()
+	public void primarySelectionContainsOnlyBestPiecesAndKeepsWholeSecondaryFamiliesInTheTail()
 	{
 		List<int[]> families = Arrays.asList(RADIANT_OATHPLATE, ARMADYL, MYSTIC_DARK, MYSTIC_LIGHT);
 		for (int familyIndex = 0; familyIndex < families.size(); familyIndex++)
@@ -107,8 +107,10 @@ public class CombatGearGroupingRegressionTest
 			String context = "secondary family " + family[0];
 
 			assertTrue(context + ", reviewed members share the grouping dictionary",
-				GearSetSemanticRuleSet.presentFamilyItemIds(items).containsAll(integers(family)));
-			assertEquals(context + ", front contains only actual best pieces", primaryIds, ids(plan.getSetupRows()));
+				GearSetSemanticRuleSet.ownedFamilySizeByItemId(items).keySet().containsAll(integers(family)));
+			List<Integer> expectedPrimary = new ArrayList<>(primaryIds);
+			if (family.length == 5) Collections.swap(expectedPrimary, 3, 4);
+			assertEquals(context + ", primary order is head, body, legs, boots, gloves", expectedPrimary, ids(plan.getSetupRows()));
 			assertEquals(context + ", no secondary member becomes filler or a second promoted primary",
 				integers(family), ids(plan.getTail()));
 			assertPreserved(context, ids(items), GearItemSorter.layout(items, source));
@@ -116,7 +118,7 @@ public class CombatGearGroupingRegressionTest
 	}
 
 	@Test
-	public void defaultGridsKeepPartialMixedBarrowsStatesInVerticalColumnsBesideBestGear()
+	public void sparsePrimaryColumnsUseRealCapacityAndKeepCanonicalSecondaryFamilies()
 	{
 		List<Integer> primary = Arrays.asList(30753, 30756);
 		List<Integer> dharok = Arrays.asList(4894, 4901);
@@ -140,18 +142,18 @@ public class CombatGearGroupingRegressionTest
 				catalog, preset, source, ItemValueSource.NONE, CategoryOverrideSource.NONE,
 				plan, BankLayoutOptions.defaultFor(preset));
 			List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();
-			String context = preset.getType() + ", vertical partial Barrows families";
+			String context = preset.getType() + ", full primary column and partial Barrows families";
 
-			assertVerticalFamily(context + ", best body and legs", ids(combat), primary);
-			assertEquals(context + ", best body starts the melee column", (int) primary.get(0), combat.get(0).getItemId());
-			assertVerticalFamily(context + ", Dharok", ids(combat), dharok);
-			assertVerticalFamily(context + ", Guthan", ids(combat), guthan);
+			assertEquals(context + ", primary body starts its Melee column", primary.get(0), Integer.valueOf(combat.get(0).getItemId()));
+			assertEquals(context + ", primary legs sit beneath the body", primary.get(1), Integer.valueOf(combat.get(8).getItemId()));
+			assertGroupedFamily(context + ", Dharok", ids(combat), dharok);
+			assertGroupedFamily(context + ", Guthan", ids(combat), guthan);
 			assertPreserved(context, input, preview.getPlannedItems());
 		}
 	}
 
 	@Test
-	public void twelveBestPiecesAndTwoFivePieceMysticFamiliesKeepTheirVerticalColumns()
+	public void fullPrimaryColumnsKeepSecondaryMysticAndPrayerAsIndependentGear()
 	{
 		List<Integer> primaryIds = new ArrayList<>();
 		Map<Integer, CatalogItem> primaryCatalog = new LinkedHashMap<>();
@@ -184,8 +186,12 @@ public class CombatGearGroupingRegressionTest
 		List<BankPreviewItem> items = input.stream()
 			.map(id -> new BankPreviewItem(catalog.describeOrUnknown(id), 1)).collect(Collectors.toList());
 		GearItemSorter.GearLayout gear = GearItemSorter.plan(items, source);
-		assertEquals("fixture has exactly twelve actual best pieces", primaryIds, ids(gear.getSetupRows()));
-		assertEquals("both complete secondary families and real loose gear stay in the tail", 26, gear.getTail().size());
+		List<Integer> offensivePrimaryIds = new ArrayList<>(primaryIds.subList(0, 11));
+		Collections.swap(offensivePrimaryIds, 9, 10);
+		assertEquals("three styles contribute eleven actual best pieces in equipment order", offensivePrimaryIds, ids(gear.getSetupRows()));
+		Map<Integer, Integer> targets = GearItemSorter.setupTargets(gear, items.size());
+		assertEquals("the complete bank supplies eleven real full-column targets", 11, targets.size());
+		assertEquals("Prayer, both secondary families and real loose gear stay in the tail", 27, gear.getTail().size());
 
 		for (BankPreset preset : Arrays.asList(BankPresets.MAIN, BankPresets.IRONMAN))
 		{
@@ -194,18 +200,18 @@ public class CombatGearGroupingRegressionTest
 				catalog, preset, source, ItemValueSource.NONE, CategoryOverrideSource.NONE,
 				plan, BankLayoutOptions.defaultFor(preset));
 			List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();
-			String context = preset.getType() + ", twelve best pieces and two Mystic sets";
+			String context = preset.getType() + ", full primary columns and two Mystic sets";
 
-			assertVerticalFamily(context + ", best melee gear", ids(combat), primaryIds.subList(0, 3));
-			assertVerticalFamily(context + ", best ranged gear", ids(combat), primaryIds.subList(3, 6));
-			assertVerticalFamily(context + ", best magic gear", ids(combat), primaryIds.subList(6, 11));
-			for (int style = 0; style < 4; style++)
-			{
-				int itemId = primaryIds.get(style == 3 ? 11 : style * 3);
-				assertEquals(context + ", best helmet style " + style, itemId, combat.get(style).getItemId());
-			}
-			assertVerticalFamily(context + ", dark Mystic", ids(combat), integers(MYSTIC_DARK));
-			assertVerticalFamily(context + ", light Mystic", ids(combat), integers(MYSTIC_LIGHT));
+			int[][] primaryColumns = {{981000, 981001, 981002}, {981003, 981004, 981005},
+				{981006, 981007, 981008, 981010, 981009}};
+			for (int style = 0; style < primaryColumns.length; style++)
+				for (int row = 0; row < primaryColumns[style].length; row++)
+					assertEquals(context + ", independent full-column target", Integer.valueOf(primaryColumns[style][row]),
+						ids(combat).get(row * 8 + style));
+			assertGroupedFamily(context + ", dark Mystic stays a whole canonical family", ids(combat), integers(MYSTIC_DARK));
+			assertGroupedFamily(context + ", light Mystic stays a whole canonical family", ids(combat), integers(MYSTIC_LIGHT));
+			assertTrue(context + ", Prayer is retained in a secondary physical cell",
+				!new HashSet<>(targets.values()).contains(ids(combat).indexOf(primaryIds.get(11))));
 			assertPreserved(context, input, combat);
 			assertPreserved(context + ", full preview", input, preview.getPlannedItems());
 		}
@@ -220,7 +226,7 @@ public class CombatGearGroupingRegressionTest
 			for (int itemId : family) dense.add(described(itemId));
 		}
 		assertTrue("an ordered dense run can cross a physical row boundary",
-			GearSetSemanticRuleSet.keepsFamiliesTogether(dense, 12));
+			GearFamilyGeometry.keepsFamiliesTogether(dense, 12));
 
 		List<BankPreviewItem> vertical = unrelatedGear(33);
 		for (int slot = 0; slot < MYSTIC_DARK.length; slot++)
@@ -228,7 +234,7 @@ public class CombatGearGroupingRegressionTest
 			vertical.set(slot * 8, described(MYSTIC_DARK[slot]));
 		}
 		assertTrue("an intact vertical column remains a valid grouped family",
-			GearSetSemanticRuleSet.keepsFamiliesTogether(vertical, 12));
+			GearFamilyGeometry.keepsFamiliesTogether(vertical, 12));
 
 		int[] lunarWithoutGloves = {9096, 9101, 9102, 9084, 9097, 9098, 9100, 9104};
 		int[] rectanglePositions = {0, 8, 16, 24, 1, 9, 17, 25};
@@ -238,13 +244,13 @@ public class CombatGearGroupingRegressionTest
 			rectangle.set(rectanglePositions[slot], described(lunarWithoutGloves[slot]));
 		}
 		assertTrue("equipment order may form adjacent vertical columns",
-			GearSetSemanticRuleSet.keepsFamiliesTogether(rectangle, 0));
+			GearFamilyGeometry.keepsFamiliesTogether(rectangle, 0));
 
 		List<BankPreviewItem> splitMystic = Arrays.asList(4109, 4111, 4113, 4115, 4099,
 			4101, 4103, 4105, 4107, 4117).stream().map(CombatGearGroupingRegressionTest::described)
 			.collect(Collectors.toList());
 		assertFalse("four light pieces before dark and the last light piece after dark split the set",
-			GearSetSemanticRuleSet.keepsFamiliesTogether(splitMystic, 12));
+			GearFamilyGeometry.keepsFamiliesTogether(splitMystic, 12));
 	}
 
 	@Test
@@ -306,13 +312,14 @@ public class CombatGearGroupingRegressionTest
 			laidOut.subList(first, first + family.size()));
 	}
 
-	private static void assertVerticalFamily(String context, List<Integer> laidOut, List<Integer> family)
+	private static void assertGroupedFamily(String context, List<Integer> laidOut, List<Integer> family)
 	{
 		int first = laidOut.indexOf(family.get(0));
 		assertTrue(context + ", missing first family member", first >= 0);
+		int stride = laidOut.indexOf(family.get(1)) - first;
+		assertTrue(context + ", family uses a canonical dense run or one vertical column", stride == 1 || stride == 8);
 		for (int member = 0; member < family.size(); member++)
-			assertEquals(context + ", each piece stays one row below the previous piece",
-				first + member * 8, laidOut.indexOf(family.get(member)));
+			assertEquals(context + ", canonical family order", first + member * stride, laidOut.indexOf(family.get(member)));
 	}
 
 	private static Map<Integer, CatalogItem> addUnrelatedGear(List<Integer> input, int count)

@@ -26,7 +26,7 @@ final class ToolItemSorter
 		return sorted;
 	}
 
-	private static int roleRank(BankPreviewItem item)
+	static int roleRank(BankPreviewItem item)
 	{
 		String subcategory = normalized(item.getSubcategory());
 		if (subcategory.contains("outfit"))
@@ -41,7 +41,7 @@ final class ToolItemSorter
 		{
 			return 30;
 		}
-		if (subcategory.contains("slayer"))
+		if (subcategory.contains("slayer") || subcategory.contains("cannon"))
 		{
 			return 40;
 		}

@@ -3,6 +3,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 import static org.junit.Assert.assertEquals;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +14,7 @@ import org.junit.Test;
 public class PresetItemSorterTest
 {
 	@Test
-	public void combatGearSortsWearRowsBeforeWeaponsAndAmmo()
+	public void combatGearKeepsCompactStyleSetupsBeforeAmmo()
 	{
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("combat-gear"), Arrays.asList(
 			item(5, "Rune arrow", ItemCategory.GEAR),
@@ -89,17 +90,17 @@ public class PresetItemSorterTest
 	}
 
 	@Test
-	public void farmingHerbloreSortsSeedsHerbsSecondariesUnfinished()
+	public void incompleteHerbloreGroupsHerbsSeedsUnfinishedAndSecondaries()
 	{
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(BankPresets.IRONMAN.getCategory("herblore"), Arrays.asList(
-			item(1, "Eye of newt", ItemCategory.HERBLORE),
-			item(2, "Irit potion (unf)", ItemCategory.HERBLORE),
-			item(3, "Grimy irit", ItemCategory.HERBLORE),
-			item(4, "Irit seed", ItemCategory.FARMING)
+			new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(221), 1),
+			new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(101), 1),
+			new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(209), 1),
+			new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(5297), 1)
 		));
 
-		// Recipe row order: grimy herb, seed, unfinished potion, secondary.
-		assertEquals(Arrays.asList("Grimy irit", "Irit seed", "Irit potion (unf)", "Eye of newt"), names(sorted));
+		assertEquals(Arrays.asList(209, 5297, 101, 221), sorted.stream()
+			.map(BankPreviewItem::getItemId).collect(Collectors.toList()));
 	}
 
 	@Test

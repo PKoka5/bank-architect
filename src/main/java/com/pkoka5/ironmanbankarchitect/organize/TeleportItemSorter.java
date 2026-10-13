@@ -10,10 +10,14 @@ import java.util.List;
 
 final class TeleportItemSorter
 {
+	private static final OrderedItemFamilies TABLET_COLOURS = new OrderedItemFamilies(
+		TeleportItemSorter.class.getResourceAsStream(
+			"/com/pkoka5/ironmanbankarchitect/catalog/teleport-tablet-colours.tsv"), 0);
 	private static final Comparator<BankPreviewItem> TELEPORT_ORDER = Comparator
 		.comparingInt(TeleportItemSorter::roleRank)
 		.thenComparingInt(TeleportItemSorter::runeRank)
 		.thenComparingInt(TeleportItemSorter::pouchRank)
+		.thenComparingInt(TeleportItemSorter::tabletColourRank)
 		.thenComparing(TeleportItemSorter::familyName)
 		.thenComparingInt(item -> -charge(item))
 		.thenComparing(item -> normalized(item.getDisplayName()))
@@ -33,6 +37,18 @@ final class TeleportItemSorter
 	static int compareTeleportItems(BankPreviewItem left, BankPreviewItem right)
 	{
 		return TELEPORT_ORDER.compare(left, right);
+	}
+
+	private static int tabletColourRank(BankPreviewItem item)
+	{
+		if (roleRank(item) != 60) return 0;
+		int rank = 0;
+		for (List<Integer> ids : TABLET_COLOURS.entries().values())
+		{
+			if (ids.contains(item.getItemId())) return rank;
+			rank++;
+		}
+		return rank;
 	}
 
 	private static int roleRank(BankPreviewItem item)
@@ -60,7 +76,7 @@ final class TeleportItemSorter
 		{
 			return 80;
 		}
-		if (isReusableDevice(name))
+		if (subcategory.contains("teleport-reusable") || isReusableDevice(name))
 		{
 			return 30;
 		}
@@ -79,8 +95,7 @@ final class TeleportItemSorter
 			return 100;
 		}
 		String name = normalized(item.getDisplayName());
-		String[] order = {"air", "water", "earth", "fire", "mind", "body", "cosmic", "chaos",
-			"nature", "law", "death", "blood", "soul", "astral", "wrath"};
+		String[] order = ClassificationNames.group(81);
 		for (int i = 0; i < order.length; i++)
 		{
 			if ((role == 0 && name.equals(order[i] + " rune"))
@@ -96,7 +111,7 @@ final class TeleportItemSorter
 	{
 		if (roleRank(item) != 21) return 100;
 		String name = normalized(item.getDisplayName());
-		String[] order = {"small", "medium", "large", "giant", "colossal"};
+		String[] order = ClassificationNames.group(82);
 		for (int i = 0; i < order.length; i++)
 		{
 			if (name.startsWith(order[i] + " pouch")) return i;
@@ -106,8 +121,7 @@ final class TeleportItemSorter
 
 	private static boolean isEssencePouch(String name)
 	{
-		return containsAny(name, "small pouch", "medium pouch", "large pouch", "giant pouch",
-			"colossal pouch");
+		return containsAny(name, ClassificationNames.group(83));
 	}
 
 	private static boolean isJewellery(BankPreviewItem item)
@@ -115,11 +129,7 @@ final class TeleportItemSorter
 		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
 		if (metadata.isPresent()) return true;
 		String name = normalized(item.getDisplayName());
-		return containsAny(name, "ring of dueling", "games necklace", "amulet of glory",
-			"skills necklace", "combat bracelet", "burning amulet", "necklace of passage",
-			"digsite pendant", "ring of wealth", "slayer ring", "ring of returning",
-			"ring of the elements", "ring of shadows", "camulet", "desert amulet",
-			"giantsoul amulet", "sailors' amulet");
+		return containsAny(name, ClassificationNames.group(84));
 	}
 
 	private static String familyName(BankPreviewItem item)
@@ -147,10 +157,7 @@ final class TeleportItemSorter
 
 	private static boolean isReusableDevice(String name)
 	{
-		return containsAny(name, "ectophial", "xeric's talisman", "drakan's medallion",
-			"royal seed pod", "enchanted lyre", "pharaoh's sceptre", "chronicle",
-			"kharedst's memoirs", "book of the dead", "teleport crystal",
-			"quetzal whistle", "pendant of ates", "skull sceptre");
+		return containsAny(name, ClassificationNames.group(85));
 	}
 
 	private static boolean isTablet(BankPreviewItem item)

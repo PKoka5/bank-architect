@@ -60,38 +60,37 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private final BankGuideController guideController;
 	private final BiConsumer<BankPreviewItem, JLabel> itemIconRenderer;
 	private final JButton toggleButton;
-	private final JButton analyzeButton;
-	private final JButton showBankButton;
-	private final JButton assignCategoriesButton;
-	private final JButton resetOverridesButton;
-	private final JButton tabOrderButton;
+	final JButton analyzeButton;
+	final JButton showBankButton;
+	final JButton assignCategoriesButton;
+	final JButton resetOverridesButton;
+	final JButton tabOrderButton;
 	private final JButton resetLayoutButton;
 	private final JButton saveProfileButton;
 	private final JButton importButton;
 	private final JButton exportButton;
 	private final JButton deleteProfileButton;
-	private final JComboBox<String> presetChooser = new JComboBox<>(new String[] {"Ironman", "Main"});
+	final JComboBox<String> presetChooser = new JComboBox<>(new String[] {"Ironman", "Main"});
 	private boolean refreshingPreset;
-	private final JCheckBox alchPileBox;
+	final JCheckBox alchPileBox;
 	private boolean refreshingOptions;
 	private final JPanel layoutEditor;
-	private final JPanel layoutRows;
-	private final JLabel layoutHeading;
+	final JPanel layoutRows;
 	private final JLabel layoutHelp;
 	private final BankLayoutModel bankLayoutModel;
-	private BankLayoutPlan layoutPlan;
+	BankLayoutPlan layoutPlan;
 	private int selectedDestination = BankLayoutPlan.MAIN_DESTINATION_INDEX;
-	private final JLabel categoryOverrideLabel;
+	final JLabel categoryOverrideLabel;
 	private final JLabel statusLabel;
-	private final JLabel catalogSummaryLabel;
-	private final JLabel organizationPreviewLabel;
-	private final JLabel guideProgressLabel;
-	private final JLabel nextMoveLabel;
+	final JLabel catalogSummaryLabel;
+	final JLabel organizationPreviewLabel;
+	final JLabel guideProgressLabel;
+	final JLabel nextMoveLabel;
 	private JLabel workflowSteps;
 	private final JLabel detailsChevron;
-	private final ProgressBar guideProgressBar;
-	private final JPanel detailsPanel;
-	private final List<DestinationCell> destinationCells = new ArrayList<>();
+	final ProgressBar guideProgressBar;
+	final JPanel detailsPanel;
+	final List<DestinationCell> destinationCells = new ArrayList<>();
 	private final Timer statusTimer;
 	private BankOrganizationPreview renderedDestinations;
 	private BankOrganizationPreview renderedLayoutPreview;
@@ -101,6 +100,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private JButton exportBlueprintButton;
 	private ReleaseNoticePanel releaseNotice;
 	private Runnable settingsAction = () -> {}, issuesAction = () -> {};
+	private Consumer<BankOrganizationPreview> bankPreview = preview -> {};
+	private final JCheckBox previewOnBank = new JCheckBox("Preview on bank");
+
+	void configureBankPreview(Consumer<BankOrganizationPreview> action) { bankPreview = action; }
+	void stopBankPreview() { previewOnBank.setSelected(false); bankPreview.accept(null); }
 
 	void configureHeaderActions(Runnable settings, Runnable issues)
 	{
@@ -120,29 +124,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	public void onActivate()
 	{
 		if (releaseNotice != null) releaseNotice.opened();
-	}
-
-	IronmanBankArchitectPanel(BankGuideController guideController)
-	{
-		this(guideController, () -> {}, (item, label) -> {});
-	}
-
-	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback)
-	{
-		this(guideController, analyzeCallback, (item, label) -> {});
-	}
-
-	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
-		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer)
-	{
-		this(guideController, analyzeCallback, itemIconRenderer, () -> {});
-	}
-
-	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
-		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback)
-	{
-		this(guideController, analyzeCallback, itemIconRenderer, resetOverridesCallback,
-			BankLayoutModel.DEFAULT);
 	}
 
 	IronmanBankArchitectPanel(BankGuideController guideController, Runnable analyzeCallback,
@@ -188,7 +169,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		tabOrderButton.setFocusPainted(false);
 		tabOrderButton.addActionListener(event -> toggleLayoutEditor());
 
-		layoutHeading = label("");
 		layoutRows = verticalPanel();
 		resetLayoutButton = new JButton("Reset to default");
 		resetLayoutButton.setFont(FontManager.getRunescapeSmallFont());
@@ -230,9 +210,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(alchPileBox);
 		layoutEditor.add(Box.createVerticalStrut(6));
-		// Kept for its text, but not shown: every tab already carries its own
-		// heading in the list, so a second copy on top only repeated it.
-		layoutHeading.setVisible(false);
 		layoutEditor.add(layoutRows);
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(resetLayoutButton);
@@ -461,77 +438,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	void shutdown()
 	{
+		stopBankPreview();
 		statusTimer.stop();
 		if (bankDialog != null)
 		{
 			bankDialog.dispose();
 			bankDialog = null;
 		}
-	}
-
-	JButton getAnalyzeButton()
-	{
-		return analyzeButton;
-	}
-
-	JButton getShowBankButton()
-	{
-		return showBankButton;
-	}
-
-	JLabel getCatalogSummaryLabel()
-	{
-		return catalogSummaryLabel;
-	}
-
-	JLabel getOrganizationPreviewLabel()
-	{
-		return organizationPreviewLabel;
-	}
-
-	JLabel getGuideProgressLabel()
-	{
-		return guideProgressLabel;
-	}
-
-	JLabel getNextMoveLabel()
-	{
-		return nextMoveLabel;
-	}
-
-	JButton getAssignCategoriesButton()
-	{
-		return assignCategoriesButton;
-	}
-
-	JButton getResetOverridesButton()
-	{
-		return resetOverridesButton;
-	}
-
-	JButton getTabOrderButton()
-	{
-		return tabOrderButton;
-	}
-
-	JLabel getCategoryOverrideLabel()
-	{
-		return categoryOverrideLabel;
-	}
-
-	JPanel getDetailsPanel()
-	{
-		return detailsPanel;
-	}
-
-	List<DestinationCell> getDestinationCells()
-	{
-		return destinationCells;
-	}
-
-	ProgressBar getGuideProgressBar()
-	{
-		return guideProgressBar;
 	}
 
 	/**
@@ -571,16 +484,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		renderLayoutEditor();
 	}
 
-	int getSelectedDestination()
-	{
-		return selectedDestination;
-	}
-
-	BankLayoutPlan getLayoutPlan()
-	{
-		return layoutPlan;
-	}
-
 	/**
 	 * Moves one category to one destination. Every category carries its own
 	 * destination chooser, so nothing has to be selected first and no category is
@@ -590,18 +493,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		applyLayoutPlan(layoutPlan.withTagAt(tagKey, destinationIndex));
-	}
-
-	JComboBox<String> getPresetChooser() { return presetChooser; }
-
-	JPanel getLayoutRows()
-	{
-		return layoutRows;
-	}
-
-	JLabel getLayoutHeading()
-	{
-		return layoutHeading;
 	}
 
 	/** Reorders a category within its destination, which decides what leads the tab. */
@@ -634,14 +525,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		renderedLayoutPreview = preview;
 		Map<String, Integer> tagCounts = preview == null
 			? Collections.emptyMap() : preview.getTagCounts();
-
-		// Reads back the whole assignment, "Tab 3 - Teleports & Runes", so the
-		// player can confirm what they built without counting cells.
-		// Each tab carries its own heading in the list below, so a summary of the
-		// selected one on top would only repeat it, and repeat it in the width
-		// that was already too narrow to read.
-		layoutHeading.setText(destinationName(selectedDestination) + " - "
-			+ describeDestination(selectedDestination));
 
 		// Grouped by destination rather than listing the categories flat: the
 		// question the player is answering is what each tab holds, so the tab is
@@ -935,7 +818,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		return LAYOUT_EDITOR_HELP + (bankLayoutModel.preset().getType() == BankPresetType.MAIN
 			? "Main keeps potion families in dose order 4 to 1. Herbs run by stage: grimy, clean, seeds, unfinished."
-			: "Put Part Doses on the tab with Potions and the Herblore tab runs by kind instead of a row per recipe.");
+			: "Ironman puts complete Herblore recipes first; incomplete ingredients run by kind. Moving Part Doses beside Potions keeps all ingredients compact.");
 	}
 
 	private void addLayoutChoices(int destination)
@@ -990,9 +873,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		JComboBox<GearLayout> chooser = new JComboBox<>(GearLayout.values());
 		chooser.setSelectedItem(options.gearLayout());
-		chooser.setToolTipText("<html>Best in slot: the four-style matrix, your strongest melee, "
-			+ "ranged, magic and prayer options per slot.<br>Sets together: each set as a "
-			+ "column.<br>List: sets as runs, strongest first.</html>");
+		chooser.setToolTipText("<html>Best in slot: full Melee, Ranged and Magic columns, with your best owned gear first.<br>"
+			+ "Other armour sets stay together vertically. Shared items appear once.<br>Sets and list provide alternative arrangements.</html>");
 		styleChooser(chooser);
 		chooser.addActionListener(event -> {
 			if (!refreshingOptions)
@@ -1106,11 +988,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		{
 			refreshingOptions = false;
 		}
-	}
-
-	JCheckBox getAlchPileBox()
-	{
-		return alchPileBox;
 	}
 
 	private JButton layoutActionButton(String text, String tooltip,
@@ -1299,27 +1176,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	}
 
 	/** What a destination holds, spelled out: "Teleports & Runes + Clues". */
-	private String describeDestination(int destinationIndex)
-	{
-		List<String> keys = layoutPlan.getTagKeys(destinationIndex);
-		if (keys.isEmpty())
-		{
-			return "empty";
-		}
-
-		StringBuilder names = new StringBuilder();
-		for (String key : keys)
-		{
-			if (names.length() > 0)
-			{
-				names.append(" + ");
-			}
-			names.append(BankTags.byKey(key).getName());
-		}
-
-		return names.toString();
-	}
-
 	private int itemsOnDestination(int destinationIndex, Map<String, Integer> tagCounts)
 	{
 		int total = 0;
@@ -1424,17 +1280,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 * The resting panel shows one line; the rest of the instruction stays in the
 	 * tooltip and under Details.
 	 */
-	static String firstSentence(String text)
-	{
-		if (text == null || text.isEmpty())
-		{
-			return "";
-		}
-		String lastLine = text.substring(text.lastIndexOf('\n') + 1).trim();
-		int stop = lastLine.indexOf(". ");
-		return stop < 0 ? lastLine : lastLine.substring(0, stop + 1);
-	}
-
 	private void refreshAnalysis()
 	{
 		BankLayoutPlan latestPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
@@ -1509,7 +1354,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	{
 		private final int categoryIndex;
 		private final JLabel sprite = new JLabel("", SwingConstants.CENTER);
-		private String count = "";
+		String count = "";
 		private String caption = "Not analyzed";
 
 		private DestinationCell(int categoryIndex)
@@ -1540,11 +1385,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 					}
 				}
 			});
-		}
-
-		String getCount()
-		{
-			return count;
 		}
 
 		private void update(BankCategoryPreview category)
@@ -1670,12 +1510,25 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			exportBlueprintButton.addActionListener(event -> copyBlueprintExport());
 			blueprintEditor = new BlueprintEditorPanel(bankLayoutModel, this::itemCell,
 				editing -> exportBlueprintButton.setEnabled(!editing));
+			blueprintEditor.configureBankPreview(snapshot -> {
+				if (previewOnBank.isSelected() && bankDialog != null && bankDialog.isVisible()) bankPreview.accept(snapshot);
+			});
+			previewOnBank.setOpaque(false);
+			previewOnBank.setToolTipText("Use bank tabs to view the blueprint; Main shows all tabs. Scroll to look around. Other bank clicks return to normal banking.");
+			previewOnBank.addActionListener(event -> {
+				if (previewOnBank.isSelected()) blueprintEditor.publishBankPreview();
+				else stopBankPreview();
+			});
+			JPanel footer = new JPanel(new BorderLayout());
+			footer.add(previewOnBank, BorderLayout.WEST);
+			footer.add(exportBlueprintButton, BorderLayout.CENTER);
 			bankDialog.add(blueprintEditor, BorderLayout.CENTER);
-			bankDialog.add(exportBlueprintButton, BorderLayout.SOUTH);
+			bankDialog.add(footer, BorderLayout.SOUTH);
 			bankDialog.addWindowListener(new java.awt.event.WindowAdapter()
 			{
 				@Override public void windowClosing(java.awt.event.WindowEvent event)
 				{
+					stopBankPreview();
 					blueprintEditor.cancelEdit();
 				}
 			});
@@ -1683,6 +1536,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		refreshBankDialog(preview);
 		bankDialog.setVisible(true);
+		previewOnBank.setSelected(true);
+		blueprintEditor.publishBankPreview();
 	}
 
 	private void copyBlueprintExport()

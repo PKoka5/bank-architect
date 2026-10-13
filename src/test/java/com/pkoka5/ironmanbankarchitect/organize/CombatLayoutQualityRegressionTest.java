@@ -150,9 +150,8 @@ public class CombatLayoutQualityRegressionTest
 		stats.put(4103, styled(GearSlot.LEGS, GearStyle.MAGIC, 1));
 		GearStatsSource source = id -> Optional.ofNullable(stats.get(id));
 		GearItemSorter.GearLayout plan = GearItemSorter.plan(input, source);
-		assertEquals("a sparse row cannot borrow jewellery or another armour slot", 0, plan.getAlignedSize());
 		assertEquals("only best-owned pieces form the compact front", 6, plan.getSetupRows().size());
-		assertTrue(plan.getSetupRows().stream().noneMatch(entry -> entry.getSubcategory().equals("ring")));
+		assertEquals("best real ring is deliberately selected once", 1, plan.getSetupRows().stream().filter(entry -> entry.getSubcategory().equals("ring")).count());
 		List<BankPreviewItem> tail = GearItemSorter.bySet(plan.getTail(), source);
 		assertEquals("the partial Mystic family stays together in canonical slot order", Arrays.asList(4101, 4103),
 			ids(tail.subList(0, 2)));
@@ -205,8 +204,8 @@ public class CombatLayoutQualityRegressionTest
 			.map(id -> new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(id), 1))
 			.collect(Collectors.toList());
 		GearStatsSource source = id -> Optional.ofNullable(stats.get(id));
-		assertEquals("Ranged armour precedes Prayer armour even when the Prayer family owns a melee flail",
-			Arrays.asList(11828, 11830, 4755, 4757), ids(GearItemSorter.bySet(input, source)));
+		assertEquals("Verac tank gear retains its Melee owner ahead of Ranged armour",
+			Arrays.asList(4755, 4757, 11828, 11830), ids(GearItemSorter.bySet(input, source)));
 	}
 
 	@Test
@@ -257,16 +256,16 @@ public class CombatLayoutQualityRegressionTest
 			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(entries), catalog,
 				preset, source, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(preset));
 			List<Integer> combat = ids(preview.getCategories().get(plan.destinationOf("gear")).getItems());
-			for (int style = 0; style < 4; style++)
+			for (int style = 0; style < 3; style++)
 				for (int row = 0; row < 3; row++)
-					assertEquals(preset.getType() + ": best gear keeps its vertical style column",
-						row * 8 + style, combat.indexOf(primaryIds.get(style * 3 + row)));
+					assertEquals("each primary style owns its full vertical column", row * 8 + style, combat.indexOf(primaryIds.get(style * 3 + row)));
 			for (int[] family : SECONDARY_FAMILIES)
 			{
 				int first = combat.indexOf(family[0]);
+				int stride = combat.indexOf(family[1]) - first;
+				assertTrue("whole family uses vertical or canonical compact fallback", stride == 1 || stride == 8);
 				for (int piece = 0; piece < family.length; piece++)
-					assertEquals(preset.getType() + ": secondary family reads vertically",
-						first + piece * 8, combat.indexOf(family[piece]));
+					assertEquals(first + piece * stride, combat.indexOf(family[piece]));
 			}
 			assertEquals(entries.size(), preview.getPlannedItemCount());
 		}

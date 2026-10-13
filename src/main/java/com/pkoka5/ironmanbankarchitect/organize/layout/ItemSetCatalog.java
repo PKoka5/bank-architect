@@ -18,10 +18,6 @@ public final class ItemSetCatalog
 	private static final String COSMETIC_FAMILY_DOMAIN = "cosmetic-family";
 	private static final RequiredResource<Map<String, List<SetDefinition>>> SETS_BY_DOMAIN =
 		new RequiredResource<>("item set", () -> load(ItemSetCatalog.class.getResourceAsStream(RESOURCE_PATH)));
-	private static final RequiredResource<Map<Integer, String>> DOMAIN_BY_ITEM_ID =
-		new RequiredResource<>("item set", ItemSetCatalog::indexDomains);
-	private static final RequiredResource<Map<Integer, String>> COSMETIC_FAMILY_BY_ITEM_ID =
-		new RequiredResource<>("item set", ItemSetCatalog::indexCosmeticFamilies);
 	private static final RequiredResource<Map<Integer, Integer>> COSMETIC_FAMILY_RANK_BY_ITEM_ID =
 		new RequiredResource<>("item set", ItemSetCatalog::indexCosmeticFamilyRanks);
 	private static final RequiredResource<Map<Integer, SetDefinition>> SET_BY_ITEM_ID =
@@ -29,7 +25,7 @@ public final class ItemSetCatalog
 
 	public static void requireAvailable()
 	{
-		DOMAIN_BY_ITEM_ID.get();
+		SET_BY_ITEM_ID.get();
 	}
 
 	private ItemSetCatalog()
@@ -43,7 +39,8 @@ public final class ItemSetCatalog
 	 */
 	public static Optional<String> cosmeticFamilyOf(int itemId)
 	{
-		return Optional.ofNullable(COSMETIC_FAMILY_BY_ITEM_ID.get().get(itemId));
+		return Optional.ofNullable(SET_BY_ITEM_ID.get().get(itemId))
+			.filter(set -> COSMETIC_FAMILY_DOMAIN.equals(set.domain)).map(set -> set.name);
 	}
 
 	/**
@@ -60,15 +57,13 @@ public final class ItemSetCatalog
 	/** The catalogued set key the item belongs to, across every domain. */
 	public static Optional<String> setKeyOf(int itemId)
 	{
-		SetDefinition definition = SET_BY_ITEM_ID.get().get(itemId);
-		return definition == null ? Optional.empty() : Optional.of(definition.key);
+		return Optional.ofNullable(SET_BY_ITEM_ID.get().get(itemId)).map(set -> set.key);
 	}
 
 	/** The catalogued set's display name for the item, across every domain. */
 	public static Optional<String> setNameOf(int itemId)
 	{
-		SetDefinition definition = SET_BY_ITEM_ID.get().get(itemId);
-		return definition == null ? Optional.empty() : Optional.of(definition.name);
+		return Optional.ofNullable(SET_BY_ITEM_ID.get().get(itemId)).map(set -> set.name);
 	}
 
 	private static Map<Integer, SetDefinition> indexSets()
@@ -80,24 +75,13 @@ public final class ItemSetCatalog
 			{
 				for (Integer itemId : definition.itemIds)
 				{
-					byId.put(itemId, definition);
+					SetDefinition earlier = byId.put(itemId, definition);
+					if (earlier != null && !earlier.domain.equals(definition.domain))
+						throw new IllegalStateException("Item ID " + itemId + " appears in multiple set domains");
 				}
 			}
 		}
 		return Collections.unmodifiableMap(byId);
-	}
-
-	private static Map<Integer, String> indexCosmeticFamilies()
-	{
-		Map<Integer, String> families = new LinkedHashMap<>();
-		for (SetDefinition definition : sets(COSMETIC_FAMILY_DOMAIN))
-		{
-			for (Integer itemId : definition.itemIds)
-			{
-				families.put(itemId, definition.name);
-			}
-		}
-		return Collections.unmodifiableMap(families);
 	}
 
 	private static Map<Integer, Integer> indexCosmeticFamilyRanks()
@@ -122,28 +106,7 @@ public final class ItemSetCatalog
 
 	public static Optional<String> domainOf(int itemId)
 	{
-		return Optional.ofNullable(DOMAIN_BY_ITEM_ID.get().get(itemId));
-	}
-
-	private static Map<Integer, String> indexDomains()
-	{
-		Map<Integer, String> domains = new LinkedHashMap<>();
-		for (Map.Entry<String, List<SetDefinition>> domain : SETS_BY_DOMAIN.get().entrySet())
-		{
-			for (SetDefinition definition : domain.getValue())
-			{
-				for (Integer itemId : definition.itemIds)
-				{
-					String earlier = domains.put(itemId, domain.getKey());
-					if (earlier != null && !earlier.equals(domain.getKey()))
-					{
-						throw new IllegalStateException(
-							"Item ID " + itemId + " appears in multiple set domains");
-					}
-				}
-			}
-		}
-		return Collections.unmodifiableMap(domains);
+		return Optional.ofNullable(SET_BY_ITEM_ID.get().get(itemId)).map(set -> set.domain);
 	}
 
 	static SetDefinition definition(String domain, String key, String name, List<Integer> itemIds)

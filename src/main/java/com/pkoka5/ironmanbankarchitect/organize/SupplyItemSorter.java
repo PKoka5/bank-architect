@@ -28,9 +28,12 @@ final class SupplyItemSorter
 		ItemSortMetadataCatalog metadataCatalog, PotionDoseOrder doseOrder)
 	{
 		List<BankPreviewItem> sorted = new ArrayList<>(items);
+		Map<String, Integer> doses = doseOrder == PotionDoseOrder.BY_FAMILY
+			? doseMasks(items, metadataCatalog) : Collections.emptyMap();
 		sorted.sort(Comparator
 			.comparingInt((BankPreviewItem item) -> doseOrder == PotionDoseOrder.BY_FAMILY
 				? byFamilyRoleRank(item, metadataCatalog) : roleRank(item, metadataCatalog))
+			.thenComparingInt(item -> complete(item, metadataCatalog, doses) ? 0 : 1)
 			.thenComparingInt(item -> doseMetadataRank(item, metadataCatalog))
 			.thenComparingInt(item -> foodMetadataRank(item, metadataCatalog))
 			.thenComparingInt(item -> -immediateHealMax(item, metadataCatalog))
@@ -42,6 +45,49 @@ final class SupplyItemSorter
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId));
 		return sorted;
+	}
+
+	/** Finish an odd complete-family row with real singles, keeping incomplete doses below it. */
+	static List<BankPreviewItem> finishCompleteRows(List<BankPreviewItem> items)
+	{
+		ItemSortMetadataCatalog catalog = ResourceItemSortMetadataCatalog.INSTANCE;
+		Map<String, Integer> doses = doseMasks(items, catalog);
+		int end = 0;
+		while (end < items.size() && complete(items.get(end), catalog, doses)) end++;
+		if (end % 8 != 4 || items.subList(end, items.size()).stream().anyMatch(item -> complete(item, catalog, doses))
+			|| items.subList(end, items.size()).stream().noneMatch(item -> doseMetadata(item, catalog).isPresent())) return items;
+		List<BankPreviewItem> fillers = new ArrayList<>();
+		for (BankPreviewItem item : items.subList(end, items.size()))
+			if (byFamilyRoleRank(item, catalog) != 0 && byFamilyRoleRank(item, catalog) != 20
+				&& item.physicalBankSlots().size() == 1
+				&& catalog.findById(item.getItemId()).map(metadata -> metadata.getVariantKind()
+				== ItemSortMetadata.VariantKind.NONE).orElse(true))
+			{
+				fillers.add(item);
+				if (fillers.size() == 4) break;
+			}
+		if (fillers.size() != 4) return items;
+		List<BankPreviewItem> result = new ArrayList<>(items);
+		result.removeAll(fillers);
+		result.addAll(end, fillers);
+		return result;
+	}
+
+	private static Map<String, Integer> doseMasks(List<BankPreviewItem> items, ItemSortMetadataCatalog catalog)
+	{
+		Map<String, Integer> doses = new HashMap<>();
+		for (BankPreviewItem item : items)
+			doseMetadata(item, catalog).filter(metadata -> metadata.getVariantValue() >= 1
+				&& metadata.getVariantValue() <= 4).ifPresent(metadata -> doses.merge(
+				metadata.getFamilyKey() + ":" + metadata.getAreaRestriction(),
+				1 << (metadata.getVariantValue() - 1), (left, right) -> left | right));
+		return doses;
+	}
+
+	private static boolean complete(BankPreviewItem item, ItemSortMetadataCatalog catalog, Map<String, Integer> doses)
+	{
+		return doseMetadata(item, catalog).map(metadata -> doses.getOrDefault(
+			metadata.getFamilyKey() + ":" + metadata.getAreaRestriction(), 0) == 15).orElse(false);
 	}
 
 	/**

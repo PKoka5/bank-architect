@@ -23,6 +23,7 @@ final class BlueprintEditorPanel extends JPanel
 	private final BankLayoutModel model;
 	private final Function<BankPreviewItem, JLabel> cellRenderer;
 	private final Consumer<Boolean> editingChanged;
+	private Consumer<BankOrganizationPreview> bankPreview = preview -> {};
 	private final JTabbedPane tabs = new JTabbedPane(JTabbedPane.LEFT);
 	private final JButton edit = new JButton("Edit this tab");
 	private final JButton undo = new JButton("Undo");
@@ -31,10 +32,10 @@ final class BlueprintEditorPanel extends JPanel
 	private final JButton reset = new JButton("Reset tab order");
 	private final JButton assign = new JButton("Assign category...");
 	private final JButton capture = new JButton("Save current bank...");
-	private final javax.swing.JCheckBox keepCurrentOrder = new javax.swing.JCheckBox("Keep current order");
-	private final javax.swing.JComboBox<String> moveMode = new javax.swing.JComboBox<>(new String[]{"Swap", "Insert"});
+	private final JCheckBox keepCurrentOrder = new JCheckBox("Keep current order");
+	private final JComboBox<String> moveMode = new JComboBox<>(new String[]{"Swap", "Insert"});
 	private int selectedItem = -1;
-	private final javax.swing.JTextArea status = new javax.swing.JTextArea("Analyze your bank to begin.", 2, 0);
+	private final JTextArea status = new JTextArea("Analyze your bank to begin.", 2, 0);
 	private BankOrganizationPreview latest;
 	private BankOrganizationPreview source;
 	private BlueprintDraft draft;
@@ -110,18 +111,18 @@ final class BlueprintEditorPanel extends JPanel
 			model.save(model.plan().withCurrentOrder(tabs.getSelectedIndex(), keepCurrentOrder.isSelected()));
 			refreshControls();
 		});
-		capture.addActionListener(event -> saveCurrentBank(javax.swing.JOptionPane.showInputDialog(this,
+		capture.addActionListener(event -> saveCurrentBank(JOptionPane.showInputDialog(this,
 			"Keep your bank open. Save all current tabs and item positions as a new active layout.",
-			com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles.freeName("My bank", model.profileNames()))));
+			BankLayoutProfiles.freeName("My bank", model.profileNames()))));
 		assign.addActionListener(event -> {
-			String[] names = com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
+			String[] names = BankTags.all().stream()
 				.filter(tag -> model.plan().destinationOf(tag.getKey()) >= 0)
 				.map(tag -> tag.getName()).toArray(String[]::new);
-			String chosen = (String) javax.swing.JOptionPane.showInputDialog(this,
+			String chosen = (String) JOptionPane.showInputDialog(this,
 				"Choose a category for the selected item. Save to keep this change.", "Assign blueprint category",
-				javax.swing.JOptionPane.QUESTION_MESSAGE, null, names,
-				com.pkoka5.ironmanbankarchitect.organize.BankTags.byKey(draft.items().get(selectedItem).getLayoutTagKey()).getName());
-			com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
+				JOptionPane.QUESTION_MESSAGE, null, names,
+				BankTags.byKey(draft.items().get(selectedItem).getLayoutTagKey()).getName());
+			BankTags.all().stream()
 				.filter(tag -> tag.getName().equals(chosen)).findFirst().ifPresent(tag -> assignSelectedCategory(tag.getKey()));
 		});
 		tabs.addChangeListener(event -> {
@@ -147,6 +148,23 @@ final class BlueprintEditorPanel extends JPanel
 	void selectTab(int tab)
 	{
 		if (draft == null && tab >= 0 && tab < tabs.getTabCount()) tabs.setSelectedIndex(tab);
+	}
+
+	void configureBankPreview(Consumer<BankOrganizationPreview> action) { bankPreview = action; }
+
+	void publishBankPreview()
+	{
+		boolean ready = latest != null && !saving
+			&& (draft == null || source == latest && model.editingContext().equals(context));
+		BankOrganizationPreview snapshot = ready ? latest : null;
+		if (ready && draft != null)
+		{
+			List<BankCategoryPreview> categories = new ArrayList<>();
+			for (int i = 0; i < latest.getCategories().size(); i++)
+				categories.add(new BankCategoryPreview(latest.getCategories().get(i).getCategory(), draft.items(i)));
+			snapshot = new BankOrganizationPreview(latest.getPreset(), categories);
+		}
+		bankPreview.accept(snapshot);
 	}
 
 	void beginEdit()
@@ -190,7 +208,7 @@ final class BlueprintEditorPanel extends JPanel
 		if (draft == null || source == null || saving || latest != source || !model.editingContext().equals(context)) return;
 		saving = true;
 		refreshControls();
-		java.util.Map<Integer, List<Integer>> orders = draft.orders();
+		Map<Integer, List<Integer>> orders = draft.orders();
 		if (orders.isEmpty()) orders = Collections.singletonMap(editedTab, draft.ids());
 		model.saveBlueprintEdit(orders, draft.transfers(), source, context, this::saved);
 	}
@@ -286,7 +304,7 @@ final class BlueprintEditorPanel extends JPanel
 					private boolean dragged;
 					@Override public void mouseClicked(MouseEvent event)
 					{
-						if (dragged || !javax.swing.SwingUtilities.isLeftMouseButton(event)
+						if (dragged || !SwingUtilities.isLeftMouseButton(event)
 							|| saving || source == null || latest != source || !model.editingContext().equals(context)) return;
 						if (selectedItem == from) selectedItem = -1;
 						else if (selectedItem < 0) selectedItem = from;
@@ -299,7 +317,7 @@ final class BlueprintEditorPanel extends JPanel
 					@Override public void mousePressed(MouseEvent event)
 					{
 						dragged = false;
-						if (javax.swing.SwingUtilities.isLeftMouseButton(event)) {
+						if (SwingUtilities.isLeftMouseButton(event)) {
 							dragSource = from;
 							boundary = -1;
 							dropTab = -1;
@@ -310,8 +328,8 @@ final class BlueprintEditorPanel extends JPanel
 						if (dragSource < 0 || saving) return;
 						dragged = true;
 						selectedItem = -1;
-						Point point = javax.swing.SwingUtilities.convertPoint(cell, event.getPoint(), draftGrid);
-						Point tabPoint = javax.swing.SwingUtilities.convertPoint(cell, event.getPoint(), tabs);
+						Point point = SwingUtilities.convertPoint(cell, event.getPoint(), draftGrid);
+						Point tabPoint = SwingUtilities.convertPoint(cell, event.getPoint(), tabs);
 						dropTab = tabs.indexAtLocation(tabPoint.x, tabPoint.y);
 						boundary = insertionBoundary(point);
 						for (JLabel label : draftCells) label.setBorder(BorderFactory.createLineBorder(ColorScheme.BORDER_COLOR));
@@ -332,9 +350,9 @@ final class BlueprintEditorPanel extends JPanel
 								List<String> tags = model.plan().getTagKeys(dropTab);
 								emptyDestination = tags.isEmpty();
 								String tag = tags.size() == 1 ? tags.get(0) : tags.isEmpty() ? null :
-									(String) javax.swing.JOptionPane.showInputDialog(BlueprintEditorPanel.this,
+									(String) JOptionPane.showInputDialog(BlueprintEditorPanel.this,
 										"Choose the item's destination tag", "Move blueprint item",
-										javax.swing.JOptionPane.QUESTION_MESSAGE, null, tags.toArray(), tags.get(0));
+										JOptionPane.QUESTION_MESSAGE, null, tags.toArray(), tags.get(0));
 								if (tag != null) {
 									draft.moveAcross(editedTab, dragSource, dropTab, draft.itemCount(dropTab), tag);
 									tabs.setSelectedIndex(dropTab);
@@ -407,5 +425,6 @@ final class BlueprintEditorPanel extends JPanel
 				? " — Manual item order" : " — Automatic item order"));
 		}
 		else status.setText("Waiting for bank analysis...");
+		publishBankPreview();
 	}
 }

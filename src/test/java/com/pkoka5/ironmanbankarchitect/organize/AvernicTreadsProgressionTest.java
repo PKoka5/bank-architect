@@ -95,13 +95,17 @@ public class AvernicTreadsProgressionTest
 					List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();
 					String context = itemId + ", " + preset.getType() + ", placeholder=" + placeholder;
 
-					assertEquals(context + ", complete feet setup row", GearItemSorter.GRID_COLUMNS, combat.size());
+					assertEquals(context + ", real bank contents stay dense", GearItemSorter.GRID_COLUMNS, combat.size());
+					assertTrue(context + ", a real ring follows the compact primary Melee boots",
+						Arrays.stream(RING_FILLERS).anyMatch(id -> id == combat.get(1).getItemId()));
+					int[] compactBootTargets = {0,2,3};
 					for (int column = 0; column < OLDER_BOOT_IDS.length; column++)
 					{
 						int expectedId = column == style.ordinal() ? itemId : OLDER_BOOT_IDS[column];
-						assertEquals(context + ", style column " + column, expectedId, combat.get(column).getItemId());
+						assertEquals(context + ", compact primary style " + column, expectedId,
+							combat.get(compactBootTargets[column]).getItemId());
 					}
-					BankPreviewItem primary = combat.get(style.ordinal());
+					BankPreviewItem primary = combat.get(compactBootTargets[style.ordinal()]);
 					assertEquals(context + ", placeholder state", placeholder, primary.isPlaceholder());
 					assertEquals(context + ", quantity", placeholder ? 0 : 1, primary.getQuantity());
 					assertEquals(context + ", every bank entry is preserved", bank.getItems().size(), combat.size());

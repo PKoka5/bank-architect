@@ -3,7 +3,6 @@ package com.pkoka5.ironmanbankarchitect;
 import com.pkoka5.ironmanbankarchitect.organize.*;
 import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.*;
@@ -151,7 +150,7 @@ public class CustomPresetsTest
 	{
 		Fixture fixture = new Fixture(new LinkedHashMap<>());
 		fixture.model.selectPresetChoice("Main");
-		field(fixture.plugin, "guideController", new BankGuideController(AllRoundIronmanPreset.create()));
+		field(fixture.plugin, "guideController", new BankGuideController());
 		ConfigChanged event = new ConfigChanged();
 		event.setGroup(IronmanBankArchitectConfig.GROUP);
 		event.setKey("gearLayout");

@@ -7,7 +7,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * Two combat families were split across tabs by classification gaps: every
  * Void body piece failed closed into storage cleanup while the rest of the set
- * was gear, and the cannon lists named some parts but not others.
+ * was gear, and the cannon lists named some parts but not others. Cannon
+ * equipment now belongs to Tools, including its unopened exchange set.
  */
 public class VoidAndCannonClassificationTest
 {
@@ -17,7 +18,7 @@ public class VoidAndCannonClassificationTest
 	};
 
 	private static final int[] CANNON_PARTS = {
-		6, 8, 10, 12, 26520, 26522, 26524, 26526
+		6, 8, 10, 12, 26520, 26522, 26524, 26526, 12863
 	};
 
 	@Test
@@ -33,13 +34,13 @@ public class VoidAndCannonClassificationTest
 	}
 
 	@Test
-	public void allFourPartsOfBothCannonsShareOneSubcategory()
+	public void allFourPartsOfBothCannonsAndTheirBoxUseTools()
 	{
 		for (int itemId : CANNON_PARTS)
 		{
 			ItemClassificationRefiner.Classification classification =
 				CanonicalItemClassificationOverrides.find(itemId).get();
-			assertEquals("item " + itemId, ItemCategory.GEAR, classification.getCategory());
+			assertEquals("item " + itemId, ItemCategory.TOOL, classification.getCategory());
 			assertEquals("item " + itemId, "cannon-part", classification.getSubcategory());
 		}
 	}

@@ -123,8 +123,7 @@ final class IronmanMainItemSorter
 			return 0;
 		}
 		String name = normalized(item.getDisplayName());
-		String[] order = {"air", "water", "earth", "fire", "mind", "body", "cosmic", "chaos",
-			"nature", "law", "death", "blood", "soul", "astral", "wrath"};
+		String[] order = ClassificationNames.group(81);
 		for (int index = 0; index < order.length; index++)
 		{
 			if (name.equals(order[index] + " rune"))
@@ -147,10 +146,7 @@ final class IronmanMainItemSorter
 			return 90;
 		}
 		String name = normalized(item.getDisplayName());
-		String[] order = {"varrock teleport", "lumbridge teleport", "falador teleport",
-			"teleport to house", "camelot teleport", "ardougne teleport", "watchtower teleport",
-			"trollheim teleport", "ape atoll teleport", "kourend castle teleport",
-			"civitas illa fortis teleport"};
+		String[] order = ClassificationNames.group(86);
 		for (int index = 0; index < order.length; index++)
 		{
 			if (name.equals(order[index]))

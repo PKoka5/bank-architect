@@ -139,11 +139,6 @@ public final class BankTabPlan
 		return mainItems;
 	}
 
-	public String getMainCategoryKey()
-	{
-		return mainCategoryKey;
-	}
-
 	public String getMainCategoryName()
 	{
 		return mainCategoryName;

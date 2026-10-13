@@ -9,30 +9,28 @@ import java.util.List;
 /**
  * Lays out owned Herblore chains in stable eight-cell rows:
  * grimy, clean, seed, unfinished, secondary, dose 3, dose 2, dose 1.
- * Complete recipes retain physical rows. Incomplete recipes stay dense and are
- * followed by other Herblore items, then Farming spillover; unrelated seeds or
- * produce therefore never masquerade as missing recipe cells.
+ * Complete recipes retain physical rows. Everything left over is grouped by
+ * kind, without incomplete recipe fragments or unrelated filler.
  */
 final class HerbloreItemSorter
 {
 	private static final int GRID_COLUMNS = 8;
-	private static final int MIN_CHAIN_CELLS = 2;
 
 	private static final Chain[] CHAINS = {
-		chain("guam", "attack potion", "eye of newt"),
-		chain("marrentill", "antipoison", "unicorn horn"),
-		chain("tarromin", "strength potion", "limpwurt"),
-		chain("harralander", "energy potion", "chocolate dust"),
-		chain("ranarr", "prayer potion", "snape grass"),
-		chain("toadflax", "saradomin brew", "crushed nest"),
-		chain("irit", "super attack", "eye of newt"),
-		chain("avantoe", "super energy", "mort myre fungus"),
-		chain("kwuarm", "super strength", "limpwurt"),
-		chain("snapdragon", "super restore", "red spiders"),
-		chain("cadantine", "super defence", "white berries"),
-		chain("lantadyme", "magic potion", "potato cactus"),
-		chain("dwarf weed", "ranging potion", "wine of zamorak"),
-		chain("torstol", "super combat potion")
+		chain("guam", "attack potion", 221),
+		chain("marrentill", "antipoison", 235),
+		chain("tarromin", "strength potion", 225),
+		chain("harralander", "energy potion", 1975),
+		chain("ranarr", "prayer potion", 231),
+		chain("toadflax", "saradomin brew", 6693),
+		chain("irit", "super attack", 221),
+		chain("avantoe", "super energy", 2970),
+		chain("kwuarm", "super strength", 225),
+		chain("snapdragon", "super restore", 223),
+		chain("cadantine", "super defence", 239),
+		chain("lantadyme", "magic potion", 3138),
+		chain("dwarf weed", "ranging potion", 245),
+		chain("torstol", "super combat potion", 0)
 	};
 
 	/**
@@ -40,8 +38,8 @@ final class HerbloreItemSorter
 	 * recipe: the chain a herb actually travels, with the seeds behind it.
 	 */
 	private static final List<String> RUN_ORDER = java.util.Arrays.asList(
-		"grimy-herbs", "clean-herbs", "unfinished-potions", "secondaries",
-		"herb-seeds", "potion-doses", "herblore-other");
+		"grimy-herbs", "clean-herbs", "herb-seeds", "unfinished-potions",
+		"secondaries", "potion-doses", "herblore-other");
 
 	private HerbloreItemSorter()
 	{
@@ -99,6 +97,7 @@ final class HerbloreItemSorter
 
 		herblore.sort(Comparator
 			.comparingInt(HerbloreItemSorter::runRank)
+			.thenComparingInt(HerbloreItemSorter::chainRank)
 			.thenComparing(item -> potionFamily(normalized(item.getDisplayName())))
 			.thenComparing(Comparator.comparingInt(
 				(BankPreviewItem item) -> doseOf(normalized(item.getDisplayName()))).reversed())
@@ -139,6 +138,16 @@ final class HerbloreItemSorter
 		return index < 0 ? RUN_ORDER.size() : index;
 	}
 
+	private static int chainRank(BankPreviewItem item)
+	{
+		String family = ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
+			.map(ItemSortMetadata::getFamilyKey).orElse("");
+		String name = normalized(item.getDisplayName());
+		for (int index = 0; index < CHAINS.length; index++)
+			if (family.equals(CHAINS[index].familyKey) || herbCell(CHAINS[index].herb, name) >= 0) return index;
+		return CHAINS.length;
+	}
+
 	/** Which part of the chain an item belongs to, by the same rule the tags use. */
 	private static String runKey(BankPreviewItem item)
 	{
@@ -151,13 +160,14 @@ final class HerbloreItemSorter
 	}
 
 	/**
-	 * The recipe rows. With row filling off, a short row is left short
-	 * rather than padded out with whatever else the tab happens to hold.
+	 * Only complete recipes claim a physical row; a disabled row option keeps
+	 * the entire tab grouped by kind. Placeholders still count as owned cells.
 	 */
 	static List<BankPreviewItem> layout(List<BankPreviewItem> items, boolean fillRows)
 	{
+		if (!fillRows) return layoutByKind(items);
 		Set<BankPreviewItem> unused = new LinkedHashSet<>(items);
-		List<RecipeRow> recipeRows = new ArrayList<>();
+		List<BankPreviewItem> laidOut = new ArrayList<>();
 		// Allocate shared secondaries from the highest-tier owned chain down.
 		// Insert accepted rows at the front so the final visual order remains
 		// low-to-high even though ownership is resolved high-to-low.
@@ -165,69 +175,14 @@ final class HerbloreItemSorter
 		{
 			Chain chain = CHAINS[chainIndex];
 			RecipeRow row = matchChain(chain, unused);
-			if (row.itemCount() >= MIN_CHAIN_CELLS && row.hasHerbInput())
+			if (row.isComplete())
 			{
-				recipeRows.add(0, row);
+				laidOut.addAll(0, row.items());
 				unused.removeAll(row.items());
 			}
 		}
 
-		List<BankPreviewItem> herbloreSpillover = new ArrayList<>();
-		List<BankPreviewItem> farmingSpillover = new ArrayList<>();
-		for (BankPreviewItem item : unused)
-		{
-			if (item.getItemCategory() == ItemCategory.FARMING)
-			{
-				farmingSpillover.add(item);
-			}
-			else
-			{
-				herbloreSpillover.add(item);
-			}
-		}
-		Comparator<BankPreviewItem> spilloverOrder = Comparator
-			.comparingInt(PresetItemSorter::herbloreSpilloverRank)
-			.thenComparing(item -> potionFamily(normalized(item.getDisplayName())))
-			.thenComparing(Comparator.comparingInt(
-				(BankPreviewItem item) -> doseOf(normalized(item.getDisplayName()))).reversed())
-			.thenComparing(item -> normalized(item.getDisplayName()))
-			.thenComparingInt(BankPreviewItem::getItemId);
-		herbloreSpillover.sort(spilloverOrder);
-		farmingSpillover.sort(spilloverOrder);
-
-		List<BankPreviewItem> laidOut = new ArrayList<>();
-		// Exact recipes are the only rows whose semantic cells can occupy all
-		// eight physical bank columns without unrelated filler.
-		for (RecipeRow row : recipeRows)
-		{
-			if (row.isComplete())
-			{
-				laidOut.addAll(row.items());
-			}
-		}
-		for (RecipeRow row : recipeRows)
-		{
-			if (!row.isComplete())
-			{
-				List<BankPreviewItem> rowItems = row.items();
-				int usedColumns = laidOut.size() % GRID_COLUMNS;
-				if (fillRows && usedColumns != 0 && usedColumns + rowItems.size() > GRID_COLUMNS)
-				{
-					while (laidOut.size() % GRID_COLUMNS != 0 && !herbloreSpillover.isEmpty())
-					{
-						laidOut.add(herbloreSpillover.remove(0));
-					}
-					while (laidOut.size() % GRID_COLUMNS != 0 && !farmingSpillover.isEmpty())
-					{
-						laidOut.add(farmingSpillover.remove(0));
-					}
-				}
-				laidOut.addAll(rowItems);
-			}
-		}
-		laidOut.addAll(herbloreSpillover);
-		laidOut.addAll(FarmingItemSorter.layout(farmingSpillover,
-			laidOut.size() % GRID_COLUMNS));
+		laidOut.addAll(layoutByKind(new ArrayList<>(unused)));
 		return laidOut;
 	}
 
@@ -259,14 +214,7 @@ final class HerbloreItemSorter
 				continue;
 			}
 
-			for (String secondary : chain.secondaries)
-			{
-				if (!name.endsWith(" seed") && name.contains(secondary))
-				{
-					cells[4] = first(cells[4], item);
-					break;
-				}
-			}
+			if (item.getItemId() == chain.secondary) cells[4] = first(cells[4], item);
 		}
 		return new RecipeRow(cells);
 	}
@@ -342,10 +290,10 @@ final class HerbloreItemSorter
 		return current == null ? candidate : current;
 	}
 
-	private static Chain chain(String herb, String product, String... secondaries)
+	private static Chain chain(String herb, String product, int secondary)
 	{
 		return new Chain(herb, "herb." + herb.replace(' ', '_'),
-			"potion." + product.replace(" potion", "").replace(' ', '_'), product, secondaries);
+			"potion." + product.replace(" potion", "").replace(' ', '_'), product, secondary);
 	}
 
 	private static final class Chain
@@ -354,16 +302,16 @@ final class HerbloreItemSorter
 		private final String familyKey;
 		private final String potionFamilyKey;
 		private final String product;
-		private final String[] secondaries;
+		private final int secondary;
 
 		private Chain(String herb, String familyKey, String potionFamilyKey, String product,
-			String[] secondaries)
+			int secondary)
 		{
 			this.herb = herb;
 			this.familyKey = familyKey;
 			this.potionFamilyKey = potionFamilyKey;
 			this.product = product;
-			this.secondaries = secondaries;
+			this.secondary = secondary;
 		}
 	}
 
@@ -376,19 +324,11 @@ final class HerbloreItemSorter
 			this.cells = cells;
 		}
 
-		private int itemCount()
-		{
-			return items().size();
-		}
-
-		private boolean hasHerbInput()
-		{
-			return cells[0] != null || cells[1] != null || cells[2] != null || cells[3] != null;
-		}
-
 		private boolean isComplete()
 		{
-			return itemCount() == GRID_COLUMNS;
+			for (BankPreviewItem cell : cells)
+				if (cell == null || cell.physicalBankSlotCount() != 1) return false;
+			return true;
 		}
 
 		private List<BankPreviewItem> items()

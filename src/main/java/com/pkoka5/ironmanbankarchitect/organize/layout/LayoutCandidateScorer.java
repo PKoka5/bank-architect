@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import java.util.Objects;
+import static com.pkoka5.ironmanbankarchitect.organize.layout.LayoutScore.Component.*;
 
 /**
  * Candidate-local 3A3 scoring. Only width evidence and canonical stage-matrix fragmentation are
@@ -19,8 +20,8 @@ final class LayoutCandidateScorer
 		group.requireCandidate(candidate);
 
 		return LayoutScore.builder()
-			.widthEvidenceRegret(widthRegret(group.getRule(), candidate.getWidth()))
-			.semanticFragmentation(fragmentation(group, candidate))
+			.set(WIDTH_EVIDENCE_REGRET, widthRegret(group.getRule(), candidate.getWidth()))
+			.set(SEMANTIC_FRAGMENTATION, fragmentation(group, candidate))
 			.build();
 	}
 
@@ -41,16 +42,16 @@ final class LayoutCandidateScorer
 		switch (group.getConfidenceTier())
 		{
 			case HIGH:
-				return score.highMissedRelations(group.getMissedRelations())
-					.highMissedCompleteness(group.getMissedCompleteness())
+				return score.set(HIGH_MISSED_RELATIONS, group.getMissedRelations())
+					.set(HIGH_MISSED_COMPLETENESS, group.getMissedCompleteness())
 					.build();
 			case MEDIUM:
-				return score.mediumMissedRelations(group.getMissedRelations())
-					.mediumMissedCompleteness(group.getMissedCompleteness())
+				return score.set(MEDIUM_MISSED_RELATIONS, group.getMissedRelations())
+					.set(MEDIUM_MISSED_COMPLETENESS, group.getMissedCompleteness())
 					.build();
 			case LOW:
-				return score.lowMissedRelations(group.getMissedRelations())
-					.lowMissedCompleteness(group.getMissedCompleteness())
+				return score.set(LOW_MISSED_RELATIONS, group.getMissedRelations())
+					.set(LOW_MISSED_COMPLETENESS, group.getMissedCompleteness())
 					.build();
 			default:
 				throw new IllegalStateException("Unhandled confidence tier: " + group.getConfidenceTier());

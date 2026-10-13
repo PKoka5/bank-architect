@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,6 +129,7 @@ public class FarmingItemSorterTest
 	private static BankPreviewItem categorized(int itemId, String name, ItemCategory category)
 	{
 		return new BankPreviewItem(new CatalogItem(itemId, name, category,
-			category.getDisplayLabel().toLowerCase(), Collections.emptySet(), null), 1);
+			CompositeItemCatalog.DEFAULT.findById(itemId).map(CatalogItem::getSubcategory)
+				.orElse(category.getDisplayLabel().toLowerCase()), Collections.emptySet(), null), 1);
 	}
 }

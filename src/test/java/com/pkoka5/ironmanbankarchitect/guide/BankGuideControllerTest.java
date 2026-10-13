@@ -26,11 +26,14 @@ import org.junit.Test;
 public class BankGuideControllerTest
 {
 	private BankGuideController controller;
+	// Historical prototype contracts remain executable here and are never bundled with the plugin.
+	private LegacyBankGuideController legacyController;
 
 	@Before
 	public void setUp()
 	{
-		controller = new BankGuideController(AllRoundIronmanPreset.create());
+		controller = new BankGuideController();
+		legacyController = new LegacyBankGuideController(AllRoundIronmanPreset.create());
 	}
 
 	@Test
@@ -83,7 +86,7 @@ public class BankGuideControllerTest
 	@Test
 	public void availableBlocksMatchPresetOrder()
 	{
-		List<VisualBlock> blocks = controller.getAvailableBlocks();
+		List<VisualBlock> blocks = legacyController.getAvailableBlocks();
 
 		assertEquals(2, blocks.size());
 		assertEquals("melee-setup", blocks.get(0).getKey());
@@ -95,7 +98,7 @@ public class BankGuideControllerTest
 	@Test
 	public void defaultSelectedBlockIsFirstAvailableBlock()
 	{
-		assertEquals("melee-setup", controller.getSelectedBlock().getKey());
+		assertEquals("melee-setup", legacyController.getSelectedBlock().getKey());
 	}
 
 	@Test
@@ -107,9 +110,9 @@ public class BankGuideControllerTest
 	@Test
 	public void selectBlockChangesSelectedBlock()
 	{
-		controller.selectBlock("irit-super-attack");
+		legacyController.selectBlock("irit-super-attack");
 
-		assertEquals("irit-super-attack", controller.getSelectedBlock().getKey());
+		assertEquals("irit-super-attack", legacyController.getSelectedBlock().getKey());
 	}
 
 	@Test
@@ -117,7 +120,7 @@ public class BankGuideControllerTest
 	{
 		try
 		{
-			controller.selectBlock("does-not-exist");
+			legacyController.selectBlock("does-not-exist");
 			fail("expected IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected)
@@ -203,23 +206,24 @@ public class BankGuideControllerTest
 	@Test
 	public void defaultAnalysisTextHasNoAnalysisYet()
 	{
-		assertEquals("No bank analysis yet.", controller.getAnalysisText());
+		assertEquals("No bank analysis yet.", legacyController.getAnalysisText());
 	}
 
 	@Test
 	public void bankClosedAnalysisTextIsPublished()
 	{
-		controller.publishBankAnalysis(BankAnalysisStatus.bankClosed());
+		legacyController.publishBankAnalysis(BankAnalysisStatus.bankClosed());
 
-		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
-		assertEquals("", controller.getAnalysisDetailText());
-		assertEquals(null, controller.getLatestMatchResult());
+		assertEquals("Open your bank before analyzing.", legacyController.getAnalysisText());
+		assertEquals("", legacyController.getAnalysisDetailText());
+		assertEquals(null, legacyController.getLatestMatchResult());
 	}
 
 	@Test
 	public void defaultCatalogSummaryTextPromptsAnalysis()
 	{
 		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals(BankAnalysisStatus.Kind.NOT_STARTED, analysis.kind());
 		assertEquals("Analyze your bank to see catalog overview.", analysis.catalogSummaryText());
 		assertEquals(null, analysis.catalogSummary().orElse(null));
 		assertEquals("Analyze your bank to preview owned-item blueprint.",
@@ -308,13 +312,21 @@ public class BankGuideControllerTest
 	@Test
 	public void bankClosedAnalysisResetsCatalogSummaryInsteadOfShowingStaleData()
 	{
+		controller.setBankOpen(true);
+		controller.setGuideEnabled(true);
 		controller.publishBankAnalysis(success(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0)
 		))));
+		controller.publishGuideProgress("Currency: 75% item-order progress.", 75);
+		assertEquals(75, controller.getGuideProgressPercent());
 
 		controller.publishBankAnalysis(BankAnalysisStatus.bankClosed());
 
 		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals(BankAnalysisStatus.Kind.BANK_CLOSED, analysis.kind());
+		assertEquals(-1, controller.getGuideProgressPercent());
+		assertEquals(BankGuideController.NO_GUIDANCE_PROGRESS_STATUS, controller.getGuideProgressText());
+		assertEquals(null, controller.organizationPreview());
 		assertEquals("Analyze your bank to see catalog overview.", analysis.catalogSummaryText());
 		assertEquals(null, analysis.catalogSummary().orElse(null));
 		assertEquals("Analyze your bank to preview owned-item blueprint.",
@@ -356,20 +368,20 @@ public class BankGuideControllerTest
 	@Test
 	public void bankClosedAnalysisClearsSelectedBlockResultAndCatalogOverview()
 	{
-		controller.selectBlock("irit-super-attack");
+		legacyController.selectBlock("irit-super-attack");
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(209, 1, 1)
 		));
-		controller.publishMatchResult(BankSlotMatcher.match(controller.getSelectedBlock(), snapshot));
-		controller.publishBankAnalysis(success(snapshot));
+		legacyController.publishMatchResult(BankSlotMatcher.match(legacyController.getSelectedBlock(), snapshot));
+		legacyController.publishBankAnalysis(success(snapshot));
 
-		controller.publishBankAnalysis(BankAnalysisStatus.bankClosed());
+		legacyController.publishBankAnalysis(BankAnalysisStatus.bankClosed());
 
-		assertEquals("Open your bank before analyzing.", controller.getAnalysisText());
-		assertEquals("", controller.getAnalysisDetailText());
-		assertEquals(null, controller.getLatestMatchResult());
-		BankAnalysisStatus analysis = controller.bankAnalysisStatus();
+		assertEquals("Open your bank before analyzing.", legacyController.getAnalysisText());
+		assertEquals("", legacyController.getAnalysisDetailText());
+		assertEquals(null, legacyController.getLatestMatchResult());
+		BankAnalysisStatus analysis = legacyController.bankAnalysisStatus();
 		assertEquals("Analyze your bank to see catalog overview.", analysis.catalogSummaryText());
 		assertEquals(null, analysis.catalogSummary().orElse(null));
 		assertEquals("Analyze your bank to preview owned-item blueprint.",
@@ -380,17 +392,17 @@ public class BankGuideControllerTest
 	@Test
 	public void matchResultIsStoredAndSummarized()
 	{
-		controller.selectBlock("irit-super-attack");
-		BlockMatchResult result = BankSlotMatcher.match(controller.getSelectedBlock(), new BankSnapshot(Arrays.asList(
+		legacyController.selectBlock("irit-super-attack");
+		BlockMatchResult result = BankSlotMatcher.match(legacyController.getSelectedBlock(), new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(209, 1, 0),
 			new BankItemSnapshot(259, 1, 1)
 		)));
 
-		controller.publishMatchResult(result);
+		legacyController.publishMatchResult(result);
 
-		assertEquals(result, controller.getLatestMatchResult());
-		assertEquals("Owned: 2 | Missing: 6 | Role-only: 0 | Reserved: 0", controller.getAnalysisText());
-		assertEquals("1. Irit seed \u2014 missing", controller.getAnalysisDetailText().split("\n")[0]);
+		assertEquals(result, legacyController.getLatestMatchResult());
+		assertEquals("Owned: 2 | Missing: 6 | Role-only: 0 | Reserved: 0", legacyController.getAnalysisText());
+		assertEquals("1. Irit seed \u2014 missing", legacyController.getAnalysisDetailText().split("\n")[0]);
 	}
 
 	@Test

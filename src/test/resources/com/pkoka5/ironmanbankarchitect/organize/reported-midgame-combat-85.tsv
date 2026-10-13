@@ -1,0 +1,89 @@
+# Normalized reported Combat bank; quantities reduced to 0/1, no account identifiers.
+# RuneLite equipment snapshot: https://static.runelite.net/item/stats.ids.min.json; captured 2026-10-12.
+# Snapshot SHA256: 99cdcb7514b2cf48655094d94e502d95d4ac708e328b25579d21511c4db3f1b8
+# id	name	category	subcategory	quantity	slot,astab,aslash,acrush,amagic,arange,str,rstr,prayer,dstab,dslash,dcrush,dmagic,drange,mdmg*10,aspeed
+10828	Helm of neitiznot	GEAR	head	1	0,0,0,0,0,0,3,0,3,31,29,34,3,30,0,0
+26674	Slayer helmet (i)	GEAR	head	1	0,0,0,0,3,3,0,0,0,30,32,27,10,30,0,0
+3755	Farseer helm	GEAR	head	1	0,-5,-5,-5,6,-5,0,0,0,8,10,12,6,0,0,0
+26219	Osmumten's fang	GEAR	weapon	1	3,105,75,0,0,0,103,0,0,0,0,0,0,0,0,5
+25975	Lightbearer	GEAR	ring	1	12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+25865	Bow of faerdhinen	GEAR	weapon	1	3,0,0,0,0,128,0,106,0,0,0,0,0,0,0,5
+31115	Eye of ayak (uncharged)	GEAR	weapon	1	3,0,0,0,30,0,0,0,2,1,5,5,10,0,0,3
+6570	Fire cape	GEAR	cape	1	1,1,1,1,1,1,4,0,2,11,11,11,11,11,0,0
+11832	Bandos chestplate	GEAR	body	1	4,0,0,0,-15,-10,4,0,1,98,93,105,-6,133,0,0
+2503	Black d'hide body	GEAR	body	1	4,0,0,0,-15,30,0,0,0,30,38,45,45,50,0,0
+4091	Mystic robe top	GEAR	body	1	4,0,0,0,20,0,0,0,0,0,0,0,20,0,0,0
+6585	Amulet of fury	GEAR	neck	1	2,10,10,10,10,10,8,0,5,15,15,15,15,15,0,0
+12954	Dragon defender	GEAR	shield	1	5,25,24,23,-3,-2,6,0,0,25,24,23,-3,-2,0,0
+7462	Barrows gloves	GEAR	hands	1	9,12,12,12,6,12,12,0,0,12,12,12,6,12,0,0
+11840	Dragon boots	GEAR	feet	1	10,0,0,0,-3,-1,4,0,0,16,17,18,0,0,0,0
+10499	Ava's accumulator	GEAR	cape	1	1,0,0,0,0,4,0,0,0,0,1,0,4,0,0,0
+11834	Bandos tassets	GEAR	legs	1	7,0,0,0,-21,-7,2,0,1,71,63,66,-4,93,0,0
+2497	Black d'hide chaps	GEAR	legs	1	7,0,0,0,-10,17,0,0,0,18,20,26,23,26,0,0
+4093	Mystic robe bottom	GEAR	legs	1	7,0,0,0,15,0,0,0,0,0,0,0,15,0,0,0
+31088	Avernic treads	GEAR	feet	1	10,5,5,5,11,15,4,2,0,21,25,25,10,10,10,0
+21795	Imbued zamorak cape	GEAR	cape	1	1,0,0,0,15,0,0,0,0,3,3,3,15,0,20,0
+8923	Witchwood icon	GEAR	neck	1	2,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0
+6889	Mage's book	GEAR	shield	1	5,0,0,0,15,0,0,0,0,0,0,0,15,0,20,0
+6920	Infinity boots	GEAR	feet	1	10,0,0,0,5,0,0,0,0,0,0,0,5,0,0,0
+11200	Dwarven helmet	GEAR	head	1	0,0,0,6,-2,-2,0,0,0,27,28,31,5,24,0,0
+10551	Fighter torso	GEAR	body	1	4,0,0,0,-40,0,4,0,0,62,85,62,-10,67,0,0
+21304	Obsidian platelegs	GEAR	legs	1	7,0,0,0,0,0,1,0,0,46,43,41,-10,40,0,0
+8850	Rune defender	GEAR	shield	1	5,20,19,18,-3,-2,5,0,0,20,19,18,-3,-2,0,0
+1540	Anti-dragon shield	GEAR	shield	1	5,0,0,0,0,0,0,0,0,7,9,8,2,8,0,0
+1185	Rune sq shield	GEAR	shield	1	5,0,0,0,-6,0,0,0,0,38,40,36,0,38,0,0
+6524	Toktz-ket-xil	GEAR	shield	1	5,0,0,0,-12,-8,5,0,0,40,42,38,0,65,0,0
+33101	Mooleta	GEAR	shield	1	5,5,7,7,-1,-1,1,0,0,4,8,8,-2,-1,0,0
+2890	Elemental shield	GEAR	shield	1	5,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0
+3105	Climbing boots	GEAR	feet	1	10,0,0,0,0,0,2,0,0,0,2,2,0,0,0,0
+4125	Black boots	GEAR	feet	1	10,0,0,0,-3,-1,0,0,0,7,8,9,0,0,0,0
+23037	Boots of stone	GEAR	feet	1	10,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0
+4151	Abyssal whip	GEAR	weapon	1	3,0,82,0,0,0,82,0,0,0,0,0,0,0,0,4
+13265	Abyssal dagger	GEAR	weapon	1	3,75,40,-4,1,0,75,0,0,0,0,0,1,0,0,4
+10858	Shadow sword	GEAR	weapon	1	3,-4,27,21,4,0,26,0,0,0,0,0,4,-1,0,6
+4587	Dragon scimitar	GEAR	weapon	1	3,8,67,-2,0,0,66,0,0,0,1,0,0,0,0,4
+1215	Dragon dagger	GEAR	weapon	1	3,40,25,-4,1,0,40,0,0,0,0,0,1,0,0,4
+28997	Dual macuahuitl	GEAR	weapon	1	3,115,-4,121,-4,0,81,0,0,0,0,0,0,0,0,4
+10887	Barrelchest anchor	GEAR	weapon	1	3,-2,10,92,0,0,100,0,0,0,0,0,0,0,0,6
+29889	Glacial temotli	GEAR	weapon	1	3,11,0,72,0,0,64,0,2,0,0,0,0,0,0,4
+24699	Blisterwood flail	GEAR	weapon	1	3,30,44,68,8,0,46,0,5,4,4,2,8,0,0,5
+4158	Leaf-bladed spear	GEAR	weapon	1	3,47,42,36,0,0,50,0,0,1,1,0,0,0,0,5
+7668	Gadderhammer	GEAR	weapon	1	3,-4,-4,35,-4,0,35,0,0,0,0,0,0,0,0,5
+11061	Ancient mace	GEAR	weapon	1	3,10,-2,16,0,0,14,0,3,0,0,0,0,0,0,5
+6746	Darklight	GEAR	weapon	1	3,10,16,-2,0,0,13,0,0,0,3,2,2,0,0,5
+26770	Berserker ring (i)	GEAR	ring	1	12,0,0,0,0,0,8,0,0,0,0,8,0,0,0,0
+2550	Ring of recoil	GEAR	ring	1	12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+6735	Warrior ring	GEAR	ring	1	12,0,4,0,0,0,0,0,0,0,4,0,0,0,0,0
+21140	Efaritay's aid	GEAR	ring	1	12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+2570	Ring of life	GEAR	ring	1	12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+3749	Archer helm	GEAR	head	1	0,-5,-5,-5,-5,6,0,0,0,6,8,10,6,6,0,0
+23985	Crystal bow (inactive)	GEAR	weapon	1	3,0,0,0,0,100,0,78,0,0,0,0,0,0,0,5
+29280	Mixed hide top	GEAR	body	1	4,4,-2,-3,-15,27,2,0,0,33,39,43,30,32,0,0
+29283	Mixed hide legs	GEAR	legs	1	7,3,-1,-2,-10,14,0,0,0,20,23,22,16,20,0,0
+29286	Mixed hide boots	GEAR	feet	1	10,0,0,0,-10,5,2,0,0,4,5,6,3,3,0,0
+12788	Magic shortbow (i)	GEAR	weapon	1	3,0,0,0,0,75,0,0,0,0,0,0,0,0,0,4
+805	Rune thrownaxe	GEAR	weapon	1	3,0,0,0,0,26,0,36,0,0,0,0,0,0,0,5
+8880	Dorgeshuun crossbow	GEAR	weapon	1	3,0,0,0,0,42,0,0,0,0,0,0,0,0,0,5
+865	Steel knife	GEAR	weapon	1	3,0,0,0,0,8,0,7,0,0,0,0,0,0,0,3
+10034	Red chinchompa	GEAR	weapon	1	3,0,0,0,0,70,0,15,0,0,0,0,0,0,0,4
+859	Magic longbow	GEAR	weapon	1	3,0,0,0,0,69,0,0,0,0,0,0,0,0,0,6
+855	Yew longbow	GEAR	weapon	1	3,0,0,0,0,47,0,0,0,0,0,0,0,0,0,6
+10033	Chinchompa	GEAR	weapon	1	3,0,0,0,0,45,0,0,0,0,0,0,0,0,0,4
+4827	Comp ogre bow	GEAR	weapon	1	3,0,0,0,0,38,0,0,0,0,0,0,0,0,0,5
+847	Willow longbow	GEAR	weapon	1	3,0,0,0,0,20,0,0,0,0,0,0,0,0,0,6
+20714	Tome of fire	GEAR	shield	1	5,0,0,0,8,0,0,0,0,0,0,0,8,0,0,0
+12899	Trident of the swamp	GEAR	weapon	1	3,0,0,0,25,0,0,0,0,2,3,1,15,0,0,4
+12658	Iban's staff (u)	GEAR	weapon	1	3,10,-1,40,10,0,50,0,0,2,3,1,10,0,0,5
+1381	Staff of air	GEAR	weapon	1	3,0,-1,7,10,0,3,0,0,2,3,1,10,0,0,5
+1385	Staff of earth	GEAR	weapon	1	3,1,-1,9,10,0,5,0,0,2,3,1,10,0,0,5
+1383	Staff of water	GEAR	weapon	1	3,0,-1,7,10,0,3,0,0,2,3,1,10,0,0,5
+9084	Lunar staff	GEAR	weapon	1	3,3,2,16,13,0,15,0,3,2,3,2,13,1,0,5
+4675	Ancient staff	GEAR	weapon	1	3,10,-1,40,15,0,50,0,-1,2,3,1,15,0,0,4
+1393	Fire battlestaff	GEAR	weapon	1	3,7,-1,28,12,0,35,0,0,2,3,1,12,0,0,5
+3053	Lava battlestaff	GEAR	weapon	1	3,7,-1,28,12,0,35,0,0,2,3,1,12,0,0,5
+26763	Salve amulet(i)	GEAR	neck	1	2,0,0,0,0,0,0,0,3,3,3,3,0,0,0,0
+9674	Proselyte hauberk	GEAR	body	1	4,0,0,0,-30,-15,0,0,8,65,63,55,-6,63,0,0
+9676	Proselyte cuisse	GEAR	legs	1	7,0,0,0,-21,-11,0,0,6,33,31,29,-4,31,0,0
+544	Monk's robe top	GEAR	body	1	4,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0
+542	Monk's robe	GEAR	legs	1	7,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0
+12601	Ring of the gods	GEAR	ring	1	12,0,0,0,0,0,0,0,4,1,1,1,1,1,0,0

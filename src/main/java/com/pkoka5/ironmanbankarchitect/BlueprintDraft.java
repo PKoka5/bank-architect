@@ -37,7 +37,8 @@ final class BlueprintDraft
 	}
 	void selectTab(int tab) { this.tab = tab; }
 	int itemCount(int tab) { return tabs.get(tab).size(); }
-	List<BankPreviewItem> items() { return Collections.unmodifiableList(tabs.get(tab)); }
+	List<BankPreviewItem> items() { return items(tab); }
+	List<BankPreviewItem> items(int tab) { return Collections.unmodifiableList(tabs.get(tab)); }
 	List<Integer> ids() { return items().stream().map(BankPreviewItem::getItemId).collect(Collectors.toList()); }
 	Map<Integer, List<Integer>> orders()
 	{

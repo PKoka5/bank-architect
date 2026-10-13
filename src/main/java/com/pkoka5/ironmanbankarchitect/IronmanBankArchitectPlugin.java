@@ -9,7 +9,6 @@ import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.*;
 import com.pkoka5.ironmanbankarchitect.overlay.*;
 import com.pkoka5.ironmanbankarchitect.override.UserCategoryOverrides;
-import com.pkoka5.ironmanbankarchitect.preset.AllRoundIronmanPreset;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -30,6 +29,7 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.*;
 import net.runelite.client.events.*;
 import net.runelite.client.game.*;
+import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.*;
 import net.runelite.client.ui.*;
 import net.runelite.client.ui.overlay.*;
@@ -70,6 +70,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	@Inject
 	private ItemManager itemManager;
+	@Inject
+	private SpriteManager spriteManager;
 
 	@Inject
 	private IronmanBankArchitectConfig config;
@@ -78,6 +80,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private ConfigManager configManager;
 	@Inject
 	private EventBus eventBus;
+	@Inject
+	private MouseManager mouseManager;
 	private PresetSettings settings;
 
 	@Inject
@@ -89,7 +93,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private BankAnalysis bankAnalysis;
 	private BankGuideOverlay guideOverlay;
 	private BankCategoryOverlay categoryOverlay;
+	private BankBlueprintOverlay blueprintOverlay;
 	private final Cache<String, AsyncBufferedImage> itemIcons = CacheBuilder.newBuilder().maximumSize(2048).build();
+	private final Cache<SpritePixels, BufferedImage> bankBackgrounds = CacheBuilder.newBuilder().maximumSize(16).build();
 	private final AtomicBoolean settingsRefreshQueued = new AtomicBoolean();
 	/** The items the latest analysis request saw; null until a bank was captured. */
 	private Map<Integer, List<Integer>> analyzedBankContents;
@@ -99,7 +105,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	{
 		settingsRefreshQueued.set(false);
 		initializeCustomProfiles();
-		guideController = new BankGuideController(AllRoundIronmanPreset.create());
+		guideController = new BankGuideController();
 		guideController.setBankOpenedListener(this::onBankOpened);
 		guideController.publishCategoryOverrideCount(categoryOverrides().size());
 		bankAnalysis = new BankAnalysis(
@@ -117,10 +123,22 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		categoryOverlay = new BankCategoryOverlay(this, client, guideController, config,
 			reservations);
 		overlayManager.add(categoryOverlay);
+		blueprintOverlay = new BankBlueprintOverlay(this, client, this::bankPreviewIcon,
+			this::bankBackground, reservations, () -> {
+			IronmanBankArchitectPanel currentPanel = panel;
+			SwingUtilities.invokeLater(() -> { if (panel == currentPanel && currentPanel != null) currentPanel.stopBankPreview(); });
+		});
+		overlayManager.add(blueprintOverlay);
+		mouseManager.registerMouseListener(blueprintOverlay);
+		mouseManager.registerMouseWheelListener(blueprintOverlay);
 
 		panel = new IronmanBankArchitectPanel(guideController, this::analyzeBank, this::renderItemIcon,
 			this::resetCategoryOverrides, bankLayoutModel());
 		panel.configureReleaseNotice(config::lastSeenRelease, config::setLastSeenRelease);
+		BankBlueprintOverlay previewOverlay = blueprintOverlay;
+		panel.configureBankPreview(snapshot -> clientThread.invoke(() -> {
+			if (blueprintOverlay == previewOverlay) previewOverlay.show(snapshot);
+		}));
 		panel.configureHeaderActions(() -> {
 			if (guideOverlay != null) eventBus.post(new OverlayMenuClicked(
 				new OverlayMenuEntry(MenuAction.RUNELITE_OVERLAY_CONFIG, "Configure", PLUGIN_NAME), guideOverlay));
@@ -167,12 +185,21 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		{
 			panel.shutdown();
 		}
+		if (blueprintOverlay != null)
+		{
+			blueprintOverlay.hide();
+			mouseManager.unregisterMouseListener(blueprintOverlay);
+			mouseManager.unregisterMouseWheelListener(blueprintOverlay);
+			overlayManager.remove(blueprintOverlay);
+			blueprintOverlay = null;
+		}
 
 		// The executor belongs to the client and is shared, so it is never shut
 		// down here. Closing bankAnalysis invalidates every queued callback.
 		guideController = null;
 		panel = null;
 		itemIcons.invalidateAll();
+		bankBackgrounds.invalidateAll();
 		analyzedBankContents = null;
 	}
 
@@ -230,6 +257,21 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				.onClick(entry -> { if (activePreset() == menuPreset && activeProfileName().equals(menuProfile))
 					applyCategoryOverride(itemId, itemName, null); });
 		}
+	}
+
+	@Subscribe public void onMenuOptionClicked(MenuOptionClicked event)
+	{
+		if (blueprintOverlay != null && blueprintOverlay.isActive() && event.getParam1() >>> 16 == InterfaceID.BANKMAIN
+			&& !blueprintOverlay.isTabView(event))
+		{ event.consume(); blueprintOverlay.close(); }
+	}
+	@Subscribe public void onWidgetClosed(WidgetClosed event)
+	{
+		if (blueprintOverlay != null && event.getGroupId() == InterfaceID.BANKMAIN) blueprintOverlay.close();
+	}
+	@Subscribe public void onGameStateChanged(GameStateChanged event)
+	{
+		if (blueprintOverlay != null && event.getGameState() != GameState.LOGGED_IN) blueprintOverlay.close();
 	}
 
 	/**
@@ -920,11 +962,38 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			return;
 		}
 
-		String cacheKey = item.getItemId() + ":" + item.getQuantity();
-		AsyncBufferedImage image = itemIcons.asMap().computeIfAbsent(cacheKey,
-			key -> itemManager.getImage(item.getItemId(), item.getQuantity(), item.getQuantity() > 1));
 		label.setText("");
-		image.addTo(label);
+		itemIcon(item).addTo(label);
+	}
+
+	private AsyncBufferedImage itemIcon(BankPreviewItem item)
+	{
+		return cachedItemIcon(item.getItemId(), item.getQuantity());
+	}
+
+	private BufferedImage bankPreviewIcon(BankPreviewItem item)
+	{
+		int id = item.getItemId();
+		if (item.isPlaceholder())
+		{
+			ItemComposition definition = client.getItemDefinition(id);
+			if (definition != null && definition.getPlaceholderId() > 0) id = definition.getPlaceholderId();
+		}
+		return cachedItemIcon(id, item.getQuantity());
+	}
+
+	private BufferedImage bankBackground(Widget widget)
+	{
+		SpritePixels override = client.getWidgetSpriteOverrides().get(widget.getId());
+		if (override == null) override = client.getSpriteOverrides().get(widget.getSpriteId());
+		return override == null ? spriteManager.getSprite(widget.getSpriteId(), 0)
+			: bankBackgrounds.asMap().computeIfAbsent(override, SpritePixels::toBufferedImage);
+	}
+
+	private AsyncBufferedImage cachedItemIcon(int id, int quantity)
+	{
+		return itemIcons.asMap().computeIfAbsent(id + ":" + quantity,
+			key -> itemManager.getImage(id, quantity, quantity > 1));
 	}
 
 	// 16px version of the Plugin Hub icon.png: blueprint bank grid with a gold coin.

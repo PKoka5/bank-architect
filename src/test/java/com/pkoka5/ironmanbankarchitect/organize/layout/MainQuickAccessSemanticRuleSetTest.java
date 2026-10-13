@@ -1,12 +1,25 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
+import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
+import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
+import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
 import com.pkoka5.ironmanbankarchitect.catalog.ItemCategory;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
+import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
+import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
+import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
+import com.pkoka5.ironmanbankarchitect.organize.CategoryOverrideSource;
+import com.pkoka5.ironmanbankarchitect.organize.GearStatsSource;
+import com.pkoka5.ironmanbankarchitect.organize.ItemValueSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -84,6 +97,93 @@ public class MainQuickAccessSemanticRuleSetTest
 
 		assertEquals(Arrays.asList(11850, 11854, 11856, 11858, 11860, 11852),
 			rule.getAtoms().get(0).getItemIds());
+	}
+
+	@Test
+	public void missingWearSlotsUseCompatibleColoursAfterThePreferredSet()
+	{
+		SemanticRule rule = MainQuickAccessSemanticRuleSet.forEntries(mixedGracefulEntries()).getRules().get(0);
+
+		assertEquals(Arrays.asList(11850, 11854, 11856, 13587, 13589, 13581),
+			rule.getAtoms().get(0).getItemIds());
+	}
+
+	@Test
+	public void anotherColourHoodDoesNotDuplicateTheChosenHoodSlot()
+	{
+		List<LayoutEntry> entries = mixedGracefulEntries();
+		entries.add(entry(30045, "Graceful hood", ItemCategory.TOOL, "skilling-outfit"));
+		SemanticRule rule = MainQuickAccessSemanticRuleSet.forEntries(entries).getRules().get(0);
+
+		assertEquals(Arrays.asList(11850, 11854, 11856, 13587, 13589, 13581),
+			rule.getAtoms().get(0).getItemIds());
+	}
+
+	@Test
+	public void unknownPreferredPieceNameRetainsLegacyMembersWithoutBorrowingOtherSlots()
+	{
+		List<LayoutEntry> entries = mixedGracefulEntries();
+		entries.set(0, entry(11850, "Unrecognized graceful piece", ItemCategory.TOOL, "skilling-outfit"));
+		SemanticRule rule = MainQuickAccessSemanticRuleSet.forEntries(entries).getRules().get(0);
+
+		assertEquals("unknown names cannot establish which wear slot is missing",
+			Arrays.asList(11854, 11856, 11850), rule.getAtoms().get(0).getItemIds());
+	}
+
+	private static List<LayoutEntry> mixedGracefulEntries()
+	{
+		return new ArrayList<>(Arrays.asList(
+			entry(11850, "Graceful hood", ItemCategory.TOOL, "skilling-outfit"),
+			entry(11854, "Graceful top", ItemCategory.TOOL, "skilling-outfit"),
+			entry(11856, "Graceful legs", ItemCategory.TOOL, "skilling-outfit"),
+			entry(13581, "Graceful cape", ItemCategory.TOOL, "skilling-outfit"),
+			entry(13587, "Graceful gloves", ItemCategory.TOOL, "skilling-outfit"),
+			entry(13589, "Graceful boots", ItemCategory.TOOL, "skilling-outfit")));
+	}
+
+	@Test
+	public void defaultIronmanRoutesMixedGracefulToOneMainWearColumnWithPlaceholders()
+	{
+		int[] wearOrder = {11850, 11854, 11856, 13587, 13589, 13581};
+		int[] ordinaryMainItems = {995, 13204, 12012, 21555, 25527, 6529, 6306,
+			556, 555, 557, 554, 558, 562, 560, 565, 559, 564, 561, 563, 9075, 566,
+			4699, 21880, 4695, 4696, 4698, 4697, 4694,
+			8007, 8008, 8009, 8010, 8011, 8012, 8013,
+			11741, 11742, 11743, 11744, 11745, 11746, 11747,
+			12402, 12403, 12404, 12405, 12406, 12407, 12408, 12409, 12410, 12411,
+			12775, 12776, 12777, 12778, 12779, 12780, 12781, 12782};
+		List<BankItemSnapshot> bank = new ArrayList<>();
+		for (int[] group : new int[][]{wearOrder, ordinaryMainItems})
+			for (int id : group)
+			{
+				assertTrue("real catalogue entry " + id, CompositeItemCatalog.DEFAULT.findById(id).isPresent());
+				boolean withdrawn = id == 13581 || id == 13589;
+				bank.add(new BankItemSnapshot(id, withdrawn ? 0 : 1, bank.size(), withdrawn));
+			}
+		Collections.reverse(bank);
+		BankLayoutOptions defaults = BankLayoutOptions.defaultFor(BankPresets.IRONMAN);
+		assertTrue(defaults.gatherFrequentlyUsed());
+		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(bank),
+			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
+			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN), defaults);
+		List<Integer> main = preview.getCategories().get(0).getItems().stream()
+			.map(BankPreviewItem::getItemId).collect(Collectors.toList());
+		assertTrue("real Main entries provide room for a six-piece column", main.size() >= 48);
+		for (int row = 0; row < wearOrder.length; row++)
+			assertEquals("default quick access includes the actual mixed-colour wear slot " + wearOrder[row],
+				7 + row * 8, main.indexOf(wearOrder[row]));
+		Map<Integer, BankItemSnapshot> originals = new LinkedHashMap<>();
+		for (BankItemSnapshot item : bank) originals.put(item.getItemId(), item);
+		assertEquals(bank.size(), preview.getPlannedItems().size());
+		for (BankPreviewItem item : preview.getPlannedItems())
+		{
+			assertTrue("no synthetic items or row fillers", !item.isBlank());
+			BankItemSnapshot original = originals.remove(item.getItemId());
+			assertTrue("each actual item occurs exactly once", original != null);
+			assertEquals(original.getQuantity(), item.getQuantity());
+			assertEquals(original.isPlaceholder(), item.isPlaceholder());
+		}
+		assertTrue(originals.isEmpty());
 	}
 
 	/** Every family names its pieces identically, so one lookup covers them all. */

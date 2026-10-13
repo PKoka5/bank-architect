@@ -17,24 +17,6 @@ final class LayoutCandidateGenerator
 	{
 	}
 
-	/**
-	 * Flat run-only view retained for the focused 3A2 geometry contract. Packing code must consume
-	 * {@link #generate(LayoutRequest)} so eligible groups with no feasible candidate are not lost.
-	 */
-	static List<LayoutCandidate> generateRunCandidates(LayoutRequest request)
-	{
-		List<LayoutCandidate> candidates = new ArrayList<>();
-		for (LayoutCandidateGroup group : generate(request))
-		{
-			if (group.getShapePrimitive() == ShapePrimitive.HORIZONTAL_RUN
-				|| group.getShapePrimitive() == ShapePrimitive.VERTICAL_RUN)
-			{
-				candidates.addAll(group.getCandidates());
-			}
-		}
-		return Collections.unmodifiableList(candidates);
-	}
-
 	static List<LayoutCandidateGroup> generate(LayoutRequest request)
 	{
 		Objects.requireNonNull(request, "request");

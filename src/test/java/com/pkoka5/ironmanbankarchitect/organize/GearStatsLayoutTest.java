@@ -69,7 +69,7 @@ public class GearStatsLayoutTest
 	}
 
 	@Test
-	public void ringsAndUnknownSlotsStayOutOfSetupLanes()
+	public void bestRingAndWeaponBelongToTheCompactPrimaryFront()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, new GearStats(GearSlot.RING, 0, 0, 0, 0, 0, 4, 0, 0, 0));
@@ -82,6 +82,10 @@ public class GearStatsLayoutTest
 
 		assertEquals("Trophy of valor", laidOut.get(0).getDisplayName());
 		assertEquals("Circle of dawn", laidOut.get(1).getDisplayName());
+		GearItemSorter.GearLayout plan = GearItemSorter.plan(laidOut, sourceOf(stats));
+		assertEquals("weapon and ring are both deliberate primary choices", 2, plan.getSetupRows().size());
+		assertTrue("support items are not invented armour cells",
+			GearItemSorter.setupTargets(plan, laidOut.size()).isEmpty());
 	}
 
 	@Test
@@ -106,19 +110,27 @@ public class GearStatsLayoutTest
 		GearItemSorter.GearLayout plan = GearItemSorter.plan(items, sourceOf(stats));
 		List<BankPreviewItem> laidOut = GearItemSorter.layout(items, sourceOf(stats));
 
-		// The bank compacts this into the four best helms followed by jewellery.
-		assertEquals("rings cannot create an aligned helmet row", 0, plan.getAlignedSize());
-		assertEquals("only actual best helms belong in the compact front", 4, plan.getSetupRows().size());
+		assertEquals("three best helms and one best melee ring form the real primary front",
+			Arrays.asList("Crown of iron", "Signet 10", "Crown of winds", "Crown of stars"), names(plan.getSetupRows()));
 		assertEquals(16, laidOut.size());
-		assertEquals("Crown of iron", laidOut.get(0).getDisplayName());
-		assertEquals("Crown of winds", laidOut.get(1).getDisplayName());
-		assertEquals("Crown of stars", laidOut.get(2).getDisplayName());
-		assertEquals("Crown of light", laidOut.get(3).getDisplayName());
-		for (int i = 4; i < 16; i++)
-		{
-			assertEquals("tail cell " + i + " should be a grouped ring", true,
-				laidOut.get(i).getDisplayName().startsWith("Signet"));
-		}
+		assertEquals("Prayer is retained outside the three primary styles", "Crown of light",
+			laidOut.get(15).getDisplayName());
+		assertEquals("all twelve real rings survive", 12,
+			laidOut.stream().filter(item -> item.getDisplayName().startsWith("Signet")).count());
+	}
+
+	@Test
+	public void anUnknownRuneItemCannotDisplaceTheRealPrimaryRing()
+	{
+		BankPreviewItem ring = item(987101, "Circle of dawn");
+		BankPreviewItem unknown = item(987102, "Rune relic");
+		GearStatsSource stats = id -> id == ring.getItemId()
+			? Optional.of(new GearStats(GearSlot.RING, 0, 0, 0, 0, 0, 4, 0, 0, 0))
+			: Optional.empty();
+		GearItemSorter.GearLayout plan = GearItemSorter.plan(Arrays.asList(unknown, ring), stats);
+		assertEquals("missing slot metadata must not masquerade as a ring", Collections.singletonList("Circle of dawn"),
+			names(plan.getSetupRows()));
+		assertEquals(Collections.singletonList("Rune relic"), names(plan.getTail()));
 	}
 
 	@Test

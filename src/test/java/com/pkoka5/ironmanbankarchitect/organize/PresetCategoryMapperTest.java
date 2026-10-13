@@ -287,9 +287,9 @@ public class PresetCategoryMapperTest
 			654, 656, 658, 660, 662, 664,
 			19958, 19961, 19964, 19967, 19970, 19973, 19976, 19979, 19982, 19985);
 		assertRegistryItemsRoute("skilling-tools",
-			88, 1005, 20713, 25434, 25436, 25438, 25440, 25597, 27031, 28172, 28176);
+			10, 88, 1005, 20713, 25434, 25436, 25438, 25440, 25597, 27031, 28172, 28176);
 		assertRegistryItemsRoute("herblore", 243);
-		assertRegistryItemsRoute("combat-gear", 10, 805, 20714, 25574, 30064);
+		assertRegistryItemsRoute("combat-gear", 805, 20714, 25574, 30064);
 	}
 
 	@Test
