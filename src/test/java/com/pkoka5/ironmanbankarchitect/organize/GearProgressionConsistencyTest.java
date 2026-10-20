@@ -86,6 +86,35 @@ public class GearProgressionConsistencyTest
 	}
 
 	@Test
+	public void obsidianPlatebodyOutranksRuneBodiesButNotTheBetterMidTierBodies()
+	{
+		Map<Integer, GearStats> stats = new LinkedHashMap<>();
+		stats.put(21301, body(0, 3, 55, 78, 56, -15, 60)); // Obsidian platebody
+		stats.put(1113, body(0, 0, 63, 72, 78, -3, 65)); // Rune chainbody
+		stats.put(1127, body(0, 0, 82, 80, 72, -6, 80)); // Rune platebody
+		stats.put(10551, body(0, 4, 62, 85, 62, -10, 67)); // Fighter torso
+		stats.put(5575, body(6, 0, 46, 44, 38, -6, 44)); // Initiate hauberk
+		GearStatsSource source = itemId -> Optional.ofNullable(stats.get(itemId));
+		BankPreviewItem obsidian = item(21301, "Obsidian platebody");
+
+		assertEquals(3, GearTierCatalog.INSTANCE.tierOf(21301).orElse(-1));
+		assertTrue("beats rune chainbody", GearItemSorter.score(obsidian, source)
+			> GearItemSorter.score(item(1113, "Rune chainbody"), source));
+		assertTrue("beats rune platebody", GearItemSorter.score(obsidian, source)
+			> GearItemSorter.score(item(1127, "Rune platebody"), source));
+		assertTrue("beats initiate hauberk", GearItemSorter.score(obsidian, source)
+			> GearItemSorter.score(item(5575, "Initiate hauberk"), source));
+		assertTrue("loses to fighter torso", GearItemSorter.score(obsidian, source)
+			< GearItemSorter.score(item(10551, "Fighter torso"), source));
+	}
+
+	private static GearStats body(int prayer, int strength, int stab, int slash, int crush, int magic, int ranged)
+	{
+		return new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, strength, 0, prayer,
+			stab, slash, crush, magic, ranged, 0, 0);
+	}
+
+	@Test
 	public void recentEndgameUpgradesOutrankOlderEquipmentWithModestStatAdvantages()
 	{
 		Map<Integer, GearStats> stats = fixtureStats();
