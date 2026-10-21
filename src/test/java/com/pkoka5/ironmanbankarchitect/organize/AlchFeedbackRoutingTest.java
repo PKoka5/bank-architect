@@ -257,15 +257,14 @@ public class AlchFeedbackRoutingTest
 	}
 
 	@Test
-	public void placeholderDragonHalberdIsNeverAlchStock()
+	public void placeholderDragonHalberdIsStillAlchStock()
 	{
 		BankSnapshot bank = new BankSnapshot(Collections.singletonList(new BankItemSnapshot(DRAGON_HALBERD, 0, 0, true)));
 		for (BankPreset preset : PRESETS)
 		{
 			BankOrganizationPreview preview = build(preset, bank, Collections.emptyMap());
-			assertTag(preview, DRAGON_HALBERD, "gear");
+			assertTag(preview, DRAGON_HALBERD, "alch");
 			assertTrue(item(preview, DRAGON_HALBERD).isPlaceholder());
-			assertEquals(0, alchCount(preview));
 		}
 	}
 
@@ -281,6 +280,10 @@ public class AlchFeedbackRoutingTest
 					VALUES, overrides, BankLayoutOptions.defaultFor(preset));
 				assertTag(preview, DRAGON_HALBERD, "gear");
 				assertEquals(0, alchCount(preview));
+				BankOrganizationPreview withdrawn = build(preset, new BankSnapshot(Collections.singletonList(
+					new BankItemSnapshot(DRAGON_HALBERD, 0, 0, true))), Collections.emptyMap(),
+					VALUES, overrides, BankLayoutOptions.defaultFor(preset));
+				assertTag(withdrawn, DRAGON_HALBERD, "gear");
 			}
 		}
 	}

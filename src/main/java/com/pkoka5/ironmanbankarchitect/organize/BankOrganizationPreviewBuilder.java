@@ -12,17 +12,11 @@ import java.util.List;
 
 public final class BankOrganizationPreviewBuilder
 {
-	// An item is an alch candidate when this many strictly better items of the
-	// same style and slot are owned (best + one backup stay in combat gear).
+	// Unreviewed gear moves only when this many better items of the same style
+	// and slot are in the bank (best + one backup stay in combat gear).
 	private static final int OUTCLASSED_BY_COUNT = 2;
-	private static final int ALCH_VALUE_THRESHOLD = 5000;
-	// Bulk smithing output can still be worth processing below the normal
-	// threshold, but very cheap utility clothing (for example Monk's robes)
-	// must never move merely because the player owns a stack.
-	private static final int BULK_STOCK_MIN_ALCH_VALUE = 1000;
-	// Owning this many copies of one wearable marks it as production stock
-	// (smithing/crafting output), not a gear option the player switches to.
-	private static final int BULK_STOCK_QUANTITY = 8;
+	// Below this a cast barely covers its nature rune.
+	private static final int MIN_ALCH_VALUE = 500;
 	private static final String ALCH_CATEGORY_KEY = "slayer-boss-loot";
 
 	private BankOrganizationPreviewBuilder()
@@ -142,7 +136,7 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		Map<String, List<BankGear>> gearByKey = new LinkedHashMap<>();
-		Set<Integer> realOwned = new HashSet<>();
+		Set<Integer> owned = new HashSet<>();
 		Map<Integer, String> choices = new HashMap<>();
 		boolean captured = options.itemOrders().isCaptured();
 		java.util.Set<Integer> quickToolIds = options.gatherFrequentlyUsed()
@@ -151,7 +145,7 @@ public final class BankOrganizationPreviewBuilder
 		{
 			if (!options.alchPile() || (!main && preset.getType() != BankPresetType.IRONMAN)) break;
 			int itemId = bankItem.getItemId();
-			if (!bankItem.isPlaceholder()) realOwned.add(itemId);
+			owned.add(itemId);
 			BankTag choice = overrideTag(overrides, itemId);
 			BankCategory legacyChoice = overriddenCategory(preset, overrides, itemId);
 			if (choice != null) choices.put(itemId, choice.getKey());
@@ -196,11 +190,11 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory("potions-food");
 			}
-			boolean alchCandidate = options.alchPile() && !bankItem.isPlaceholder()
+			boolean alchCandidate = options.alchPile()
 				&& sourceItem.getCategory() != ItemCategory.UNKNOWN
 				&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
-				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-				gearStats, itemValues, gearByKey, realOwned, choices);
+				&& isAlchCandidate(preset, category, catalogItem,
+				gearStats, itemValues, gearByKey, owned, choices);
 			if (alchCandidate)
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
@@ -520,15 +514,16 @@ public final class BankOrganizationPreviewBuilder
 			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey), bankItem.getSlotIndex());
 	}
 
-	/** Shared Main/Ironman policy: reviewed armour accepts exact higher-tier bank placeholders;
-	 * other comparisons need an owned replacement. A placeholder records the planned kit,
-	 * not present ownership. Removing it restores normal classification.
-	 * Unknown stock needs full dominance and the conservative value/backup rules.
-	 * A weighted score alone cannot prove replacement. The exact Dragon halberd
-	 * exception is an explicit owner choice, still subject to the option and overrides. */
-	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
+	/** Shared Main/Ironman policy, two questions and neither uses quantity or placeholder state.
+	 * Eligibility is about the item: reviewed stock, or the market prices it near its alch value
+	 * (GE at most 1.25x) and it alches for at least MIN_ALCH_VALUE; never with a known role.
+	 * Replacement is about the bank: an owned or withdrawn item fully dominates it, holds an exact
+	 * higher armour tier or fills its reviewed role. Unreviewed gear also keeps a backup.
+	 * Releasing that placeholder restores Combat. The exact Dragon
+	 * halberd exception is an explicit owner choice, still subject to the option and overrides. */
+	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem,
 		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<BankGear>> gearByKey,
-		Set<Integer> realOwned, Map<Integer, String> choices)
+		Set<Integer> owned, Map<Integer, String> choices)
 	{
 		if (PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
 			normalizedSubcategory(catalogItem), catalogItem.getDisplayName())) return false;
@@ -539,74 +534,40 @@ public final class BankOrganizationPreviewBuilder
 		// Owner-reviewed policy: the ordinary Dragon halberd is always alch stock.
 		if (catalogItem.getItemId() == net.runelite.api.gameval.ItemID.DRAGON_HALBERD)
 			return itemValues.highAlchValue(catalogItem.getItemId()) > 0;
-		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());
-		if (!reviewedAlchable && !GearSetSemanticRuleSet.weaponRole(catalogItem.getItemId()).isEmpty()) return false;
-		if (catalogItem.getTags().stream().anyMatch(tag -> !reviewedAlchable || !"clue-required".equals(tag))
+		int itemId = catalogItem.getItemId();
+		long alchValue = itemValues.highAlchValue(itemId);
+		long gePrice = itemValues.gePrice(itemId);
+		boolean reviewed = IronmanAlchCandidateCatalog.contains(itemId);
+		if (alchValue <= 0 || !reviewed && (alchValue < MIN_ALCH_VALUE || gePrice <= 0 || gePrice * 4 > alchValue * 5)
+			|| !reviewed && !GearSetSemanticRuleSet.weaponRole(itemId).isEmpty()
+			|| catalogItem.getTags().stream().anyMatch(tag -> !reviewed || !"clue-required".equals(tag))
 			|| WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
 		{
-			// Known roles can matter despite weaker stats. A bank layout cannot
-			// split duplicate copies, so retain the complete stack for manual review.
 			return false;
 		}
-		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
-		if (highAlchValue <= 0 || (quantity <= 1 && !reviewedAlchable))
-		{
-			return false;
-		}
-		int itemId = catalogItem.getItemId();
-		if (reviewedAlchable && IronmanQuickToolSelector.isTieredTool(itemId))
-			return IronmanQuickToolSelector.hasOwnedUpgrade(itemId, realOwned);
-		boolean roleReplacement = reviewedAlchable
-			&& IronmanAlchCandidateCatalog.hasRoleReplacement(itemId, realOwned, choices);
+		if (reviewed && IronmanQuickToolSelector.isTieredTool(itemId))
+			return IronmanQuickToolSelector.hasOwnedUpgrade(itemId, owned);
+		boolean roleReplacement = reviewed && IronmanAlchCandidateCatalog.hasRoleReplacement(itemId, owned, choices);
 		if (IronmanAlchCandidateCatalog.isElementalStaff(itemId) || roleReplacement) return roleReplacement;
 		if (!"combat-gear".equals(category.getKey())) return false;
-		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
-		if (!stats.isPresent())
-		{
-			return false;
-		}
-
-		List<BankGear> gear = gearByKey.get(gearKey(catalogItem, stats.get()));
+		Optional<GearStats> stats = gearStats.statsFor(itemId);
+		List<BankGear> gear = stats.isPresent() ? gearByKey.get(gearKey(catalogItem, stats.get())) : null;
 		if (gear == null)
 		{
 			return false;
 		}
-		if (reviewedAlchable)
-		{
-			int tier = IronmanAlchCandidateCatalog.tierOf(catalogItem.getItemId());
-			boolean armour = stats.get().getSlot() != GearSlot.WEAPON && stats.get().getSlot() != GearSlot.AMMO;
-			for (BankGear candidate : gear)
-				if (realOwned.contains(candidate.itemId) && candidate.stats.dominates(stats.get())
-					|| (armour && tier > 0 && IronmanAlchCandidateCatalog.tierOf(candidate.itemId) > tier)) return true;
-			return false;
-		}
-
-		int ownScore = GearItemSorter.score(new BankPreviewItem(catalogItem, quantity), gearStats);
-		int strictlyBetter = 0;
-		boolean beatenOutright = false;
+		int tier = IronmanAlchCandidateCatalog.tierOf(itemId);
+		boolean armour = stats.get().getSlot() != GearSlot.WEAPON && stats.get().getSlot() != GearSlot.AMMO;
+		int ownScore = GearItemSorter.score(new BankPreviewItem(catalogItem, 1), gearStats);
+		int better = 0;
+		boolean beaten = false;
 		for (BankGear candidate : gear)
 		{
-			if (!realOwned.contains(candidate.itemId)) continue;
-			if (candidate.score > ownScore)
-			{
-				strictlyBetter++;
-			}
-			if (candidate.stats.dominates(stats.get()))
-			{
-				beatenOutright = true;
-			}
+			if (reviewed && armour && tier > 0 && IronmanAlchCandidateCatalog.tierOf(candidate.itemId) > tier) return true;
+			beaten |= candidate.stats.dominates(stats.get());
+			if (candidate.score > ownScore) better++;
 		}
-		// Keep weapons and ammo: large quantities can be consumable supplies.
-		GearSlot slot = stats.get().getSlot();
-		// Quantity alone cannot prove unknown niche gear is replaceable.
-		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
-			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1 && beatenOutright)
-		{
-			return true;
-		}
-
-		return highAlchValue >= ALCH_VALUE_THRESHOLD
-			&& strictlyBetter >= OUTCLASSED_BY_COUNT && beatenOutright;
+		return beaten && (reviewed || better >= OUTCLASSED_BY_COUNT);
 	}
 
 	private static String gearKey(CatalogItem item, GearStats stats)

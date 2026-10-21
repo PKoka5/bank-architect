@@ -14,6 +14,7 @@ public final class BankAnalysisRequest
 	private final BankSnapshot bankSnapshot;
 	private final Map<Integer, GearStats> gearStatsByItemId;
 	private final Map<Integer, Integer> alchValuesByItemId;
+	private final Map<Integer, Integer> gePricesByItemId;
 	private final Map<Integer, String> categoryKeysByItemId;
 	private final BankLayoutPlan layoutPlan;
 	private final BankLayoutOptions layoutOptions;
@@ -34,10 +35,20 @@ public final class BankAnalysisRequest
 		Map<Integer, Integer> alchValuesByItemId, Map<Integer, String> categoryKeysByItemId,
 		BankLayoutPlan layoutPlan, BankLayoutOptions layoutOptions, BankPreset preset)
 	{
+		this(bankSnapshot, gearStatsByItemId, alchValuesByItemId, Collections.emptyMap(), categoryKeysByItemId,
+			layoutPlan, layoutOptions, preset);
+	}
+
+	public BankAnalysisRequest(BankSnapshot bankSnapshot, Map<Integer, GearStats> gearStatsByItemId,
+		Map<Integer, Integer> alchValuesByItemId, Map<Integer, Integer> gePricesByItemId,
+		Map<Integer, String> categoryKeysByItemId, BankLayoutPlan layoutPlan, BankLayoutOptions layoutOptions,
+		BankPreset preset)
+	{
 		this.preset = preset;
 		this.bankSnapshot = Objects.requireNonNull(bankSnapshot, "bankSnapshot");
 		this.gearStatsByItemId = immutableCopy(gearStatsByItemId, "gearStatsByItemId");
 		this.alchValuesByItemId = immutableCopy(alchValuesByItemId, "alchValuesByItemId");
+		this.gePricesByItemId = immutableCopy(gePricesByItemId, "gePricesByItemId");
 		this.categoryKeysByItemId = immutableCopy(categoryKeysByItemId, "categoryKeysByItemId");
 		this.layoutPlan = Objects.requireNonNull(layoutPlan, "layoutPlan");
 		this.layoutOptions = Objects.requireNonNull(layoutOptions, "layoutOptions");
@@ -55,10 +66,22 @@ public final class BankAnalysisRequest
 		return Optional.ofNullable(gearStatsByItemId.get(itemId));
 	}
 
-	public int alchValue(int itemId)
+	public ItemValueSource itemValues()
 	{
-		Integer value = alchValuesByItemId.get(itemId);
-		return value == null ? 0 : value;
+		return new ItemValueSource()
+		{
+			@Override
+			public int highAlchValue(int itemId)
+			{
+				return alchValuesByItemId.getOrDefault(itemId, 0);
+			}
+
+			@Override
+			public int gePrice(int itemId)
+			{
+				return gePricesByItemId.getOrDefault(itemId, 0);
+			}
+		};
 	}
 
 	public Optional<String> categoryKey(int itemId)
@@ -74,23 +97,6 @@ public final class BankAnalysisRequest
 	public BankLayoutOptions layoutOptions()
 	{
 		return layoutOptions;
-	}
-
-	/** Additions and withdrawals preserve routing; changed previous facts or removed slots do not. */
-	boolean sameLayoutContext(BankAnalysisRequest other, BankPreset fallback)
-	{
-		if (other == null || presetOr(fallback) != other.presetOr(fallback)
-			|| !layoutPlan.serialize().equals(other.layoutPlan.serialize())
-			|| !layoutOptions.equals(other.layoutOptions)
-			|| !categoryKeysByItemId.equals(other.categoryKeysByItemId)) return false;
-		Map<Integer, List<Integer>> mine = bankSnapshot.contents();
-		Map<Integer, List<Integer>> theirs = other.bankSnapshot.contents();
-		if (!mine.keySet().containsAll(theirs.keySet())) return false;
-		for (int id : theirs.keySet())
-			if (mine.get(id).size() != theirs.get(id).size()
-				|| !Objects.equals(gearStatsByItemId.get(id), other.gearStatsByItemId.get(id))
-				|| !Objects.equals(alchValuesByItemId.get(id), other.alchValuesByItemId.get(id))) return false;
-		return true;
 	}
 
 	private static <K, V> Map<K, V> immutableCopy(Map<K, V> source, String name)

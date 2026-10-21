@@ -901,11 +901,11 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		BankSnapshot bankSnapshot = snapshot.get();
 		analyzedBankContents = bankSnapshot.contents();
 		return Optional.of(new BankAnalysisRequest(bankSnapshot,
-			collectGearStats(bankSnapshot), collectAlchValues(bankSnapshot),
+			collectGearStats(bankSnapshot), collectValues(bankSnapshot, false), collectValues(bankSnapshot, true),
 			categoryOverrides().asMap(), activePlan(), activeOptions(), activePreset()));
 	}
 
-	private Map<Integer, Integer> collectAlchValues(BankSnapshot snapshot)
+	private Map<Integer, Integer> collectValues(BankSnapshot snapshot, boolean gePrice)
 	{
 		Map<Integer, Integer> valueById = new HashMap<>();
 		for (BankItemSnapshot item : snapshot.getItems())
@@ -913,7 +913,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			ItemComposition composition = itemManager.getItemComposition(item.getItemId());
 			if (composition != null && composition.isTradeable())
 			{
-				valueById.put(item.getItemId(), composition.getHaPrice());
+				valueById.put(item.getItemId(), gePrice
+					? (int) Math.min(Integer.MAX_VALUE, itemManager.getItemPrice(item.getItemId()))
+					: composition.getHaPrice());
 			}
 		}
 

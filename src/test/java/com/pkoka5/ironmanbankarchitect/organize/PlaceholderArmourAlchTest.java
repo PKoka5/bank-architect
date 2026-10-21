@@ -93,9 +93,10 @@ public class PlaceholderArmourAlchTest
 		{
 			int upgrade = mismatch == 2 ? RUNE_MED : NEITIZNOT;
 			Map<Integer, GearStats> stats = stats(RUNE_FULL, armour(GearSlot.HEAD, 0, 100));
+			// The equal-tier helm trades defence for attack, so only its tier could replace Rune.
 			stats.put(upgrade, mismatch == 0
 				? new GearStats(GearSlot.HEAD, 0, 0, 0, 0, 30, 0, 0, 0, 200, 200, 200, 200, 200, 0, 0)
-				: armour(mismatch == 1 ? GearSlot.LEGS : GearSlot.HEAD, 3, 200));
+				: mismatch == 1 ? armour(GearSlot.LEGS, 3, 200) : armour(GearSlot.HEAD, 3, 90));
 			BankOrganizationPreview preview = build(bank(new BankItemSnapshot(RUNE_FULL, 2, 0),
 				placeholder(upgrade, 1)), stats);
 			assertTag(preview, RUNE_FULL, "gear");
@@ -104,14 +105,14 @@ public class PlaceholderArmourAlchTest
 	}
 
 	@Test
-	public void anUnknownTierDominatorRequiresActualOwnership()
+	public void anUnknownTierDominatorReplacesWhetherOwnedOrWithdrawn()
 	{
 		Map<Integer, GearStats> stats = stats(RUNE_FULL, armour(GearSlot.HEAD, 0, 100));
 		stats.put(UNKNOWN, armour(GearSlot.HEAD, 3, 200));
 		assertTrue(stats.get(UNKNOWN).dominates(stats.get(RUNE_FULL)));
 		BankOrganizationPreview withdrawn = build(bank(new BankItemSnapshot(RUNE_FULL, 2, 0),
 			placeholder(UNKNOWN, 1)), stats);
-		assertTag(withdrawn, RUNE_FULL, "gear");
+		assertTag(withdrawn, RUNE_FULL, "alch");
 		BankOrganizationPreview owned = build(bank(new BankItemSnapshot(RUNE_FULL, 2, 0),
 			new BankItemSnapshot(UNKNOWN, 1, 1)), stats);
 		assertTag(owned, RUNE_FULL, "alch");
@@ -129,7 +130,7 @@ public class PlaceholderArmourAlchTest
 	}
 
 	@Test
-	public void weaponToolAndStaffReplacementRolesStillNeedActualOwnership()
+	public void withdrawnWeaponToolAndStaffReplacementsStillReplace()
 	{
 		for (int[] pair : new int[][] {{1333, 4587}, {1275, 11920}, {1387, 1401}})
 		{
@@ -137,16 +138,16 @@ public class PlaceholderArmourAlchTest
 			stats.put(pair[1], armour(GearSlot.WEAPON, 20, 200));
 			BankOrganizationPreview preview = build(bank(new BankItemSnapshot(pair[0], 4, 0),
 				placeholder(pair[1], 1)), stats);
-			assertFalse("Stock " + pair[0], "alch".equals(item(preview, pair[0]).getLayoutTagKey()));
+			assertEquals("Stock " + pair[0], "alch", item(preview, pair[0]).getLayoutTagKey());
 		}
 	}
 
 	@Test
-	public void placeholderStockNeverBecomesAnAutomaticAlchItem()
+	public void withdrawnStockIsAlchedOnceReplaced()
 	{
 		BankOrganizationPreview preview = build(bank(placeholder(RUNE_FULL, 0),
 			new BankItemSnapshot(NEITIZNOT, 1, 1)), replacementStats());
-		assertTag(preview, RUNE_FULL, "gear");
+		assertTag(preview, RUNE_FULL, "alch");
 		assertTrue(item(preview, RUNE_FULL).isPlaceholder());
 	}
 

@@ -343,7 +343,7 @@ public class BankAnalysisTest
 		categoryKeys.put(5297, "cleanup-review");
 
 		assertSame(capturedStats, request.gearStats(5297).get());
-		assertEquals(100, request.alchValue(5297));
+		assertEquals(100, request.itemValues().highAlchValue(5297));
 		assertEquals(Optional.of("seeds-herbs-farming"), request.categoryKey(5297));
 	}
 

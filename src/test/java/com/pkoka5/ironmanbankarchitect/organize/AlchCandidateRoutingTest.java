@@ -85,8 +85,8 @@ public class AlchCandidateRoutingTest
 	@Test
 	public void outclassedTradeableGearMovesToTheAlchTab()
 	{
-		// Four melee bodies: two clearly better ones exist, so the third is an
-		// alch candidate; the fourth is even worse but untradeable and stays.
+		// Four market-priced melee bodies: two clearly better ones exist, so the third
+		// is an alch candidate; the fourth is even worse but untradeable and stays.
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, meleeBody(300));
 		stats.put(2, meleeBody(200));
@@ -105,7 +105,7 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(4, 1, 3)
 		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
-			itemId -> alchValues.getOrDefault(itemId, 0));
+			marketPriced(itemId -> alchValues.getOrDefault(itemId, 0)));
 
 		BankCategoryPreview combatGear = categoryByKey(preview, "combat-gear");
 		BankCategoryPreview alchTab = categoryByKey(preview, "slayer-boss-loot");
@@ -118,10 +118,10 @@ public class AlchCandidateRoutingTest
 	@Test
 	public void gearThatOnlyLosesOnTheTierScoreStaysInCombatGear()
 	{
-		// Item 4 scores lowest of all four, so the tier score alone calls it
+		// Item 4 scores lowest of all four, so a tier score alone would call it
 		// outclassed. Nothing owned actually beats it though: its ranged defence
-		// is far above every alternative. Only item 3, which is beaten on every
-		// single stat, may move.
+		// is far above every alternative. Only item 3, beaten on every stat and
+		// behind a best and a backup, may move.
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, body(120, 120, 120, 120, 120));
 		stats.put(2, body(110, 110, 110, 110, 110));
@@ -135,12 +135,10 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(4, 3, 3)
 		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
-			itemId -> 39000);
+			marketPriced(itemId -> 39000));
 
-		assertEquals(3, categoryByKey(preview, "combat-gear").getItemCount());
-		assertEquals(1, categoryByKey(preview, "slayer-boss-loot").getItemCount());
-		assertEquals("Gear 3",
-			categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
+		assertEquals(Arrays.asList(1, 2, 4), ids(categoryByKey(preview, "combat-gear")));
+		assertEquals(Collections.singletonList(3), ids(categoryByKey(preview, "slayer-boss-loot")));
 	}
 
 	@Test
@@ -169,7 +167,7 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
-	public void singleCopyOutclassedGearNeverBecomesAnAlchCandidate()
+	public void outclassedGearWithoutAMarketPriceStaysInCombatGear()
 	{
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, meleeBody(300));
@@ -203,9 +201,9 @@ public class AlchCandidateRoutingTest
 			new BankItemSnapshot(2, 1, 1)
 		)), GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
-			itemId -> alchValues.getOrDefault(itemId, 0));
+			marketPriced(itemId -> alchValues.getOrDefault(itemId, 0)));
 
-		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(Arrays.asList(1, 2), ids(categoryByKey(preview, "combat-gear")));
 		assertEquals(0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 	}
 
@@ -256,40 +254,42 @@ public class AlchCandidateRoutingTest
 	}
 
 	@Test
-	public void bulkStockWearablesMoveToAlchEvenBelowValueThreshold()
+	public void marketPricedSmithingStockMovesToAlchOnceReplaced()
 	{
-		// 820 mithril platebodies are smithing stock, not gear, even though
-		// their alch value sits below the normal threshold.
+		// Mithril platebodies are not reviewed, but they trade near their alch value.
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(26384, meleeBody(300));
+		stats.put(ItemID.BANDOS_CHESTPLATE, meleeBody(200));
 		stats.put(ItemID.MITHRIL_PLATEBODY, meleeBody(100));
 
 		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(26384, 1, 0),
-			new BankItemSnapshot(ItemID.MITHRIL_PLATEBODY, 820, 1)
+			new BankItemSnapshot(ItemID.BANDOS_CHESTPLATE, 0, 1, true),
+			new BankItemSnapshot(ItemID.MITHRIL_PLATEBODY, 820, 2)
 		)), CompositeItemCatalog.DEFAULT, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
-			itemId -> 1560);
+			marketPriced(itemId -> 1560));
 
-		assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
+		assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
 		assertEquals(1, categoryByKey(preview, "slayer-boss-loot").getItemCount());
 		assertEquals("Mithril platebody", categoryByKey(preview, "slayer-boss-loot").getItems().get(0).getDisplayName());
 	}
 
 	@Test
-	public void unreviewedWearablesUseTheSameConservativeBulkThresholds()
+	public void theAlchFloorAppliesAtEveryQuantity()
 	{
-		for (int quantity : new int[] {7, 8})
+		for (int quantity : new int[] {1, 8})
 		{
-			for (int value : new int[] {999, 1000})
+			for (int value : new int[] {499, 500})
 			{
 				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
-					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99003, quantity, 1))),
-					GEAR_CATALOG, preset, itemId -> Optional.of(meleeBody(itemId == 99001 ? 300 : 100)),
-					itemId -> value);
-				boolean alch = quantity == 8 && value == 1000;
+					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99002, 1, 1),
+					new BankItemSnapshot(99003, quantity, 2))),
+					GEAR_CATALOG, preset, itemId -> Optional.of(meleeBody(itemId == 99001 ? 300 : itemId == 99002 ? 200 : 100)),
+					marketPriced(itemId -> value));
+				boolean alch = value == 500;
 				assertEquals(alch ? 1 : 0, categoryByKey(preview, "slayer-boss-loot").getItemCount());
-				assertEquals(alch ? 1 : 2, categoryByKey(preview, "combat-gear").getItemCount());
+				assertEquals(alch ? 2 : 3, categoryByKey(preview, "combat-gear").getItemCount());
 			}
 		}
 	}
@@ -554,6 +554,32 @@ public class AlchCandidateRoutingTest
 		int remainder = defence - perType * 4;
 		return new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 0, 0, 0,
 			perType, perType, perType, perType, remainder, 0, 0);
+	}
+
+	/** Trades exactly at its alch value, so only the replacement check decides. */
+	private static ItemValueSource marketPriced(java.util.function.IntUnaryOperator alchValue)
+	{
+		return new ItemValueSource()
+		{
+			@Override
+			public int highAlchValue(int itemId)
+			{
+				return alchValue.applyAsInt(itemId);
+			}
+
+			@Override
+			public int gePrice(int itemId)
+			{
+				return alchValue.applyAsInt(itemId);
+			}
+		};
+	}
+
+	private static List<Integer> ids(BankCategoryPreview category)
+	{
+		List<Integer> ids = new java.util.ArrayList<>();
+		for (BankPreviewItem item : category.getItems()) ids.add(item.getItemId());
+		return ids;
 	}
 
 	private static BankCategoryPreview categoryByKey(BankOrganizationPreview preview, String key)

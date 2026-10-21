@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/** Curated armour placeholders guide fresh layouts; other replacements need established session evidence. */
+/** Withdrawn replacements keep routing the stock they replace, with no session history. */
 @RunWith(Parameterized.class)
 public class PlaceholderGearStabilityTest
 {
@@ -167,11 +167,11 @@ public class PlaceholderGearStabilityTest
 	}
 
 	@Test
-	public void freshUntieredPlaceholdersCannotEstablishReplacementDecisions()
+	public void freshUntieredPlaceholdersReplaceTheStockTheyDominate()
 	{
 		BankOrganizationPreview preview = new Session(preset).analyze(memoryBank(true));
-		assertTag(preview, RUNE_BODY, "gear");
-		assertTag(preview, RUNE_LEGS, "gear");
+		assertTag(preview, RUNE_BODY, "alch");
+		assertTag(preview, RUNE_LEGS, "alch");
 	}
 
 	@Test
@@ -188,16 +188,13 @@ public class PlaceholderGearStabilityTest
 	}
 
 	@Test
-	public void addingAnItemPreservesEstablishedDecisionsWithoutInferringNewOwnershipFromPlaceholders()
+	public void addingAnItemRoutesItAgainstWithdrawnReplacementsToo()
 	{
 		Session session = new Session(preset);
-		establishMemory(session);
-		session.analyze(memoryBank(true));
 		List<BankItemSnapshot> entries = new ArrayList<>(memoryBank(true).getPhysicalItems());
 		entries.add(new BankItemSnapshot(RUNE_CHAIN, 1, entries.size()));
 		BankOrganizationPreview changed = session.analyze(new BankSnapshot(entries));
-		assertTag(changed, RUNE_CHAIN, "gear");
-		// The new chain gets no remembered decision from an untiered placeholder.
+		assertTag(changed, RUNE_CHAIN, "alch");
 		assertTag(changed, RUNE_BODY, "alch");
 		assertTag(changed, RUNE_LEGS, "alch");
 	}
@@ -246,37 +243,20 @@ public class PlaceholderGearStabilityTest
 	}
 
 	@Test
-	public void presetSwitchAndPersonalChoicesResetPriorAutomaticDecisions()
+	public void personalChoicesWinOverWithdrawnReplacements()
 	{
 		Session session = new Session(preset);
-		establishMemory(session);
-		BankPreset other = preset == BankPresets.MAIN ? BankPresets.IRONMAN : BankPresets.MAIN;
-		BankOrganizationPreview switched = session.analyze(memoryBank(true), other,
-			BankLayoutPlan.defaultFor(other), BankLayoutOptions.defaultFor(other), Collections.emptyMap(), 0);
-		assertTag(switched, RUNE_BODY, "gear");
-		assertTag(switched, RUNE_LEGS, "gear");
-
-		session = new Session(preset);
-		establishMemory(session);
 		BankOrganizationPreview personal = session.analyze(memoryBank(true), preset,
 			BankLayoutPlan.defaultFor(preset), BankLayoutOptions.defaultFor(preset),
 			Collections.singletonMap(RUNE_BODY, "gear"), 0);
 		assertTag(personal, RUNE_BODY, "gear");
-		assertTag(personal, RUNE_LEGS, "gear");
+		assertTag(personal, RUNE_LEGS, "alch");
 	}
 
 	@Test
-	public void changedGearStatsOrAlchLayoutOptionReevaluatesRatherThanKeepingStaleProof()
+	public void disablingTheAlchLayoutOptionReturnsStockToGear()
 	{
 		Session session = new Session(preset);
-		establishMemory(session);
-		BankOrganizationPreview newStats = session.analyze(memoryBank(true), preset,
-			BankLayoutPlan.defaultFor(preset), BankLayoutOptions.defaultFor(preset), Collections.emptyMap(), 1);
-		assertTag(newStats, RUNE_BODY, "gear");
-		assertTag(newStats, RUNE_LEGS, "gear");
-
-		session = new Session(preset);
-		session.analyze(bank(false));
 		BankOrganizationPreview disabled = session.analyze(bank(true), preset,
 			BankLayoutPlan.defaultFor(preset), new BankLayoutOptions(true, true, false), Collections.emptyMap(), 0);
 		assertTag(disabled, RUNE_BODY, "gear");
@@ -284,31 +264,18 @@ public class PlaceholderGearStabilityTest
 	}
 
 	@Test
-	public void changedOldAlchValuesReevaluateEvenWhileDepositingAnchor()
+	public void stockWithoutAnAlchValueStaysInGear()
 	{
 		Session session = new Session(preset);
-		establishMemory(session);
 		List<BankItemSnapshot> entries = new ArrayList<>(memoryBank(true).getPhysicalItems());
-		entries.add(new BankItemSnapshot(ANCHOR, 1, entries.size()));
-		session.highAlchValue = 1;
+		session.highAlchValue = 0;
 		BankOrganizationPreview changed = session.analyze(new BankSnapshot(entries));
 		assertTag(changed, RUNE_BODY, "gear");
 		assertTag(changed, RUNE_LEGS, "gear");
 	}
 
 	@Test
-	public void invalidatingAnalysisClearsPriorAutomaticDecisions()
-	{
-		Session session = new Session(preset);
-		establishMemory(session);
-		session.analysis.invalidate();
-		BankOrganizationPreview preview = session.analyze(memoryBank(true));
-		assertTag(preview, RUNE_BODY, "gear");
-		assertTag(preview, RUNE_LEGS, "gear");
-	}
-
-	@Test
-	public void successThatAlreadyStartedBeforeInvalidationCannotPublishOrRestoreItsMemory()
+	public void successThatAlreadyStartedBeforeInvalidationCannotPublish()
 	{
 		AtomicReference<Runnable> duringAnalysis = new AtomicReference<>();
 		ItemCatalog interruptibleCatalog = new ItemCatalog()
@@ -328,54 +295,15 @@ public class PlaceholderGearStabilityTest
 			}
 		};
 		Session session = new Session(preset, Runnable::run, interruptibleCatalog);
-		establishMemory(session);
 		duringAnalysis.set(session.analysis::invalidate);
 		session.submit(memoryBank(false), preset, BankLayoutPlan.defaultFor(preset),
 			BankLayoutOptions.defaultFor(preset), Collections.emptyMap(), 0);
 		assertEquals(BankAnalysisStatus.Kind.NOT_STARTED, session.status.get().kind());
 		assertTrue(duringAnalysis.get() == null);
-		BankOrganizationPreview fresh = session.analyze(memoryBank(true));
-		assertTag(fresh, RUNE_BODY, "gear");
-		assertTag(fresh, RUNE_LEGS, "gear");
 	}
 
 	@Test
-	public void reducingBulkStockToOneCopyDoesNotRetainItsOldAlchDecision()
-	{
-		int stock = 900001;
-		ItemCatalog plainGear = id -> Optional.of(new CatalogItem(id, "Stock " + id,
-			ItemCategory.GEAR, "body", Collections.emptySet(), null));
-		Session session = new Session(preset, Runnable::run, plainGear);
-		session.highAlchValue = 2000;
-		BankSnapshot bulk = new BankSnapshot(Arrays.asList(new BankItemSnapshot(stock, 8, 0),
-			new BankItemSnapshot(BANDOS_BODY, 1, 1), new BankItemSnapshot(BANDOS_LEGS, 0, 2, true)));
-		assertTag(session.analyze(bulk), stock, "alch");
-		BankSnapshot one = new BankSnapshot(Arrays.asList(new BankItemSnapshot(stock, 1, 0),
-			new BankItemSnapshot(BANDOS_BODY, 1, 1), new BankItemSnapshot(BANDOS_LEGS, 0, 2, true),
-			new BankItemSnapshot(ANCHOR, 1, 3)));
-		BankOrganizationPreview reduced = session.analyze(one);
-		assertTag(reduced, stock, "gear");
-		assertEquals(1, item(reduced, stock).getQuantity());
-	}
-
-	@Test
-	public void changedPhysicalOccurrencesResetDecisionsEvenWhenTotalQuantityIsUnchanged()
-	{
-		Session session = new Session(preset);
-		List<BankItemSnapshot> before = new ArrayList<>(memoryBank(false).getPhysicalItems());
-		before.set(0, new BankItemSnapshot(RUNE_BODY, 2, 0));
-		assertTag(session.analyze(new BankSnapshot(before)), RUNE_BODY, "alch");
-		// Synthetic duplicate slots exercise the snapshot boundary without changing the aggregate quantity.
-		List<BankItemSnapshot> split = new ArrayList<>(memoryBank(true).getPhysicalItems());
-		split.add(new BankItemSnapshot(RUNE_BODY, 1, split.size()));
-		BankOrganizationPreview changed = session.analyze(new BankSnapshot(split));
-		assertTag(changed, RUNE_BODY, "gear");
-		assertTag(changed, RUNE_LEGS, "gear");
-		assertEquals(2, changed.getPlannedItems().stream().filter(item -> item.getItemId() == RUNE_BODY).count());
-	}
-
-	@Test
-	public void staleWithdrawalRequestCannotRestoreDecisionsClearedByNewerPersonalChoices()
+	public void staleWithdrawalRequestCannotOverrideNewerPersonalChoices()
 	{
 		Deque<Runnable> pending = new ArrayDeque<>();
 		Session session = new Session(preset, pending::addLast);
@@ -395,8 +323,8 @@ public class PlaceholderGearStabilityTest
 		session.submit(memoryBank(true), preset, BankLayoutPlan.defaultFor(preset),
 			BankLayoutOptions.defaultFor(preset), Collections.emptyMap(), 0);
 		pending.removeFirst().run();
-		assertTag(session.preview(), RUNE_BODY, "gear");
-		assertTag(session.preview(), RUNE_LEGS, "gear");
+		assertTag(session.preview(), RUNE_BODY, "alch");
+		assertTag(session.preview(), RUNE_LEGS, "alch");
 	}
 
 	private static BankSnapshot bank(boolean withdrawn)
@@ -407,20 +335,13 @@ public class PlaceholderGearStabilityTest
 			new BankItemSnapshot(BANDOS_LEGS, withdrawn ? 0 : 1, 3, withdrawn)));
 	}
 
-	/** No exact tiers: only real stat dominance or established session history can route these replacements. */
+	/** No exact tiers: only stat dominance routes these replacements. */
 	private static BankSnapshot memoryBank(boolean withdrawn)
 	{
 		return new BankSnapshot(Arrays.asList(new BankItemSnapshot(RUNE_BODY, 1, 0),
 			new BankItemSnapshot(RUNE_LEGS, 1, 1),
 			new BankItemSnapshot(UNTIERED_BODY, withdrawn ? 0 : 1, 2, withdrawn),
 			new BankItemSnapshot(UNTIERED_LEGS, withdrawn ? 0 : 1, 3, withdrawn)));
-	}
-
-	private static void establishMemory(Session session)
-	{
-		BankOrganizationPreview owned = session.analyze(memoryBank(false));
-		assertTag(owned, RUNE_BODY, "alch");
-		assertTag(owned, RUNE_LEGS, "alch");
 	}
 
 	private static BankPreviewItem item(BankOrganizationPreview preview, int id)

@@ -107,7 +107,7 @@ public class ReviewedFunctionalPlacementTest
 	}
 
 	@Test
-	public void capturedPhysicalOrderSurvivesCorrectedFunctionsAndPlaceholderUpgradesProveNothing()
+	public void capturedPhysicalOrderSurvivesCorrectedFunctionsAndPlaceholderUpgrades()
 	{
 		List<BankItemSnapshot> items = new ArrayList<>(bank(22840, 4485, 28152, 995, 1275).getPhysicalItems());
 		items.add(new BankItemSnapshot(11920, 0, items.size(), true));
@@ -138,9 +138,9 @@ public class ReviewedFunctionalPlacementTest
 		assertTrue(item(corrected, 11920).isPlaceholder());
 		assertEquals(0, item(corrected, 11920).getQuantity());
 		assertFalse(item(corrected, 1275).isPlaceholder());
-		assertFalse("Placeholder Dragon pickaxe cannot replace the owned Rune pickaxe for Alch",
-			"alch".equals(item(corrected, 1275).getLayoutTagKey()));
-		assertEquals(0, corrected.getTagCounts().getOrDefault("alch", 0).intValue());
+		assertEquals("A withdrawn Dragon pickaxe still replaces the Rune pickaxe",
+			"alch", item(corrected, 1275).getLayoutTagKey());
+		assertEquals(1, corrected.getTagCounts().getOrDefault("alch", 0).intValue());
 		assertEquals(corrected.getPlannedItemCount() - 1,
 			corrected.getTagCounts().values().stream().mapToInt(Integer::intValue).sum());
 	}
@@ -158,9 +158,23 @@ public class ReviewedFunctionalPlacementTest
 			new BankItemSnapshot(900001, 100, 0), new BankItemSnapshot(900002, 100, 1),
 			new BankItemSnapshot(900003, 100, 2), new BankItemSnapshot(1127, 1, 3),
 			new BankItemSnapshot(3140, 1, 4), new BankItemSnapshot(11832, 1, 5)));
+		ItemValueSource market = new ItemValueSource()
+		{
+			@Override
+			public int highAlchValue(int itemId)
+			{
+				return VALUES.highAlchValue(itemId);
+			}
+
+			@Override
+			public int gePrice(int itemId)
+			{
+				return VALUES.highAlchValue(itemId);
+			}
+		};
 		BankOrganizationPreview automatic = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
-			equipment, VALUES, CategoryOverrideSource.NONE, plan, defaults);
-		// Same weak stats, bulk quantity and value qualify the reviewed control for Alch.
+			equipment, market, CategoryOverrideSource.NONE, plan, defaults);
+		// Same weak stats and market price qualify the categorised control for Alch.
 		assertTag(automatic, 900003, "alch");
 		for (int id : new int[] {900001, 900002})
 		{

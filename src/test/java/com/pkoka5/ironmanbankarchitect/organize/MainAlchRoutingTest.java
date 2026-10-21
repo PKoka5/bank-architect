@@ -190,14 +190,14 @@ public class MainAlchRoutingTest
 	}
 
 	@Test
-	public void placeholderRuneBodyIsNotAlchStock()
+	public void placeholderRuneBodyIsAlchStockOnceReplaced()
 	{
 		BankSnapshot bank = new BankSnapshot(Arrays.asList(new BankItemSnapshot(RUNE_BODY, 0, 0, true),
 			new BankItemSnapshot(BANDOS_BODY, 1, 1)));
 		BankOrganizationPreview preview = build(bank, PLAIN_GEAR, replacementStats());
 
-		assertAt(preview, "gear", RUNE_BODY, BANDOS_BODY);
-		assertEquals(0, alchCount(preview));
+		assertAt(preview, "alch", RUNE_BODY);
+		assertAt(preview, "gear", BANDOS_BODY);
 		assertTrue(item(preview, RUNE_BODY).isPlaceholder());
 	}
 
@@ -224,18 +224,39 @@ public class MainAlchRoutingTest
 	}
 
 	@Test
-	public void unreviewedBulkStockNeedsFullDominance()
+	public void unreviewedMarketStockNeedsFullDominance()
 	{
 		int unreviewed = 99002;
+		ItemValueSource market = new ItemValueSource()
+		{
+			@Override
+			public int highAlchValue(int itemId)
+			{
+				return 39000;
+			}
+
+			@Override
+			public int gePrice(int itemId)
+			{
+				return 39000;
+			}
+		};
 		Map<Integer, GearStats> stats = stats(unreviewed, melee(GearSlot.BODY, 0, 20));
 		stats.put(BANDOS_BODY, melee(GearSlot.BODY, 4, 100));
-		BankOrganizationPreview preview = build(bank(100, unreviewed, BANDOS_BODY), PLAIN_GEAR, stats);
+		int backupBody = 99003;
+		stats.put(backupBody, melee(GearSlot.BODY, 2, 60));
+		BankOrganizationPreview backup = build(bank(100, unreviewed, BANDOS_BODY), PLAIN_GEAR, stats, market,
+			CategoryOverrideSource.NONE, MAIN_PLAN, defaults());
+		assertAt(backup, "gear", BANDOS_BODY, unreviewed);
+		BankOrganizationPreview preview = build(bank(100, unreviewed, backupBody, BANDOS_BODY), PLAIN_GEAR, stats, market,
+			CategoryOverrideSource.NONE, MAIN_PLAN, defaults());
 		assertAt(preview, "alch", unreviewed);
-		assertAt(preview, "gear", BANDOS_BODY);
+		assertAt(preview, "gear", backupBody, BANDOS_BODY);
 		assertEquals(1, alchCount(preview));
 		stats.put(unreviewed, melee(GearSlot.BODY, 0, 200));
 		assertFalse(stats.get(BANDOS_BODY).dominates(stats.get(unreviewed)));
-		BankOrganizationPreview niche = build(bank(100, unreviewed, BANDOS_BODY), PLAIN_GEAR, stats);
+		BankOrganizationPreview niche = build(bank(100, unreviewed, BANDOS_BODY), PLAIN_GEAR, stats, market,
+			CategoryOverrideSource.NONE, MAIN_PLAN, defaults());
 		assertAt(niche, "gear", unreviewed, BANDOS_BODY);
 		assertEquals(0, alchCount(niche));
 	}
