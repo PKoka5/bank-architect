@@ -15,21 +15,6 @@ public final class BankItemReviewEntry
 		this.slotIndex = slotIndex;
 	}
 
-	public int getItemId()
-	{
-		return itemId;
-	}
-
-	public String getDisplayName()
-	{
-		return displayName;
-	}
-
-	public int getSlotIndex()
-	{
-		return slotIndex;
-	}
-
 	public String toCompactText()
 	{
 		return displayName + " (#" + itemId + ") slot " + slotIndex;

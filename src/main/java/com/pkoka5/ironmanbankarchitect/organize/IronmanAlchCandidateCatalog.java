@@ -27,6 +27,7 @@ final class IronmanAlchCandidateCatalog
 		final Collection<List<Integer>> colours = TABLE.group("mystic").values();
 		final Set<Integer> slashStock = new HashSet<>(TABLE.ids("slash-stock"));
 		final Set<Integer> slashUpgrades = new HashSet<>(TABLE.ids("slash-upgrades"));
+		final Set<Integer> requiresDominance = new HashSet<>(TABLE.ids("requires-dominance"));
 	}
 
 	private IronmanAlchCandidateCatalog()
@@ -50,6 +51,8 @@ final class IronmanAlchCandidateCatalog
 			for (int member : family) if (member == itemId) return true;
 		return false;
 	}
+
+	static boolean requiresDominance(int itemId) { return DATA.get().requiresDominance.contains(itemId); }
 
 	/** Exact role evidence; colours never replace each other in both directions. */
 	static boolean hasRoleReplacement(int itemId, Set<Integer> owned, Map<Integer, String> choices)

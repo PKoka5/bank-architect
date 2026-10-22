@@ -734,6 +734,37 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			}
 
 			@Override
+			public void moveTab(int from, int to, String expectedContext, Consumer<Boolean> completed)
+			{
+				BankAnalysis analysis = bankAnalysis;
+				clientThread.invoke(() -> {
+					boolean success = false;
+					if (bankAnalysis == analysis && editingContext().equals(expectedContext)
+						&& activeOptions().itemOrders().isSupported() && from != to)
+					{
+						try
+						{
+							BankLayoutPlan moved = activePlan().withDestinationMoved(from, to, activePreset());
+							BlueprintItemOrders items = activeOptions().itemOrders().withDestinationMoved(from, to);
+							if (ensureCustom())
+							{
+								BlueprintOrderProfiles orders = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
+								orders.put(activeProfileName(), items);
+								settings().set("blueprintOrdersByProfile", orders.serialize());
+								storeProfiles(savedProfiles().withProfile(activeProfileName(), moved.serialize()));
+								settings().set("tabOrder", moved.serialize());
+								analyzeBank();
+								success = true;
+							}
+						}
+						catch (IllegalArgumentException changedLayout) { log.debug("Blueprint tab move refused", changedLayout); }
+					}
+					final boolean result = success;
+					SwingUtilities.invokeLater(() -> completed.accept(result));
+				});
+			}
+
+			@Override
 			public List<String> profileNames()
 			{
 				return savedProfiles().names();

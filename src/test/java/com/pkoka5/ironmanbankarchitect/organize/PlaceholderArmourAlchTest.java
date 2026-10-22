@@ -129,7 +129,7 @@ public class PlaceholderArmourAlchTest
 	}
 
 	@Test
-	public void weaponToolAndStaffReplacementRolesStillNeedActualOwnership()
+	public void reviewedWeaponToolAndStaffRolesAcceptBankUpgradePlaceholders()
 	{
 		for (int[] pair : new int[][] {{1333, 4587}, {1275, 11920}, {1387, 1401}})
 		{
@@ -137,17 +137,21 @@ public class PlaceholderArmourAlchTest
 			stats.put(pair[1], armour(GearSlot.WEAPON, 20, 200));
 			BankOrganizationPreview preview = build(bank(new BankItemSnapshot(pair[0], 4, 0),
 				placeholder(pair[1], 1)), stats);
-			assertFalse("Stock " + pair[0], "alch".equals(item(preview, pair[0]).getLayoutTagKey()));
+			assertTag(preview, pair[0], "alch");
+			assertTrue(item(preview, pair[1]).isPlaceholder());
+			assertEquals(1, preview.getTagCounts().getOrDefault("alch", 0).intValue());
 		}
 	}
 
 	@Test
-	public void placeholderStockNeverBecomesAnAutomaticAlchItem()
+	public void reviewedArmourStockPlaceholderKeepsItsAutomaticAlchPlacement()
 	{
 		BankOrganizationPreview preview = build(bank(placeholder(RUNE_FULL, 0),
 			new BankItemSnapshot(NEITIZNOT, 1, 1)), replacementStats());
-		assertTag(preview, RUNE_FULL, "gear");
+		assertTag(preview, RUNE_FULL, "alch");
 		assertTrue(item(preview, RUNE_FULL).isPlaceholder());
+		assertEquals(0, item(preview, RUNE_FULL).getQuantity());
+		assertEquals(0, preview.getTagCounts().getOrDefault("alch", 0).intValue());
 	}
 
 	@Test

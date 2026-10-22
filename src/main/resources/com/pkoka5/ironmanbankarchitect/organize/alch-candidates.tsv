@@ -12,6 +12,9 @@ mystic/4	4097,4107,4117
 slash-stock	1373,1319,1303,1333,1289,1213,1371,1317,1331
 slash-upgrades	4587,4151,12006,26482
 
+# Wiki strategy audit: hybrid melee/magic-defence use survives a higher Ranged tier.
+requires-dominance	1135,2493,2495,2497,2499,2501,2503
+
 # Exact progression stages retained from the original Alch override table.
 tiers/2	1101,1103,1105,1107,1109,1111,1113,1137,1139,1141,1143,1145,1147,1151
 tiers/3	1149,3140

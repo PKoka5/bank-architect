@@ -10,6 +10,7 @@ interface BankLayoutModel
 	BankPreset preset();
 	BankLayoutPlan plan();
 	void save(BankLayoutPlan plan);
+	void moveTab(int from, int to, String expectedContext, Consumer<Boolean> completed);
 	String editingContext();
 	void selectPreset(BankPresetType type);
 	List<String> presetChoices();

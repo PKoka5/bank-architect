@@ -133,7 +133,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = gearSection,
 		position = 0,
 		name = "Layout",
-		description = "Best in slot: strongest melee, ranged, magic and prayer columns, one row per equipment slot, filled to align. Sets together: vertical sets with remaining kit nearby. List: strongest sets first, then loose gear and weapons, without fillers."
+		description = "Best in slot: full Melee, Ranged and Magic equipment columns, with your best owned gear first. Other armour sets stay vertical; shared items appear once. Sets together and List offer alternative arrangements."
 	)
 	default GearLayout gearLayout()
 	{

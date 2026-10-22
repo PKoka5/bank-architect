@@ -19,7 +19,6 @@ public final class BankTabPlan
 	private static final int TOTAL_CATEGORY_COUNT = 10;
 
 	private final List<TargetTab> numberedTabs;
-	private final String mainCategoryKey;
 	private final String mainCategoryName;
 	private final List<BankPreviewItem> mainItems;
 	private final List<BankPreviewItem> flattenedItems;
@@ -28,12 +27,11 @@ public final class BankTabPlan
 	private int[] lastCounts;
 	private List<BankPreviewItem> lastEffective;
 
-	private BankTabPlan(List<TargetTab> numberedTabs, String mainCategoryKey,
+	private BankTabPlan(List<TargetTab> numberedTabs,
 		String mainCategoryName, List<BankPreviewItem> mainItems, BankLayoutPlan layout)
 	{
 		this.layout = Objects.requireNonNull(layout, "layout");
 		this.numberedTabs = Collections.unmodifiableList(new ArrayList<>(numberedTabs));
-		this.mainCategoryKey = Objects.requireNonNull(mainCategoryKey, "mainCategoryKey");
 		this.mainCategoryName = Objects.requireNonNull(mainCategoryName, "mainCategoryName");
 		this.mainItems = immutableCopy(mainItems);
 
@@ -71,10 +69,10 @@ public final class BankTabPlan
 				continue;
 			}
 			numbered.add(new TargetTab(numbered.size() + 1, categoryIndex + 1,
-				category.getCategory().getKey(), category.getCategory().getName(), category.getItems()));
+				category.getCategory().getName(), category.getItems()));
 		}
 
-		return new BankTabPlan(numbered, main.getCategory().getKey(),
+		return new BankTabPlan(numbered,
 			main.getCategory().getName(), main.getItems(), layout);
 	}
 
@@ -160,16 +158,14 @@ public final class BankTabPlan
 	{
 		private final int bankTabNumber;
 		private final int blueprintCategoryNumber;
-		private final String categoryKey;
 		private final String categoryName;
 		private final List<BankPreviewItem> items;
 
-		private TargetTab(int bankTabNumber, int blueprintCategoryNumber, String categoryKey,
+		private TargetTab(int bankTabNumber, int blueprintCategoryNumber,
 			String categoryName, List<BankPreviewItem> items)
 		{
 			this.bankTabNumber = bankTabNumber;
 			this.blueprintCategoryNumber = blueprintCategoryNumber;
-			this.categoryKey = Objects.requireNonNull(categoryKey, "categoryKey");
 			this.categoryName = Objects.requireNonNull(categoryName, "categoryName");
 			this.items = immutableCopy(items);
 		}
@@ -182,11 +178,6 @@ public final class BankTabPlan
 		public int getBlueprintCategoryNumber()
 		{
 			return blueprintCategoryNumber;
-		}
-
-		public String getCategoryKey()
-		{
-			return categoryKey;
 		}
 
 		public String getCategoryName()

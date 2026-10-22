@@ -90,19 +90,23 @@ public class AlchReplacementFamiliesTest
 	}
 
 	@Test
-	public void adamantAxeRequiresAnActualUpgradeAndRespectsPlayerChoices()
+	public void adamantAxeRequiresAReviewedBankUpgradeAndRespectsPlayerChoices()
 	{
 		for (int quantity : new int[] {1, 25})
 		{
 			BankSnapshot lone = bank(quantity, 1357);
 			BankSnapshot placeholderUpgrade = new BankSnapshot(Arrays.asList(new BankItemSnapshot(1357, quantity, 0),
 				new BankItemSnapshot(6739, 0, 1, true)));
-			for (BankSnapshot bank : Arrays.asList(lone, placeholderUpgrade, bank(quantity, 1357, 23675)))
+			for (BankSnapshot bank : Arrays.asList(lone, bank(quantity, 1357, 23675)))
 			{
 				BankOrganizationPreview preview = build(bank, GearStatsSource.NONE);
 				assertFalse("Keep best usable Adamant axe", "alch".equals(item(preview, 1357).getLayoutTagKey()));
 				assertEquals(0, alchCount(preview));
 			}
+			BankOrganizationPreview withdrawnUpgrade = build(placeholderUpgrade, GearStatsSource.NONE);
+			assertTag(withdrawnUpgrade, 1357, "alch");
+			assertTrue(item(withdrawnUpgrade, 6739).isPlaceholder());
+			assertEquals(1, alchCount(withdrawnUpgrade));
 			BankSnapshot upgraded = bank(quantity, 1357, 1359, 6739);
 			BankOrganizationPreview disabled = build(upgraded, GearStatsSource.NONE, VALUES,
 				CategoryOverrideSource.NONE, new BankLayoutOptions(true, true, false));
@@ -129,16 +133,16 @@ public class AlchReplacementFamiliesTest
 	}
 
 	@Test
-	public void placeholderRoleReplacementsDoNotSupplyAutomaticProof()
+	public void reviewedRoleReplacementPlaceholdersPreserveAutomaticAlchPlacement()
 	{
 		for (int[] pair : REPLACED_PAIRS)
 		{
 			BankSnapshot bank = new BankSnapshot(Arrays.asList(new BankItemSnapshot(pair[0], 25, 0),
 				new BankItemSnapshot(pair[1], 0, 1, true)));
 			BankOrganizationPreview preview = build(bank, sameStats(GearSlot.WEAPON));
-			assertFalse("Actual item " + pair[0], "alch".equals(item(preview, pair[0]).getLayoutTagKey()));
+			assertTag(preview, pair[0], "alch");
 			assertTrue(item(preview, pair[1]).isPlaceholder());
-			assertEquals(0, alchCount(preview));
+			assertEquals(1, alchCount(preview));
 		}
 	}
 

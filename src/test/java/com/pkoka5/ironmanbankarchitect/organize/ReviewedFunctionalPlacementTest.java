@@ -107,7 +107,7 @@ public class ReviewedFunctionalPlacementTest
 	}
 
 	@Test
-	public void capturedPhysicalOrderSurvivesCorrectedFunctionsAndPlaceholderUpgradesProveNothing()
+	public void capturedPhysicalOrderSurvivesCorrectedFunctionsAndReviewedUpgradePlaceholders()
 	{
 		List<BankItemSnapshot> items = new ArrayList<>(bank(22840, 4485, 28152, 995, 1275).getPhysicalItems());
 		items.add(new BankItemSnapshot(11920, 0, items.size(), true));
@@ -138,9 +138,9 @@ public class ReviewedFunctionalPlacementTest
 		assertTrue(item(corrected, 11920).isPlaceholder());
 		assertEquals(0, item(corrected, 11920).getQuantity());
 		assertFalse(item(corrected, 1275).isPlaceholder());
-		assertFalse("Placeholder Dragon pickaxe cannot replace the owned Rune pickaxe for Alch",
-			"alch".equals(item(corrected, 1275).getLayoutTagKey()));
-		assertEquals(0, corrected.getTagCounts().getOrDefault("alch", 0).intValue());
+		assertEquals("Reviewed tool role changes without moving its captured physical destination",
+			"alch", item(corrected, 1275).getLayoutTagKey());
+		assertEquals(1, corrected.getTagCounts().getOrDefault("alch", 0).intValue());
 		assertEquals(corrected.getPlannedItemCount() - 1,
 			corrected.getTagCounts().values().stream().mapToInt(Integer::intValue).sum());
 	}

@@ -16,21 +16,21 @@ public class ReleaseNoticePanelTest
 	@Test public void newReleaseAppearsAfterPreviousReleaseWasDismissedAndStaysDismissedAfterRestart() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			assertEquals("0.9.6", ReleaseNoticePanel.RELEASE_ID);
-			AtomicReference<String> seen = new AtomicReference<>("0.9.5");
+			assertEquals("0.9.7", ReleaseNoticePanel.RELEASE_ID);
+			AtomicReference<String> seen = new AtomicReference<>("0.9.6");
 			JPanel normal = new JPanel();
 			ReleaseNoticePanel panel = new ReleaseNoticePanel(normal, seen::get, seen::set);
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.5", seen.get());
+			assertEquals("0.9.6", seen.get());
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.5", seen.get());
+			assertEquals("0.9.6", seen.get());
 			JButton dismiss = button(panel);
 			assertNotNull(dismiss);
 			dismiss.doClick();
 			assertTrue(normal.isVisible());
-			assertEquals("0.9.6", seen.get());
+			assertEquals("0.9.7", seen.get());
 			panel.opened();
 			assertTrue(normal.isVisible());
 			JPanel restarted = new JPanel();
@@ -53,9 +53,9 @@ public class ReleaseNoticePanelTest
 			layout(panel);
 			JLabel notes = notes(panel);
 			assertNotNull(notes);
-			assertTrue(notes.getText().contains("Bank Architect 0.9.6"));
+			assertTrue(notes.getText().contains("Bank Architect 0.9.7"));
 			String text = notes.getText().toLowerCase(java.util.Locale.ROOT);
-			for (String feature : new String[] {"preview", "melee", "4-3-2-1", "herblore", "outfit", "manual"})
+			for (String feature : new String[] {"blueprint", "placeholder", "alch", "ranged", "obsidian", "manual"})
 				assertTrue("Missing layout release note: " + feature, text.contains(feature));
 			JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, notes);
 			assertNotNull(scroll);

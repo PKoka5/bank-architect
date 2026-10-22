@@ -123,7 +123,8 @@ public final class BankAnalysis implements AutoCloseable
 		Map<Integer, String> retained = new HashMap<>(request.sameLayoutContext(successfulRequest, bankPreset)
 			&& request.bankSnapshot().getItems().stream().anyMatch(item -> item.isPlaceholder())
 			? establishedAlch : Collections.emptyMap());
-		retained.keySet().removeIf(id -> request.bankSnapshot().getTotalQuantity(id) > 0
+		retained.keySet().removeIf(id -> BankOrganizationPreviewBuilder.needsScurriusMace(id, request.bankSnapshot())
+			|| request.bankSnapshot().getTotalQuantity(id) > 0
 			&& request.bankSnapshot().getTotalQuantity(id) != successfulRequest.bankSnapshot().getTotalQuantity(id));
 		return id -> request.categoryKey(id).isPresent() ? request.categoryKey(id) : Optional.ofNullable(retained.get(id));
 	}

@@ -45,8 +45,8 @@ public final class IronmanQuickToolSelector
 		return rank >= 0 && rank < 4;
 	}
 
-	/** Uses functional tiers, never a placeholder or an equivalent ornament as an upgrade. */
-	static boolean hasOwnedUpgrade(int itemId, Set<Integer> realOwned)
+	/** Functional tiers count recorded bank placeholders; equivalent ornaments are not upgrades. */
+	static boolean hasOwnedUpgrade(int itemId, Set<Integer> recorded)
 	{
 		for (List<List<Integer>> family : Arrays.asList(PICKAXE_TIERS, AXE_TIERS))
 		{
@@ -54,7 +54,7 @@ public final class IronmanQuickToolSelector
 			for (List<Integer> tier : family)
 			{
 				if (tier.contains(itemId)) return higherOwned;
-				higherOwned |= !Collections.disjoint(realOwned, tier);
+				higherOwned |= !Collections.disjoint(recorded, tier);
 			}
 		}
 		return false;

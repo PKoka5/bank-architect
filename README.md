@@ -20,16 +20,22 @@ Combat keeps the best owned Melee, Ranged and Magic gear at the front, with rema
 arranged vertically in combat-style and progression order. Loose alternatives
 group by style and equipment slot. Teleport tablets group by their reviewed
 icon colors, alphabetically within each color. Saved manual orders take priority.
+The general Ranged head slot prioritizes Ranged strength and attack bonuses before
+defence/tier tie-breakers. An Archer helm therefore beats an imbued Slayer helmet
+for this general setup; Slayer task gear remains available as an alternative.
+The existing Bowfa and Crystal armour combination keeps its contextual priority.
 For an odd number of complete potion families, four real food or utility items
 can finish the row so incomplete families start below it. If those items are
 unavailable, the incomplete section uses the remaining half-row. The bank stays dense.
 
 Taking out gear while leaving its placeholders preserves established Gear/Alch
 placement during the same RuneLite session, including when new items are deposited.
-Reviewed armour can also use a higher-tier placeholder of the same combat style
-and equipment slot after restarting. Other replacement rules require real bank
-items; changed existing facts or preferences trigger reassessment. Use a saved
-current-bank blueprint to preserve your chosen arrangement across restarts.
+Reviewed Alch stock keeps its destination when it becomes a placeholder, including
+after restarting. Known tool, staff, Mystic-colour and slash-weapon replacements
+also accept bank placeholders; reviewed armour accepts a higher exact tier of the
+same style and slot. Unreviewed stock retains conservative quantity, value and
+actual-ownership checks. Changed facts or preferences trigger reassessment. Use a
+saved current-bank blueprint to preserve your chosen arrangement across restarts.
 
 ## Installation
 
@@ -41,6 +47,9 @@ Install from the RuneLite Plugin Hub:
 
 Bank Architect has no separate installer, account, or external service.
 
+The planner targets the standard eight-column bank. Custom sixteen-column grids
+from bank-resizing plugins are not currently supported.
+
 ## Ironman — All-Round Bank workflow
 
 1. **Scan:** open your bank and select **Analyze Bank**. The plugin reads the
@@ -48,10 +57,10 @@ Bank Architect has no separate installer, account, or external service.
 2. **Review the blueprint:** select **Open Blueprint** to inspect the proposed
    Main section and nine purpose-driven tabs. The blueprint preserves owned
    item IDs, quantities, and real placeholders; it does not invent missing
-   items or blank slots. Your bank is also tinted in place: every item takes
-   the colour of the tab it is planned for, with a legend beside the bank. That
-   works in any bank view and needs nothing beyond the scan, so you can see the
-   plan before deciding to act on it.
+   items or blank slots. Enable **Assign Categories** to tint items with their
+   planned destination colour and show the legend beside the bank. This works
+   in any bank view; the temporary blueprint preview replaces these colours
+   while it is open.
 3. **Prepare the bank:** open the vanilla **All items** view and clear bank
    search and bank-tag filters. Either rearrange mode works; **Insert** mode
    usually needs fewer drags than **Swap** and the guide reports both counts.
@@ -198,13 +207,30 @@ categories go where:
    yet, each with the tab it currently sits on. Pick one to move it here. The
    no-entry button beside a tag takes it off and sends it to the Storage &
    Cleanup tab.
-4. Where a tab holds more than one tag, the arrows decide which comes first.
+4. Arrows beside a tab heading move the whole blueprint tab up or down. Arrows
+   beside an individual tag decide which tag comes first within its tab.
 5. Every change is saved as you make it and the blueprint is rebuilt straight
    away. **Reset to default** puts the preset arrangement back.
 
 The destination icons above the list carry their own numbers — **M** for the
 main section, then **1** to **9** — and the count of what lands on each, so you
 can see the shape of the bank while you build it.
+
+### Move complete blueprint tabs
+
+In **Tab Layout**, use the up/down arrows beside **Main section** or a numbered
+tab's heading. Each click inserts that whole destination one position earlier or
+later, shifting the neighboring destination. Main can participate, and empty
+destinations can move too.
+
+The move carries all assigned tags, **Keep current order**, saved item order and
+captured item destinations together. Missing saved items retain their positions
+for when they return. Other saved profiles, item corrections and sorting
+preferences keep their own settings. Editing a bundled preset creates a Custom
+layout; the original preset remains available.
+
+This rearranges the blueprint. Follow the manual sorting guide to make the real
+bank match it; no actual bank tab or item moves automatically.
 
 ### Saving and sharing a layout
 
@@ -239,23 +265,20 @@ layouts survive as long as the tags stay on one tab. Split them across tabs and
 each side is arranged on its own, which loses the rows rather than breaking
 them — a trade you are free to make.
 
-### Shape settings in the layout editor
+### Layout choices
 
-Both sit under the help text in **Tab Layout**, beside the tabs they affect.
-They are also in the client's plugin settings under Bank Architect, since they
-are stored there.
+**Tab Layout** offers Combat layout choices and the **Gather outclassed gear**
+checkbox. These choices also have corresponding RuneLite configuration settings.
+A bank tab cannot hold an empty slot, so columns and rows only keep their shape
+when real items fill the grid.
 
-**Fill part-empty gear rows** and **Complete Herblore recipe rows** control
-the shapes built inside their tabs. A bank tab cannot hold an empty slot, so
-columns and rows only keep their shape when real items fill the grid.
-
-- **Gear on**: the best owned gear uses vertical combat-style columns. Other sets
-  use vertical columns in the same grid, with real loose gear filling the space
-  around them. Very small banks stay compact when a column cannot physically fit.
-  **Off**: sets use columns without reserving best-gear
-  equipment rows. List and grid layouts share the same reviewed set families.
-- **Herblore on**: Ironman builds complete eight-item recipe rows first. Remaining
-  ingredients follow compactly by kind. **Off**: all ingredients run by kind.
+- **Best in slot** builds full vertical Melee, Ranged and Magic equipment
+  columns. Other armour sets stay vertical, with real loose gear filling the
+  space around them. Very small banks stay compact when columns cannot fit.
+  **Sets together** and **List** provide alternative arrangements.
+- In RuneLite's Bank Architect settings, **Complete Herblore recipe rows**
+  controls Ironman Herblore. On builds complete eight-item recipes first, with
+  remaining ingredients compactly by kind. Off puts all ingredients by kind.
 
 The default Combat front gives general Strength gear and raid weapons a reviewed
 navigation priority. Torva leads the melee armour column when present; Oathplate,
@@ -267,11 +290,16 @@ content-specific setups still matter, and personal blueprint choices take priori
 
 **Gather outclassed gear** sends reviewed replaced gear and tools to the
 separately placeable **Alch** tag. Main and Ironman use the same rules. The best
-owned reviewed gear stays; Rune and Adamant axes move when you own a better axe,
+owned reviewed gear stays; Rune and Adamant axes move when a better axe is recorded in the bank,
 elemental staffs preserve rune supply, and equivalent ordinary Mystic colours
 keep one stable variant. Dragon halberds count as Alch stock by default.
+Ordinary d'hide bodies and chaps need a full equipment-stat replacement: a higher
+Ranged tier alone does not replace their Magic defence or hybrid use. Suitable
+blessed or fortified Masori pieces can qualify, including higher-tier placeholders.
 Unreviewed duplicates need conservative stat/value evidence. Personal item
 choices always win. Turn gathering off to retain the normal categories.
+Rune maces remain outside automatic Alch when a real Scurrius' spine is present
+and no Bone mace, including its placeholder, is recorded in the bank.
 
 Main and Ironman place finished arrows, bolts (including Bolt rack), darts and
 cannonballs in **Slayer & Boss Loot** by default, including placeholders.
@@ -280,6 +308,8 @@ Alch items stay together afterward. Components and the Bolt pouch keep their
 existing roles. Assign an item to **Combat Gear** or
 **Ammunition** to keep it in Combat. Existing captured banks, valid saved editor
 destinations and relocated Ammunition groups retain the player's choice.
+Moving a whole blueprint tab also retains the existing ammunition placement
+choice; it does not bring default Drops ammunition back into Combat.
 
 ### Two ways to arrange Herblore
 
@@ -292,14 +322,10 @@ Main starts with dense runs by kind and keeps finished potion families in 4–3�
 dose order with Food & Potions.
 
 Move **Part Doses** onto the tab that holds **Potions** and it changes to
-**runs by kind** instead: all the grimy herbs, then all the clean ones, then the
-unfinished potions, the secondaries and the seeds.
-
-There is no switch for this, because moving that tag already says it. Recipe
-rows only earn their space while the doses are on hand to finish the recipe;
-once you keep your potions together elsewhere, the rows left behind would be
-mostly gaps. Move the doses to any other tab and the recipe rows stay, since
-that says something different.
+**runs by kind** instead: grimy herbs, clean herbs, seeds, unfinished potions
+and secondaries. This keeps ingredients compact when the finished doses are
+stored with your other potions. To use compact ingredients while keeping doses
+in a separate tab, disable **Complete Herblore recipe rows** in the settings.
 
 Reordering only decides where a category goes. Which items land in it, the
 corrections you have made, and the layout inside the tab are all unchanged, and

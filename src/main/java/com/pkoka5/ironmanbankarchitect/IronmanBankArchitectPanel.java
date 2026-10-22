@@ -74,6 +74,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private boolean refreshingPreset;
 	final JCheckBox alchPileBox;
 	private boolean refreshingOptions;
+	private boolean movingTab;
 	private final JPanel layoutEditor;
 	final JPanel layoutRows;
 	private final JLabel layoutHelp;
@@ -495,6 +496,20 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		applyLayoutPlan(layoutPlan.withTagAt(tagKey, destinationIndex));
 	}
 
+	void moveBlueprintTab(int from, int to, String expectedContext)
+	{
+		if (movingTab) return;
+		movingTab = true;
+		stopBankPreview();
+		renderLayoutEditor();
+		bankLayoutModel.moveTab(from, to, expectedContext, success -> {
+			movingTab = false;
+			if (success) selectedDestination = BankLayoutPlan.destinationAfterMove(selectedDestination, from, to);
+			renderLayoutEditor();
+			if (!success) layoutHelp.setText(sidebarHtml("The layout changed or could not be saved. Try the tab move again."));
+		});
+	}
+
 	/** Reorders a category within its destination, which decides what leads the tab. */
 	void shiftWithinSelected(String tagKey, int offset)
 	{
@@ -816,7 +831,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 */
 	private String layoutHelpText()
 	{
-		return LAYOUT_EDITOR_HELP + (bankLayoutModel.preset().getType() == BankPresetType.MAIN
+		return LAYOUT_EDITOR_HELP + "Header arrows move whole blueprint tabs, including saved item positions. "
+			+ (bankLayoutModel.preset().getType() == BankPresetType.MAIN
 			? "Main keeps potion families in dose order 4 to 1. Herbs run by stage: grimy, clean, seeds, unfinished."
 			: "Ironman puts complete Herblore recipes first; incomplete ingredients run by kind. Moving Part Doses beside Potions keeps all ingredients compact.");
 	}
@@ -1152,7 +1168,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	}
 
 	/** The tab this group of rows belongs to, with what it will hold. */
-	private JLabel destinationHeader(int destination, Map<String, Integer> tagCounts)
+	private JPanel destinationHeader(int destination, Map<String, Integer> tagCounts)
 	{
 		int items = itemsOnDestination(destination, tagCounts);
 		JLabel header = new JLabel(destinationName(destination)
@@ -1161,8 +1177,28 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		header.setForeground(destination == selectedDestination
 			? ColorScheme.BRAND_ORANGE : Color.WHITE);
 		header.setBorder(BorderFactory.createEmptyBorder(2, 0, 3, 0));
-		sizeToSidebar(header, 16);
-		return header;
+		header.setToolTipText(header.getText());
+		JPanel row = new JPanel(new BorderLayout(2, 0));
+		row.setOpaque(false);
+		row.add(header, BorderLayout.CENTER);
+		JPanel buttons = new JPanel(new GridLayout(1, 2, 2, 0));
+		buttons.setOpaque(false);
+		buttons.setPreferredSize(new Dimension(42, 20));
+		boolean enabled = !movingTab && bankLayoutModel.options().itemOrders().isSupported();
+		String context = bankLayoutModel.editingContext();
+		for (int offset : new int[] {-1, 1})
+		{
+			String action = "Move entire blueprint " + destinationName(destination) + (offset < 0 ? " up" : " down");
+			JButton button = layoutButton(offset < 0 ? "\u2191" : "\u2193",
+				action + ", including categories and saved item positions",
+				enabled && destination + offset >= 0 && destination + offset < BankLayoutPlan.DESTINATION_COUNT,
+				event -> moveBlueprintTab(destination, destination + offset, context));
+			button.getAccessibleContext().setAccessibleName(action);
+			buttons.add(button);
+		}
+		row.add(buttons, BorderLayout.EAST);
+		sizeToSidebar(row, 20);
+		return row;
 	}
 
 	private JLabel emptyDestinationNote()

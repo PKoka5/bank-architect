@@ -257,14 +257,15 @@ public class AlchFeedbackRoutingTest
 	}
 
 	@Test
-	public void placeholderDragonHalberdIsNeverAlchStock()
+	public void placeholderDragonHalberdPreservesItsReviewedAlchPlacement()
 	{
 		BankSnapshot bank = new BankSnapshot(Collections.singletonList(new BankItemSnapshot(DRAGON_HALBERD, 0, 0, true)));
 		for (BankPreset preset : PRESETS)
 		{
 			BankOrganizationPreview preview = build(preset, bank, Collections.emptyMap());
-			assertTag(preview, DRAGON_HALBERD, "gear");
+			assertTag(preview, DRAGON_HALBERD, "alch");
 			assertTrue(item(preview, DRAGON_HALBERD).isPlaceholder());
+			assertEquals(0, item(preview, DRAGON_HALBERD).getQuantity());
 			assertEquals(0, alchCount(preview));
 		}
 	}

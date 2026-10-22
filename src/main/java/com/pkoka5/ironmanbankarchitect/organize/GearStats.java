@@ -226,6 +226,12 @@ public final class GearStats
 			: style == GearStyle.MAGIC ? magicDamageTenths : 0;
 	}
 
+	public int accuracy(GearStyle style)
+	{
+		return style == GearStyle.RANGED ? rangedAttack : style == GearStyle.MAGIC ? magicAttack
+			: Math.max(Math.max(stabAttack, slashAttack), crushAttack);
+	}
+
 	/** Placement score for one combat role; it is not evidence for alching. */
 	public int score(GearStyle style)
 	{

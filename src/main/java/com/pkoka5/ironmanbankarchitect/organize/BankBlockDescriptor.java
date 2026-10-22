@@ -10,22 +10,15 @@ import java.util.Objects;
  */
 public final class BankBlockDescriptor
 {
-	private final String tagKey;
 	private final String blockKey;
 	private final String displayName;
 	private final int memberCount;
 
-	BankBlockDescriptor(String tagKey, String blockKey, String displayName, int memberCount)
+	BankBlockDescriptor(String blockKey, String displayName, int memberCount)
 	{
-		this.tagKey = Objects.requireNonNull(tagKey, "tagKey");
 		this.blockKey = Objects.requireNonNull(blockKey, "blockKey");
 		this.displayName = Objects.requireNonNull(displayName, "displayName");
 		this.memberCount = memberCount;
-	}
-
-	public String getTagKey()
-	{
-		return tagKey;
 	}
 
 	public String getBlockKey()

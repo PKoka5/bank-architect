@@ -64,6 +64,10 @@ abstract class TestBankLayoutModel implements BankLayoutModel
 	@Override public BankLayoutOptions options() { return BankLayoutOptions.defaultFor(preset()); }
 	@Override public void saveOptions(BankLayoutOptions options) { }
 	@Override public void saveBlockOrder(String tagKey, List<String> blockKeys) { }
+	@Override public void moveTab(int from, int to, String expectedContext, Consumer<Boolean> completed)
+	{
+		completed.accept(false);
+	}
 
 	static IronmanBankArchitectPanel panel(BankGuideController controller)
 	{

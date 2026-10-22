@@ -139,18 +139,31 @@ The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.9.6 release record](release-0.9.6.md) documents final tests, outstanding live
+The [0.9.7 release record](release-0.9.7.md) documents final tests, owner live
 checks, jar checksum, changed scope and calibrated review-token estimates.
 Local estimates are not the official Plugin Hub count.
 
 Version 0.9.2 keeps established session Alch decisions when IDs are added and
-existing facts/choices remain compatible. Fresh armour placeholders can supply
-only a higher exact curated tier in the same style/slot for reviewed stock;
-other replacement rules retain real-ownership requirements. Only a
+existing facts/choices remain compatible. The current local update also preserves
+reviewed stock placeholders and accepts placeholder proof for existing exact tool,
+staff, Mystic-colour and slash-weapon replacement families. Armour proof remains
+an exact higher curated tier in the same style/slot. Unreviewed stock still requires
+actual ownership, quantity and conservative value/dominance checks. Only a
 generation-current successful analysis commits session history; invalidation and
 shutdown clear it. The [fresh-placeholder review](testing/placeholder-armour-alch-2026-10-08.md)
 covers policy and regressions. Live guidance remains manual and validates
 observed transitions, including adjacent whole-tab moves.
+
+The [Wiki strategy armour audit](research/wiki-strategy-alch-armour-2026-10-22.md)
+removes tier-only Alch evidence from seven ordinary d'hide candidates. Full-stat
+dominance remains necessary, including when a higher-tier replacement is withdrawn.
+The [weapon/tool audit](research/wiki-strategy-alch-weapons-2026-10-22.md) records
+existing protections and deferred contextual questions; it adds no disposal rule.
+The [context corpus](research/wiki-strategy-corpus-2026-10-22.md) preserves page,
+method, slot, conditions and identity uncertainty during development only. One
+bank-only crafting veto now protects Rune mace while a real Scurrius' spine is
+present and no Bone mace or its placeholder exists. Stale automatic session Alch
+retention cannot bypass it; explicit player choices still win.
 
 The [classification audit](research/final-placement-audit-2026-10-06.md) records
 exact-ID corrections, independent reference coverage and deliberately reviewed

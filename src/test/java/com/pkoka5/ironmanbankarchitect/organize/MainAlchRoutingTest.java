@@ -109,8 +109,8 @@ public class MainAlchRoutingTest
 	{
 		Map<Integer, GearStats> stats = stats(BLACK_BODY, ranged(GearSlot.BODY, 30, 60));
 		stats.put(BLACK_LEGS, ranged(GearSlot.LEGS, 17, 40));
-		stats.put(BLESSED_BODY, ranged(GearSlot.BODY, 30, 60));
-		stats.put(BLESSED_LEGS, ranged(GearSlot.LEGS, 17, 40));
+		stats.put(BLESSED_BODY, ranged(GearSlot.BODY, 30, 61));
+		stats.put(BLESSED_LEGS, ranged(GearSlot.LEGS, 17, 41));
 		BankOrganizationPreview preview = build(bank(1, BLACK_BODY, BLACK_LEGS, BLESSED_BODY,
 			BLESSED_LEGS), PLAIN_GEAR, stats);
 
@@ -190,15 +190,17 @@ public class MainAlchRoutingTest
 	}
 
 	@Test
-	public void placeholderRuneBodyIsNotAlchStock()
+	public void reviewedRuneBodyPlaceholderKeepsItsAlchDestination()
 	{
 		BankSnapshot bank = new BankSnapshot(Arrays.asList(new BankItemSnapshot(RUNE_BODY, 0, 0, true),
 			new BankItemSnapshot(BANDOS_BODY, 1, 1)));
 		BankOrganizationPreview preview = build(bank, PLAIN_GEAR, replacementStats());
 
-		assertAt(preview, "gear", RUNE_BODY, BANDOS_BODY);
+		assertAt(preview, "alch", RUNE_BODY);
+		assertAt(preview, "gear", BANDOS_BODY);
 		assertEquals(0, alchCount(preview));
 		assertTrue(item(preview, RUNE_BODY).isPlaceholder());
+		assertEquals(0, item(preview, RUNE_BODY).getQuantity());
 	}
 
 	@Test
@@ -249,7 +251,7 @@ public class MainAlchRoutingTest
 			Map<Integer, GearStats> stats = stats(candidate, candidate == RUNE_BODY
 				? melee(GearSlot.BODY, 0, 100) : ranged(GearSlot.BODY, 30, 60));
 			stats.put(upgrade, candidate == RUNE_BODY
-				? melee(GearSlot.BODY, 4, 80) : ranged(GearSlot.BODY, 30, 60));
+				? melee(GearSlot.BODY, 4, 80) : ranged(GearSlot.BODY, 30, 61));
 			BankOrganizationPreview preview = build(bank(1, candidate, upgrade),
 				catalog(candidate, Collections.singleton("clue-required")), stats);
 			assertAt(preview, "alch", candidate);
@@ -371,7 +373,7 @@ public class MainAlchRoutingTest
 	}
 
 	@Test
-	public void armadylAndUnfortifiedMasoriCanReplaceReviewedDragonhide()
+	public void higherTierRangedArmourCannotEraseDragonhideStatAdvantages()
 	{
 		for (int upgrade : new int[] {11828, 27229})
 		{
@@ -379,8 +381,7 @@ public class MainAlchRoutingTest
 			stats.put(upgrade, ranged(GearSlot.BODY, 40, 60));
 			assertFalse(stats.get(upgrade).dominates(stats.get(BLACK_BODY)));
 			BankOrganizationPreview preview = build(bank(1, BLACK_BODY, upgrade), PLAIN_GEAR, stats);
-			assertAt(preview, "alch", BLACK_BODY);
-			assertAt(preview, "gear", upgrade);
+			assertAt(preview, "gear", BLACK_BODY, upgrade);
 		}
 	}
 

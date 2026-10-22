@@ -112,10 +112,13 @@ final class GearItemSorter
 		for (Map.Entry<String,List<BankPreviewItem>> entry : setCandidates.entrySet())
 		{
 			GearStyle desired = GearStyle.values()[Integer.parseInt(entry.getKey().substring(0,1))];
+			boolean rangedHead = entry.getKey().equals(STYLE_RANGED + ":0");
 			Comparator<BankPreviewItem> byPreference = Comparator
 			.comparingInt((BankPreviewItem item) -> -GearSetSemanticRuleSet.frontlinePriority(item.getItemId()))
-			.thenComparingInt(item -> slotRankOf(item, gearStats) == 12
+			.thenComparingInt(item -> rangedHead || slotRankOf(item, gearStats) == 12
 				? -gearStats.statsFor(item.getItemId()).map(stats -> stats.power(desired)).orElse(0) : 0)
+			.thenComparingInt(item -> rangedHead
+				? -gearStats.statsFor(item.getItemId()).map(stats -> stats.accuracy(desired)).orElse(0) : 0)
 			.thenComparingInt(item -> -gearScore(item) - gearStats.statsFor(item.getItemId()).map(stats -> stats.score(desired)).orElse(0))
 			.thenComparing(item -> -ownedFamilySizes.getOrDefault(item.getItemId(), 0))
 			.thenComparing(item -> normalized(item.getDisplayName()))

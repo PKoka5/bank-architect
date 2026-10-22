@@ -21,9 +21,11 @@ public final class BankLayoutPlan
 	private static final String TAG_SEPARATOR = "+";
 	private static final String LEGACY_SEPARATOR = ",";
 	private static final String KEEP_ORDER = "~keep";
+	private static final String AMMO_TAG = "~ammo-tag", AMMO_DROPS = "~ammo-drops";
 
 	private final List<List<String>> destinations;
 	private final int currentOrder;
+	private final Boolean ammoUsesAssignedTag;
 
 	private BankLayoutPlan(List<List<String>> destinations)
 	{
@@ -31,6 +33,11 @@ public final class BankLayoutPlan
 	}
 
 	private BankLayoutPlan(List<List<String>> destinations, int currentOrder)
+	{
+		this(destinations, currentOrder, null);
+	}
+
+	private BankLayoutPlan(List<List<String>> destinations, int currentOrder, Boolean ammoUsesAssignedTag)
 	{
 		List<List<String>> copy = new ArrayList<>(destinations.size());
 		for (List<String> destination : destinations)
@@ -40,6 +47,7 @@ public final class BankLayoutPlan
 
 		this.destinations = Collections.unmodifiableList(copy);
 		this.currentOrder = currentOrder;
+		this.ammoUsesAssignedTag = ammoUsesAssignedTag;
 	}
 
 	public boolean keepsCurrentOrder(int destinationIndex)
@@ -54,7 +62,43 @@ public final class BankLayoutPlan
 	{
 		requireDestinationIndex(destinationIndex);
 		int changed = keep ? currentOrder | (1 << destinationIndex) : currentOrder & ~(1 << destinationIndex);
-		return changed == currentOrder ? this : new BankLayoutPlan(destinations, changed);
+		return changed == currentOrder ? this : new BankLayoutPlan(destinations, changed, ammoUsesAssignedTag);
+	}
+
+	/** Old plans retain their numeric rule; whole-tab moves freeze the existing choice. */
+	public boolean ammoUsesAssignedTag(BankPreset preset)
+	{
+		return ammoUsesAssignedTag != null ? ammoUsesAssignedTag
+			: destinationOf("ammunition") != defaultFor(preset).destinationOf("ammunition");
+	}
+
+	public static int destinationAfterMove(int index, int from, int to)
+	{
+		requireDestinationIndex(index);
+		requireDestinationIndex(from);
+		requireDestinationIndex(to);
+		if (index == from) return to;
+		if (from < to && index > from && index <= to) return index - 1;
+		if (from > to && index >= to && index < from) return index + 1;
+		return index;
+	}
+
+	/** Insert a whole destination, preserving its tags and guidance preference. */
+	public BankLayoutPlan withDestinationMoved(int from, int to, BankPreset preset)
+	{
+		requireDestinationIndex(from);
+		requireDestinationIndex(to);
+		Objects.requireNonNull(preset, "preset");
+		if (from == to) return this;
+		List<List<String>> moved = emptyDestinations();
+		int keep = 0;
+		for (int index = 0; index < DESTINATION_COUNT; index++)
+		{
+			int target = destinationAfterMove(index, from, to);
+			moved.set(target, destinations.get(index));
+			if (keepsCurrentOrder(index)) keep |= 1 << target;
+		}
+		return new BankLayoutPlan(moved, keep, ammoUsesAssignedTag(preset));
 	}
 
 	/**
@@ -147,7 +191,7 @@ public final class BankLayoutPlan
 			destination.remove(tagKey);
 		}
 		updated.get(destinationIndex).add(tagKey);
-		return new BankLayoutPlan(updated, currentOrder);
+		return new BankLayoutPlan(updated, currentOrder, "ammunition".equals(tagKey) ? null : ammoUsesAssignedTag);
 	}
 
 	/**
@@ -177,13 +221,13 @@ public final class BankLayoutPlan
 
 		destination.remove(from);
 		destination.add(to, tagKey);
-		return new BankLayoutPlan(updated, currentOrder);
+		return new BankLayoutPlan(updated, currentOrder, ammoUsesAssignedTag);
 	}
 
 	/** True when this plan is the preset's own arrangement. */
 	public boolean isDefault(BankPreset preset)
 	{
-		return currentOrder == 0 && destinations.equals(defaultFor(preset).destinations);
+		return currentOrder == 0 && destinations.equals(defaultFor(preset).destinations) && !ammoUsesAssignedTag(preset);
 	}
 
 	/**
@@ -205,7 +249,7 @@ public final class BankLayoutPlan
 		}
 
 		List<List<String>> completed = withRemainder(preset, mutableCopy(), placed);
-		return completed.equals(destinations) ? this : new BankLayoutPlan(completed, currentOrder);
+		return completed.equals(destinations) ? this : new BankLayoutPlan(completed, currentOrder, ammoUsesAssignedTag);
 	}
 
 	public String serialize()
@@ -220,16 +264,11 @@ public final class BankLayoutPlan
 			{
 				builder.append(DESTINATION_SEPARATOR);
 			}
-			List<String> destination = destinations.get(destinationIndex);
-			if (keepsCurrentOrder(destinationIndex)) builder.append(KEEP_ORDER);
-			for (int index = 0; index < destination.size(); index++)
-			{
-				if (index > 0 || keepsCurrentOrder(destinationIndex))
-				{
-					builder.append(TAG_SEPARATOR);
-				}
-				builder.append(destination.get(index));
-			}
+			List<String> destination = new ArrayList<>(destinations.get(destinationIndex));
+			if (ammoUsesAssignedTag != null && destination.contains("ammunition"))
+				destination.add(0, ammoUsesAssignedTag ? AMMO_TAG : AMMO_DROPS);
+			if (keepsCurrentOrder(destinationIndex)) destination.add(0, KEEP_ORDER);
+			builder.append(String.join(TAG_SEPARATOR, destination));
 		}
 
 		return builder.toString();
@@ -240,12 +279,18 @@ public final class BankLayoutPlan
 		Set<String> placed = new LinkedHashSet<>();
 		List<List<String>> destinations = emptyDestinations();
 		int currentOrder = 0;
+		Boolean ammoUsesAssignedTag = null;
 
 		String[] parts = serialized.split("\\" + DESTINATION_SEPARATOR, -1);
 		for (int index = 0; index < parts.length && index < DESTINATION_COUNT; index++)
 		{
 			for (String key : parts[index].split("\\" + TAG_SEPARATOR))
 			{
+				if (AMMO_TAG.equals(key.trim()) || AMMO_DROPS.equals(key.trim()))
+				{
+					if (ammoUsesAssignedTag == null) ammoUsesAssignedTag = AMMO_TAG.equals(key.trim());
+					continue;
+				}
 				if (KEEP_ORDER.equals(key.trim())) currentOrder |= 1 << index;
 				for (String tagKey : tagKeysFor(key.trim()))
 				{
@@ -257,7 +302,7 @@ public final class BankLayoutPlan
 			}
 		}
 
-		return new BankLayoutPlan(withRemainder(preset, destinations, placed), currentOrder);
+		return new BankLayoutPlan(withRemainder(preset, destinations, placed), currentOrder, ammoUsesAssignedTag);
 	}
 
 	/**

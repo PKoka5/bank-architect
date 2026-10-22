@@ -147,6 +147,21 @@ public final class BlueprintItemOrders
 
 	public Map<String, Destination> destinations() { return destinations; }
 
+	/** Remap stored records directly, including absent items and captured routes. */
+	public BlueprintItemOrders withDestinationMoved(int from, int to)
+	{
+		if (!isSupported()) throw new IllegalStateException("Newer blueprint format");
+		BankLayoutPlan.destinationAfterMove(0, from, to);
+		if (from == to) return this;
+		Map<Integer, List<Integer>> moved = new LinkedHashMap<>();
+		orders.forEach((tab, ids) -> moved.put(BankLayoutPlan.destinationAfterMove(tab, from, to), ids));
+		Map<String, Destination> routes = new LinkedHashMap<>();
+		destinations.forEach((key, target) -> routes.put(key,
+			new Destination(BankLayoutPlan.destinationAfterMove(target.tab, from, to),
+				target.originalTag, target.tag, target.captured)));
+		return new BlueprintItemOrders(moved, null, routes);
+	}
+
 	public BlueprintItemOrders withDestinations(Map<String, Destination> changes)
 	{
 		if (!isSupported()) throw new IllegalStateException("Newer blueprint format");

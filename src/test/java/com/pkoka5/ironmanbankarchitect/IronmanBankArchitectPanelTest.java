@@ -701,10 +701,8 @@ public class IronmanBankArchitectPanelTest
 		List<String> headings = new ArrayList<>();
 		for (Component child : panel.layoutRows.getComponents())
 		{
-			if (child instanceof JLabel)
-			{
-				headings.add(((JLabel) child).getText());
-			}
+			String heading = headerText(child);
+			if (heading != null) headings.add(heading);
 		}
 
 		assertTrue(headings.toString(), headings.get(0).startsWith("Main section"));
@@ -787,7 +785,7 @@ public class IronmanBankArchitectPanelTest
 		int enabledRemovals = 0;
 		for (Component child : panel.layoutRows.getComponents())
 		{
-			if (!(child instanceof JPanel))
+			if (!(child instanceof JPanel) || headerText(child) != null)
 			{
 				continue;
 			}
@@ -1167,16 +1165,16 @@ public class IronmanBankArchitectPanelTest
 		boolean collecting = false;
 		for (Component child : panel.layoutRows.getComponents())
 		{
-			if (child instanceof JLabel)
+			String heading = headerText(child);
+			if (heading != null)
 			{
-				String label = ((JLabel) child).getText();
-				boolean header = label.startsWith("Main section") || label.matches("Tab [1-9]( -.*)?");
-				if (header)
-				{
-					if (collecting) break;
-					collecting = label.equals(expected) || label.startsWith(expected + " -");
-				}
-				if (collecting) text.append(label).append('\n');
+				if (collecting) break;
+				collecting = heading.equals(expected) || heading.startsWith(expected + " -");
+				if (collecting) text.append(heading).append('\n');
+			}
+			else if (collecting && child instanceof JLabel)
+			{
+				text.append(((JLabel) child).getText()).append('\n');
 			}
 			else if (collecting && child instanceof Container)
 			{
@@ -1188,12 +1186,22 @@ public class IronmanBankArchitectPanelTest
 		return text.toString();
 	}
 
+	private static String headerText(Component child)
+	{
+		List<String> labels = child instanceof JLabel
+			? java.util.Collections.singletonList(((JLabel) child).getText())
+			: child instanceof Container ? collectLabelText((Container) child) : java.util.Collections.emptyList();
+		for (String text : labels)
+			if (text.startsWith("Main section") || text.matches("Tab [1-9]( -.*)?")) return text;
+		return null;
+	}
+
 	private static int countRows(JPanel rows)
 	{
 		int count = 0;
 		for (Component child : rows.getComponents())
 		{
-			if (child instanceof JPanel)
+			if (child instanceof JPanel && headerText(child) == null)
 			{
 				count++;
 			}

@@ -4,6 +4,15 @@ This folder contains generated research artifacts. They are not production catal
 
 ## Product Research
 
+`wiki-strategy-corpus-2026-10-22.md` records the fresh 483-table context inventory,
+source provenance and unresolved identities. `wiki-strategy-context-review-2026-10-22.md`
+records reviewed set/specialist effects and the conditional Scurrius crafting veto.
+
+`wiki-strategy-alch-armour-2026-10-22.md` and
+`wiki-strategy-alch-weapons-2026-10-22.md` account for all 100 current reviewed
+Alch candidates. They distinguish current routing, verified Wiki roles, the
+seven-item d'hide correction and deferred contextual replacement questions.
+
 `item-role-audit-final-october-2.md` records the final clue/quest/equipment batch, conditional
 cleanup protections, whole-export coverage measurement and the ingame test checklist.
 

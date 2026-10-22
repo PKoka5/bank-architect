@@ -27,6 +27,10 @@ The new export contains the same 85 real Combat IDs as the earlier normalized fi
 | 8 | Barrows gloves | — | — |
 | 9 | Berserker ring (i) | — | — |
 
+Follow-up on 22 October 2026: the [general Ranged head correction](ranged-head-selection-2026-10-22.md)
+changes this fixture's Ranged head to Archer helm. The table above records the
+original October 13 checkpoint; the tests and regenerated reports use the corrected selection.
+
 The dashes describe the end of a selected column, **not blank bank entries**. Real remaining items occupy those cells. The subsequent [ring/weapon follow-up](ring-weapon-clusters-2026-10-13.md) places Lightbearer with the other rings beside the selected Berserker ring, replacing its initial support cell 3. Every actual item is preserved exactly once. Main retains its existing Lunar staff transport destination, giving 84 Combat entries and 85 total preview entries in this isolated fixture.
 
 Generated and visually inspected output: `build/reports/combat-quality/IRONMAN-full-combat-columns-85.png` and `.html`, plus the Main/endgame and populated condition reports. The renderer outlines selected equipment by identity rather than assuming a contiguous primary front. The midgame column and family assertions are independently specified in the test, not calculated by production helpers.

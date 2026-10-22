@@ -29,6 +29,13 @@ public final class BankOrganizationPreviewBuilder
 	{
 	}
 
+	/** A real spine can still use this mace; an existing Bone mace reserves the finished weapon. */
+	public static boolean needsScurriusMace(int itemId, BankSnapshot snapshot)
+	{
+		return itemId == 1432 && snapshot.getTotalQuantity(28798) > 0
+			&& snapshot.getItems().stream().noneMatch(item -> item.getItemId() == 28792);
+	}
+
 	/**
 	 * The tag order of this destination when the player has made it their own.
 	 * A default plan's order is bookkeeping, not a statement - the sorters'
@@ -127,8 +134,7 @@ public final class BankOrganizationPreviewBuilder
 		// Without a plan there is nothing to read a layout choice from, so the
 		// per-category blueprint keeps the recipe rows it has always had.
 		boolean main = preset.getType() == BankPresetType.MAIN;
-		boolean ammunitionMoved = plan != null && plan.destinationOf("ammunition")
-			!= BankLayoutPlan.defaultFor(preset).destinationOf("ammunition");
+		boolean ammunitionMoved = plan != null && plan.ammoUsesAssignedTag(preset);
 		boolean herbloreRecipeRows = !main && (plan == null || BankLayoutStyles.herbloreUsesRecipeRows(plan));
 		Map<String, Integer> tagCounts = new LinkedHashMap<>();
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
@@ -142,6 +148,7 @@ public final class BankOrganizationPreviewBuilder
 		}
 
 		Map<String, List<BankGear>> gearByKey = new LinkedHashMap<>();
+		Set<Integer> recorded = new HashSet<>();
 		Set<Integer> realOwned = new HashSet<>();
 		Map<Integer, String> choices = new HashMap<>();
 		boolean captured = options.itemOrders().isCaptured();
@@ -151,6 +158,7 @@ public final class BankOrganizationPreviewBuilder
 		{
 			if (!options.alchPile() || (!main && preset.getType() != BankPresetType.IRONMAN)) break;
 			int itemId = bankItem.getItemId();
+			recorded.add(itemId);
 			if (!bankItem.isPlaceholder()) realOwned.add(itemId);
 			BankTag choice = overrideTag(overrides, itemId);
 			BankCategory legacyChoice = overriddenCategory(preset, overrides, itemId);
@@ -196,11 +204,13 @@ public final class BankOrganizationPreviewBuilder
 			{
 				category = preset.getCategory("potions-food");
 			}
-			boolean alchCandidate = options.alchPile() && !bankItem.isPlaceholder()
+			boolean alchCandidate = options.alchPile()
+				&& !needsScurriusMace(bankItem.getItemId(), snapshot)
+				&& (!bankItem.isPlaceholder() || IronmanAlchCandidateCatalog.contains(bankItem.getItemId()))
 				&& sourceItem.getCategory() != ItemCategory.UNKNOWN
 				&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
 				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-				gearStats, itemValues, gearByKey, realOwned, choices);
+				gearStats, itemValues, gearByKey, recorded, realOwned, choices);
 			if (alchCandidate)
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
@@ -520,15 +530,15 @@ public final class BankOrganizationPreviewBuilder
 			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey), bankItem.getSlotIndex());
 	}
 
-	/** Shared Main/Ironman policy: reviewed armour accepts exact higher-tier bank placeholders;
-	 * other comparisons need an owned replacement. A placeholder records the planned kit,
-	 * not present ownership. Removing it restores normal classification.
+	/** Shared Main/Ironman policy: reviewed stock and exact replacement roles include placeholders.
+	 * Unreviewed stock retains its quantity, actual-ownership and value requirements.
+	 * Removing the recorded replacement restores normal classification.
 	 * Unknown stock needs full dominance and the conservative value/backup rules.
 	 * A weighted score alone cannot prove replacement. The exact Dragon halberd
 	 * exception is an explicit owner choice, still subject to the option and overrides. */
 	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
 		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<BankGear>> gearByKey,
-		Set<Integer> realOwned, Map<Integer, String> choices)
+		Set<Integer> recorded, Set<Integer> realOwned, Map<Integer, String> choices)
 	{
 		if (PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
 			normalizedSubcategory(catalogItem), catalogItem.getDisplayName())) return false;
@@ -555,9 +565,9 @@ public final class BankOrganizationPreviewBuilder
 		}
 		int itemId = catalogItem.getItemId();
 		if (reviewedAlchable && IronmanQuickToolSelector.isTieredTool(itemId))
-			return IronmanQuickToolSelector.hasOwnedUpgrade(itemId, realOwned);
+			return IronmanQuickToolSelector.hasOwnedUpgrade(itemId, recorded);
 		boolean roleReplacement = reviewedAlchable
-			&& IronmanAlchCandidateCatalog.hasRoleReplacement(itemId, realOwned, choices);
+			&& IronmanAlchCandidateCatalog.hasRoleReplacement(itemId, recorded, choices);
 		if (IronmanAlchCandidateCatalog.isElementalStaff(itemId) || roleReplacement) return roleReplacement;
 		if (!"combat-gear".equals(category.getKey())) return false;
 		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
@@ -576,8 +586,11 @@ public final class BankOrganizationPreviewBuilder
 			int tier = IronmanAlchCandidateCatalog.tierOf(catalogItem.getItemId());
 			boolean armour = stats.get().getSlot() != GearSlot.WEAPON && stats.get().getSlot() != GearSlot.AMMO;
 			for (BankGear candidate : gear)
-				if (realOwned.contains(candidate.itemId) && candidate.stats.dominates(stats.get())
-					|| (armour && tier > 0 && IronmanAlchCandidateCatalog.tierOf(candidate.itemId) > tier)) return true;
+			{
+				boolean higherTier = armour && tier > 0 && IronmanAlchCandidateCatalog.tierOf(candidate.itemId) > tier;
+				if (candidate.stats.dominates(stats.get()) && (realOwned.contains(candidate.itemId) || higherTier)
+					|| higherTier && !IronmanAlchCandidateCatalog.requiresDominance(itemId)) return true;
+			}
 			return false;
 		}
 
@@ -837,7 +850,7 @@ public final class BankOrganizationPreviewBuilder
 				Map<String, BankBlockDescriptor> tagBlocks =
 					collected.computeIfAbsent(tagKey, ignored -> new LinkedHashMap<>());
 				BankBlockDescriptor existing = tagBlocks.get(blockKey);
-				tagBlocks.put(blockKey, new BankBlockDescriptor(tagKey, blockKey,
+				tagBlocks.put(blockKey, new BankBlockDescriptor(blockKey,
 					existing == null ? BlockKeys.blockNameOf(item) : existing.getDisplayName(),
 					existing == null ? 1 : existing.getMemberCount() + 1));
 			}

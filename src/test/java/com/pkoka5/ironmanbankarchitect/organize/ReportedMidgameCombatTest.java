@@ -20,10 +20,10 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class ReportedMidgameCombatTest
 {
-	private static final List<Integer> PRIMARY = Arrays.asList(10828, 26674, 3755, 11832, 2503, 4091,
+	private static final List<Integer> PRIMARY = Arrays.asList(10828, 3749, 3755, 11832, 2503, 4091,
 		11834, 2497, 4093, 26219, 26770, 25975, 25865, 31115, 6570, 6585, 12954, 7462,
 		29286, 10499, 31088, 21795, 6889, 6920);
-	private static final int[][] CORES = {{10828,11832,11834},{26674,2503,2497},{3755,4091,4093}};
+	private static final int[][] CORES = {{10828,11832,11834},{3749,2503,2497},{3755,4091,4093}};
 	private static final int[][] ROLE_GROUPS = {
 		{4151,4587}, {28997,29889}, {1215,10887,11061}, {24699,4158,7668},
 		{23985,12788,859,855,847}, {805,865}, {10033,10034}, {1381,1383,1385,1393,3053}

@@ -22,7 +22,7 @@ public class FullCombatColumnsTest
 {
 	private static final int[][] COLUMNS = {
 		{10828,11832,11834,6570,31088,6585,26219,12954,7462,26770},
-		{26674,2503,2497,10499,29286,25865},
+		{3749,2503,2497,10499,29286,25865},
 		{3755,4091,4093,21795,6920,31115,6889}
 	};
 	private static final int LIGHTBEARER = 25975;
