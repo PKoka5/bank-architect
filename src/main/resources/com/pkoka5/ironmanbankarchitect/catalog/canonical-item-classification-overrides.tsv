@@ -3153,3 +3153,29 @@
 33025	GEAR	body	Crystal body (inactive): Deadman appearance
 33027	GEAR	legs	Crystal legs: Deadman appearance
 33029	GEAR	legs	Crystal legs (inactive): Deadman appearance
+# The Fractured Archive: verified RuneLite API 1.13.3 + pinned Wiki item sources, 2026-10-23.
+# docs/testing/fractured-archive-items-2026-10-23.md
+34659	CLUE	cosmetic	Living record (tier 1): cosmetic cape, no combat stats
+34661	CLUE	cosmetic	Living record (tier 2): cosmetic cape, no combat stats
+34663	CLUE	cosmetic	Living record (tier 3): cosmetic cape, no combat stats
+34665	CLUE	cosmetic	Living record (tier 4): cosmetic cape, no combat stats
+34667	CLUE	cosmetic	Living record (tier 5): cosmetic cape, no combat stats
+34669	UNIQUE	equipment-charge	Ascension shards: weapon/teleport charges and bolt material
+34671	UNIQUE	equipment-upgrade	Fragment of living earth: permanent spell upgrade
+34673	UNIQUE	equipment-upgrade	Fragment of deep water: permanent spell upgrade
+34675	UNIQUE	equipment-upgrade	Fragment of whispering wind: permanent spell upgrade
+34677	UNIQUE	equipment-upgrade	Fragment of burning fire: permanent spell upgrade
+34679	UNIQUE	equipment-upgrade	Horn of Bran: prayer unlock
+34681	GEAR	weapon	Ascension crossbows: one two-handed rapid Ranged item
+34684	GEAR	ammo	Ascension bolts
+34690	GEAR	ammo	Diamond ascension bolts
+34696	GEAR	ammo	Diamond ascension bolts (e)
+34702	GEAR	ammo	Onyx ascension bolts
+34708	GEAR	ammo	Onyx ascension bolts (e)
+34715	GEAR	weapon	Obligator: charged two-handed Crush weapon
+34717	GEAR	weapon	Obligator (uncharged)
+34719	GEAR	shield	Rondache: defensive shield with stored-damage special
+34722	TELEPORT	teleport	Archivist's folio (inert): rechargeable raid teleport
+34723	TELEPORT	teleport	Archivist's folio: charged raid teleport
+34725	GEAR	weapon	Zorya's tome: two-handed powered Magic special weapon
+34727	GEAR	weapon	Zorya's tome (uncharged)

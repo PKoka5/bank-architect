@@ -39,45 +39,6 @@ final class ReviewItemSorter
 			group(60, "bronze", "iron", "steel", "black", "mithril", "adamant", "rune"));
 	}
 
-	static String label(BankPreviewItem item)
-	{
-		int rank = rank(item);
-		if (rank == 0)
-		{
-			return "External Storage";
-		}
-		if (rank == 10)
-		{
-			return "Clue & STASH";
-		}
-		if (rank == 20)
-		{
-			return "Cosmetics & Collection";
-		}
-		if (rank == 30)
-		{
-			return "Quest Leftovers";
-		}
-		if (rank == 40)
-		{
-			return "Holiday & Event";
-		}
-		if (rank == 50)
-		{
-			return "Burnt & Junk";
-		}
-		if (rank == 60)
-		{
-			return "Redundant Gear Review";
-		}
-		if (rank == 90)
-		{
-			return "Unknown Safe Review";
-		}
-
-		return "General Review";
-	}
-
 	private static int rankByName(String name, Group... groups)
 	{
 		for (Group group : groups)

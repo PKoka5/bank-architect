@@ -1,4 +1,7 @@
 # schema=1
+# Fractured Archive shield utility survives ordinary full-stat Alch comparisons.
+34719	damage-mitigation,shield-special
+34681	restricted-ammo
 # Utility/storage audit: docs/research/item-role-audit-utility-storage-october-2.md
 22398	quest-weapon,bloom-utility
 22986	prayer-gear,prayer-training

@@ -126,6 +126,10 @@ public final class BankOrganizationPreviewBuilder
 		Objects.requireNonNull(gearStats, "gearStats");
 		Objects.requireNonNull(itemValues, "itemValues");
 		Objects.requireNonNull(overrides, "overrides");
+		java.util.function.IntPredicate retainSavedDestination = id -> options.alchPile()
+			&& options.alchMode() == AlchMode.FIXED
+			&& (preset.getType() == BankPresetType.MAIN || preset.getType() == BankPresetType.IRONMAN)
+			&& IronmanAlchCandidateCatalog.containsFixed(id) && !overrides.categoryKeyFor(id).isPresent();
 
 		// A plan buckets by destination and category together, and those buckets
 		// are only known once the items are read, so they are filled in as they
@@ -156,7 +160,8 @@ public final class BankOrganizationPreviewBuilder
 			? IronmanQuickToolSelector.select(snapshot) : Collections.emptySet();
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
-			if (!options.alchPile() || (!main && preset.getType() != BankPresetType.IRONMAN)) break;
+			if (!options.alchPile() || options.alchMode() == AlchMode.FIXED
+				|| (!main && preset.getType() != BankPresetType.IRONMAN)) break;
 			int itemId = bankItem.getItemId();
 			recorded.add(itemId);
 			if (!bankItem.isPlaceholder()) realOwned.add(itemId);
@@ -172,7 +177,9 @@ public final class BankOrganizationPreviewBuilder
 			{
 				CatalogItem catalogItem = effectiveCatalogItem(catalog.describeOrUnknown(bankItem.getItemId()),
 					bankItem.getItemId(), gearStats);
-				if (catalogItem.getCategory() != ItemCategory.GEAR)
+				// Dedicated ammunition cannot prove ordinary bolt weapons redundant.
+				if (catalogItem.getCategory() != ItemCategory.GEAR
+					|| catalogItem.getTags().contains("restricted-ammo"))
 				{
 					continue;
 				}
@@ -205,12 +212,15 @@ public final class BankOrganizationPreviewBuilder
 				category = preset.getCategory("potions-food");
 			}
 			boolean alchCandidate = options.alchPile()
-				&& !needsScurriusMace(bankItem.getItemId(), snapshot)
-				&& (!bankItem.isPlaceholder() || IronmanAlchCandidateCatalog.contains(bankItem.getItemId()))
-				&& sourceItem.getCategory() != ItemCategory.UNKNOWN
-				&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
-				&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-				gearStats, itemValues, gearByKey, recorded, realOwned, choices);
+				&& (main || preset.getType() == BankPresetType.IRONMAN)
+				&& (options.alchMode() == AlchMode.FIXED
+					? IronmanAlchCandidateCatalog.containsFixed(bankItem.getItemId())
+					: !needsScurriusMace(bankItem.getItemId(), snapshot)
+						&& (!bankItem.isPlaceholder() || IronmanAlchCandidateCatalog.contains(bankItem.getItemId()))
+						&& sourceItem.getCategory() != ItemCategory.UNKNOWN
+						&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
+						&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
+							gearStats, itemValues, gearByKey, recorded, realOwned, choices));
 			if (alchCandidate)
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
@@ -310,7 +320,8 @@ public final class BankOrganizationPreviewBuilder
 			{
 				blockDescriptors.putAll(mutable.blockDescriptors);
 			}
-			return options.itemOrders().apply(new BankOrganizationPreview(preset, destinations, tagCounts, blockDescriptors), plan);
+			return options.itemOrders().apply(new BankOrganizationPreview(preset, destinations, tagCounts, blockDescriptors),
+				plan, retainSavedDestination);
 		}
 
 		List<BankCategoryPreview> categories = new ArrayList<>();
@@ -319,7 +330,8 @@ public final class BankOrganizationPreviewBuilder
 			categories.add(preview.toImmutable(gearStats));
 		}
 
-		return options.itemOrders().apply(new BankOrganizationPreview(preset, categories));
+		return options.itemOrders().apply(new BankOrganizationPreview(preset, categories),
+			BankLayoutPlan.defaultFor(preset), retainSavedDestination);
 	}
 
 	/**

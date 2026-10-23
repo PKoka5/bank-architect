@@ -73,6 +73,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	final JComboBox<String> presetChooser = new JComboBox<>(new String[] {"Ironman", "Main"});
 	private boolean refreshingPreset;
 	final JCheckBox alchPileBox;
+	final JComboBox<AlchMode> alchModeChooser = new JComboBox<>(AlchMode.values());
 	private boolean refreshingOptions;
 	private boolean movingTab;
 	private final JPanel layoutEditor;
@@ -178,10 +179,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			applyLayoutPlan(BankLayoutPlan.defaultFor(bankLayoutModel.preset())));
 		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
 		// Asked separately, because they are the same mechanism but not the same
-		alchPileBox = layoutOptionBox("Gather outclassed gear",
-			"<html>Gather replaced gear and tools, plus spare standard Mystic colours. "
-				+ "Keep the best owned tool and each staff's rune supply.<br>Reviewed obsolete clue gear may move; "
-				+ "Dragon halberds always count as alch stock.<br>Off: keep normal categories.</html>");
+		alchPileBox = layoutOptionBox("Gather Alch items",
+			"<html>Use the selected Alch sorting mode.<br>Fixed list always sends listed items to Alch.<br>Flexible checks replacements. Personal choices win.<br>Off: keep normal categories.</html>");
 
 		saveProfileButton = layoutActionButton("Save as", "Save this layout under a name",
 			event -> saveLayoutAs());
@@ -200,6 +199,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		profileActions.add(deleteProfileButton);
 
 		layoutEditor = verticalPanel();
+		layoutEditor.setMinimumSize(new Dimension(0, 0));
 		layoutEditor.setVisible(false);
 		layoutHelp = mutedLabel(layoutHelpText());
 		layoutHelp.setAlignmentX(LEFT_ALIGNMENT);
@@ -210,6 +210,21 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		layoutEditor.add(layoutHelp);
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(alchPileBox);
+		alchModeChooser.setAlignmentX(LEFT_ALIGNMENT);
+		alchModeChooser.setFont(FontManager.getRunescapeSmallFont());
+		alchModeChooser.setFocusable(false);
+		alchModeChooser.getAccessibleContext().setAccessibleName("Alch sorting");
+		alchModeChooser.setToolTipText("Fixed list: listed items always go to Alch, including best gear and special weapons. Flexible: replacement and surplus rules. Personal choices win.");
+		sizeToSidebar(alchModeChooser, 22);
+		nameTheClosedChooser(alchModeChooser, "Alch");
+		alchModeChooser.addActionListener(event -> {
+			if (!refreshingOptions)
+			{
+				bankLayoutModel.saveOptions(bankLayoutModel.options().withAlchMode((AlchMode) alchModeChooser.getSelectedItem()));
+				refreshProfiles();
+			}
+		});
+		layoutEditor.add(alchModeChooser);
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(layoutRows);
 		layoutEditor.add(Box.createVerticalStrut(6));
@@ -241,7 +256,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		detailsPanel.add(card(categoryOverrideLabel, resetOverridesButton,
 			mutedLabel(CATEGORY_CORRECTION_HELP)));
 
-		JPanel content = new JPanel(new GridBagLayout());
+		JPanel content = new SidebarContent();
 		content.setOpaque(false);
 		GridBagConstraints cardConstraints = new GridBagConstraints();
 		cardConstraints.gridx = 0;
@@ -251,7 +266,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		cardConstraints.insets = new Insets(0, 0, 8, 0);
 		content.add(actionRow(), cardConstraints);
 		cardConstraints.gridy++;
-		content.add(destinationGrid(), cardConstraints);
+		JPanel destinations = destinationGrid();
+		destinations.setMinimumSize(new Dimension(0, destinations.getPreferredSize().height));
+		content.add(destinations, cardConstraints);
 		cardConstraints.gridy++;
 		content.add(tabOrderButton, cardConstraints);
 		cardConstraints.gridy++;
@@ -570,6 +587,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		resetLayoutButton.setEnabled(!layoutPlan.isDefault(bankLayoutModel.preset()));
 		refreshProfiles();
 		refreshLayoutOptions();
+		layoutEditor.setMinimumSize(new Dimension(0, layoutEditor.getPreferredSize().height));
 		for (DestinationCell cell : destinationCells)
 		{
 			cell.repaint();
@@ -738,8 +756,21 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		// on any platform, instead of leaving a dead strip beside a guess.
 		component.setPreferredSize(new Dimension(SIDEBAR_CONTENT_WIDTH, height));
 		component.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
-		component.setMinimumSize(new Dimension(SIDEBAR_CONTENT_WIDTH, height));
+		component.setMinimumSize(new Dimension(0, height));
 		component.setAlignmentX(LEFT_ALIGNMENT);
+	}
+
+	private static final class SidebarContent extends JPanel implements Scrollable
+	{
+		private SidebarContent() { super(new GridBagLayout()); }
+		public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+		public int getScrollableUnitIncrement(Rectangle visible, int orientation, int direction) { return 16; }
+		public int getScrollableBlockIncrement(Rectangle visible, int orientation, int direction)
+		{
+			return Math.max(16, (orientation == SwingConstants.VERTICAL ? visible.height : visible.width) - 16);
+		}
+		public boolean getScrollableTracksViewportWidth() { return true; }
+		public boolean getScrollableTracksViewportHeight() { return false; }
 	}
 
 	/**
@@ -805,7 +836,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 				BankLayoutOptions base = bankLayoutModel.options();
 				bankLayoutModel.saveOptions(new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(),
 					alchPileBox.isSelected(), ordersOf(base), base.gearLayout(), base.potionDoses(),
-					base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed()));
+					base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed()).withAlchMode(base.alchMode()));
+				refreshLayoutOptions();
 				refreshProfiles();
 			}
 		});
@@ -961,7 +993,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private BankLayoutOptions withGearLayout(BankLayoutOptions base, GearLayout gearLayout)
 	{
 		return new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(), base.alchPile(),
-			ordersOf(base), gearLayout, base.potionDoses(), base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed());
+			ordersOf(base), gearLayout, base.potionDoses(), base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed()).withAlchMode(base.alchMode());
 	}
 
 	private BankLayoutOptions withOrder(BankLayoutOptions base, BankCategorySortMode mode,
@@ -977,7 +1009,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			orders.put(BankCategorySortMode.CURRENCY, order);
 		}
 		return new BankLayoutOptions(base.fillGearRows(), base.fillHerbloreRows(), base.alchPile(),
-			orders, base.gearLayout(), base.potionDoses(), base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed());
+			orders, base.gearLayout(), base.potionDoses(), base.runeOrder(), base.teleportOrder(), base.gatherFrequentlyUsed()).withAlchMode(base.alchMode());
 	}
 
 	private Map<BankCategorySortMode, TabOrder> ordersOf(BankLayoutOptions base)
@@ -999,6 +1031,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			BankLayoutOptions options = bankLayoutModel.options();
 			alchPileBox.setSelected(options.alchPile());
 			alchPileBox.setVisible(true);
+			alchModeChooser.setSelectedItem(options.alchMode());
+			alchModeChooser.setEnabled(options.alchPile());
 		}
 		finally
 		{

@@ -13,6 +13,8 @@ import com.pkoka5.ironmanbankarchitect.catalog.StaticItemCatalog;
 import com.pkoka5.ironmanbankarchitect.guide.BankGuideController;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreviewBuilder;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
+import com.pkoka5.ironmanbankarchitect.organize.AlchMode;
+import com.pkoka5.ironmanbankarchitect.organize.TabOrder;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutProfiles;
 import com.pkoka5.ironmanbankarchitect.organize.BankOrganizationPreview;
@@ -954,6 +956,78 @@ public class IronmanBankArchitectPanelTest
 
 		assertFalse(model.options().alchPile());
 		panel.shutdown();
+	}
+
+	@Test
+	public void fixedAlchChoiceSurvivesOtherLayoutEditsAndGatheringToggle() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			ProfileLayoutModel model = new ProfileLayoutModel();
+			IronmanBankArchitectPanel panel = panelWith(model);
+			try
+			{
+				panel.tabOrderButton.doClick();
+				assertEquals(AlchMode.FLEXIBLE, panel.alchModeChooser.getSelectedItem());
+				panel.alchModeChooser.setSelectedItem(AlchMode.FIXED);
+				assertEquals(AlchMode.FIXED, model.options().alchMode());
+				findChooserOver(panel, GearLayout.class).setSelectedItem(GearLayout.GRID_SETS);
+				assertEquals(AlchMode.FIXED, model.options().alchMode());
+				findChooserOver(panel, TabOrder.class).setSelectedItem(TabOrder.SEQUENTIAL);
+				assertEquals(AlchMode.FIXED, model.options().alchMode());
+				panel.alchPileBox.doClick();
+				assertFalse(model.options().alchPile());
+				assertFalse(panel.alchModeChooser.isEnabled());
+				assertEquals(AlchMode.FIXED, panel.alchModeChooser.getSelectedItem());
+				panel.alchPileBox.doClick();
+				assertTrue(panel.alchModeChooser.isEnabled());
+				panel.refreshSettings();
+				assertEquals(AlchMode.FIXED, panel.alchModeChooser.getSelectedItem());
+			}
+			finally { panel.shutdown(); }
+		});
+	}
+
+	@Test
+	public void alchChoiceFitsNarrowSidebars() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			for (int width : new int[] {204, 225})
+			{
+				IronmanBankArchitectPanel panel = panelWith(new ProfileLayoutModel());
+				try
+				{
+					panel.tabOrderButton.doClick();
+					panel.alchModeChooser.setSelectedItem(AlchMode.FIXED);
+					panel.setSize(width, 800);
+					layoutTree(panel);
+					layoutTree(panel);
+					JScrollPane scroll = findScrollPane(panel);
+					Rectangle bounds = SwingUtilities.convertRectangle(panel.alchModeChooser.getParent(),
+						panel.alchModeChooser.getBounds(), scroll.getViewport());
+					assertEquals("Alch sorting", panel.alchModeChooser.getAccessibleContext().getAccessibleName());
+					String geometry = "width=" + width + ", chooser=" + bounds + ", viewport=" + scroll.getViewport().getWidth()
+						+ ", view=" + scroll.getViewport().getView().getBounds() + ", minimums="
+						+ Arrays.toString(Arrays.stream(((Container) scroll.getViewport().getView()).getComponents())
+							.map(child -> child.getClass().getSimpleName() + child.getMinimumSize() + child.getBounds()).toArray());
+					assertTrue(geometry, bounds.width > 0 && bounds.x >= 0);
+					assertTrue("width=" + width + ", chooser=" + bounds + ", viewport=" + scroll.getViewport().getWidth(),
+						bounds.x + bounds.width <= scroll.getViewport().getWidth());
+					assertTrue("Destination cards remain readable", panel.destinationCells.get(0).getHeight() >= 40);
+					scroll.getViewport().setViewPosition(new java.awt.Point(0, Math.max(0, bounds.y - 120)));
+					java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(width, 800, 2);
+					java.awt.Graphics2D graphics = image.createGraphics();
+					panel.paint(graphics);
+					graphics.dispose();
+					try
+					{
+						Files.createDirectories(Paths.get("build/reports/ui"));
+						javax.imageio.ImageIO.write(image, "png", Paths.get("build/reports/ui/fixed-alch-" + width + ".png").toFile());
+					}
+					catch (java.io.IOException ex) { throw new RuntimeException(ex); }
+				}
+				finally { panel.shutdown(); }
+			}
+		});
 	}
 
 	/**

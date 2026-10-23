@@ -10,16 +10,16 @@ import org.junit.Test;
 public class ReviewItemSorterTest
 {
 	@Test
-	public void labelsReviewItemsByHumanLane()
+	public void ranksEachRecognizedReviewLane()
 	{
-		assertEquals("External Storage", ReviewItemSorter.label(item(1, "Costume room cape", ItemCategory.CLEANUP)));
-		assertEquals("Clue & STASH", ReviewItemSorter.label(item(2, "Clue scroll (hard)", ItemCategory.CLEANUP)));
-		assertEquals("Cosmetics & Collection", ReviewItemSorter.label(item(3, "Prospector jacket", ItemCategory.CLEANUP)));
-		assertEquals("Quest Leftovers", ReviewItemSorter.label(item(4, "Instruction manual", ItemCategory.CLEANUP)));
-		assertEquals("Holiday & Event", ReviewItemSorter.label(item(5, "Christmas cracker", ItemCategory.CLEANUP)));
-		assertEquals("Burnt & Junk", ReviewItemSorter.label(item(6, "Burnt shark", ItemCategory.CLEANUP)));
-		assertEquals("Redundant Gear Review", ReviewItemSorter.label(item(7, "Rune platebody", ItemCategory.CLEANUP)));
-		assertEquals("Unknown Safe Review", ReviewItemSorter.label(new BankPreviewItem(CatalogItem.unknown(999999), 1)));
+		assertEquals(0, ReviewItemSorter.rank(item(1, "Costume room cape", ItemCategory.CLEANUP)));
+		assertEquals(10, ReviewItemSorter.rank(item(2, "Clue scroll (hard)", ItemCategory.CLEANUP)));
+		assertEquals(20, ReviewItemSorter.rank(item(3, "Prospector jacket", ItemCategory.CLEANUP)));
+		assertEquals(30, ReviewItemSorter.rank(item(4, "Instruction manual", ItemCategory.CLEANUP)));
+		assertEquals(40, ReviewItemSorter.rank(item(5, "Christmas cracker", ItemCategory.CLEANUP)));
+		assertEquals(50, ReviewItemSorter.rank(item(6, "Burnt shark", ItemCategory.CLEANUP)));
+		assertEquals(60, ReviewItemSorter.rank(item(7, "Rune platebody", ItemCategory.CLEANUP)));
+		assertEquals(90, ReviewItemSorter.rank(new BankPreviewItem(CatalogItem.unknown(999999), 1)));
 	}
 
 	@Test
@@ -43,7 +43,6 @@ public class ReviewItemSorterTest
 		BankPreviewItem item = item(1, "Mysterious reusable object", ItemCategory.CLEANUP);
 
 		assertEquals(70, ReviewItemSorter.rank(item));
-		assertEquals("General Review", ReviewItemSorter.label(item));
 	}
 
 	private static BankPreviewItem item(int itemId, String name, ItemCategory category)

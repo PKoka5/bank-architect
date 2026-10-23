@@ -52,7 +52,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private static final Color ASSIGN_MENU_COLOR = new Color(242, 169, 59);
 	private static final String[] OPTION_KEYS = {"alchPile", "gearLayout", "utilitiesLayout", "toolsLayout",
 		"resourcesLayout", "cluesLayout", "keepDoseRows", "fillHerbloreRows", "potionDoses", "runeOrder",
-		"teleportOrder", "gatherFrequentlyUsed"};
+		"teleportOrder", "gatherFrequentlyUsed", "alchMode"};
 
 	private static final Logger log = LoggerFactory.getLogger(IronmanBankArchitectPlugin.class);
 
@@ -345,7 +345,9 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			&& Arrays.asList(OPTION_KEYS).contains(event.getKey())
 			&& !Objects.equals(event.getOldValue(), event.getNewValue()))
 		{
-			if (ensureCustom()) preferences().set(event.getKey(), event.getNewValue() == null ? "" : event.getNewValue());
+			String value = event.getNewValue() == null ? "" : event.getNewValue();
+			if (builtin() && "alchMode".equals(event.getKey())) settings().set("builtinAlchMode", value);
+			else if (ensureCustom()) preferences().set(event.getKey(), value);
 		}
 		if (IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
 			&& !Arrays.asList("suggestNextMove", "showCategoryOverlay", "hideSortedHighlights",
@@ -390,7 +392,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	/** The player's layout choices that no plan can state for them. */
 	private BankLayoutOptions activeOptions()
 	{
-		if (builtin()) return BankLayoutOptions.defaultFor(activePreset());
+		if (builtin()) return BankLayoutOptions.defaultFor(activePreset())
+			.withAlchMode(settings().get("builtinAlchMode", AlchMode.FLEXIBLE));
 		return readOptions(preferences())
 			.withBlockArrangements(BlockArrangements.parse(preferences().get("blockOrders", "")))
 			.withItemOrders(BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""))
@@ -423,7 +426,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			main ? PotionDoseOrder.BY_FAMILY : source.get("potionDoses", config.potionDoses()),
 			source.get("runeOrder", main ? RuneOrder.ELEMENTAL : config.runeOrder()),
 			source.get("teleportOrder", main ? TeleportOrder.ALPHABETICAL : config.teleportOrder()),
-			!main && source.get("gatherFrequentlyUsed", config.gatherFrequentlyUsed()));
+			!main && source.get("gatherFrequentlyUsed", config.gatherFrequentlyUsed()))
+			.withAlchMode(source.get("alchMode", AlchMode.FLEXIBLE));
 	}
 
 	private Object[] optionValues(BankLayoutOptions options)
@@ -431,7 +435,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		return new Object[] {options.alchPile(), options.gearLayout(), options.orderFor(BankCategorySortMode.MAIN),
 			options.orderFor(BankCategorySortMode.TOOLS), options.orderFor(BankCategorySortMode.RESOURCES),
 			options.orderFor(BankCategorySortMode.CLUES), options.orderFor(BankCategorySortMode.SUPPLIES) == TabOrder.PACKED,
-			options.fillHerbloreRows(), options.potionDoses(), options.runeOrder(), options.teleportOrder(), options.gatherFrequentlyUsed()};
+			options.fillHerbloreRows(), options.potionDoses(), options.runeOrder(), options.teleportOrder(), options.gatherFrequentlyUsed(), options.alchMode()};
 	}
 
 	private void storeOptions(PresetSettings target, BankLayoutOptions options)
@@ -483,7 +487,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		Object[] previousValues = optionValues(previous);
 		Object[] defaults = optionValues(BankLayoutOptions.defaultFor(activePreset()));
 		for (int index = 0; index < OPTION_KEYS.length; index++)
-			modified |= !settings().get(OPTION_KEYS[index], "").isEmpty() && !previousValues[index].equals(defaults[index]);
+			modified |= !"alchMode".equals(OPTION_KEYS[index]) && !settings().get(OPTION_KEYS[index], "").isEmpty()
+				&& !previousValues[index].equals(defaults[index]);
 		if (modified || !profiles.isDefaultActive())
 		{
 			String name = profiles.isDefaultActive() ? profiles.freeName("Custom layout") : profiles.getActiveName();
@@ -851,8 +856,14 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				// from. The three utility categories share one setting, so MAIN
 				// stands for all of them, and supplies asks its question as a
 				// checkbox rather than an order.
-				if (!ensureCustom()) return;
-				storeOptions(preferences(), options);
+				BankLayoutOptions current = activeOptions();
+				if (builtin() && options.withAlchMode(current.alchMode()).equals(current))
+					settings().set("builtinAlchMode", options.alchMode());
+				else
+				{
+					if (!ensureCustom()) return;
+					storeOptions(preferences(), options);
+				}
 				analyzeBank();
 			}
 		};

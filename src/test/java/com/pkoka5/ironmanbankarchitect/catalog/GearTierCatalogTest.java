@@ -14,7 +14,7 @@ public class GearTierCatalogTest
 	{
 		GearTierCatalog catalog = GearTierCatalog.INSTANCE;
 
-		assertEquals(349, catalog.size());
+		assertEquals(355, catalog.size());
 		assertEquals(OptionalInt.of(5), catalog.tierOf(26382)); // Torva full helm, End
 		assertEquals(OptionalInt.of(4), catalog.tierOf(11832)); // Bandos chestplate, Late
 		assertEquals(OptionalInt.of(3), catalog.tierOf(1275)); // Rune pickaxe, Mid
@@ -76,7 +76,7 @@ public class GearTierCatalogTest
 	@Test
 	public void everyStageIsWithinTheDocumentedRange()
 	{
-		for (int itemId = 1; itemId < 30000; itemId++)
+		for (int itemId = 1; itemId < 35000; itemId++)
 		{
 			OptionalInt tier = GearTierCatalog.INSTANCE.tierOf(itemId);
 			if (tier.isPresent())

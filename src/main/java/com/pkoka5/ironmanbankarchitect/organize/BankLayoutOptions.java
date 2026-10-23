@@ -21,6 +21,7 @@ public final class BankLayoutOptions
 	private final boolean fillGearRows;
 	private final boolean fillHerbloreRows;
 	private final boolean alchPile;
+	private AlchMode alchMode = AlchMode.FLEXIBLE;
 	private final Map<BankCategorySortMode, TabOrder> tabOrders;
 	private final GearLayout gearLayout;
 	private final PotionDoseOrder potionDoses;
@@ -75,6 +76,16 @@ public final class BankLayoutOptions
 			tabOrders, gearLayout, potionDoses, runeOrder, teleportOrder, gatherFrequentlyUsed);
 		copy.blockArrangements = Objects.requireNonNull(arrangements, "arrangements");
 		copy.itemOrders = itemOrders;
+		copy.alchMode = alchMode;
+		return copy;
+	}
+
+	public AlchMode alchMode() { return alchMode; }
+
+	public BankLayoutOptions withAlchMode(AlchMode mode)
+	{
+		BankLayoutOptions copy = withBlockArrangements(blockArrangements);
+		copy.alchMode = Objects.requireNonNull(mode, "mode");
 		return copy;
 	}
 
@@ -179,7 +190,7 @@ public final class BankLayoutOptions
 	{
 		return Arrays.asList(fillGearRows, fillHerbloreRows, alchPile, tabOrders, gearLayout,
 			potionDoses, runeOrder, teleportOrder, gatherFrequentlyUsed, blockArrangements,
-			itemOrders.serialize());
+			itemOrders.serialize(), alchMode);
 	}
 
 	@Override

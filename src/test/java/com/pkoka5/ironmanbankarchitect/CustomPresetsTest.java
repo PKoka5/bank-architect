@@ -170,6 +170,237 @@ public class CustomPresetsTest
 		assertEquals("Main", fixture.model.selectedPresetChoice());
 	}
 
+	@Test public void alchModeChangesKeepBundledPresetsAndTheirPlansWithoutCreatingCustoms() throws Exception
+	{
+		for (String base : Arrays.asList("Ironman", "Main"))
+		{
+			Fixture fixture = new Fixture(new LinkedHashMap<>());
+			fixture.model.selectPresetChoice(base);
+			String original = fixture.model.plan().serialize();
+			BankLayoutOptions initial = fixture.model.options();
+			assertEquals(AlchMode.FLEXIBLE, fixture.model.options().alchMode());
+			fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+			assertEquals(base, fixture.model.selectedPresetChoice());
+			assertEquals(Arrays.asList("Ironman", "Main"), fixture.model.presetChoices());
+			assertEquals(original, fixture.model.plan().serialize());
+			assertEquals(initial.withAlchMode(AlchMode.FIXED), fixture.model.options());
+			assertEquals("", fixture.corrections());
+			assertTrue("An Alch-only change must not write any custom preference namespace",
+				fixture.values.keySet().stream().noneMatch(key -> key.contains("profile.")));
+			Fixture restarted = new Fixture(fixture.values);
+			assertEquals(base, restarted.model.selectedPresetChoice());
+			assertEquals(original, restarted.model.plan().serialize());
+			assertEquals(initial.withAlchMode(AlchMode.FIXED), restarted.model.options());
+			assertEquals("", restarted.corrections());
+			fixture.model.selectPresetChoice(base);
+			assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+			assertEquals(original, fixture.model.plan().serialize());
+			fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FLEXIBLE));
+			assertEquals(base, fixture.model.selectedPresetChoice());
+			assertEquals(initial, fixture.model.options());
+			assertEquals(Arrays.asList("Ironman", "Main"), fixture.model.presetChoices());
+		}
+	}
+
+	@Test public void builtinMainAndIronmanAlchChoicesAreIndependentAndSurviveRestart() throws Exception
+	{
+		Fixture fixture = new Fixture(new LinkedHashMap<>());
+		fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+		fixture.model.selectPresetChoice("Main");
+		assertEquals(AlchMode.FLEXIBLE, fixture.model.options().alchMode());
+		fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+		fixture.model.selectPresetChoice("Ironman");
+		assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+		fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FLEXIBLE));
+		Fixture restarted = new Fixture(fixture.values);
+		assertEquals("Ironman", restarted.model.selectedPresetChoice());
+		assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+		restarted.model.selectPresetChoice("Main");
+		assertEquals(AlchMode.FIXED, restarted.model.options().alchMode());
+		assertEquals(BankLayoutPlan.defaultFor(BankPresets.MAIN).serialize(), restarted.model.plan().serialize());
+		restarted.model.selectPresetChoice("Ironman");
+		assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+		assertEquals(Arrays.asList("Ironman", "Main"), restarted.model.presetChoices());
+	}
+
+	@Test public void alchModeOnlyPreferencesDoNotMigrateIntoAnUnnecessaryCustom() throws Exception
+	{
+		for (String base : Arrays.asList("Ironman", "Main"))
+			for (String key : Arrays.asList("alchMode", "builtinAlchMode"))
+			{
+				Map<String, String> values = new LinkedHashMap<>();
+				String prefix = base.equals("Main") ? "main." : "";
+				BankPreset preset = base.equals("Main") ? BankPresets.MAIN : BankPresets.IRONMAN;
+				AlchMode expected = key.equals("builtinAlchMode") ? AlchMode.FIXED : AlchMode.FLEXIBLE;
+				values.put("bankPreset", preset.getType().name());
+				values.put(prefix + key, "FIXED");
+				Fixture fixture = new Fixture(values);
+				assertEquals(base, fixture.model.selectedPresetChoice());
+				assertEquals(expected, fixture.model.options().alchMode());
+				assertEquals(BankLayoutPlan.defaultFor(preset).serialize(), fixture.model.plan().serialize());
+				assertEquals("", fixture.corrections());
+				assertEquals(Arrays.asList("Ironman", "Main"), fixture.model.presetChoices());
+				Fixture restarted = new Fixture(values);
+				assertEquals(base, restarted.model.selectedPresetChoice());
+				assertEquals(expected, restarted.model.options().alchMode());
+				assertEquals(Arrays.asList("Ironman", "Main"), restarted.model.presetChoices());
+			}
+	}
+
+	@Test public void anAlchOnlyBuiltinChangeStillWorksWhenAllCustomProfileSlotsAreOccupied() throws Exception
+	{
+		Fixture fixture = new Fixture(new LinkedHashMap<>());
+		for (int index = 0; index < 20; index++) fixture.model.saveProfile("Saved " + index, fixture.model.plan());
+		fixture.model.selectPresetChoice("Ironman");
+		List<String> choices = fixture.model.presetChoices();
+		fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+		assertEquals("Ironman", fixture.model.selectedPresetChoice());
+		assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+		assertEquals(choices, fixture.model.presetChoices());
+		assertEquals("Ironman", new Fixture(fixture.values).model.selectedPresetChoice());
+	}
+
+	@Test public void runeliteEventsDoNotLeakAlreadyWrittenRawValuesBetweenTheBuiltinPresets() throws Exception
+	{
+		Fixture fixture = new Fixture(new LinkedHashMap<>());
+		assertEquals(AlchMode.FLEXIBLE, fixture.model.options().alchMode());
+		fixture.model.selectPresetChoice("Main");
+		field(fixture.plugin, "guideController", new BankGuideController());
+		fixture.values.put("alchMode", "FIXED");
+		fixture.configChanged("alchMode", "FLEXIBLE", "FIXED");
+		assertEquals("Main", fixture.model.selectedPresetChoice());
+		assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+		fixture.model.selectPresetChoice("Ironman");
+		assertEquals(AlchMode.FLEXIBLE, fixture.model.options().alchMode());
+		Fixture restarted = new Fixture(fixture.values);
+		assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+		restarted.model.selectPresetChoice("Main");
+		assertEquals(AlchMode.FIXED, restarted.model.options().alchMode());
+		restarted.model.saveOptions(restarted.model.options().withAlchMode(AlchMode.FLEXIBLE));
+		restarted.model.selectPresetChoice("Ironman");
+		field(restarted.plugin, "guideController", new BankGuideController());
+		restarted.values.put("alchMode", "FIXED");
+		restarted.configChanged("alchMode", "FLEXIBLE", "FIXED");
+		assertEquals("Ironman", restarted.model.selectedPresetChoice());
+		assertEquals(AlchMode.FIXED, restarted.model.options().alchMode());
+		restarted.model.selectPresetChoice("Main");
+		assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+		Fixture restartedAgain = new Fixture(restarted.values);
+		assertEquals(AlchMode.FLEXIBLE, restartedAgain.model.options().alchMode());
+		restartedAgain.model.selectPresetChoice("Ironman");
+		assertEquals(AlchMode.FIXED, restartedAgain.model.options().alchMode());
+		assertEquals(Arrays.asList("Ironman", "Main"), restarted.model.presetChoices());
+	}
+
+	@Test public void sameNamedMainAndIronmanCustomsKeepIndependentAlchModesAndOffStateAfterRestart() throws Exception
+	{
+		Fixture fixture = new Fixture(new LinkedHashMap<>());
+		fixture.model.saveProfile("My mode", fixture.model.plan());
+		fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+		fixture.model.selectPresetChoice("Main");
+		fixture.model.saveProfile("My mode", fixture.model.plan());
+		fixture.model.saveOptions(new BankLayoutOptions(true, false, false)
+			.withAlchMode(AlchMode.FLEXIBLE));
+		Fixture restarted = new Fixture(fixture.values);
+		assertEquals("Main: My mode", restarted.model.selectedPresetChoice());
+		assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+		assertFalse(restarted.model.options().alchPile());
+		restarted.model.selectPresetChoice("Ironman: My mode");
+		assertEquals(AlchMode.FIXED, restarted.model.options().alchMode());
+		assertTrue(restarted.model.options().alchPile());
+		restarted.model.selectPresetChoice("Main: My mode");
+		assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+		assertFalse(restarted.model.options().alchPile());
+	}
+
+	@Test public void legacyCustomsWithoutAlchModeRemainFlexibleAndPreserveTheirOriginalBoolean() throws Exception
+	{
+		for (String base : Arrays.asList("Ironman", "Main"))
+			for (boolean enabled : new boolean[] {true, false})
+			{
+				Map<String, String> values = new LinkedHashMap<>();
+				String prefix = base.equals("Main") ? "main." : "";
+				BankPreset preset = base.equals("Main") ? BankPresets.MAIN : BankPresets.IRONMAN;
+				values.put("bankPreset", preset.getType().name());
+				values.put(prefix + "customPresetsReady", "true");
+				values.put(prefix + "layoutProfiles", "Legacy~" + BankLayoutPlan.defaultFor(preset).serialize());
+				values.put(prefix + "activeLayoutProfile", "Legacy");
+				values.put(prefix + "profile.TGVnYWN5.profileReady", "true");
+				values.put(prefix + "profile.TGVnYWN5.alchPile", Boolean.toString(enabled));
+				Fixture fixture = new Fixture(values);
+				assertEquals(base + ": Legacy", fixture.model.selectedPresetChoice());
+				assertEquals(AlchMode.FLEXIBLE, fixture.model.options().alchMode());
+				assertEquals(enabled, fixture.model.options().alchPile());
+				Fixture restarted = new Fixture(fixture.values);
+				assertEquals(AlchMode.FLEXIBLE, restarted.model.options().alchMode());
+				assertEquals(enabled, restarted.model.options().alchPile());
+				assertFalse("Reading an old profile must not rewrite its absent mode", fixture.values
+					.containsKey(prefix + "profile.TGVnYWN5.alchMode"));
+				fixture.values.put(prefix + "profile.TGVnYWN5.alchMode", "FUTURE_POLICY");
+				assertEquals("Unknown future policy must keep the established fallback", AlchMode.FLEXIBLE,
+					restarted.model.options().alchMode());
+				assertEquals(enabled, restarted.model.options().alchPile());
+			}
+	}
+
+	@Test public void runeliteAlchModeChangeKeepsBuiltinAndOtherOptionsThenForkWithTheSelectedMode() throws Exception
+	{
+		for (String base : Arrays.asList("Ironman", "Main"))
+		{
+			Fixture fixture = new Fixture(new LinkedHashMap<>());
+			fixture.model.selectPresetChoice(base);
+			field(fixture.plugin, "guideController", new BankGuideController());
+			fixture.configChanged("alchMode", "FLEXIBLE", "FIXED");
+			assertEquals(base, fixture.model.selectedPresetChoice());
+			assertEquals(Arrays.asList("Ironman", "Main"), fixture.model.presetChoices());
+			assertEquals("", fixture.corrections());
+			assertEquals("Use the event value rather than the unchanged config proxy default",
+				AlchMode.FIXED, fixture.model.options().alchMode());
+			fixture.configChanged("gearLayout", "GRID_STYLES", "LIST");
+			String custom = base + ": Custom layout";
+			assertEquals(custom, fixture.model.selectedPresetChoice());
+			assertEquals(GearLayout.LIST, fixture.model.options().gearLayout());
+			assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+			fixture.configChanged("alchPile", "true", "false");
+			assertFalse(fixture.model.options().alchPile());
+			assertEquals("Turning gathering off keeps the selected policy ready for later",
+				AlchMode.FIXED, fixture.model.options().alchMode());
+			fixture.configChanged("alchPile", "false", "true");
+			assertTrue(fixture.model.options().alchPile());
+			assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+			Fixture restarted = new Fixture(fixture.values);
+			assertEquals(AlchMode.FIXED, restarted.model.options().alchMode());
+			restarted.model.selectPresetChoice(base);
+			assertEquals(AlchMode.FIXED, restarted.model.options().alchMode());
+			assertEquals(GearLayout.GRID_STYLES, restarted.model.options().gearLayout());
+			assertEquals(Arrays.asList("Ironman", "Main", custom), restarted.model.presetChoices());
+		}
+	}
+
+	@Test public void savingAndMovingAWholeCustomTabRetainsFixedPolicyAndExistingPersonalPreferences() throws Exception
+	{
+		for (String base : Arrays.asList("Ironman", "Main"))
+		{
+			Fixture fixture = new Fixture(new LinkedHashMap<>());
+			fixture.model.selectPresetChoice(base);
+			fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+			fixture.model.saveBlockOrder("cosmetics", Collections.singletonList("item:1042"));
+			fixture.assign(9084, "frequently-used");
+			fixture.model.saveProfile("Fixed bank", fixture.model.plan().withTagAt("food", 8));
+			BankLayoutOptions before = fixture.model.options();
+			String corrections = fixture.corrections();
+			fixture.queueMove(0, 7);
+			fixture.completeMove(true);
+			assertEquals(before, fixture.model.options());
+			assertEquals(AlchMode.FIXED, fixture.model.options().alchMode());
+			assertEquals(corrections, fixture.corrections());
+			Fixture restarted = new Fixture(fixture.values);
+			assertEquals(base + ": Fixed bank", restarted.model.selectedPresetChoice());
+			assertEquals(before, restarted.model.options());
+			assertEquals(corrections, restarted.corrections());
+		}
+	}
+
 	@Test public void movingCompleteTabsForksBuiltinOnceAndSurvivesRestartForBothPresets() throws Exception
 	{
 		for (String base : Arrays.asList("Ironman", "Main"))
@@ -394,6 +625,15 @@ public class CustomPresetsTest
 		private String ordersKey()
 		{
 			return (model.preset().getType() == BankPresetType.MAIN ? "main." : "") + "blueprintOrdersByProfile";
+		}
+		private void configChanged(String key, String before, String after)
+		{
+			ConfigChanged event = new ConfigChanged();
+			event.setGroup(IronmanBankArchitectConfig.GROUP);
+			event.setKey(key);
+			event.setOldValue(before);
+			event.setNewValue(after);
+			plugin.onConfigChanged(event);
 		}
 		private void queueMove(int from, int to)
 		{

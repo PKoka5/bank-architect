@@ -5,7 +5,7 @@ This note defines the proposed reproducible multi-seed benchmark for Workstream 
 the seed list or scale requires updating this note and the test-scope
 `CleanupReviewBenchmarkProtocol` together.
 
-## Protocol version 1
+## Protocol version 2
 
 | Field | Value |
 |---|---|
@@ -17,7 +17,15 @@ the seed list or scale requires updating this note and the test-scope
 | Simulated scenario banks | 1,800 |
 | Seed derivation within each protocol seed | `protocol seed + zero-based run index` |
 | Registry resource | `src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/item-registry.tsv` |
-| Registry SHA-256 | `97331c2f6826461713807b576e6b17a0dc4fd8ffdcc5e6b7ec94f79191ff96bf` (line endings normalised to LF) |
+| Registry SHA-256 | `2f577111a105866c26b03b142895ac719ee89a455d060535252580b0b329f028` (line endings normalised to LF) |
+
+Version 2 adds 24 reviewed Fractured Archive reward states to the registry on
+23 October 2026. Seeds, scale, scenarios and occurrence semantics are unchanged.
+The old registry's LF fingerprint was
+`97331c2f6826461713807b576e6b17a0dc4fd8ffdcc5e6b7ec94f79191ff96bf`.
+Replaying that exact old registry with the new code and other resources preserved
+all four previous report fingerprints. The expanded universe is reviewed
+separately in [Fractured Archive verification](testing/fractured-archive-items-2026-10-23.md).
 
 The three seeds are deliberately far enough apart that their 200 derived simulation-seed ranges do
 not overlap. `20260718` preserves continuity with the original fixed-seed verification. The other

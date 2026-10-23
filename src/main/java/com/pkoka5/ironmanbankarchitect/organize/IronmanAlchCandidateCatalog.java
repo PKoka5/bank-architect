@@ -23,6 +23,7 @@ final class IronmanAlchCandidateCatalog
 			TABLE.group("tiers").forEach((key,ids) -> ids.forEach(id -> tiers.put(id,Integer.parseInt(key))));
 		}
 		final Set<Integer> candidates = new HashSet<>(TABLE.ids("candidates"));
+		final Set<Integer> fixed = new HashSet<>(TABLE.ids("fixed-list"));
 		final Collection<List<Integer>> staves = TABLE.group("staves").values();
 		final Collection<List<Integer>> colours = TABLE.group("mystic").values();
 		final Set<Integer> slashStock = new HashSet<>(TABLE.ids("slash-stock"));
@@ -44,6 +45,8 @@ final class IronmanAlchCandidateCatalog
 	{
 		return DATA.get().candidates.contains(itemId) || isElementalStaff(itemId);
 	}
+
+	static boolean containsFixed(int itemId) { return DATA.get().fixed.contains(itemId); }
 
 	static boolean isElementalStaff(int itemId)
 	{

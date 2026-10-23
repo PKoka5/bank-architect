@@ -16,21 +16,21 @@ public class ReleaseNoticePanelTest
 	@Test public void newReleaseAppearsAfterPreviousReleaseWasDismissedAndStaysDismissedAfterRestart() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			assertEquals("0.9.7", ReleaseNoticePanel.RELEASE_ID);
-			AtomicReference<String> seen = new AtomicReference<>("0.9.6");
+			assertEquals("0.9.8", ReleaseNoticePanel.RELEASE_ID);
+			AtomicReference<String> seen = new AtomicReference<>("0.9.7");
 			JPanel normal = new JPanel();
 			ReleaseNoticePanel panel = new ReleaseNoticePanel(normal, seen::get, seen::set);
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.6", seen.get());
+			assertEquals("0.9.7", seen.get());
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.6", seen.get());
+			assertEquals("0.9.7", seen.get());
 			JButton dismiss = button(panel);
 			assertNotNull(dismiss);
 			dismiss.doClick();
 			assertTrue(normal.isVisible());
-			assertEquals("0.9.7", seen.get());
+			assertEquals("0.9.8", seen.get());
 			panel.opened();
 			assertTrue(normal.isVisible());
 			JPanel restarted = new JPanel();
@@ -42,42 +42,45 @@ public class ReleaseNoticePanelTest
 		});
 	}
 
-	@Test public void rendersNewFeatureNotesAtSidebarWidth() throws Exception
+	@Test public void rendersNewFeatureNotesAtSidebarWidths() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			ReleaseNoticePanel panel = new ReleaseNoticePanel(new JPanel(), () -> "", ignored -> {});
-			panel.setOpaque(true);
-			panel.setBackground(new java.awt.Color(40, 40, 40));
-			panel.setSize(204, 600);
-			panel.opened();
-			layout(panel);
-			JLabel notes = notes(panel);
-			assertNotNull(notes);
-			assertTrue(notes.getText().contains("Bank Architect 0.9.7"));
-			String text = notes.getText().toLowerCase(java.util.Locale.ROOT);
-			for (String feature : new String[] {"blueprint", "placeholder", "alch", "ranged", "obsidian", "manual"})
-				assertTrue("Missing layout release note: " + feature, text.contains(feature));
-			JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, notes);
-			assertNotNull(scroll);
-			assertEquals(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, scroll.getHorizontalScrollBarPolicy());
-			assertTrue(scroll.getViewport().getExtentSize().width > 0);
-			assertTrue(notes.getPreferredSize().width <= scroll.getViewport().getExtentSize().width);
-			JButton dismiss = button(panel);
-			assertNotNull(dismiss);
-			java.awt.Rectangle dismissBounds = SwingUtilities.convertRectangle(
-				dismiss.getParent(), dismiss.getBounds(), panel);
-			assertTrue(dismissBounds.width > 0);
-			assertTrue(dismissBounds.height > 0);
-			assertTrue(panel.getBounds().contains(dismissBounds));
-			java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(204, 600, 2);
-			java.awt.Graphics2D graphics = image.createGraphics();
-			panel.paint(graphics);
-			graphics.dispose();
-			try {
-				java.nio.file.Path file = java.nio.file.Paths.get("build/reports/release-notice/notice.png");
-				java.nio.file.Files.createDirectories(file.getParent());
-				javax.imageio.ImageIO.write(image, "png", file.toFile());
-			} catch (java.io.IOException ex) { throw new RuntimeException(ex); }
+			for (int width : new int[] {204, 225})
+			{
+				ReleaseNoticePanel panel = new ReleaseNoticePanel(new JPanel(), () -> "", ignored -> {});
+				panel.setOpaque(true);
+				panel.setBackground(new java.awt.Color(40, 40, 40));
+				panel.setSize(width, 600);
+				panel.opened();
+				layout(panel);
+				JLabel notes = notes(panel);
+				assertNotNull(notes);
+				assertTrue(notes.getText().contains("Bank Architect 0.9.8"));
+				String text = notes.getText().toLowerCase(java.util.Locale.ROOT);
+				for (String feature : new String[] {"fixed", "flexible", "105", "main", "ironman", "custom", "saved", "sidebar", "manual", "fractured archive", "ascension", "rondache"})
+					assertTrue("Missing layout release note: " + feature, text.contains(feature));
+				JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, notes);
+				assertNotNull(scroll);
+				assertEquals(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, scroll.getHorizontalScrollBarPolicy());
+				assertTrue(scroll.getViewport().getExtentSize().width > 0);
+				assertTrue(notes.getPreferredSize().width <= scroll.getViewport().getExtentSize().width);
+				JButton dismiss = button(panel);
+				assertNotNull(dismiss);
+				java.awt.Rectangle dismissBounds = SwingUtilities.convertRectangle(
+					dismiss.getParent(), dismiss.getBounds(), panel);
+				assertTrue(dismissBounds.width > 0);
+				assertTrue(dismissBounds.height > 0);
+				assertTrue(panel.getBounds().contains(dismissBounds));
+				java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(width, 600, 2);
+				java.awt.Graphics2D graphics = image.createGraphics();
+				panel.paint(graphics);
+				graphics.dispose();
+				try {
+					java.nio.file.Path file = java.nio.file.Paths.get("build/reports/release-notice/notice-" + width + ".png");
+					java.nio.file.Files.createDirectories(file.getParent());
+					javax.imageio.ImageIO.write(image, "png", file.toFile());
+				} catch (java.io.IOException ex) { throw new RuntimeException(ex); }
+			}
 		});
 	}
 

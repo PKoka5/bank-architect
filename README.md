@@ -13,8 +13,8 @@ layout creates a custom preset, preserving the original defaults.
 Main groups runes and teleports in one tab, all combat styles together, complete
 4–3–2–1 potion families before incomplete families, and herbs, seeds and unfinished potions by stage. Ironman
 puts complete recipe rows first, then compact incomplete ingredients by kind. Both use the same reviewed
-Alch rules: replaced gear and tools can move to Alch, while best-owned tools,
-staff rune supply and your personal corrections remain protected.
+Alch modes: Flexible checks replacements and protects functional gear; Fixed
+always sends items on its exact list to Alch. Personal corrections take priority.
 
 Combat keeps the best owned Melee, Ranged and Magic gear at the front, with remaining sets
 arranged vertically in combat-style and progression order. Loose alternatives
@@ -288,8 +288,15 @@ When Bowfa leads the ranged column, owned Crystal armour accompanies it.
 Shared pieces occupy one physical slot. These are bank placement choices;
 content-specific setups still matter, and personal blueprint choices take priority.
 
-**Gather outclassed gear** sends reviewed replaced gear and tools to the
-separately placeable **Alch** tag. Main and Ironman use the same rules. The best
+Reviewed Fractured Archive rewards have explicit item roles: Obligator is a Crush
+weapon, Ascension crossbows use their own bolt family, and Zorya's tome is a Magic
+weapon. Rondache stays available as a defensive alternative. Archivist's folios
+join Teleports, charge/upgrade materials join Loot, and Living record capes join
+Cosmetics. The new Ascension bolts are separate from ordinary bolts on the Fixed
+Alch list. These placement rules do not claim one universal best DPS setup.
+
+**Gather Alch items** enables the selected sorting mode for the separately
+placeable **Alch** tag. Main and Ironman use the same rules. In **Flexible**, the best
 owned reviewed gear stays; Rune and Adamant axes move when a better axe is recorded in the bank,
 elemental staffs preserve rune supply, and equivalent ordinary Mystic colours
 keep one stable variant. Dragon halberds count as Alch stock by default.
@@ -300,6 +307,28 @@ Unreviewed duplicates need conservative stat/value evidence. Personal item
 choices always win. Turn gathering off to retain the normal categories.
 Rune maces remain outside automatic Alch when a real Scurrius' spine is present
 and no Bone mace, including its placeholder, is recorded in the bank.
+
+**Alch sorting** offers **Flexible** (the existing default) and **Fixed list**.
+Choose it in Tab Layout or the plugin's Combat settings. The gathering checkbox
+still turns automatic Alch suggestions off. Switching modes keeps Ironman or
+Main selected and remembers each one's preference separately. Saved Custom
+presets keep their own mode. Layout edits still create a Custom copy with the
+current Alch mode.
+
+Fixed list always sends its 105 exact ordinary item IDs to Alch: selected Mithril,
+Adamant and Rune equipment/tools, Dragon equipment, battlestaves, d'hide bodies,
+Yew/Magic longbows, normal/dark/light Mystic and enchanted Onyx bolts. It does
+not check BIS, upgrades, special attacks, rune supply, crafting roles, quantity
+or item values. Listed items and their placeholders go to Alch even when they
+are your only gear of that kind. Other items do not enter Fixed through surplus
+rules. Flexible retains the existing replacement and functional protections.
+
+Fixed does not include bars, unfinished products, chest keys or arbitrary items
+from reward chests. Ordinary Dragon scimitars and Dragon halberds are included;
+Flexible retains its existing rules for them. Personal corrections,
+active saved destinations and captured physical layouts retain priority in both
+modes. Layout share codes continue to share the tag plan; they do not encode
+sorting preferences.
 
 Main and Ironman place finished arrows, bolts (including Bolt rack), darts and
 cannonballs in **Slayer & Boss Loot** by default, including placeholders.

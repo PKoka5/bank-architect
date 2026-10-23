@@ -13,6 +13,7 @@
 0/weapon-stab/lance	22978
 0/weapon-stab/zamorakian	11889,11824
 0/weapon-crush/mace	24417
+100/weapon-crush/obligator	34715,34717
 0/weapon-crush/bludgeon	13263
 0/weapon-crush/cudgel	23528
 0/weapon-crush/zombie-axe	28810
@@ -33,6 +34,7 @@
 0/weapon-ranged-crossbow/dragonhunter	21012
 0/weapon-ranged-crossbow/armadyl	11785
 0/weapon-ranged-rapid/blowpipe	12926,12924
+0/weapon-ranged-rapid/ascension	34681
 100/weapon-magic-powered/shadow	27275,27277
 20/weapon-magic-powered/ayak	31113,31115
 10/weapon-magic-powered/sanguinesti	22323,22481,25731,25733
@@ -45,6 +47,8 @@
 0/weapon-magic-demonbane/purging	29594
 0/weapon-magic-special/nightmare	24424,24425
 0/weapon-magic-special/accursed	27662,27665,27676,27679
+0/weapon-magic-special/zorya	34725,34727
+-1/support-defence/rondache	34719
 0/weapon-defence/bulwark	21015
 
 # Reviewed midgame roles from the reported bank and public RuneLite equipment snapshot, 2026-10-12.

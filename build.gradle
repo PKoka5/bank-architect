@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.9.7'
+version = '0.9.8'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
@@ -99,11 +99,11 @@ tasks.register('verifySimulationBaselines') {
 	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
 	doLast {
 		def expected = [
-			// Reviewed compact Herblore: docs/testing/ironman-herblore-hybrid-2026-10-13.md.
-			'report.tsv': '28adedb12c406913a836b193ffc92fc20f10471e7c00bd97fe1b27e4d3ffb2ee',
-			'cleanup-review.tsv': '309480b04ce63ce74996f4b15768e6c9a84e16611338e44c5abf689148bb3091',
-			'aggregate/cleanup-review.tsv': 'fce40d023f6950a6813d97276f3836c73ab801e7c0c2c13235a4e7423f207ce3',
-			'aggregate/metadata.tsv': '76901b09b75f9d8219f3e1ba8b522940af373160718cd09cbf40439db088c3fe'
+			// Reviewed registry expansion and old-input replay: docs/testing/fractured-archive-items-2026-10-23.md.
+			'report.tsv': '6403583c57f42c8fca16a296af54d92571d5597f3cdc773fb6061a4497a97ec1',
+			'cleanup-review.tsv': '00c1f0eac9310e3ec869fe7c29aebdf4e3aa85c800b02adc01afd124f84f1fdf',
+			'aggregate/cleanup-review.tsv': 'ba33e9144824c0e1d0e9671f3933385f6dd6605f9b60bcbfc7ab43794a013edd',
+			'aggregate/metadata.tsv': 'b4eb3aa665c848f66a832f7cd0b8ecb5d64079ee6b13a2e3c3d26dd175048431'
 		]
 		def customParameters = ['simBanks', 'simSeed', 'simMinItems', 'simMaxItems', 'simOutput', 'aggregateOutput']
 		if (customParameters.any { project.hasProperty(it) }) {

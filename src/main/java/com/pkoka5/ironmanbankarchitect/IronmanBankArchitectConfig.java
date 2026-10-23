@@ -144,13 +144,17 @@ public interface IronmanBankArchitectConfig extends Config
 		keyName = "alchPile",
 		section = gearSection,
 		position = 1,
-		name = "Gather outclassed gear for alching",
-		description = "Gather replaced gear and tools, including spare standard Mystic colours. Main and Ironman use the same rules; preserve staff rune supply. Dragon halberds always count as alch stock."
+		name = "Gather Alch items",
+		description = "Enable automatic Alch suggestions using the selected Alch sorting mode. Personal item choices retain priority."
 	)
 	default boolean alchPile()
 	{
 		return true;
 	}
+
+	@ConfigItem(keyName = "alchMode", section = gearSection, position = 2,
+		name = "Alch sorting", description = "Fixed list always sends listed items to Alch, including best gear and special weapons. Flexible uses replacement and surplus checks. Personal choices win.")
+	default AlchMode alchMode() { return AlchMode.FLEXIBLE; }
 
 	@ConfigItem(
 		keyName = "potionDoses",

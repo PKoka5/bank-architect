@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class HeaderActionsPanelTest
 {
 	private static final String[] VERSIONS = {
-		"0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.3", "0.9.2", "0.9.1", "0.9.0",
+		"0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.3", "0.9.2", "0.9.1", "0.9.0",
 		"0.8.1", "0.8.0", "0.7.1", "0.7.0", "0.6.0"
 	};
 
@@ -59,7 +59,7 @@ public class HeaderActionsPanelTest
 				assertTrue(visible(fixture.panel.analyzeButton, fixture.panel));
 				assertEquals(0, fixture.acknowledgements.get());
 
-				fixture.seen.set("0.9.4");
+				fixture.seen.set("0.9.7");
 				fixture.panel.onActivate();
 				assertFalse(visible(fixture.panel.analyzeButton, fixture.panel));
 				assertTrue(visible(button(fixture.panel, "Got it - continue"), fixture.panel));
@@ -69,7 +69,7 @@ public class HeaderActionsPanelTest
 				button(fixture.panel, "Back to planner").doClick();
 				assertTrue("Browsing history must not dismiss the unseen notice",
 					visible(button(fixture.panel, "Got it - continue"), fixture.panel));
-				assertEquals("0.9.4", fixture.seen.get());
+				assertEquals("0.9.7", fixture.seen.get());
 				assertEquals(0, fixture.acknowledgements.get());
 				button(fixture.panel, "Got it - continue").doClick();
 				assertEquals(ReleaseNoticePanel.RELEASE_ID, fixture.seen.get());
@@ -103,6 +103,8 @@ public class HeaderActionsPanelTest
 				assertEquals(VERSIONS.length, chooser.getItemCount());
 				assertTrue(chooser.getSelectedItem().toString().contains(ReleaseNoticePanel.RELEASE_ID));
 				String latestNotes = visibleLabelText(fixture.panel);
+				for (String feature : new String[] {"Fixed", "Flexible", "105", "Main", "Ironman"})
+					assertTrue("Missing latest-release feature: " + feature, latestNotes.contains(feature));
 				for (int index = 0; index < VERSIONS.length; index++)
 				{
 					assertTrue(chooser.getItemAt(index).toString().contains(VERSIONS[index]));
@@ -148,7 +150,7 @@ public class HeaderActionsPanelTest
 					for (String action : new String[] {"Updates", "Settings", "GitHub issues"})
 						assertFits(fixture.panel, button(fixture.panel, action));
 					assertFits(fixture.panel, fixture.panel.presetChooser);
-					fixture.seen.set("0.9.4");
+					fixture.seen.set("0.9.7");
 					fixture.panel.onActivate();
 					render(fixture.panel, width, "notice");
 					assertFits(fixture.panel, button(fixture.panel, "Got it - continue"));

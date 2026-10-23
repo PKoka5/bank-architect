@@ -223,8 +223,14 @@ public final class BlueprintItemOrders
 
 	public BankOrganizationPreview apply(BankOrganizationPreview preview, BankLayoutPlan plan)
 	{
+		return apply(preview, plan, id -> false);
+	}
+
+	BankOrganizationPreview apply(BankOrganizationPreview preview, BankLayoutPlan plan,
+		java.util.function.IntPredicate retainSavedDestination)
+	{
 		if (orders.isEmpty() && destinations.isEmpty()) return preview;
-		if (!destinations.isEmpty()) preview = route(preview, plan);
+		if (!destinations.isEmpty()) preview = route(preview, plan, retainSavedDestination);
 		List<BankCategoryPreview> tabs = new ArrayList<>();
 		for (int tab = 0; tab < preview.getCategories().size(); tab++)
 		{
@@ -254,7 +260,8 @@ public final class BlueprintItemOrders
 		return new BankOrganizationPreview(preview.getPreset(), tabs, preview.getTagCounts(), descriptors);
 	}
 
-	private BankOrganizationPreview route(BankOrganizationPreview preview, BankLayoutPlan plan)
+	private BankOrganizationPreview route(BankOrganizationPreview preview, BankLayoutPlan plan,
+		java.util.function.IntPredicate retainSavedDestination)
 	{
 		boolean captured = isCaptured();
 		List<List<BankPreviewItem>> routed = new ArrayList<>();
@@ -269,11 +276,13 @@ public final class BlueprintItemOrders
 				int occurrence = occurrences.merge(item.getItemId(), 1, Integer::sum) - 1;
 				BankPreviewItem identified = item.withBlueprintOccurrence(occurrence);
 				Destination target = destinations.get(occurrenceKey(identified, occurrence));
+				boolean savedTagApplies = target != null && (target.originalTag.equals(item.getLayoutTagKey())
+					|| retainSavedDestination.test(item.getItemId()));
 				if (target != null && target.tab < routed.size()
-					&& (target.captured || target.originalTag.equals(item.getLayoutTagKey())
+					&& (target.captured || savedTagApplies
 						&& plan != null && plan.destinationOf(target.tag) == target.tab))
 				{
-					routed.get(target.tab).add(target.originalTag.equals(item.getLayoutTagKey())
+					routed.get(target.tab).add(savedTagApplies
 						? identified.withLayoutTag(target.tag) : identified);
 					modified.add(tab);
 					modified.add(target.tab);

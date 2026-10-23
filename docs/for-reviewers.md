@@ -139,9 +139,12 @@ The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.9.7 release record](release-0.9.7.md) documents final tests, owner live
+The [0.9.8 release record](release-0.9.8.md) documents final tests, owner live
 checks, jar checksum, changed scope and calibrated review-token estimates.
-Local estimates are not the official Plugin Hub count.
+Local estimates are not the official Plugin Hub count. Flexible retains the
+replacement protections below. The opt-in Fixed mode instead assigns its exact
+105 listed IDs to Alch without BIS, special-function or replacement guards;
+explicit item choices and saved physical layouts retain priority.
 
 Version 0.9.2 keeps established session Alch decisions when IDs are added and
 existing facts/choices remain compatible. The current local update also preserves
