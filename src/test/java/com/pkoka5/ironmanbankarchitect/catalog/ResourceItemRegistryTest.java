@@ -39,7 +39,7 @@ public class ResourceItemRegistryTest
 				{
 					Locale.setDefault(locale);
 					// Load new rows each time: the singleton would hide locale-sensitive initialization.
-					Map<Integer, CatalogItem> items = ResourceItemRegistry.loadItems(
+					Map<Integer, CatalogItem> items = RegistryCompiler.loadItems(
 						new ByteArrayInputStream(rows.getBytes(StandardCharsets.UTF_8)),
 						CanonicalItemClassificationOverrides.INSTANCE);
 					assertEquals(locale.toString(), ItemCategory.TOOL, items.get(6696).getCategory());
@@ -69,7 +69,7 @@ public class ResourceItemRegistryTest
 		{
 			try
 			{
-				ResourceItemRegistry.loadNameRules(data == null ? null : new java.io.ByteArrayInputStream(
+				RegistryCompiler.loadNameRules(data == null ? null : new java.io.ByteArrayInputStream(
 					data.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
 				org.junit.Assert.fail("Invalid name rules accepted: " + data);
 			}

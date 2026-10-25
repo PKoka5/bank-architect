@@ -1,0 +1,211 @@
+style	slot	kind	band	fallback_rank	ticks	hands	group	pages_regex
+ranged	0	2	0	1000	0	0	masori	^Masori mask( \(f\))?$
+ranged	1	2	0	1000	0	0	masori	^Masori body( \(f\))?$
+ranged	2	2	0	1000	0	0	masori	^Masori chaps( \(f\))?$
+ranged	0	2	0	900	0	0	armadyl	^Armadyl helmet$
+ranged	1	2	0	900	0	0	armadyl	^Armadyl chestplate$
+ranged	2	2	0	900	0	0	armadyl	^Armadyl chainskirt$
+ranged	0	2	0	850	0	0	crystal	^Crystal helm( \((Amlodd|Cadarn|Crwys|Hefin|Iorwerth|Ithell|Meilyr|Trahaearn|deadman)\))?$
+ranged	1	2	0	850	0	0	crystal	^Crystal body( \((Amlodd|Cadarn|Crwys|Hefin|Iorwerth|Ithell|Meilyr|Trahaearn|deadman)\))?$
+ranged	2	2	0	850	0	0	crystal	^Crystal legs( \((Amlodd|Cadarn|Crwys|Hefin|Iorwerth|Ithell|Meilyr|Trahaearn|deadman)\))?$
+ranged	0	2	0	800	0	0	third-age	^3rd age range coif$
+ranged	1	2	0	800	0	0	third-age	^3rd age range top$
+ranged	2	2	0	800	0	0	third-age	^3rd age range legs$
+ranged	0	2	0	750	0	0	robin	^Robin hood hat$
+ranged	0	2	0	700	0	0	eclipse	^Eclipse moon helm$
+ranged	1	2	0	700	0	0	eclipse	^Eclipse moon chestplate$
+ranged	2	2	0	700	0	0	eclipse	^Eclipse moon tassets$
+ranged	0	2	0	650	0	0	karil	^Karil's coif$
+ranged	1	2	0	650	0	0	karil	^Karil's leathertop$
+ranged	2	2	0	650	0	0	karil	^Karil's leatherskirt$
+ranged	0	2	0	600	0	0	blessed	^(Zamorak|Guthix|Saradomin|Ancient|Bandos|Armadyl) coif$
+ranged	1	2	0	600	0	0	blessed	^(Zamorak|Guthix|Saradomin|Ancient|Bandos|Armadyl) d'hide( body)?$
+ranged	2	2	0	600	0	0	blessed	^(Zamorak|Guthix|Saradomin|Ancient|Bandos|Armadyl) chaps$
+ranged	0	2	0	600	0	0	huey	^Hueycoatl hide coif$
+ranged	1	2	0	600	0	0	huey	^Hueycoatl hide body$
+ranged	2	2	0	600	0	0	huey	^Hueycoatl hide chaps$
+ranged	0	2	0	450	0	0	archer	^(Archer helm|Ranger hat)$
+ranged	0	2	0	400	0	0	spined	^Spined helm$
+ranged	1	2	0	400	0	0	spined	^Spined body$
+ranged	2	2	0	400	0	0	spined	^Spined chaps$
+ranged	1	2	0	550	0	0	black-hide	^Black d'hide body( \((g|t)\))?$
+ranged	2	2	0	550	0	0	black-hide	^Black d'hide chaps( \((g|t)\))?$
+ranged	1	2	0	500	0	0	red-hide	^Red d'hide body( \((g|t)\))?$
+ranged	2	2	0	500	0	0	red-hide	^Red d'hide chaps( \((g|t)\))?$
+ranged	1	2	0	450	0	0	blue-hide	^Blue d'hide body( \((g|t)\))?$
+ranged	2	2	0	450	0	0	blue-hide	^Blue d'hide chaps( \((g|t)\))?$
+ranged	1	2	0	400	0	0	green-hide	^(Green|Gilded) d'hide body( \((g|t)\))?$
+ranged	2	2	0	400	0	0	green-hide	^(Green|Gilded) d'hide chaps( \((g|t)\))?$
+ranged	1	2	0	480	0	0	mixed-hide	^Mixed hide top$
+ranged	2	2	0	480	0	0	mixed-hide	^Mixed hide legs$
+ranged	0	2	0	200	0	0	snake	^Snakeskin bandana$
+ranged	1	2	0	300	0	0	snake	^Snakeskin body$
+ranged	2	2	0	300	0	0	snake	^Snakeskin chaps$
+ranged	0	2	0	110	0	0	coif	^Coif$
+ranged	0	2	0	100	0	0	cowl	^Leather cowl$
+ranged	1	2	0	200	0	0	studded	^Studded body( \((g|t)\))?$
+ranged	2	2	0	200	0	0	studded	^Studded chaps( \((g|t)\))?$
+ranged	1	2	0	120	0	0	hard-leather	^Hardleather body$
+ranged	1	2	0	100	0	0	leather	^Leather body( \(g\))?$
+ranged	2	2	0	100	0	0	leather	^Leather chaps( \(g\))?$
+ranged	3	2	0	1000	0	0	quiver	^(Dizana's quiver|Blessed Dizana's quiver|Dizana's max cape)$
+ranged	3	2	0	800	0	0	assembler	^(Ava's assembler|Assembler max cape|Masori assembler|Masori assembler max cape)$
+ranged	3	2	0	500	0	0	accumulator	^(Ava's accumulator|Accumulator max cape)$
+ranged	3	2	0	300	0	0	attractor	^Ava's attractor$
+ranged	3	2	0	550	0	0	mixed-hide-cape	^Mixed hide cape$
+ranged	4	2	0	1000	0	0	rupture	^Necklace of rupture$
+ranged	4	2	0	900	0	0	anguish	^Necklace of anguish( \(or\))?$
+ranged	5	2	0	1000	0	0	buckler	^Twisted buckler$
+ranged	5	2	0	900	0	0	dragonfire-ward	^Dragonfire ward$
+ranged	5	2	0	700	0	0	odium	^Odium ward( \(or\))?$
+ranged	5	2	0	500	0	0	law	^Book of law( \(or\))?$
+ranged	5	2	0	300	0	0	unholy	^Unholy book( \(or\))?$
+ranged	5	2	0	600	0	0	black-hide-shield	^Black d'hide shield$
+ranged	5	2	0	550	0	0	red-hide-shield	^Red d'hide shield$
+ranged	5	2	0	450	0	0	blue-hide-shield	^Blue d'hide shield$
+ranged	5	2	0	400	0	0	green-hide-shield	^Green d'hide shield$
+ranged	6	2	0	1000	0	0	zaryte	^Zaryte vambraces$
+ranged	6	2	0	650	0	0	blessed-bracers	^(Zamorak|Guthix|Saradomin|Ancient|Bandos|Armadyl) bracers$
+ranged	6	2	0	650	0	0	huey-bracers	^Hueycoatl hide vambraces$
+ranged	6	2	0	600	0	0	black-vambs	^Black d'hide vambraces( \(spiky\))?$
+ranged	6	2	0	500	0	0	red-vambs	^Red d'hide vambraces( \(spiky\))?$
+ranged	6	2	0	400	0	0	blue-vambs	^Blue d'hide vambraces( \(spiky\))?$
+ranged	6	2	0	300	0	0	green-vambs	^(Green|Gilded) d'hide vambraces( \(spiky\))?$
+ranged	6	2	0	200	0	0	snake-vambs	^Snakeskin vambraces$
+ranged	6	2	0	100	0	0	leather-vambs	^Leather vambraces$
+ranged	7	2	0	1000	0	0	treads	^Avernic treads.*$
+ranged	7	2	0	800	0	0	pegasian	^Pegasian boots$
+ranged	7	2	0	600	0	0	ranger-boots	^Ranger boots$
+ranged	7	2	0	500	0	0	blessed-boots	^(Zamorak|Guthix|Saradomin|Ancient|Bandos|Armadyl) d'hide boots$
+ranged	7	2	0	300	0	0	snake-boots	^Snakeskin boots$
+ranged	7	2	0	350	0	0	mixed-boots	^Mixed hide boots$
+ranged	7	2	0	450	0	0	aranea	^Aranea boots$
+ranged	7	2	0	350	0	0	brimstone	^Boots of Brimstone$
+ranged	8	2	70	1000	6	2	twisted-bow	^Twisted bow$
+ranged	8	2	60	900	5	2	bowfa	^Bow of [Ff]aerdhinen.*$
+ranged	8	2	55	850	6	1	zaryte-crossbow	^Zaryte crossbow$
+ranged	8	2	50	800	3	2	blowpipe	^Toxic blowpipe$
+ranged	8	2	45	750	6	1	dragon-hunter-crossbow	^Dragon hunter crossbow$
+ranged	8	2	44	740	5	2	venator-bow	^Venator bow$
+ranged	8	2	42	720	5	2	scorching-bow	^Scorching bow$
+ranged	8	2	40	700	6	1	armadyl-crossbow	^Armadyl crossbow$
+ranged	8	2	38	680	4	2	webweaver	^Webweaver bow$
+ranged	8	2	36	660	4	2	craws	^Craw's bow$
+ranged	8	2	35	650	6	1	dragon-crossbow	^Dragon crossbow$
+ranged	8	2	32	620	5	2	crystal-bow	^Crystal bow$
+ranged	8	2	30	600	4	2	karils-crossbow	^Karil's crossbow$
+ranged	8	2	28	580	3	2	atlatl	^Eclipse atlatl$
+ranged	8	2	27	570	4	1	sunlight-crossbow	^Hunters'? sunlight crossbow$
+ranged	8	2	25	550	6	1	rune-crossbow	^Rune crossbow( \(or\))?$
+ranged	8	2	24	540	4	2	magic-shortbow-i	^Magic shortbow \(i\)$
+ranged	8	2	22	520	4	2	magic-shortbow	^Magic shortbow$
+ranged	8	2	20	500	4	2	yew-shortbow	^Yew shortbow$
+ranged	8	2	18	480	4	2	maple-shortbow	^Maple shortbow$
+ranged	8	2	16	460	4	2	willow-shortbow	^Willow shortbow$
+ranged	8	2	14	440	4	2	oak-shortbow	^Oak shortbow$
+ranged	8	2	12	420	4	2	shortbow	^Shortbow$
+ranged	8	2	18	470	5	1	dorgeshuun-crossbow	^Dorgeshuun crossbow$
+ranged	12	2	0	1000	0	0	venator-ring	^Venator ring$
+ranged	12	2	0	700	0	0	archers-ring-i	^Archers ring \(i\)$
+ranged	12	2	0	400	0	0	archers-ring	^Archers ring$
+magic	0	2	0	1000	0	0	ancestral	^(Ancestral hat|Twisted ancestral hat)$
+magic	1	2	0	1000	0	0	ancestral	^(Ancestral robe top|Twisted ancestral robe top)$
+magic	2	2	0	1000	0	0	ancestral	^(Ancestral robe bottom|Twisted ancestral robe bottom)$
+magic	0	2	0	900	0	0	virtus	^Virtus mask$
+magic	1	2	0	900	0	0	virtus	^Virtus robe top$
+magic	2	2	0	900	0	0	virtus	^Virtus robe bottom$
+magic	0	2	0	800	0	0	ahrim	^Ahrim's hood$
+magic	1	2	0	800	0	0	ahrim	^Ahrim's robetop$
+magic	2	2	0	800	0	0	ahrim	^Ahrim's robeskirt$
+magic	0	2	0	700	0	0	blue-moon	^Blue moon helm$
+magic	1	2	0	700	0	0	blue-moon	^Blue moon chestplate$
+magic	2	2	0	700	0	0	blue-moon	^Blue moon tassets$
+magic	0	2	0	750	0	0	dagonhai	^Dagon'hai hat( \(or\))?$
+magic	1	2	0	750	0	0	dagonhai	^Dagon'hai robe top( \(or\))?$
+magic	2	2	0	750	0	0	dagonhai	^Dagon'hai robe bottom( \(or\))?$
+magic	0	2	0	650	0	0	infinity	^((Dark|Light) )?[Ii]nfinity hat$
+magic	1	2	0	650	0	0	infinity	^((Dark|Light) )?[Ii]nfinity top$
+magic	2	2	0	650	0	0	infinity	^((Dark|Light) )?[Ii]nfinity bottoms$
+magic	0	2	0	600	0	0	bloodbark	^Bloodbark helm$
+magic	1	2	0	600	0	0	bloodbark	^Bloodbark body$
+magic	2	2	0	600	0	0	bloodbark	^Bloodbark legs$
+magic	0	2	0	500	0	0	mystic	^Mystic hat.*$
+magic	0	2	0	550	0	0	farseer	^Farseer helm$
+magic	1	2	0	500	0	0	mystic	^Mystic robe top.*$
+magic	2	2	0	500	0	0	mystic	^Mystic robe bottom.*$
+magic	0	2	0	300	0	0	xerician	^Xerician hat$
+magic	1	2	0	300	0	0	xerician	^Xerician top$
+magic	2	2	0	300	0	0	xerician	^Xerician robe$
+magic	0	2	0	200	0	0	wizard	^(Blue|Black) wizard hat( \((g|t)\))?$
+magic	1	2	0	200	0	0	wizard	^(Blue|Black) wizard robe( \((g|t)\))?$
+magic	2	1	0	100	0	0	monk	^Zamorak monk bottom$
+magic	3	2	0	1000	0	0	imbued-cape	^Imbued (saradomin|guthix|zamorak)( max)? cape$
+magic	3	2	0	600	0	0	god-cape	^(Saradomin|Guthix|Zamorak) cape$
+magic	4	2	0	1000	0	0	occult	^Occult necklace( \(or\))?$
+magic	4	2	0	300	0	0	amulet-magic	^Amulet of magic( \(t\))?$
+magic	5	2	0	1000	0	0	ward-f	^Elidinis' ward \(f\)( \(or\))?$
+magic	5	2	0	900	0	0	ward	^Elidinis' ward$
+magic	5	2	0	850	0	0	mages-book	^Mage's book$
+magic	5	2	0	800	0	0	arcane	^Arcane spirit shield$
+magic	5	2	0	750	0	0	ancient-wyvern	^Ancient wyvern shield$
+magic	5	2	0	700	0	0	malediction	^Malediction ward( \(or\))?$
+magic	5	2	0	500	0	0	darkness	^Book of darkness( \(or\))?$
+magic	5	2	0	250	0	0	broodoo	^Broodoo shield \((combat|disease|poison)\)$
+magic	5	2	0	350	0	0	tomes	^Tome of (fire|water|earth)$
+magic	6	2	0	1000	0	0	confliction	^Confliction gauntlets$
+magic	6	2	0	900	0	0	tormented	^Tormented bracelet( \(or\))?$
+magic	6	2	0	600	0	0	infinity-gloves	^Infinity gloves$
+magic	6	2	0	500	0	0	bloodbark-gloves	^Bloodbark gauntlets$
+magic	6	2	0	400	0	0	mystic-gloves	^Mystic gloves.*$
+magic	7	2	0	1000	0	0	treads	^Avernic treads.*$
+magic	7	2	0	800	0	0	eternal	^Eternal boots$
+magic	7	2	0	600	0	0	infinity-boots	^Infinity boots$
+magic	7	2	0	500	0	0	bloodbark-boots	^Bloodbark boots$
+magic	7	2	0	400	0	0	mystic-boots	^Mystic boots.*$
+magic	7	2	0	450	0	0	wizard-boots	^Wizard boots$
+magic	8	2	70	1000	5	2	shadow	^Tumeken's shadow$
+magic	8	2	60	900	3	1	ayak	^Eye of [Aa]yak$
+magic	8	2	50	800	4	1	sanguinesti	^(Holy )?[Ss]anguinesti staff$
+magic	8	2	45	750	4	1	swamp	^(Trident of the swamp|Uncharged toxic trident)( \(e\))?$
+magic	8	2	40	700	4	1	seas	^(Trident of the seas( \((full|e)\))?|Uncharged trident( \(e\))?)$
+magic	8	2	35	650	5	1	kodai	^Kodai wand$
+magic	8	2	34	640	5	1	dead-staff	^(Staff of the dead|Toxic staff of the dead|Staff of light|Staff of balance)$
+magic	8	2	33	630	5	1	nightmare	^Nightmare staff$
+magic	8	2	32	620	5	1	ancient-sceptre	^(Ancient|(Blood|Ice|Smoke|Shadow) ancient) sceptre$
+magic	8	2	30	600	4	1	warped	^Warped sceptre$
+magic	8	2	25	550	5	1	iban	^Iban's staff( \(u\))?$
+magic	8	2	20	500	5	1	master-wand	^Master wand$
+magic	8	2	19	490	5	1	ancient-staff	^Ancient staff$
+magic	8	1	24	540	6	1	twinflame	^Twinflame staff$
+magic	8	1	24	540	5	1	purging	^Purging staff$
+magic	8	1	24	540	5	1	dragonhunter-wand	^Dragon hunter wand$
+magic	8	1	18	480	0	1	other-wands	^(Beginner|Apprentice|Teacher) wand$
+magic	8	1	18	480	0	1	elemental-staves	^(Staff of (air|water|earth|fire)|((Air|Water|Earth|Fire|Dust|Mud|Mist|Lava|Steam|Smoke) battlestaff)|Mystic (air|water|earth|fire|dust|mud|mist|lava|steam|smoke) staff)$
+magic	8	1	18	480	0	1	god-staves	^(Saradomin|Guthix|Zamorak) staff$
+magic	8	1	18	480	0	1	slayer-staff	^Slayer's staff( \(e\))?$
+magic	8	1	18	480	0	2	blue-moon-spear	^Blue moon spear$
+magic	8	1	18	480	0	2	ahrim-staff	^Ahrim's staff$
+magic	12	2	0	1000	0	0	magus	^Magus ring$
+magic	12	2	0	700	0	0	seers-ring-i	^Seers ring \(i\)$
+magic	12	2	0	400	0	0	seers-ring	^Seers ring$
+magic	12	2	0	200	0	0	beacon	^Beacon ring$
+magic	0	2	0	720	0	0	third-age	^3rd age mage hat$
+magic	1	2	0	720	0	0	third-age	^3rd age robe top$
+magic	2	2	0	720	0	0	third-age	^3rd age robe$
+magic	0	2	0	350	0	0	elder-chaos	^Elder chaos hood( \(or\))?$
+magic	1	2	0	350	0	0	elder-chaos	^Elder chaos top( \(or\))?$
+magic	2	2	0	350	0	0	elder-chaos	^Elder chaos robe( \(or\))?$
+magic	0	2	0	400	0	0	enchanted	^Enchanted hat$
+magic	1	2	0	400	0	0	enchanted	^Enchanted top$
+magic	2	2	0	400	0	0	enchanted	^Enchanted robe$
+magic	0	2	0	450	0	0	swampbark	^Swampbark helm$
+magic	1	2	0	450	0	0	swampbark	^Swampbark body$
+magic	2	2	0	450	0	0	swampbark	^Swampbark legs$
+magic	0	2	0	350	0	0	splitbark	^Splitbark helm$
+magic	1	2	0	350	0	0	splitbark	^Splitbark body$
+magic	2	2	0	350	0	0	splitbark	^Splitbark legs$
+magic	6	2	0	350	0	0	swampbark-gloves	^Swampbark gauntlets$
+magic	7	2	0	350	0	0	swampbark-boots	^Swampbark boots$
+magic	6	2	0	250	0	0	splitbark-gloves	^Splitbark gauntlets$
+magic	7	2	0	250	0	0	splitbark-boots	^Splitbark boots$
+magic	8	1	24	540	0	1	other-nightmare	^(Harmonised|Volatile|Eldritch) nightmare staff$

@@ -635,6 +635,7 @@ public class IronmanBankArchitectPanelTest
 		for (com.pkoka5.ironmanbankarchitect.organize.BankTag tag
 			: com.pkoka5.ironmanbankarchitect.organize.BankTags.all())
 		{
+			if (com.pkoka5.ironmanbankarchitect.organize.BankTags.isOptional(tag.getKey())) continue;
 			assertTrue(tag.getKey(), model.plan().destinationOf(tag.getKey()) >= 0);
 		}
 		panel.shutdown();
@@ -646,10 +647,56 @@ public class IronmanBankArchitectPanelTest
 		IronmanBankArchitectPanel panel = panelWith(new RecordingLayoutModel());
 		panel.tabOrderButton.doClick();
 
-		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().size(),
+		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
+			.filter(tag -> !com.pkoka5.ironmanbankarchitect.organize.BankTags.isOptional(tag.getKey())).count(),
 			countRows(panel.layoutRows));
 		panel.shutdown();
 	}
+	@Test
+	public void optionalCombatStyleCanBeAddedThroughTheChooserAndMergedThroughItsRemoveControl() throws Exception
+	{
+		javax.swing.SwingUtilities.invokeAndWait(() -> {
+		RecordingLayoutModel model = new RecordingLayoutModel();
+		IronmanBankArchitectPanel panel = panelWith(model);
+		try
+		{
+			panel.tabOrderButton.doClick();
+			int before = countRows(panel.layoutRows);
+			JComboBox<?> add = null;
+			for (Component child : panel.layoutRows.getComponents())
+				if (child instanceof JComboBox)
+				{
+					JComboBox<?> candidate = (JComboBox<?>) child;
+					for (int index = 0; index < candidate.getItemCount(); index++)
+						if ("Ranged Gear  (optional)".equals(candidate.getItemAt(index))) add = candidate;
+				}
+			assertNotNull("Inactive style is offered without occupying a default row", add);
+			add.setSelectedItem("Ranged Gear  (optional)");
+			assertTrue(model.plan().destinationOf("combat-ranged") >= 0);
+			assertEquals(before + 1, countRows(panel.layoutRows));
+			assertEquals(1, model.saves);
+			boolean clicked = false;
+			for (Component child : panel.layoutRows.getComponents())
+				if (child instanceof Container)
+				{
+					List<AbstractButton> buttons = new ArrayList<>();
+					collectButtons((Container) child, buttons);
+					for (AbstractButton button : buttons)
+						if (button.getToolTipText() != null && button.getToolTipText().startsWith("Merge this optional style"))
+						{
+							button.doClick(); clicked = true;
+						}
+				}
+			assertTrue(clicked);
+			assertEquals(-1, model.plan().destinationOf("combat-ranged"));
+			assertEquals(before, countRows(panel.layoutRows));
+			assertEquals(2, model.saves);
+			assertTrue(model.plan().isDefault(BankPresets.IRONMAN));
+		}
+		finally { panel.shutdown(); }
+		});
+	}
+
 	/**
 	 * The move instructions call the first real tab "blueprint tab 1", so the
 	 * layout screen has to as well. Numbering the main section as tab one would
@@ -801,7 +848,8 @@ public class IronmanBankArchitectPanelTest
 			}
 		}
 
-		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().size(), rows);
+		assertEquals(com.pkoka5.ironmanbankarchitect.organize.BankTags.all().stream()
+			.filter(tag -> !com.pkoka5.ironmanbankarchitect.organize.BankTags.isOptional(tag.getKey())).count(), rows);
 		// Every tag but the fallback can be taken off its tab.
 		assertEquals(rows - 1, enabledRemovals);
 		panel.shutdown();

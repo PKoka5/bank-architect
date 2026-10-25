@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.pkoka5.ironmanbankarchitect.util.BundledTable;
 import java.util.*;
 
 
@@ -22,16 +22,11 @@ final class ItemUsageTags
 
 	static Map<Integer, Set<String>> load(InputStream stream)
 	{
-		if (stream == null) throw new IllegalStateException("Missing item usage tags");
 		Map<Integer, Set<String>> result = new LinkedHashMap<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		try
 		{
-			if (!"# schema=1".equals(reader.readLine())) throw new IllegalStateException("Invalid usage tag schema");
-			String line;
-			while ((line = reader.readLine()) != null)
+			BundledTable.read(stream, "item usage tags", false, true, (line, fields) ->
 			{
-				if (line.isEmpty() || line.startsWith("#")) continue;
-				String[] fields = line.split("\t", -1);
 				if (fields.length != 2) throw new IllegalStateException("Invalid usage tag row: " + line);
 				int id = Integer.parseInt(fields[0]);
 				String[] values = fields[1].split(",", -1);
@@ -40,7 +35,7 @@ final class ItemUsageTags
 					|| tags.stream().anyMatch(tag -> !tag.matches("[a-z][a-z0-9-]*"))
 					|| result.putIfAbsent(id, Collections.unmodifiableSet(tags)) != null)
 					throw new IllegalStateException("Invalid or duplicate usage tags: " + line);
-			}
+			});
 		}
 		catch (IOException | IllegalArgumentException ex)
 		{

@@ -128,6 +128,26 @@ classification is Currency. A tag selects a group; it does not fix an exact slot
 
 ## Editing individual blueprint items
 
+**Review changes** compares destinations and relative item order
+against a saved reference or accepted blueprint. New and absent bank entries
+are counted separately; quantity changes, placeholders and shifted slot numbers
+do not create false order changes. Tooltips explain the placement rule.
+
+Choose **View proposal** to inspect the latest recommendation without changing
+your active guidance. **Keep this proposal** saves its real-item order, categories
+and tabs locally. From Main or Ironman, this creates a Custom profile. New items
+append to their matching tab; absent items regain their saved place on return.
+Empty planner cells are excluded, so the saved preview may become more compact.
+Personal setting changes pause the snapshot and take priority. Accepting another
+proposal replaces the snapshot, including saved entries currently absent.
+**Remember reference only** establishes a comparison without fixing positions.
+The bank must stay open and match the analysis when accepting or remembering.
+
+Flexible Alch tooltips name the recorded replacement that triggered the rule,
+including when it is a bank placeholder. Armour progression and full-stat
+comparisons have distinct explanations. Fixed-list and retained decisions keep
+their own reasons; they do not invent a replacement.
+
 After an update, the first sidebar opening shows **What's new**. Select
 **Got it - continue** to return to the normal plugin. This is remembered locally
 for that release; release notes are bundled with the plugin and require no network request.
@@ -492,6 +512,18 @@ Required catalog and item-set resources load on first use and retain a clear
 analysis failure if missing or invalid, instead of poisoning static initialization.
 Empty tables and malformed or duplicate records are rejected; parser tests cover
 these failure paths. All data stays bundled locally; no runtime downloads occur.
+
+Static item classifications are compiled ahead of time. After changing their
+development inputs, explicitly run `./gradlew compileItemRegistry` and review
+the generated table; normal tests reject stale output. The complete workflow
+is documented in [Compiled item registry](tools/research/melee-bis/COMPILED-REGISTRY.md).
+
+The development Melee primary selector uses reviewed exact candidates for all
+ten equipment positions. It prefers the owner's general one-handed setup;
+specialists stay available separately. Real stats compare compatible candidates,
+and incomplete groups use a reviewed fallback order. These preferences do not
+provide Alch evidence. Research, exclusions and regeneration instructions are
+in [Melee candidates](tools/research/melee-bis/README.md).
 
 Start the local RuneLite development client:
 

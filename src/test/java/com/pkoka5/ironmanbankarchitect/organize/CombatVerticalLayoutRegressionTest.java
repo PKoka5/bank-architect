@@ -39,7 +39,7 @@ public class CombatVerticalLayoutRegressionTest
 		9144, 28991, 31914, 31912, 2, 31908
 	};
 	private static final int[][] BEST_ARMOUR = {
-		{10828, 11832, 11834}, {26674, 2503, 2497}, {3755, 4091, 4093}
+		{10828, 11832, 11834}, {3749, 2503, 2497}, {3755, 4091, 4093}
 	};
 	private static final List<Integer> MIXED_HIDE = Arrays.asList(29280, 29283, 29286);
 	private static final List<Integer> MONK = Arrays.asList(544, 542);

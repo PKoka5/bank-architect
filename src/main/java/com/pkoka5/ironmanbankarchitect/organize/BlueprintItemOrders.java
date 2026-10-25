@@ -73,6 +73,57 @@ public final class BlueprintItemOrders
 	public boolean hasTab(int tab) { return orders.containsKey(tab); }
 	public boolean isCaptured() { return destinations.values().stream().anyMatch(target -> target.captured); }
 
+	/** Accepts real-item order from the planner, independently of the live bank's tab order. */
+	static BlueprintItemOrders fromPreview(BankOrganizationPreview preview)
+	{
+		Map<Integer, List<Integer>> orders = new LinkedHashMap<>();
+		Map<String, Destination> routes = new LinkedHashMap<>();
+		Map<Integer, Integer> occurrences = new HashMap<>();
+		for (int tab = 0; tab < preview.getCategories().size(); tab++)
+		{
+			List<Integer> ids = new ArrayList<>();
+			for (BankPreviewItem item : preview.getCategories().get(tab).getItems())
+			{
+				if (item.isBlank()) continue;
+				int id = item.getItemId();
+				ids.add(id);
+				routes.put(id + "#" + (occurrences.merge(id, 1, Integer::sum) - 1),
+					new Destination(tab, item.getLayoutTagKey(), item.getLayoutTagKey(), true));
+			}
+			if (!ids.isEmpty()) orders.put(tab, ids);
+		}
+		BlueprintItemOrders result = new BlueprintItemOrders(orders, null, routes);
+		result.requireSnapshot();
+		return result;
+	}
+
+	/** Accepted snapshots are whole records, unlike the tolerant legacy editor parser. */
+	void requireSnapshot()
+	{
+		Map<Integer, Integer> occurrences = new HashMap<>();
+		int count = 0;
+		for (int tab = 0; tab < BankLayoutPlan.DESTINATION_COUNT; tab++)
+			for (int id : orders.getOrDefault(tab, Collections.emptyList()))
+			{
+				Destination target = destinations.get(id + "#" + (occurrences.merge(id, 1, Integer::sum) - 1));
+				if (id <= 0 || id == ItemID.BANK_FILLER || ++count > BANK_CAPACITY || target == null
+					|| !target.captured || target.tab != tab || !target.originalTag.equals(target.tag))
+					throw new IllegalArgumentException("Invalid accepted blueprint snapshot");
+			}
+		if (!isSupported() || destinations.size() != count) throw new IllegalArgumentException("Invalid accepted blueprint routes");
+	}
+
+	String reference()
+	{
+		StringBuilder out = new StringBuilder("v1");
+		Map<Integer, Integer> occurrences = new HashMap<>();
+		for (int tab = 0; tab < BankLayoutPlan.DESTINATION_COUNT; tab++)
+			for (int id : orders.getOrDefault(tab, Collections.emptyList()))
+				out.append('|').append(id).append(':').append(tab).append(':').append(destinations
+					.get(id + "#" + (occurrences.merge(id, 1, Integer::sum) - 1)).tag);
+		return out.toString();
+	}
+
 	/** The current bank's physical tabs become the target, without changing item categories. */
 	public static BlueprintItemOrders capture(Map<Integer, List<Integer>> physicalTabs,
 		BankOrganizationPreview preview, BlueprintItemOrders previous)
@@ -243,7 +294,11 @@ public final class BlueprintItemOrders
 			for (int id : orders.get(tab))
 			{
 				Deque<BankPreviewItem> copies = available.get(id);
-				if (copies != null && !copies.isEmpty()) result.add(copies.removeFirst());
+					if (copies != null && !copies.isEmpty())
+					{
+						BankPreviewItem chosen = copies.removeFirst();
+						result.add(chosen.withPlacementReason("Saved item position. " + chosen.getPlacementReason()));
+					}
 			}
 			// New occurrences append in their original curated order, not by ID.
 			for (BankPreviewItem item : original.getItems())
@@ -276,14 +331,16 @@ public final class BlueprintItemOrders
 				int occurrence = occurrences.merge(item.getItemId(), 1, Integer::sum) - 1;
 				BankPreviewItem identified = item.withBlueprintOccurrence(occurrence);
 				Destination target = destinations.get(occurrenceKey(identified, occurrence));
-				boolean savedTagApplies = target != null && (target.originalTag.equals(item.getLayoutTagKey())
+				boolean savedTagApplies = target != null && (BankTags.sameOriginalTag(target.originalTag,item.getLayoutTagKey())
 					|| retainSavedDestination.test(item.getItemId()));
 				if (target != null && target.tab < routed.size()
 					&& (target.captured || savedTagApplies
 						&& plan != null && plan.destinationOf(target.tag) == target.tab))
 				{
-					routed.get(target.tab).add(savedTagApplies
-						? identified.withLayoutTag(target.tag) : identified);
+					BankPreviewItem placed = savedTagApplies ? identified.withLayoutTag(target.tag) : identified;
+					routed.get(target.tab).add(placed.withPlacementReason(target.captured
+						? "Saved bank position. " + (savedTagApplies ? "Saved category." : item.getPlacementReason())
+						: "Saved item destination."));
 					modified.add(tab);
 					modified.add(target.tab);
 				}

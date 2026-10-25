@@ -62,6 +62,8 @@ public final class StaticItemCatalog implements ItemCatalog
 
 		put(items, 34024, "Jeweller's chisel", ItemCategory.TOOL, "crafting-tool",
 			Collections.emptySet(), null);
+		put(items, 34401, "Necklace of Fangs", ItemCategory.GEAR, "neck",
+			Collections.emptySet(), null);
 		return items;
 	}
 

@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.pkoka5.ironmanbankarchitect.util.BundledTable;
 import java.util.*;
 import java.util.List;
 
@@ -23,32 +23,24 @@ public final class OrderedItemFamilies
 	{
 		try
 		{
-			if (stream == null) throw new IOException("Missing item-family resource");
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+			Map<String, List<Integer>> parsed = new LinkedHashMap<>();
+			Set<Integer> seen = new HashSet<>();
+			BundledTable.read(stream, "item families", false, true, (line, fields) ->
 			{
-				if (!"# schema=1".equals(reader.readLine())) throw new IOException("Invalid item-family schema");
-				Map<String, List<Integer>> parsed = new LinkedHashMap<>();
-				Set<Integer> seen = new HashSet<>();
-				String line;
-				while ((line = reader.readLine()) != null)
+				if (fields.length != 2 || fields[0].trim().isEmpty()) throw new IOException("Invalid family row: " + line);
+				List<Integer> ids = new ArrayList<>();
+				if (!disjoint) seen.clear();
+				for (String value : fields[1].split(",", -1))
 				{
-					if (line.isEmpty() || line.startsWith("#")) continue;
-					String[] fields = line.split("\t", -1);
-					if (fields.length != 2 || fields[0].trim().isEmpty()) throw new IOException("Invalid family row: " + line);
-					List<Integer> ids = new ArrayList<>();
-					if (!disjoint) seen.clear();
-					for (String value : fields[1].split(",", -1))
-					{
-						int id = Integer.parseInt(value);
-						if (id <= 0 || !seen.add(id)) throw new IOException("Invalid or repeated family item: " + id);
-						ids.add(id);
-					}
-					if (requiredWidth > 0 && ids.size() != requiredWidth) throw new IOException("Invalid family width: " + fields[0]);
-					if (parsed.put(fields[0], Collections.unmodifiableList(ids)) != null) throw new IOException("Duplicate family: " + fields[0]);
+					int id = Integer.parseInt(value);
+					if (id <= 0 || !seen.add(id)) throw new IOException("Invalid or repeated family item: " + id);
+					ids.add(id);
 				}
-				if (parsed.isEmpty()) throw new IOException("Empty item-family table");
-				families = Collections.unmodifiableMap(parsed);
-			}
+				if (requiredWidth > 0 && ids.size() != requiredWidth) throw new IOException("Invalid family width: " + fields[0]);
+				if (parsed.put(fields[0], Collections.unmodifiableList(ids)) != null) throw new IOException("Duplicate family: " + fields[0]);
+			});
+			if (parsed.isEmpty()) throw new IOException("Empty item-family table");
+			families = Collections.unmodifiableMap(parsed);
 		}
 		catch (IOException | IllegalArgumentException ex)
 		{

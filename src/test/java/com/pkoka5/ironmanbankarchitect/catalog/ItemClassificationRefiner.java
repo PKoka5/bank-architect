@@ -40,7 +40,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.CLUE, "cosmetic");
 		}
-		if ("phoenix".equals(name) || "hell cat".equals(name))
+		if (equalsAny(name, "phoenix", "hell cat"))
 		{
 			return new Classification(ItemCategory.CLUE, "collection-pet");
 		}
@@ -52,14 +52,11 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.CLEANUP, "burnt-food");
 		}
-		if ("burnt page".equals(name) || "searing page".equals(name) || "soaked page".equals(name)
-			|| "desiccated page".equals(name)
-			|| "zulrah's scales".equals(name) || "sunfire splinters".equals(name))
+		if (equalsAny(name, "burnt page", "searing page", "soaked page", "desiccated page", "zulrah's scales", "sunfire splinters"))
 		{
 			return new Classification(ItemCategory.UNIQUE, "equipment-charge");
 		}
-		if (name.endsWith(" element staff crown") || "barronite head".equals(name)
-			|| "barronite handle".equals(name) || "barronite guard".equals(name))
+		if (name.endsWith(" element staff crown") || equalsAny(name, "barronite head", "barronite handle", "barronite guard"))
 		{
 			return new Classification(ItemCategory.UNIQUE, "weapon-upgrade");
 		}
@@ -105,12 +102,11 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.TOOL, "quest-utility");
 		}
-		if ("basket".equals(name) || "bucket".equals(name) || "bucket of water".equals(name)
-			|| "jug".equals(name) || "jug of water".equals(name) || "pot".equals(name))
+		if (equalsAny(name, "basket", "bucket", "bucket of water", "jug", "jug of water", "pot"))
 		{
 			return new Classification(ItemCategory.TOOL, "utility-container");
 		}
-		if ("seed dibber".equals(name) || "emerald lantern".equals(name) || "unlit torch".equals(name))
+		if (equalsAny(name, "seed dibber", "emerald lantern", "unlit torch"))
 		{
 			return new Classification(ItemCategory.TOOL,
 				"seed dibber".equals(name) ? "tool" : "light-source");
@@ -127,8 +123,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.POTION, "pvm-utility");
 		}
-		if ("botanical pie".equals(name) || "half a botanical pie".equals(name)
-			|| "cake".equals(name) || "kebab".equals(name) || "stew".equals(name)
+		if (equalsAny(name, "botanical pie", "half a botanical pie", "cake", "kebab", "stew")
 			|| (!name.startsWith("uncooked") && !name.startsWith("burnt")
 				&& (name.endsWith(" pie")
 					|| (name.endsWith(" cake") && !name.endsWith("rock cake")))))
@@ -139,7 +134,7 @@ final class ItemClassificationRefiner
 			return new Classification(ItemCategory.POTION, "food");
 		}
 		if (containsAny(name, ClassificationNames.group(5))
-			|| "jug of wine".equals(name) || "bandit's brew".equals(name))
+			|| equalsAny(name, "jug of wine", "bandit's brew"))
 		{
 			return new Classification(ItemCategory.POTION, "drink");
 		}
@@ -147,12 +142,11 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.FARMING, "produce");
 		}
-		if ("caviar".equals(name) || "roe".equals(name) || "chocolate dust".equals(name)
-			|| "swamp tar".equals(name))
+		if (equalsAny(name, "caviar", "roe", "chocolate dust", "swamp tar"))
 		{
 			return new Classification(ItemCategory.HERBLORE, "secondary");
 		}
-		if ("spirit flakes".equals(name) || "jerboa tail".equals(name) || "kebbit claws".equals(name))
+		if (equalsAny(name, "spirit flakes", "jerboa tail", "kebbit claws"))
 		{
 			return new Classification(ItemCategory.SKILLING,
 				"spirit flakes".equals(name) ? "resource" : "hunter-resource");
@@ -321,8 +315,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.HERBLORE, "secondary");
 		}
-		if ("acorn".equals(name) || name.startsWith("bird's egg") || "redberries".equals(name)
-			|| "white lily".equals(name))
+		if ("acorn".equals(name) || name.startsWith("bird's egg") || equalsAny(name, "redberries", "white lily"))
 		{
 			return new Classification(ItemCategory.FARMING, "farming");
 		}
@@ -330,7 +323,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, name.startsWith("uncut ") ? "uncut-gem" : "gem");
 		}
-		if ("vial".equals(name) || "vial of water".equals(name)
+		if (equalsAny(name, "vial", "vial of water")
 			|| containsAny(name, ClassificationNames.group(16)))
 		{
 			return new Classification(ItemCategory.SKILLING, "glass-material");
@@ -402,7 +395,7 @@ final class ItemClassificationRefiner
 		{
 			return new Classification(ItemCategory.SKILLING, "cooking-material");
 		}
-		if ("bullseye lantern (unf)".equals(name) || "battlestaff".equals(name))
+		if (equalsAny(name, "bullseye lantern (unf)", "battlestaff"))
 		{
 			return new Classification(ItemCategory.SKILLING, "crafting-material");
 		}
@@ -411,7 +404,7 @@ final class ItemClassificationRefiner
 			return new Classification(ItemCategory.FARMING, "produce-container");
 		}
 		if (containsAny(name, ClassificationNames.group(20))
-			|| "knife".equals(name) || "dull knife".equals(name))
+			|| equalsAny(name, "knife", "dull knife"))
 		{
 			return new Classification(ItemCategory.TOOL, "tool");
 		}
@@ -526,17 +519,12 @@ final class ItemClassificationRefiner
 
 	private static boolean isFarmingProduce(String name)
 	{
-		return "apple".equals(name) || "banana".equals(name) || "orange".equals(name)
-			|| "curry leaf".equals(name) || "pineapple".equals(name) || "papaya fruit".equals(name)
-			|| "coconut".equals(name) || "dragonfruit".equals(name) || "strawberry".equals(name)
-			|| "watermelon".equals(name);
+		return equalsAny(name, "apple", "banana", "orange", "curry leaf", "pineapple", "papaya fruit", "coconut", "dragonfruit", "strawberry", "watermelon");
 	}
 
 	private static boolean isCookingMaterial(String name)
 	{
-		return "barley malt".equals(name) || "cheese".equals(name) || "egg".equals(name)
-			|| "gnome spice".equals(name) || "spice".equals(name) || "mushroom".equals(name)
-			|| "sulliuscep cap".equals(name);
+		return equalsAny(name, "barley malt", "cheese", "egg", "gnome spice", "spice", "mushroom", "sulliuscep cap");
 	}
 
 	private static boolean isUnenchantedJewellery(String name)
@@ -559,7 +547,7 @@ final class ItemClassificationRefiner
 
 	private static boolean isHerbloreCrop(String name)
 	{
-		return isKnownHerb(name) || "limpwurt".equals(name) || "snape grass".equals(name);
+		return isKnownHerb(name) || equalsAny(name, "limpwurt", "snape grass");
 	}
 
 	private static boolean isKnownHerb(String name)

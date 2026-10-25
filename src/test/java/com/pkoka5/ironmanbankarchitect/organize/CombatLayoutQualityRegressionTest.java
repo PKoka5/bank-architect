@@ -26,8 +26,8 @@ public class CombatLayoutQualityRegressionTest
 {
 	private static final int[][] SECONDARY_FAMILIES = {
 		{30750, 30753, 30756}, {1163, 1127, 1079},
-		{27235, 27238, 27241}, {11826, 11828, 11830},
-		{21018, 21021, 21024}, {9672, 9674, 9676}
+		{4732,4736,4738}, {11826,11828,11830},
+		{26241,26243,26245}, {9672,9674,9676}
 	};
 	@Test
 	public void knownCastingWeaponsUseMagicEvenWhenTheirMeleeBonusesAreHigher()
@@ -140,10 +140,10 @@ public class CombatLayoutQualityRegressionTest
 			input.add(item(id, "Signet " + id, "ring"));
 			stats.put(id, styled(GearSlot.RING, GearStyle.MELEE, 0));
 		}
-		input.add(item(985030, "Primary magic body", "body"));
-		input.add(item(985031, "Primary magic legs", "legs"));
-		stats.put(985030, styled(GearSlot.BODY, GearStyle.MAGIC, 500));
-		stats.put(985031, styled(GearSlot.LEGS, GearStyle.MAGIC, 500));
+		input.add(item(21021, "Primary magic body", "body"));
+		input.add(item(21024, "Primary magic legs", "legs"));
+		stats.put(21021, styled(GearSlot.BODY, GearStyle.MAGIC, 500));
+		stats.put(21024, styled(GearSlot.LEGS, GearStyle.MAGIC, 500));
 		input.add(new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(4101), 1));
 		input.add(new BankPreviewItem(CompositeItemCatalog.DEFAULT.describeOrUnknown(4103), 0, true));
 		stats.put(4101, styled(GearSlot.BODY, GearStyle.MAGIC, 1));
@@ -220,7 +220,10 @@ public class CombatLayoutQualityRegressionTest
 		{
 			for (GearSlot slot : slots)
 			{
-				int id = 985100 + primaryIds.size();
+				int id = style == GearStyle.MELEE
+					? slot == GearSlot.HEAD ? 26382 : slot == GearSlot.BODY ? 26384 : 26386
+					: style == GearStyle.RANGED ? new int[]{27235,27238,27241}[slot == GearSlot.HEAD ? 0 : slot == GearSlot.BODY ? 1 : 2]
+					: style == GearStyle.MAGIC ? new int[]{21018,21021,21024}[slot == GearSlot.HEAD ? 0 : slot == GearSlot.BODY ? 1 : 2] : 985100 + primaryIds.size();
 				primaryIds.add(id);
 				primaryCatalog.put(id, catalog(id, "Primary " + style + " " + slot, slot.name().toLowerCase()));
 				stats.put(id, styled(slot, style, 500));

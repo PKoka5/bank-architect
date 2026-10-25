@@ -172,8 +172,9 @@ public class FracturedArchiveItemsTest
 
 	@Test public void knownEndgamePrioritiesKeepTheShieldAndSpecialistsOutOfUnrelatedPrimaryCells()
 	{
-		List<Integer> ids = Arrays.asList(34719, 34725, 34727, 34681, 34715, 34717, 22322, 20997, 27275, 22325);
+		List<Integer> ids = Arrays.asList(34719, 34725, 34727, 34681, 34715, 34717, 22322, 20997, 27275, 22325, 22324);
 		Map<Integer, GearStats> stats = actualGearStats();
+		stats.put(22324, CombatQualityReport.FACTS.get(22324).stats);
 		assertFalse("Rondache defence does not replace Avernic attack accuracy", stats.get(34719).dominates(stats.get(22322)));
 		assertFalse("Avernic accuracy does not erase Rondache's defensive function", stats.get(22322).dominates(stats.get(34719)));
 		for (GearStatsSource source : Arrays.asList((GearStatsSource) id -> Optional.ofNullable(stats.get(id)), GearStatsSource.NONE))
@@ -182,6 +183,8 @@ public class FracturedArchiveItemsTest
 			GearItemSorter.GearLayout selection = GearItemSorter.plan(gear, source);
 			Map<Integer, Integer> targets = GearItemSorter.setupTargets(selection, 128);
 			assertTrue("Avernic remains the primary melee shield", targets.containsKey(22322));
+			assertTrue("General one-handed weapon permits the defender", targets.containsKey(22324));
+			assertFalse("Size-dependent Scythe remains available separately", targets.containsKey(22325));
 			assertFalse("Rondache remains a separate support shield", targets.containsKey(34719));
 			assertTrue("Twisted bow keeps its existing primary priority", targets.containsKey(20997));
 			assertFalse(targets.containsKey(34681));

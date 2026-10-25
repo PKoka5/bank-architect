@@ -135,6 +135,10 @@ public final class BankOrganizationPreviewBuilder
 		// are only known once the items are read, so they are filled in as they
 		// are met rather than seeded from the preset.
 		BankLayoutPlan plan = layoutPlan == null ? null : layoutPlan.completedFor(preset);
+		boolean combatStyles = plan != null && plan.getDestinations().stream()
+			.anyMatch(tags -> tags.stream().anyMatch(BankTags::isOptional));
+		boolean voidKit = combatStyles && GearSetSemanticRuleSet.keepsVoidTogether(
+			snapshot.getItems().stream().mapToInt(BankItemSnapshot::getItemId));
 		// Without a plan there is nothing to read a layout choice from, so the
 		// per-category blueprint keeps the recipe rows it has always had.
 		boolean main = preset.getType() == BankPresetType.MAIN;
@@ -189,6 +193,8 @@ public final class BankOrganizationPreviewBuilder
 						stats.get(), catalogItem.getItemId()));
 			}
 		}
+		// Evidence stays stable after manual sorting; this does not rank the gear for equipping.
+		gearByKey.values().forEach(gear -> gear.sort(Comparator.comparingInt(item -> item.itemId)));
 
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
@@ -197,10 +203,12 @@ public final class BankOrganizationPreviewBuilder
 				bankItem.getItemId(), gearStats);
 			BankCategory category = PresetCategoryMapper.map(preset, catalogItem,
 				options.gatherFrequentlyUsed() && !IronmanQuickToolSelector.isTieredTool(bankItem.getItemId()));
+			String reason = "Preset item classification.";
 			if (preset.getType() == BankPresetType.IRONMAN
 				&& quickToolIds.contains(catalogItem.getItemId()))
 			{
 				category = preset.getCategory("currency-utilities");
+				reason = "Preferred owned tool for quick access.";
 			}
 			// By family, a part dose counts as its potion: it classifies with
 			// the full potions rather than as Herblore's to-decant pile, so
@@ -210,20 +218,28 @@ public final class BankOrganizationPreviewBuilder
 			if (partDoseAsPotion)
 			{
 				category = preset.getCategory("potions-food");
+				reason = "Potion doses grouped as a family.";
 			}
-			boolean alchCandidate = options.alchPile()
-				&& (main || preset.getType() == BankPresetType.IRONMAN)
-				&& (options.alchMode() == AlchMode.FIXED
-					? IronmanAlchCandidateCatalog.containsFixed(bankItem.getItemId())
-					: !needsScurriusMace(bankItem.getItemId(), snapshot)
-						&& (!bankItem.isPlaceholder() || IronmanAlchCandidateCatalog.contains(bankItem.getItemId()))
-						&& sourceItem.getCategory() != ItemCategory.UNKNOWN
-						&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED
-						&& isAlchCandidate(preset, category, catalogItem, bankItem.getQuantity(),
-							gearStats, itemValues, gearByKey, recorded, realOwned, choices));
+			String alchExplanation = null;
+			if (options.alchPile() && (main || preset.getType() == BankPresetType.IRONMAN))
+			{
+				if (options.alchMode() == AlchMode.FIXED)
+				{
+					if (IronmanAlchCandidateCatalog.containsFixed(bankItem.getItemId()))
+						alchExplanation = "Fixed Alch list.";
+				}
+				else if (!needsScurriusMace(bankItem.getItemId(), snapshot)
+					&& (!bankItem.isPlaceholder() || IronmanAlchCandidateCatalog.contains(bankItem.getItemId()))
+					&& sourceItem.getCategory() != ItemCategory.UNKNOWN
+					&& sourceItem.getCategory() != ItemCategory.UNCATEGORIZED)
+					alchExplanation = alchReason(preset, category, catalogItem, bankItem.getQuantity(),
+						gearStats, itemValues, gearByKey, recorded, realOwned, choices, catalog);
+			}
+			boolean alchCandidate = alchExplanation != null;
 			if (alchCandidate)
 			{
 				category = preset.getCategory(ALCH_CATEGORY_KEY);
+				reason = alchExplanation;
 			}
 			boolean ammoDrops = !ammunitionMoved && "combat-gear".equals(category.getKey())
 				&& PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
@@ -236,19 +252,29 @@ public final class BankOrganizationPreviewBuilder
 				BankTags.tagFor("combat-gear", catalogItem.getSubcategory()).getKey())
 				&& (saved.isCaptured() || plan != null && plan.destinationOf(saved.tag) == saved.tab))
 				ammoDrops = false;
-			if (ammoDrops) category = preset.getCategory(ALCH_CATEGORY_KEY);
+			if (ammoDrops)
+			{
+				category = preset.getCategory(ALCH_CATEGORY_KEY);
+				reason = "Finished ammunition grouped in Loot.";
+			}
 			if (GearSetSemanticRuleSet.isCannonPart(catalogItem.getItemId()) && saved != null
 				&& "gear".equals(saved.originalTag)
 				&& (saved.isCaptured() || plan != null && plan.destinationOf(saved.tag) == saved.tab))
+			{
 				category = preset.getCategory("combat-gear");
+				reason = "Saved item destination.";
+			}
 			// The player's own choice is applied last so it wins over every
 			// automatic rule, including the quick-tool and alch overrides above.
 			// A correction names a tag, which settles the category too; one that
 			// still names a category is read the way it always was.
 			BankTag pinnedTag = overrideTag(overrides, catalogItem.getItemId());
+			if (pinnedTag != null && BankTags.isOptional(pinnedTag.getKey())
+				&& (plan == null || plan.destinationOf(pinnedTag.getKey()) < 0)) pinnedTag = BankTags.byKey("gear");
 			if (pinnedTag != null)
 			{
 				category = preset.getCategory(pinnedTag.getCategoryKey());
+				reason = overrides.isPersonalChoice(catalogItem.getItemId()) ? "Your category choice." : "Preserved previous Alch decision.";
 			}
 			else
 			{
@@ -258,12 +284,24 @@ public final class BankOrganizationPreviewBuilder
 				{
 					category = overridden;
 					alchCandidate = false;
+					reason = overrides.isPersonalChoice(catalogItem.getItemId()) ? "Your category choice." : "Preserved previous Alch decision.";
 				}
 			}
 			MutableCategoryPreview preview;
 			BankTag routedTag = pinnedTag != null ? pinnedTag
 				: alchCandidate && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("alch")
 				: ammoDrops && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("boss-loot") : null;
+			if (routedTag == null && combatStyles && "combat-gear".equals(category.getKey())
+				&& BankTags.tagFor(category.getKey(),catalogItem.getSubcategory()).getKey().equals("gear"))
+			{
+				String styleTag = voidKit && GearSetSemanticRuleSet.isVoid(catalogItem.getItemId()) ? "gear"
+					: CombatStyleTags.forItem(new BankPreviewItem(catalogItem,bankItem.getQuantity(),bankItem.isPlaceholder()),gearStats);
+				if (plan.destinationOf(styleTag) >= 0 && BankTags.isOptional(styleTag))
+				{
+					routedTag = BankTags.byKey(styleTag);
+					reason += " Combat style group: " + routedTag.getName() + ".";
+				}
+			}
 			if (plan == null)
 			{
 				preview = previewsByCategory.get(category.getKey());
@@ -304,7 +342,7 @@ public final class BankOrganizationPreviewBuilder
 			}
 
 			preview.add(toLayoutEntry(bankItem, catalogItem,
-				routedTag == null ? null : routedTag.getKey()));
+				routedTag == null ? null : routedTag.getKey(), reason));
 			if (routedTag != null)
 			{
 				preview.routedTags.put(catalogItem.getItemId(), routedTag.getKey());
@@ -530,16 +568,16 @@ public final class BankOrganizationPreviewBuilder
 
 	static LayoutEntry toLayoutEntry(BankItemSnapshot bankItem, CatalogItem catalogItem)
 	{
-		return toLayoutEntry(bankItem, catalogItem, null);
+		return toLayoutEntry(bankItem, catalogItem, null, "");
 	}
 
 	private static LayoutEntry toLayoutEntry(BankItemSnapshot bankItem, CatalogItem catalogItem,
-		String tagKey)
+		String tagKey, String reason)
 	{
 		Objects.requireNonNull(bankItem, "bankItem");
 		Objects.requireNonNull(catalogItem, "catalogItem");
 		return LayoutEntry.of(new BankPreviewItem(catalogItem, bankItem.getQuantity(),
-			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey), bankItem.getSlotIndex());
+			bankItem.isPlaceholder(), bankItem.getPhysicalSlotQuantities()).withLayoutTag(tagKey).withPlacementReason(reason), bankItem.getSlotIndex());
 	}
 
 	/** Shared Main/Ironman policy: reviewed stock and exact replacement roles include placeholders.
@@ -548,50 +586,53 @@ public final class BankOrganizationPreviewBuilder
 	 * Unknown stock needs full dominance and the conservative value/backup rules.
 	 * A weighted score alone cannot prove replacement. The exact Dragon halberd
 	 * exception is an explicit owner choice, still subject to the option and overrides. */
-	private static boolean isAlchCandidate(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
+	private static String alchReason(BankPreset preset, BankCategory category, CatalogItem catalogItem, int quantity,
 		GearStatsSource gearStats, ItemValueSource itemValues, Map<String, List<BankGear>> gearByKey,
-		Set<Integer> recorded, Set<Integer> realOwned, Map<Integer, String> choices)
+		Set<Integer> recorded, Set<Integer> realOwned, Map<Integer, String> choices, ItemCatalog catalog)
 	{
 		if (PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
-			normalizedSubcategory(catalogItem), catalogItem.getDisplayName())) return false;
+			normalizedSubcategory(catalogItem), catalogItem.getDisplayName())) return null;
 		if (preset.getType() != BankPresetType.MAIN && preset.getType() != BankPresetType.IRONMAN)
 		{
-			return false;
+			return null;
 		}
 		// Owner-reviewed policy: the ordinary Dragon halberd is always alch stock.
 		if (catalogItem.getItemId() == net.runelite.api.gameval.ItemID.DRAGON_HALBERD)
-			return itemValues.highAlchValue(catalogItem.getItemId()) > 0;
+			return itemValues.highAlchValue(catalogItem.getItemId()) > 0
+				? "Flexible Alch: reviewed Dragon halberd rule." : null;
 		boolean reviewedAlchable = IronmanAlchCandidateCatalog.contains(catalogItem.getItemId());
-		if (!reviewedAlchable && !GearSetSemanticRuleSet.weaponRole(catalogItem.getItemId()).isEmpty()) return false;
+		if (!reviewedAlchable && !GearSetSemanticRuleSet.weaponRole(catalogItem.getItemId()).isEmpty()) return null;
 		if (catalogItem.getTags().stream().anyMatch(tag -> !reviewedAlchable || !"clue-required".equals(tag))
 			|| WikiItemLists.INSTANCE.isSpecialAttackWeapon(catalogItem.getDisplayName()))
 		{
 			// Known roles can matter despite weaker stats. A bank layout cannot
 			// split duplicate copies, so retain the complete stack for manual review.
-			return false;
+			return null;
 		}
 		int highAlchValue = itemValues.highAlchValue(catalogItem.getItemId());
 		if (highAlchValue <= 0 || (quantity <= 1 && !reviewedAlchable))
 		{
-			return false;
+			return null;
 		}
 		int itemId = catalogItem.getItemId();
 		if (reviewedAlchable && IronmanQuickToolSelector.isTieredTool(itemId))
-			return IronmanQuickToolSelector.hasOwnedUpgrade(itemId, recorded);
-		boolean roleReplacement = reviewedAlchable
-			&& IronmanAlchCandidateCatalog.hasRoleReplacement(itemId, recorded, choices);
-		if (IronmanAlchCandidateCatalog.isElementalStaff(itemId) || roleReplacement) return roleReplacement;
-		if (!"combat-gear".equals(category.getKey())) return false;
+			return replacementReason("higher-tier tool recorded", IronmanQuickToolSelector.ownedUpgradeId(itemId, recorded),
+				catalog, realOwned);
+		int roleReplacement = reviewedAlchable
+			? IronmanAlchCandidateCatalog.roleReplacementId(itemId, recorded, choices) : 0;
+		if (IronmanAlchCandidateCatalog.isElementalStaff(itemId) || roleReplacement > 0)
+			return replacementReason("reviewed replacement recorded", roleReplacement, catalog, realOwned);
+		if (!"combat-gear".equals(category.getKey())) return null;
 		Optional<GearStats> stats = gearStats.statsFor(catalogItem.getItemId());
 		if (!stats.isPresent())
 		{
-			return false;
+			return null;
 		}
 
 		List<BankGear> gear = gearByKey.get(gearKey(catalogItem, stats.get()));
 		if (gear == null)
 		{
-			return false;
+			return null;
 		}
 		if (reviewedAlchable)
 		{
@@ -601,14 +642,17 @@ public final class BankOrganizationPreviewBuilder
 			{
 				boolean higherTier = armour && tier > 0 && IronmanAlchCandidateCatalog.tierOf(candidate.itemId) > tier;
 				if (candidate.stats.dominates(stats.get()) && (realOwned.contains(candidate.itemId) || higherTier)
-					|| higherTier && !IronmanAlchCandidateCatalog.requiresDominance(itemId)) return true;
+					|| higherTier && !IronmanAlchCandidateCatalog.requiresDominance(itemId))
+					return replacementReason(higherTier && !IronmanAlchCandidateCatalog.requiresDominance(itemId)
+						? "reviewed armour progression recorded" : "all compared stats covered",
+						candidate.itemId, catalog, realOwned);
 			}
-			return false;
+			return null;
 		}
 
 		int ownScore = GearItemSorter.score(new BankPreviewItem(catalogItem, quantity), gearStats);
 		int strictlyBetter = 0;
-		boolean beatenOutright = false;
+		int statReplacement = 0;
 		for (BankGear candidate : gear)
 		{
 			if (!realOwned.contains(candidate.itemId)) continue;
@@ -616,22 +660,32 @@ public final class BankOrganizationPreviewBuilder
 			{
 				strictlyBetter++;
 			}
-			if (candidate.stats.dominates(stats.get()))
+			if (candidate.stats.dominates(stats.get()) && statReplacement == 0)
 			{
-				beatenOutright = true;
+				statReplacement = candidate.itemId;
 			}
 		}
 		// Keep weapons and ammo: large quantities can be consumable supplies.
 		GearSlot slot = stats.get().getSlot();
 		// Quantity alone cannot prove unknown niche gear is replaceable.
 		if (quantity >= BULK_STOCK_QUANTITY && slot != GearSlot.WEAPON && slot != GearSlot.AMMO
-			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1 && beatenOutright)
+			&& highAlchValue >= BULK_STOCK_MIN_ALCH_VALUE && strictlyBetter >= 1 && statReplacement > 0)
 		{
-			return true;
+			return replacementReason("bulk stock; all compared stats covered", statReplacement, catalog, realOwned)
+				+ " Higher-scoring bank entries: " + strictlyBetter + ".";
 		}
 
 		return highAlchValue >= ALCH_VALUE_THRESHOLD
-			&& strictlyBetter >= OUTCLASSED_BY_COUNT && beatenOutright;
+			&& strictlyBetter >= OUTCLASSED_BY_COUNT && statReplacement > 0
+			? replacementReason("spare gear; all compared stats covered", statReplacement, catalog, realOwned)
+				+ " Higher-scoring bank entries: " + strictlyBetter + "." : null;
+	}
+
+	private static String replacementReason(String basis, int itemId, ItemCatalog catalog, Set<Integer> realOwned)
+	{
+		return itemId == 0 ? null : "Flexible Alch: " + basis + ": "
+			+ catalog.describeOrUnknown(itemId).getDisplayName()
+			+ (realOwned.contains(itemId) ? " in bank." : " (bank placeholder).");
 	}
 
 	private static String gearKey(CatalogItem item, GearStats stats)
@@ -914,28 +968,32 @@ public final class BankOrganizationPreviewBuilder
 
 		private BankCategoryPreview toImmutable(GearStatsSource gearStats)
 		{
+			return BankCategoryPreview.fromLogicalItems(category, layoutItems(gearStats));
+		}
+
+		private List<BankPreviewItem> layoutItems(GearStatsSource gearStats)
+		{
 			List<BankPreviewItem> items = items(entries);
 			plainRun = false;
 			if (main && (category.getSortMode() == BankCategorySortMode.HERBLORE
 				|| category.getSortMode() == BankCategorySortMode.FARMING))
 			{
 				plainRun = true;
-				return BankCategoryPreview.fromLogicalItems(category,
-					orderBlocks(HerbloreItemSorter.layoutMain(items)));
+				return orderBlocks(HerbloreItemSorter.layoutMain(items));
 			}
-				switch (category.getSortMode())
-				{
+			switch (category.getSortMode())
+			{
 				case MAIN:
-					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
+					return semanticLayout(
 						orderBlocks(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())),
 						MainQuickAccessSemanticRuleSet.forEntries(entries),
-						sequential(BankCategorySortMode.MAIN)));
+						sequential(BankCategorySortMode.MAIN));
 				case RESOURCES:
-					return BankCategoryPreview.fromLogicalItems(category, resourceLayout(items));
+					return resourceLayout(items);
 				case TELEPORTS:
-					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
+					return semanticLayout(
 						orderBlocks(TeleportItemSorter.sort(items)), RuneSemanticRuleSet.forEntries(entries),
-						sequential(BankCategorySortMode.TELEPORTS)));
+						sequential(BankCategorySortMode.TELEPORTS));
 				case SUPPLIES:
 					List<BankPreviewItem> supplies = semanticLayout(
 						orderBlocks(SupplyItemSorter.sort(items,
@@ -943,47 +1001,43 @@ public final class BankOrganizationPreviewBuilder
 							main ? PotionDoseOrder.BY_FAMILY : options.potionDoses())),
 						PotionDoseSemanticRuleSet.forEntries(entries),
 						sequential(BankCategorySortMode.SUPPLIES));
-					return BankCategoryPreview.fromLogicalItems(category, !sequential(BankCategorySortMode.SUPPLIES)
+					return !sequential(BankCategorySortMode.SUPPLIES)
 						&& (main || options.potionDoses() == PotionDoseOrder.BY_FAMILY)
-						? SupplyItemSorter.finishCompleteRows(supplies) : supplies);
+						? SupplyItemSorter.finishCompleteRows(supplies) : supplies;
 				case TOOLS:
-					return BankCategoryPreview.fromLogicalItems(category, toolLayout(items));
+					return toolLayout(items);
 				case CURRENCY:
-					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
+					return semanticLayout(
 						orderBlocks(CurrencyItemSorter.sort(items)), AchievementDiarySemanticRuleSet.forEntries(entries),
-						sequential(BankCategorySortMode.CURRENCY)));
+						sequential(BankCategorySortMode.CURRENCY));
 				case FARMING:
 					plainRun = sequential(BankCategorySortMode.FARMING);
-					return BankCategoryPreview.fromLogicalItems(category, plainRun
+					return plainRun
 						? FarmingItemSorter.sequential(items)
-						: FarmingItemSorter.layout(items, 0));
+						: FarmingItemSorter.layout(items, 0);
 				case GEAR:
-					return BankCategoryPreview.fromLogicalItems(category, gearLayout(items, gearStats));
+					return gearLayout(items, gearStats);
 				case CLUES:
-					return BankCategoryPreview.fromLogicalItems(category, semanticLayout(
+					return semanticLayout(
 						orderBlocks(PresetItemSorter.sort(category, items, gearStats)),
 						CosmeticSetSemanticRuleSet.forEntries(entries),
-						sequential(BankCategorySortMode.CLUES)));
+						sequential(BankCategorySortMode.CLUES));
 				case HERBLORE:
 					// The only layout the plan can talk out of its default shape:
 					// see BankLayoutStyles for why moving the doses changes it.
 					if (herbloreRecipeRows && options.fillHerbloreRows() && destinationTags.isEmpty()
 						&& items.stream().noneMatch(item -> options.blockArrangements().orders().containsKey(tagKeyOf(item))))
 					{
-						return BankCategoryPreview.fromLogicalItems(category,
-							HerbloreItemSorter.layout(items));
+						return HerbloreItemSorter.layout(items);
 					}
 					plainRun = !HerbloreItemSorter.layoutByKindPlacesByColumn(items);
-					return BankCategoryPreview.fromLogicalItems(category,
-						orderBlocks(HerbloreItemSorter.layoutByKind(items)));
+					return orderBlocks(HerbloreItemSorter.layoutByKind(items));
 				case BOSS_LOOT:
 					plainRun = true;
-					return BankCategoryPreview.fromLogicalItems(category,
-						orderBlocks(PresetItemSorter.sort(category, items, gearStats)));
+					return orderBlocks(PresetItemSorter.sort(category, items, gearStats));
 				default:
 					plainRun = true;
-					return BankCategoryPreview.fromLogicalItems(category,
-						PresetItemSorter.sort(category, items, gearStats));
+					return PresetItemSorter.sort(category, items, gearStats);
 			}
 		}
 
@@ -1039,6 +1093,16 @@ public final class BankOrganizationPreviewBuilder
 			}
 			boolean customCannon = cannon.stream().anyMatch(item -> options.blockArrangements().orders()
 				.getOrDefault(tagKeyOf(item), Collections.emptyList()).contains(BlockKeys.blockKeyOf(item)));
+			boolean customTools = items.stream().anyMatch(item -> options.blockArrangements().orders().containsKey(tagKeyOf(item)));
+			if (!customTools && !sequential(BankCategorySortMode.TOOLS)
+				&& items.stream().allMatch(item -> item.physicalBankSlotCount() == 1))
+			{
+				Set<Integer> reserved = new HashSet<>();
+				for (BankPreviewItem item : items)
+					if (GearSetSemanticRuleSet.isCannonPart(item.getItemId()) || ToolItemSorter.roleRank(item) == 40)
+						reserved.add(item.getItemId());
+				planned = ToolOutfitSemanticRuleSet.groupSkills(planned, reserved::contains);
+			}
 			return recordBlocks(customCannon ? honorBlockOrder(planned) : planned);
 		}
 

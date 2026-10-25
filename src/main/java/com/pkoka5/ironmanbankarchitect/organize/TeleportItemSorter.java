@@ -148,7 +148,7 @@ final class TeleportItemSorter
 		return numericSuffix(name, -1);
 	}
 
-	private static Optional<ItemSortMetadata> teleportJewelleryMetadata(BankPreviewItem item)
+	static Optional<ItemSortMetadata> teleportJewelleryMetadata(BankPreviewItem item)
 	{
 		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
 			.filter(metadata -> metadata.getVariantKind() == ItemSortMetadata.VariantKind.CHARGE)

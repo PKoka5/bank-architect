@@ -47,10 +47,13 @@ carry a malformed citation. No connection is ever opened. It is the only
 `java.net` reference in the plugin.
 
 **Bundled data.** Pinned TSV/text datasets under `src/main/resources` include
-the item registry, classification overrides, item roles and semantic sets.
-They are read with `getResourceAsStream` and are never written, downloaded, or
-refreshed at runtime. Classification is fully offline and deterministic; the
-plugin makes no Wiki or price-API calls.
+the compiled item registry, item roles, semantic sets and reviewed primary-gear
+candidates. Development-only registry derivation helpers live in test sources;
+five raw input tables are excluded from the production JAR. An explicit offline
+development compiler produces the checked-in registry, and parity tests verify
+all 33,766 records. Runtime tables are read with `getResourceAsStream` and are
+never written, downloaded, or refreshed at runtime. Classification is fully
+offline and deterministic; the plugin makes no Wiki or price-API calls.
 
 **Threading.** Analysis runs on the client's injected
 `ScheduledExecutorService`. The plugin creates no threads of its own. The bank
@@ -139,7 +142,7 @@ The simulations are deterministic: they replay fixed seeds through the whole
 planner and assert every bank terminates in a complete, dense layout with no
 stalled or non-terminating route.
 
-The [0.9.8 release record](release-0.9.8.md) documents final tests, owner live
+The [0.9.9 release record](release-0.9.9.md) documents final tests, owner live
 checks, jar checksum, changed scope and calibrated review-token estimates.
 Local estimates are not the official Plugin Hub count. Flexible retains the
 replacement protections below. The opt-in Fixed mode instead assigns its exact

@@ -63,7 +63,8 @@ public class RangedHeadSelectionTest
 			Map<Integer, Integer> targets = targets(input, stats);
 			assertEquals("Archer supplies the general Ranged head slot", Integer.valueOf(1), targets.get(ARCHER));
 			assertEquals("Torva remains the Melee head", Integer.valueOf(0), targets.get(TORVA));
-			assertFalse("Slayer remains available as a task-specific alternative", targets.containsKey(slayer));
+			assertEquals("raw +3 Magic makes the imbued Slayer helmet the available Magic head; no task bonus",
+				Integer.valueOf(2),targets.get(slayer));
 			assertFalse(targets.containsKey(SLAYER));
 		}
 	}

@@ -122,14 +122,16 @@ public class CombatQualityReportTest
 	{
 		List<Integer> sparse = Arrays.asList(30750,30753,30756,24419,24420,24421,22326,
 			22327,22328,4716,4718,4720,4722,4753,4755,4757,4759);
-		// The independently reviewed best owned Oathplate core and only main weapon become the compact front.
+		// Current Inquisitor raw offensive stats tie Oathplate on Strength/attack, then win on Prayer.
 		for (int size : new int[] {7,8,9,15,16,17})
 		{
 			List<Integer> ids = new ArrayList<>(sparse.subList(0,size));
-			Set<Integer> front = new LinkedHashSet<>(Arrays.asList(30750,30753,30756));
+			Set<Integer> front = new LinkedHashSet<>(Arrays.asList(24419,24420,24421));
 			// Prayer/tank family pieces may remain in an independent Prayer/shared destination, not the primary overview.
 			if (size > 10) front.add(4718);
 			CombatQualityReport report = report("sparse-" + size,ids,Collections.emptySet(),front,false);
+			assertEquals("Known core is the compact primary when the vertical anchors do not fit",
+				new ArrayList<>(front), CombatQualityReport.ids(report.combat).subList(0,front.size()));
 			requirePass(report);
 		}
 	}
@@ -206,6 +208,8 @@ public class CombatQualityReportTest
 	private static void requirePass(CombatQualityReport report) throws IOException
 	{
 		report.write(REPORTS);
+		java.nio.file.Files.writeString(REPORTS.resolve(report.name + ".txt"),
+			BankBlueprintTextExporter.export(report.preview),java.nio.charset.StandardCharsets.UTF_8);
 		assertTrue(report.name + ":\n" + String.join("\n",report.violations),report.violations.isEmpty());
 	}
 }

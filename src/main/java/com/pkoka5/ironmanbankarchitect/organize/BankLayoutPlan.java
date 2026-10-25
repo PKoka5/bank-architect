@@ -194,6 +194,15 @@ public final class BankLayoutPlan
 		return new BankLayoutPlan(updated, currentOrder, "ammunition".equals(tagKey) ? null : ammoUsesAssignedTag);
 	}
 
+	public BankLayoutPlan withoutOptionalTag(String tagKey)
+	{
+		if (!BankTags.isOptional(tagKey)) throw new IllegalArgumentException("Not an optional tag");
+		if (destinationOf(tagKey) < 0) return this;
+		List<List<String>> updated = mutableCopy();
+		for (List<String> destination : updated) destination.remove(tagKey);
+		return new BankLayoutPlan(updated, currentOrder, ammoUsesAssignedTag);
+	}
+
 	/**
 	 * The same plan with a tag shifted within its own destination, which decides
 	 * the order the tags appear in on that tab. A shift past either end is

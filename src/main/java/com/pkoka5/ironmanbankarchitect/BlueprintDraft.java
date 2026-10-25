@@ -91,7 +91,8 @@ final class BlueprintDraft
 		remember();
 		tabs.get(sourceTab).remove(from);
 		transfers.put(key, destination);
-		tabs.get(destinationTab).add(Math.min(boundary, tabs.get(destinationTab).size()), item.withLayoutTag(tag));
+		tabs.get(destinationTab).add(Math.min(boundary, tabs.get(destinationTab).size()),
+			item.withLayoutTag(tag).withPlacementReason("Draft item destination; save to keep this choice."));
 		modified.add(sourceTab);
 		modified.add(destinationTab);
 	}

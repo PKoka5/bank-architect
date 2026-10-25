@@ -20,6 +20,20 @@ interface BankLayoutModel
 	void saveProfile(String name, BankLayoutPlan plan);
 	void deleteProfile(String name);
 	BankLayoutOptions options();
+	default String rememberedBlueprint() { return ""; }
+	default String acceptedBlueprint() { return ""; }
+	default BankOrganizationPreview proposedBlueprint() { return null; }
+	default String blueprintState() { return AcceptedBlueprint.description(acceptedBlueprint(), ""); }
+	default String reviewReference()
+	{
+		return acceptedBlueprint().isEmpty() ? rememberedBlueprint() : AcceptedBlueprint.reference(acceptedBlueprint());
+	}
+	default void acceptBlueprint(BankOrganizationPreview expected, BankOrganizationPreview proposal,
+		String expectedContext, Consumer<Boolean> completed) { completed.accept(false); }
+	default void rememberBlueprint(BankOrganizationPreview expected, String expectedContext, Consumer<Boolean> completed)
+	{
+		completed.accept(false);
+	}
 	void saveOptions(BankLayoutOptions options);
 	void saveBlockOrder(String tagKey, List<String> blockKeys);
 	void captureCurrentBank(String name, BankOrganizationPreview expected,

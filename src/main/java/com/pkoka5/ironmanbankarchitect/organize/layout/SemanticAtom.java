@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.IntFunction;
 import net.runelite.api.gameval.ItemID;
 
 /**
@@ -26,6 +27,23 @@ public final class SemanticAtom
 	{
 		this.atomKey = SemanticRule.requireRuleKey(atomKey, "atomKey");
 		this.members = requireMembers(members);
+	}
+
+	static SemanticAtom indexed(String key, List<Integer> ids, IntFunction<String> memberKey)
+	{
+		List<Member> members = new ArrayList<>(ids.size());
+		for (int i = 0; i < ids.size(); i++) members.add(new Member(memberKey.apply(i), ids.get(i)));
+		return new SemanticAtom(key, members);
+	}
+
+	/** Dense eight-cell chunks preserve the declared family and member order. */
+	static void appendPresentChunks(List<SemanticAtom> atoms, String key, List<Integer> ids,
+		Set<Integer> present, String memberPrefix)
+	{
+		List<Integer> owned = LayoutEntry.ownedIds(ids, present);
+		for (int offset = 0; offset < owned.size(); offset += 8)
+			atoms.add(indexed(key + "-" + offset / 8,
+				owned.subList(offset, Math.min(offset + 8, owned.size())), i -> memberPrefix + i));
 	}
 
 	public String getAtomKey()

@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class HeaderActionsPanelTest
 {
 	private static final String[] VERSIONS = {
-		"0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.3", "0.9.2", "0.9.1", "0.9.0",
+		"0.9.9", "0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", "0.9.3", "0.9.2", "0.9.1", "0.9.0",
 		"0.8.1", "0.8.0", "0.7.1", "0.7.0", "0.6.0"
 	};
 
@@ -103,7 +103,7 @@ public class HeaderActionsPanelTest
 				assertEquals(VERSIONS.length, chooser.getItemCount());
 				assertTrue(chooser.getSelectedItem().toString().contains(ReleaseNoticePanel.RELEASE_ID));
 				String latestNotes = visibleLabelText(fixture.panel);
-				for (String feature : new String[] {"Fixed", "Flexible", "105", "Main", "Ironman"})
+				for (String feature : new String[] {"Melee", "Ranged", "Magic", "Void", "Skill", "Keep this proposal", "Flexible"})
 					assertTrue("Missing latest-release feature: " + feature, latestNotes.contains(feature));
 				for (int index = 0; index < VERSIONS.length; index++)
 				{

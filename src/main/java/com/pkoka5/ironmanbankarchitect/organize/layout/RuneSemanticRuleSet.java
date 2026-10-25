@@ -37,11 +37,7 @@ public final class RuneSemanticRuleSet
 
 	static Integer firstPresentRuneId(List<LayoutEntry> entries)
 	{
-		Set<Integer> present = new LinkedHashSet<>();
-		for (LayoutEntry entry : entries)
-		{
-			present.add(entry.getItem().getItemId());
-		}
+		Set<Integer> present = LayoutEntry.presentIds(entries);
 		for (List<Integer> row : ROWS)
 		{
 			for (Integer itemId : row)
@@ -54,11 +50,7 @@ public final class RuneSemanticRuleSet
 
 	static List<List<Integer>> mainRows(List<LayoutEntry> entries)
 	{
-		Set<Integer> present = new LinkedHashSet<>();
-		for (LayoutEntry entry : entries)
-		{
-			present.add(entry.getItem().getItemId());
-		}
+		Set<Integer> present = LayoutEntry.presentIds(entries);
 		List<List<Integer>> rows = new ArrayList<>();
 		rows.add(ROWS.get(0));
 		rows.add(ROWS.get(1));
@@ -92,26 +84,14 @@ public final class RuneSemanticRuleSet
 		Integer firstRune = firstPresentRuneId(entries);
 		if (firstRune != null)
 		{
-			List<LayoutEntry> anchored = new ArrayList<>(entries.size());
-			for (LayoutEntry entry : entries)
-			{
-				anchored.add(entry.getItem().getItemId() == firstRune
-					? entry.withLockedTarget(0) : entry);
-			}
-			return Collections.unmodifiableList(anchored);
+			return LayoutEntry.withTargets(entries, Collections.singletonMap(firstRune, 0));
 		}
 		return entries;
 	}
 
 	private static SemanticRule ruleForRows(List<List<Integer>> rows)
 	{
-		return SemanticRule.builder()
-			.ruleKey(RULE_KEY)
-			.atoms(atoms(rows))
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.ROW_GROUP_MATRIX)
-			.allowedWidths(Collections.singleton(4))
-			.build();
+		return SemanticRule.highConfidence(RULE_KEY, atoms(rows), ShapePrimitive.ROW_GROUP_MATRIX, Collections.singleton(4)).build();
 	}
 
 	private static List<SemanticAtom> atoms(List<List<Integer>> rows)
@@ -119,12 +99,7 @@ public final class RuneSemanticRuleSet
 		List<SemanticAtom> atoms = new ArrayList<>();
 		for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++)
 		{
-			List<SemanticAtom.Member> members = new ArrayList<>();
-			for (int column = 0; column < rows.get(rowIndex).size(); column++)
-			{
-				members.add(new SemanticAtom.Member("rune-" + column, rows.get(rowIndex).get(column)));
-			}
-			atoms.add(new SemanticAtom("rune-row-" + rowIndex, members));
+			atoms.add(SemanticAtom.indexed("rune-row-" + rowIndex, rows.get(rowIndex), i -> "rune-" + i));
 		}
 		return atoms;
 	}

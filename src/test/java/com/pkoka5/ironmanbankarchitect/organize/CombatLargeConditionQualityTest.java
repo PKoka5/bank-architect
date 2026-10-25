@@ -120,7 +120,7 @@ public class CombatLargeConditionQualityTest
 			.map(fact -> fact.id).collect(Collectors.toCollection(LinkedHashSet::new));
 		primary.add(13237);
 		int frontCount = (int) entries.stream().filter(item -> primary.contains(item.getItemId())).count();
-		assertEquals("primary envelope counts real physical entries",30,frontCount);
+		assertEquals("primary envelope counts real entries without two incompatible offhands",28,frontCount);
 		List<Integer> expectedIds = null;
 		for (int trial = 0; trial < 2; trial++)
 		{

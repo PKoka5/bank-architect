@@ -72,35 +72,12 @@ public final class MainQuickAccessSemanticRuleSet
 		boolean hasCoins = contains(entries, 995);
 		boolean hasQuickTools = !presentQuickTools(entries).isEmpty();
 		int runeTarget = hasCoins || hasQuickTools ? RUNE_BLOCK_SECOND_ROW : 0;
-		Map<Integer, Integer> runeTargets = runeTargets(entries, runeTarget);
-		Map<Integer, Integer> gracefulTargets = gracefulTargets(entries, anchorGraceful);
-		Map<Integer, Integer> quickToolTargets = quickToolTargets(entries, hasCoins ? 1 : 0);
-
-		List<LayoutEntry> anchored = new ArrayList<>(entries.size());
-		for (LayoutEntry entry : entries)
-		{
-			if (entry.getItem().getItemId() == 995)
-			{
-				anchored.add(entry.withLockedTarget(0));
-			}
-			else if (gracefulTargets.containsKey(entry.getItem().getItemId()))
-			{
-				anchored.add(entry.withLockedTarget(gracefulTargets.get(entry.getItem().getItemId())));
-			}
-			else if (runeTargets.containsKey(entry.getItem().getItemId()))
-			{
-				anchored.add(entry.withLockedTarget(runeTargets.get(entry.getItem().getItemId())));
-			}
-			else if (quickToolTargets.containsKey(entry.getItem().getItemId()))
-			{
-				anchored.add(entry.withLockedTarget(quickToolTargets.get(entry.getItem().getItemId())));
-			}
-			else
-			{
-				anchored.add(entry);
-			}
-		}
-		return Collections.unmodifiableList(anchored);
+		// Later entries retain the original precedence: coins, graceful, runes, then tools.
+		Map<Integer, Integer> targets = quickToolTargets(entries, hasCoins ? 1 : 0);
+		targets.putAll(runeTargets(entries, runeTarget));
+		targets.putAll(gracefulTargets(entries, anchorGraceful));
+		targets.put(995, 0);
+		return LayoutEntry.withTargets(entries, targets);
 	}
 
 	private static Map<Integer, Integer> gracefulTargets(List<LayoutEntry> entries,
@@ -155,18 +132,9 @@ public final class MainQuickAccessSemanticRuleSet
 	{
 		List<Integer> tools = presentQuickTools(entries);
 		if (tools.size() < 2) return null;
-		List<SemanticAtom.Member> members = new ArrayList<>();
-		for (int index = 0; index < tools.size(); index++)
-		{
-			members.add(new SemanticAtom.Member("quick-tool-" + index, tools.get(index)));
-		}
-		return SemanticRule.builder()
-			.ruleKey("main.quick-tools")
-			.atoms(Collections.singletonList(new SemanticAtom("main.quick-tools", members)))
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.HORIZONTAL_RUN)
-			.allowedWidths(Collections.singleton(tools.size()))
-			.build();
+		return SemanticRule.highConfidence("main.quick-tools", Collections.singletonList(
+			SemanticAtom.indexed("main.quick-tools", tools, i -> "quick-tool-" + i)),
+			ShapePrimitive.HORIZONTAL_RUN, Collections.singleton(tools.size())).build();
 	}
 
 	private static List<Integer> presentQuickTools(List<LayoutEntry> entries)
@@ -260,13 +228,8 @@ public final class MainQuickAccessSemanticRuleSet
 		{
 			return null;
 		}
-		return SemanticRule.builder()
-			.ruleKey("main.graceful-column")
-			.atoms(Collections.singletonList(new SemanticAtom("outfit.graceful", members)))
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.VERTICAL_RUN)
-			.allowedWidths(Collections.singleton(1))
-			.build();
+		return SemanticRule.highConfidence("main.graceful-column", Collections.singletonList(new SemanticAtom("outfit.graceful", members)),
+			ShapePrimitive.VERTICAL_RUN, Collections.singleton(1)).build();
 	}
 
 	private static boolean contains(List<LayoutEntry> entries, int itemId)

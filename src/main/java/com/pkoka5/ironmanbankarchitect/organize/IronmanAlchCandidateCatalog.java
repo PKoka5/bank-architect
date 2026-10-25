@@ -27,7 +27,7 @@ final class IronmanAlchCandidateCatalog
 		final Collection<List<Integer>> staves = TABLE.group("staves").values();
 		final Collection<List<Integer>> colours = TABLE.group("mystic").values();
 		final Set<Integer> slashStock = new HashSet<>(TABLE.ids("slash-stock"));
-		final Set<Integer> slashUpgrades = new HashSet<>(TABLE.ids("slash-upgrades"));
+		final List<Integer> slashUpgrades = TABLE.ids("slash-upgrades");
 		final Set<Integer> requiresDominance = new HashSet<>(TABLE.ids("requires-dominance"));
 	}
 
@@ -60,13 +60,18 @@ final class IronmanAlchCandidateCatalog
 	/** Exact role evidence; colours never replace each other in both directions. */
 	static boolean hasRoleReplacement(int itemId, Set<Integer> owned, Map<Integer, String> choices)
 	{
+		return roleReplacementId(itemId, owned, choices) > 0;
+	}
+
+	static int roleReplacementId(int itemId, Set<Integer> owned, Map<Integer, String> choices)
+	{
 		for (List<Integer> family : DATA.get().staves)
 		{
-			boolean higherOwned = false;
+			int replacement = 0;
 			for (int member : family)
 			{
-				if (member == itemId) return higherOwned;
-				higherOwned |= owned.contains(member);
+				if (member == itemId) return replacement;
+				if (replacement == 0 && owned.contains(member)) replacement = member;
 			}
 		}
 		for (List<Integer> family : DATA.get().colours)
@@ -86,8 +91,10 @@ final class IronmanAlchCandidateCatalog
 					pinnedKeeper = pinned;
 				}
 			}
-			if (member) return keeper > 0 && keeper != itemId;
+			if (member) return keeper > 0 && keeper != itemId ? keeper : 0;
 		}
-		return DATA.get().slashStock.contains(itemId) && !Collections.disjoint(owned, DATA.get().slashUpgrades);
+		if (DATA.get().slashStock.contains(itemId))
+			for (int candidate : DATA.get().slashUpgrades) if (owned.contains(candidate)) return candidate;
+		return 0;
 	}
 }

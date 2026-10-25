@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.9.8'
+version = '0.9.9'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
@@ -26,6 +26,24 @@ tasks.withType(JavaCompile).configureEach {
 
 processResources {
 	from('runelite-plugin.properties')
+	exclude '**/item-registry.tsv', '**/canonical-item-classification-overrides.tsv',
+		'**/wiki-item-categories.tsv', '**/item-usage-tags.tsv', '**/registry-name-rules.tsv'
+}
+
+processTestResources {
+	from('src/main/resources') {
+		include '**/item-registry.tsv', '**/canonical-item-classification-overrides.tsv',
+			'**/wiki-item-categories.tsv', '**/item-usage-tags.tsv', '**/registry-name-rules.tsv'
+	}
+}
+
+tasks.register('compileItemRegistry', JavaExec) {
+	group = 'verification'
+	description = 'Explicitly regenerates reviewed runtime item facts from local development inputs.'
+	dependsOn testClasses
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = 'com.pkoka5.ironmanbankarchitect.catalog.RegistryCompiler'
+	args 'src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/compiled-item-registry.tsv'
 }
 
 tasks.register('run', JavaExec) {
@@ -99,8 +117,9 @@ tasks.register('verifySimulationBaselines') {
 	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
 	doLast {
 		def expected = [
-			// Reviewed registry expansion and old-input replay: docs/testing/fractured-archive-items-2026-10-23.md.
-			'report.tsv': '6403583c57f42c8fca16a296af54d92571d5597f3cdc773fb6061a4497a97ec1',
+			// Reviewed Ranged/Magic targets: two RANDOM_TABS swap counts change by +1/-3; other reports stay identical.
+			// Evidence: docs/testing/ranged-magic-equipment-2026-10-25.md.
+			'report.tsv': '33a46d530a97e390521c34059dd8da816df5efb838e41450dc67902929df5cee',
 			'cleanup-review.tsv': '00c1f0eac9310e3ec869fe7c29aebdf4e3aa85c800b02adc01afd124f84f1fdf',
 			'aggregate/cleanup-review.tsv': 'ba33e9144824c0e1d0e9671f3933385f6dd6605f9b60bcbfc7ab43794a013edd',
 			'aggregate/metadata.tsv': 'b4eb3aa665c848f66a832f7cd0b8ecb5d64079ee6b13a2e3c3d26dd175048431'

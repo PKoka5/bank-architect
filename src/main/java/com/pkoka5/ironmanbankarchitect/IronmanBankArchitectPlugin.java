@@ -97,6 +97,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private final Cache<String, AsyncBufferedImage> itemIcons = CacheBuilder.newBuilder().maximumSize(2048).build();
 	private final Cache<SpritePixels, BufferedImage> bankBackgrounds = CacheBuilder.newBuilder().maximumSize(16).build();
 	private final AtomicBoolean settingsRefreshQueued = new AtomicBoolean();
+	private volatile long settingsRevision;
 	/** The items the latest analysis request saw; null until a bank was captured. */
 	private Map<Integer, List<Integer>> analyzedBankContents;
 
@@ -238,10 +239,12 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		Optional<String> current = categoryOverrides().categoryKeyFor(itemId);
 		BankPreset menuPreset = activePreset();
 		String menuProfile = activeProfileName();
+		BankLayoutPlan menuPlan = activePlan();
 		List<BankTag> tags = BankTags.all();
 		for (int index = tags.size() - 1; index >= 0; index--)
 		{
 			BankTag tag = tags.get(index);
+			if (BankTags.isOptional(tag.getKey()) && menuPlan.destinationOf(tag.getKey()) < 0) continue;
 			boolean active = current.isPresent() && current.get().equals(tag.getKey());
 			submenu.createMenuEntry(-1)
 				.setOption((active ? "* " : "") + tag.getName())
@@ -350,6 +353,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			else if (ensureCustom()) preferences().set(event.getKey(), value);
 		}
 		if (IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
+			&& !String.valueOf(event.getKey()).endsWith(".rememberedBlueprint")
 			&& !Arrays.asList("suggestNextMove", "showCategoryOverlay", "hideSortedHighlights",
 				"categoryOverlayOpacity", "lastSeenRelease").contains(event.getKey()))
 			refreshSettings();
@@ -360,6 +364,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		BankAnalysis analysis = bankAnalysis;
 		BankGuideController controller = guideController;
 		if (analysis == null || controller == null) return;
+		settingsRevision++;
 		analysis.invalidate();
 		if (!settingsRefreshQueued.compareAndSet(false, true)) return;
 		clientThread.invokeLater(() -> {
@@ -402,6 +407,17 @@ public final class IronmanBankArchitectPlugin extends Plugin
 
 	private boolean builtin() { return savedProfiles().isDefaultActive(); }
 	private PresetSettings preferences() { return settings().forProfile(activeProfileName()); }
+	private PresetSettings referenceSettings() { return settings().forProfile(savedProfiles().getActiveName()); }
+
+	/** Persist only explicit personal inputs; changed bundled rules must not unpin a saved target. */
+	private String acceptanceContext()
+	{
+		StringJoiner context = new StringJoiner("\u0000").add(activePreset().getKey()).add(savedProfiles().activePlan());
+		for (String key : OPTION_KEYS) context.add(key).add(preferences().get(key, ""));
+		return context.add(preferences().get("categoryOverrides", "")).add(preferences().get("blockOrders", ""))
+			.add(BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""))
+				.forProfile(activeProfileName()).serialize()).toString();
+	}
 
 	private BankLayoutOptions readOptions(PresetSettings source)
 	{
@@ -587,7 +603,38 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public String editingContext()
 			{
 				return activePreset().getKey() + "|" + activeProfileName() + "|" + activePlan().serialize()
-					+ "|" + settings().get("blueprintOrdersByProfile", "");
+					+ "|" + settings().get("blueprintOrdersByProfile", "") + "|" + settingsRevision;
+			}
+
+			@Override public String rememberedBlueprint() { return referenceSettings().get("rememberedBlueprint", ""); }
+			@Override public String acceptedBlueprint() { return referenceSettings().get("acceptedBlueprint", ""); }
+			@Override public String blueprintState() { return AcceptedBlueprint.description(acceptedBlueprint(), acceptanceContext()); }
+			@Override public BankOrganizationPreview proposedBlueprint()
+			{
+				return guideController == null ? null : guideController.bankAnalysisStatus().proposal().orElse(null);
+			}
+
+			@Override public void acceptBlueprint(BankOrganizationPreview expected, BankOrganizationPreview proposal,
+				String expectedContext, Consumer<Boolean> completed)
+			{
+				updateBlueprint(expected, expectedContext, completed, live -> {
+					if (proposal == null || proposedBlueprint() != proposal || !AcceptedBlueprint.isSupported(acceptedBlueprint())) return false;
+					// Validate the whole target before creating a custom profile or touching stored data.
+					AcceptedBlueprint.capture(proposal, "");
+					if (!ensureCustom()) return false;
+					referenceSettings().set("acceptedBlueprint", AcceptedBlueprint.capture(proposal, acceptanceContext()));
+					analyzeBank();
+					return true;
+				});
+			}
+
+			@Override public void rememberBlueprint(BankOrganizationPreview expected, String expectedContext, Consumer<Boolean> completed)
+			{
+				updateBlueprint(expected, expectedContext, completed, live -> {
+					if (!BlueprintChanges.compare(rememberedBlueprint(), expected).isSupported()) return false;
+					referenceSettings().set("rememberedBlueprint", BlueprintChanges.capture(expected));
+					return true;
+				});
 			}
 
 			@Override
@@ -820,6 +867,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			public void deleteProfile(String name)
 			{
 				if (defaultProfileName().equals(name)) return;
+				settings().forProfile(name).set("rememberedBlueprint", "");
+				settings().forProfile(name).set("acceptedBlueprint", "");
 				if (name.equals(activeProfileName())) selectProfile(defaultProfileName());
 				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
 				itemProfiles.remove(name);
@@ -944,7 +993,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		analyzedBankContents = bankSnapshot.contents();
 		return Optional.of(new BankAnalysisRequest(bankSnapshot,
 			collectGearStats(bankSnapshot), collectAlchValues(bankSnapshot),
-			categoryOverrides().asMap(), activePlan(), activeOptions(), activePreset()));
+			categoryOverrides().asMap(), activePlan(), activeOptions(), activePreset(),
+			referenceSettings().get("acceptedBlueprint", ""), acceptanceContext()));
 	}
 
 	private Map<Integer, Integer> collectAlchValues(BankSnapshot snapshot)

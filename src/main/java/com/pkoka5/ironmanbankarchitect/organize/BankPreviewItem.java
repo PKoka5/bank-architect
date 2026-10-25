@@ -22,11 +22,12 @@ public final class BankPreviewItem
 	private final List<Integer> physicalSlotQuantities;
 	private final String layoutTagKey;
 	private final int blueprintOccurrence;
+	private final String placementReason;
 
 	public BankPreviewItem(int itemId, String displayName, int quantity)
 	{
 		this(itemId, displayName, quantity, ItemCategory.UNKNOWN, "unknown", Collections.emptySet(), false,
-			Collections.singletonList(quantity), null, -1);
+			Collections.singletonList(quantity), null, -1, "");
 	}
 
 	public BankPreviewItem(CatalogItem catalogItem, int quantity)
@@ -43,12 +44,12 @@ public final class BankPreviewItem
 		List<Integer> physicalSlotQuantities)
 	{
 		this(catalogItem.getItemId(), catalogItem.getDisplayName(), quantity, catalogItem.getCategory(),
-			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder, physicalSlotQuantities, null, -1);
+			catalogItem.getSubcategory(), catalogItem.getTags(), placeholder, physicalSlotQuantities, null, -1, "");
 	}
 
 	private BankPreviewItem(int itemId, String displayName, int quantity, ItemCategory itemCategory,
 		String subcategory, Set<String> tags, boolean placeholder, List<Integer> physicalSlotQuantities,
-		String layoutTagKey, int blueprintOccurrence)
+		String layoutTagKey, int blueprintOccurrence, String placementReason)
 	{
 		if (quantity < 0 || (quantity == 0 && !placeholder))
 		{
@@ -66,6 +67,7 @@ public final class BankPreviewItem
 		this.placeholder = placeholder;
 		this.layoutTagKey = layoutTagKey;
 		this.blueprintOccurrence = blueprintOccurrence;
+		this.placementReason = Objects.requireNonNull(placementReason, "placementReason");
 		this.physicalSlotQuantities = Collections.unmodifiableList(
 			new ArrayList<>(Objects.requireNonNull(physicalSlotQuantities,
 				"physicalSlotQuantities")));
@@ -148,7 +150,7 @@ public final class BankPreviewItem
 	{
 		if (tagKey != null) BankTags.byKey(tagKey);
 		return new BankPreviewItem(itemId, displayName, quantity, itemCategory, subcategory,
-			tags, placeholder, physicalSlotQuantities, tagKey, blueprintOccurrence);
+			tags, placeholder, physicalSlotQuantities, tagKey, blueprintOccurrence, placementReason);
 	}
 
 	public int getBlueprintOccurrence() { return blueprintOccurrence; }
@@ -156,7 +158,15 @@ public final class BankPreviewItem
 	public BankPreviewItem withBlueprintOccurrence(int occurrence)
 	{
 		return new BankPreviewItem(itemId, displayName, quantity, itemCategory, subcategory,
-			tags, placeholder, physicalSlotQuantities, layoutTagKey, occurrence);
+			tags, placeholder, physicalSlotQuantities, layoutTagKey, occurrence, placementReason);
+	}
+
+	public String getPlacementReason() { return placementReason; }
+
+	public BankPreviewItem withPlacementReason(String reason)
+	{
+		return new BankPreviewItem(itemId, displayName, quantity, itemCategory, subcategory,
+			tags, placeholder, physicalSlotQuantities, layoutTagKey, blueprintOccurrence, reason);
 	}
 
 	int physicalBankSlotCount()
@@ -175,7 +185,7 @@ public final class BankPreviewItem
 		for (int slotQuantity : physicalSlotQuantities)
 		{
 			slots.add(new BankPreviewItem(itemId, displayName, slotQuantity, itemCategory,
-				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity), layoutTagKey, -1));
+				subcategory, tags, slotQuantity == 0, Collections.singletonList(slotQuantity), layoutTagKey, -1, placementReason));
 		}
 		return slots;
 	}

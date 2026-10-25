@@ -84,9 +84,11 @@ final class GearItemSorter
 
 	static GearLayout plan(List<BankPreviewItem> items, GearStatsSource gearStats)
 	{
+		boolean voidKit = GearSetSemanticRuleSet.keepsVoidTogether(items.stream().mapToInt(BankPreviewItem::getItemId));
 		Map<String, List<BankPreviewItem>> setCandidates = new LinkedHashMap<>();
 		for (BankPreviewItem item : items)
 		{
+			if (voidKit && GearSetSemanticRuleSet.isVoid(item.getItemId())) continue;
 			int style = styleRankOf(item, gearStats);
 			int slot = slotRankOf(item, gearStats);
 			if (slot == 11)
@@ -95,11 +97,23 @@ final class GearItemSorter
 				// disguise a missing wearable in the aligned setup rows.
 				continue;
 			}
-			if (style <= STYLE_MAGIC && slot <= 12 && !GearSetSemanticRuleSet.roleOf(item.getItemId()).startsWith("support-"))
+			boolean primaryRole = !GearSetSemanticRuleSet.roleOf(item.getItemId()).startsWith("support-");
+			boolean otherCore = slot < 3 && !PrimaryGearSelector.candidate(item.getItemId(),slot)
+				&& (PrimaryGearSelector.slot(GearStyle.RANGED,item.getItemId()) >= 0 || PrimaryGearSelector.slot(GearStyle.MAGIC,item.getItemId()) >= 0);
+			if (primaryRole) for (int candidateStyle : new int[]{STYLE_RANGED,STYLE_MAGIC})
+			{
+				int reviewedSlot = PrimaryGearSelector.slot(GearStyle.values()[candidateStyle],item.getItemId());
+				if (reviewedSlot >= 0) setCandidates.computeIfAbsent(candidateStyle + ":" + (reviewedSlot == 8 ? 8 + candidateStyle : reviewedSlot),
+					key -> new ArrayList<>()).add(item);
+			}
+			if (primaryRole && style == STYLE_OTHER && PrimaryGearSelector.candidate(item.getItemId(), slot))
+				setCandidates.computeIfAbsent(STYLE_MELEE + ":" + slot, key -> new ArrayList<>()).add(item);
+			if (style <= STYLE_MAGIC && slot <= 12 && primaryRole && !otherCore)
 			{
 				for (int candidateStyle : SETUP_STYLES)
-					if (style == candidateStyle || (slot >= 3 && slot <= 7 || slot == 12)
-						&& gearStats.statsFor(item.getItemId()).map(stats -> stats.supports(GearStyle.values()[candidateStyle])).orElse(false))
+					if ((candidateStyle == STYLE_MELEE || PrimaryGearSelector.slot(GearStyle.values()[candidateStyle],item.getItemId()) < 0)
+						&& (style == candidateStyle || (slot >= 3 && slot <= 7 || slot == 12)
+						&& gearStats.statsFor(item.getItemId()).map(stats -> stats.supports(GearStyle.values()[candidateStyle])).orElse(false)))
 						setCandidates.computeIfAbsent(candidateStyle + ":" + slot, key -> new ArrayList<>()).add(item);
 			}
 		}
@@ -123,15 +137,21 @@ final class GearItemSorter
 			.thenComparing(item -> -ownedFamilySizes.getOrDefault(item.getItemId(), 0))
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId);
-		entry.getValue().sort(byPreference);
+		int primarySlot = Integer.parseInt(entry.getKey().substring(2));
+		PrimaryGearSelector.sort(desired,primarySlot == 9 || primarySlot == 10 ? 8 : primarySlot,
+			entry.getValue(),gearStats,byPreference);
 		}
 		List<BankPreviewItem> rangedWeapons = setCandidates.get(STYLE_RANGED + ":9");
-		if (rangedWeapons != null && GearSetSemanticRuleSet.isBowfa(rangedWeapons.get(0).getItemId()))
+		if (rangedWeapons != null && !rangedWeapons.isEmpty() && (GearSetSemanticRuleSet.isBowfa(rangedWeapons.get(0).getItemId())
+			|| rangedWeapons.get(0).getItemId() == 23983 || rangedWeapons.get(0).getItemId() == 24123))
 			for (int slot = 0; slot < 3; slot++)
 			{
 				List<BankPreviewItem> armour = setCandidates.get(STYLE_RANGED + ":" + slot);
 				if (armour != null) armour.sort(Comparator
 					.comparing((BankPreviewItem item) -> !GearSetSemanticRuleSet.isCrystalArmour(item.getItemId())));
+				if (armour != null && !armour.isEmpty() && GearSetSemanticRuleSet.isCrystalArmour(armour.get(0).getItemId()))
+					armour.set(0,armour.get(0).withPlacementReason(armour.get(0).getPlacementReason() + " General Ranged: Crystal armour paired with "
+						+ rangedWeapons.get(0).getDisplayName() + "; per-piece bow synergy, without assuming a complete set or target."));
 			}
 		List<BankPreviewItem> laidOut = new ArrayList<>();
 		Set<Integer> usedItemIds = new LinkedHashSet<>();
@@ -140,8 +160,10 @@ final class GearItemSorter
 		// real fillers beside these columns and places secondary families vertically.
 		for (int style : SETUP_STYLES)
 		{
+			boolean compatibleOffhand = true;
 			for (int slot : SETUP_SLOTS)
 			{
+				if (slot == 5 && !compatibleOffhand) continue;
 				String key = style + ":" + slot;
 				List<BankPreviewItem> candidates = setCandidates.get(key);
 				if (candidates != null && !candidates.isEmpty())
@@ -149,6 +171,7 @@ final class GearItemSorter
 					BankPreviewItem item = candidates.stream().filter(candidate -> !usedItemIds.contains(candidate.getItemId())).findFirst().orElse(null);
 					if (item != null && usedItemIds.add(item.getItemId()))
 					{
+						if (slot == 8 + style) compatibleOffhand = PrimaryGearSelector.oneHanded(GearStyle.values()[style],item.getItemId());
 						laidOut.add(item); columns.put(item.getItemId(),style);
 					}
 				}
@@ -339,7 +362,7 @@ final class GearItemSorter
 		return slot < 8 ? slot : slot + 2;
 	}
 
-	private static int styleRankOf(BankPreviewItem item, GearStatsSource gearStats)
+	static int styleRankOf(BankPreviewItem item, GearStatsSource gearStats)
 	{
 		if (GearSetSemanticRuleSet.isMeleeTankArmour(item.getItemId())) return STYLE_MELEE;
 		if (GearSetSemanticRuleSet.isCrystalArmour(item.getItemId())) return STYLE_RANGED;

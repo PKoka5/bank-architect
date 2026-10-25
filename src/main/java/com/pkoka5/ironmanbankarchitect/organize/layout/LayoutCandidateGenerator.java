@@ -27,11 +27,7 @@ final class LayoutCandidateGenerator
 				"request must be valid before candidate generation: " + conflicts);
 		}
 
-		Set<Integer> ownedItemIds = new HashSet<>();
-		for (LayoutEntry entry : request.getEntries())
-		{
-			ownedItemIds.add(entry.getItem().getItemId());
-		}
+		Set<Integer> ownedItemIds = LayoutEntry.presentIds(request.getEntries());
 
 		List<SemanticRule> rules = new ArrayList<>(request.getRules());
 		rules.sort(Comparator.comparing(SemanticRule::getRuleKey));
@@ -39,126 +35,41 @@ final class LayoutCandidateGenerator
 		List<LayoutCandidateGroup> groups = new ArrayList<>();
 		for (SemanticRule rule : rules)
 		{
-			switch (rule.getShapePrimitive())
-			{
-				case HORIZONTAL_RUN:
-				case VERTICAL_RUN:
-					groups.addAll(generateRunGroups(rule, ownedItemIds));
-					break;
-				case STAGE_MATRIX:
-					groups.addAll(generateStageMatrixGroups(rule, ownedItemIds));
-					break;
-				case ROW_GROUP_MATRIX:
-					LayoutCandidateGroup rowGroup = generateRowGroupMatrix(rule, ownedItemIds);
-					if (rowGroup != null)
-					{
-						groups.add(rowGroup);
-					}
-					break;
-				default:
-					throw new IllegalStateException("Unhandled shape primitive: " + rule.getShapePrimitive());
-			}
+			for (List<LayoutCandidateGroup.AtomProjection> projections : projectionGroups(rule, ownedItemIds))
+				groups.add(new LayoutCandidateGroup(rule, projections, LayoutCandidateGeometry.candidatesFor(
+					rule, projections, LayoutCandidateGroup.atomKeys(projections))));
 		}
 
 		return Collections.unmodifiableList(groups);
 	}
 
-	private static List<LayoutCandidateGroup> generateRunGroups(SemanticRule rule,
+	private static Collection<List<LayoutCandidateGroup.AtomProjection>> projectionGroups(SemanticRule rule,
 		Set<Integer> ownedItemIds)
 	{
-		List<LayoutCandidateGroup> groups = new ArrayList<>();
+		Map<List<String>, List<LayoutCandidateGroup.AtomProjection>> groups = new LinkedHashMap<>();
 		for (SemanticAtom atom : rule.getAtoms())
 		{
 			LayoutCandidateGroup.AtomProjection projection = project(atom, ownedItemIds);
-			if (projection == null)
+			if (projection == null) continue;
+			List<String> key;
+			switch (rule.getShapePrimitive())
 			{
-				continue;
+				case HORIZONTAL_RUN:
+				case VERTICAL_RUN:
+					key = Collections.singletonList(projection.getAtomKey());
+					break;
+				case STAGE_MATRIX:
+					key = projection.getMemberKeys();
+					break;
+				case ROW_GROUP_MATRIX:
+					key = Collections.emptyList();
+					break;
+				default:
+					throw new IllegalStateException("Unhandled shape primitive: " + rule.getShapePrimitive());
 			}
-
-			List<LayoutCandidateGroup.AtomProjection> projections = Collections.singletonList(projection);
-			List<LayoutCandidate> candidates = new ArrayList<>();
-			for (int width = SemanticRule.MIN_WIDTH; width <= SemanticRule.MAX_WIDTH; width++)
-			{
-				if (!rule.getAllowedWidths().contains(width))
-				{
-					continue;
-				}
-
-				List<LayoutCandidate.Row> rows = LayoutCandidateGeometry.rowsFor(
-					rule.getShapePrimitive(), projections, width);
-				if (rows != null)
-				{
-					candidates.add(candidate(rule, width, projections, rows));
-				}
-			}
-			groups.add(new LayoutCandidateGroup(rule, projections, candidates));
+			groups.computeIfAbsent(key, ignored -> new ArrayList<>()).add(projection);
 		}
-		return groups;
-	}
-
-	private static List<LayoutCandidateGroup> generateStageMatrixGroups(SemanticRule rule,
-		Set<Integer> ownedItemIds)
-	{
-		Map<List<String>, List<LayoutCandidateGroup.AtomProjection>> projectionsBySignature =
-			new LinkedHashMap<>();
-		for (SemanticAtom atom : rule.getAtoms())
-		{
-			LayoutCandidateGroup.AtomProjection projection = project(atom, ownedItemIds);
-			if (projection != null)
-			{
-				projectionsBySignature.computeIfAbsent(projection.getMemberKeys(), key -> new ArrayList<>())
-					.add(projection);
-			}
-		}
-
-		List<LayoutCandidateGroup> groups = new ArrayList<>();
-		for (List<LayoutCandidateGroup.AtomProjection> projections : projectionsBySignature.values())
-		{
-			List<LayoutCandidate> candidates = new ArrayList<>();
-			for (int width = SemanticRule.MIN_WIDTH; width <= SemanticRule.MAX_WIDTH; width++)
-			{
-				if (rule.getAllowedWidths().contains(width))
-				{
-					candidates.add(candidate(rule, width, projections,
-						LayoutCandidateGeometry.rowsFor(rule.getShapePrimitive(), projections, width)));
-				}
-			}
-			groups.add(new LayoutCandidateGroup(rule, projections, candidates));
-		}
-		return groups;
-	}
-
-	private static LayoutCandidateGroup generateRowGroupMatrix(SemanticRule rule,
-		Set<Integer> ownedItemIds)
-	{
-		List<LayoutCandidateGroup.AtomProjection> projections = new ArrayList<>();
-		for (SemanticAtom atom : rule.getAtoms())
-		{
-			LayoutCandidateGroup.AtomProjection projection = project(atom, ownedItemIds);
-			if (projection != null)
-			{
-				projections.add(projection);
-			}
-		}
-		if (projections.isEmpty())
-		{
-			return null;
-		}
-
-		List<LayoutCandidate> candidates = new ArrayList<>();
-		for (int width = SemanticRule.MIN_WIDTH; width <= SemanticRule.MAX_WIDTH; width++)
-		{
-			if (rule.getAllowedWidths().contains(width))
-			{
-				List<LayoutCandidate.Row> rows = LayoutCandidateGeometry.rowsFor(
-					rule.getShapePrimitive(), projections, width);
-				if (rows != null)
-				{
-					candidates.add(candidate(rule, width, projections, rows));
-				}
-			}
-		}
-		return new LayoutCandidateGroup(rule, projections, candidates);
+		return groups.values();
 	}
 
 	private static LayoutCandidateGroup.AtomProjection project(SemanticAtom atom,
@@ -176,17 +87,6 @@ final class LayoutCandidateGenerator
 		}
 		return itemIds.size() < 2 ? null : new LayoutCandidateGroup.AtomProjection(
 			atom.getAtomKey(), atom.getMembers().size(), memberKeys, itemIds);
-	}
-
-	private static LayoutCandidate candidate(SemanticRule rule, int width,
-		List<LayoutCandidateGroup.AtomProjection> projections, List<LayoutCandidate.Row> rows)
-	{
-		List<String> atomKeys = new ArrayList<>(projections.size());
-		for (LayoutCandidateGroup.AtomProjection projection : projections)
-		{
-			atomKeys.add(projection.getAtomKey());
-		}
-		return new LayoutCandidate(rule.getRuleKey(), rule.getShapePrimitive(), width, atomKeys, rows);
 	}
 
 }

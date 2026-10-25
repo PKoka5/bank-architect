@@ -82,10 +82,10 @@ public class ToolOutfitSemanticRuleSetTest
 		List<Integer> prospector = Arrays.asList(12013, 12014, 12015, 12016);
 		List<Integer> pyromancer = Arrays.asList(20708, 20704, 20706, 20710);
 		List<Integer> rogue = Arrays.asList(5554, 5553, 5555, 5556, 5557);
-		List<Integer> mining = Arrays.asList(25539, 11920, 5013, 776, 12019, 24481);
+		List<Integer> mining = Arrays.asList(25539, 11920, 5013, 12019, 24481);
 		List<Integer> woodcutting = Arrays.asList(10491, 6739, 6313, 10132, 28136, 28142);
-		List<Integer> fishingFirst = Arrays.asList(10129, 11323, 305, 307, 309, 3159, 301, 1585);
-		List<Integer> fishingTail = Arrays.asList(303, 25584);
+		List<Integer> fishingFirst = Arrays.asList(25584, 10129, 11323, 305, 307, 309, 3159, 301);
+		List<Integer> fishingTail = Arrays.asList(1585, 303);
 		List<Integer> farming = Arrays.asList(5340, 5325, 7409, 5341, 5343, 22997, 24482);
 		List<Integer> monkeyKit = Arrays.asList(4021, 4026, 4031, 4024, 4030);
 		List<Integer> underwaterKit = Arrays.asList(7534, 7535);
@@ -98,6 +98,7 @@ public class ToolOutfitSemanticRuleSetTest
 		input.addAll(graceful);
 		input.addAll(fishingTail);
 		input.addAll(mining);
+		input.add(776); // Goldsmith gauntlets are Smithing equipment, not Mining equipment.
 		input.addAll(angler);
 		input.addAll(pyromancer);
 		input.addAll(woodcutting);

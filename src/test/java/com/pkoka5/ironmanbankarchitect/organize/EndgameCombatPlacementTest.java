@@ -36,17 +36,17 @@ public class EndgameCombatPlacementTest
 	// Complete owned setups, in head/body/legs/cape/boots/neck/weapon/shield/hands/ring order.
 	// Shared Treads belong to Melee once; the owned Pegasians remain the Ranged boots.
 	private static final int[][] PRIMARY_COLUMNS = {
-		{26382,26384,26386,21295,31097,29801,22325,22322,22981,28307},
-		{27235,27238,27241,28951,13237,33639,20997,21000,26235},
-		{21018,21021,21024,21791,13235,12002,27275,27251,31106}
+		{26382,26384,26386,21295,31097,29801,24417,22322,22981,28307},
+		{27235,27238,27241,28951,13237,33639,20997,26235},
+		{21018,21021,21024,21791,13235,12002,27275,31106}
 	};
 	private static final int[][] SPECIALIST_ARMOUR = {
 		{30750,30753,30756}, {24419,24420,24421}, {22326,22327,22328}
 	};
-	private static final List<Integer> SPECIALIST_WEAPONS = Arrays.asList(22324,26219,24417,21003,11804,13576);
+	private static final List<Integer> SPECIALIST_WEAPONS = Arrays.asList(22324,26219,22325,21003,11804,13576);
 	private static final List<Integer> CANNON = Arrays.asList(6,8,10,12);
 	private static final Set<Integer> WITHDRAWN = new HashSet<>(Arrays.asList(
-		26382,26384,26386,27235,27238,27241,21018,21021,21024,22325,20997,27275,
+		26382,26384,26386,27235,27238,27241,21018,21021,21024,24417,22325,20997,27275,
 		21295,31097,29801,22322,22981,28307,28951,13237,33639,21000,26235,
 		21791,13235,12002,27251,31106,
 		30750,30753,30756,24419,24420,24421,22326,22327,22328));
@@ -66,7 +66,7 @@ public class EndgameCombatPlacementTest
 	}
 
 	@Test
-	public void fullEndgameFrontUsesGeneralStrengthArmourAndRaidWeaponPriorities()
+	public void fullEndgameFrontUsesGeneralStrengthArmourAndOneHandedWeaponPriorities()
 	{
 		BankSnapshot bank = endgameBank(Collections.emptySet(), 1, false);
 		BankOrganizationPreview preview = build(bank);
@@ -78,6 +78,7 @@ public class EndgameCombatPlacementTest
 					PRIMARY_COLUMNS[column][row], (int) combat.get(row * 8 + column));
 		assertCanonicalBlock(combat,new int[] {28933,28936,28939});
 		assertSecondary(combat,13239);
+		assertSecondary(combat,22325);
 		assertPreserved(bank, preview);
 	}
 
@@ -91,11 +92,11 @@ public class EndgameCombatPlacementTest
 					Collections.emptySet(), 1, false);
 				BankOrganizationPreview preview = build(bank);
 				assertEquals("frontline IDs for " + scythe + "/" + shadow,
-					Arrays.asList(scythe,20997,shadow), ids(combat(preview)).subList(0,3));
+					Arrays.asList(scythe,20997,shadow==27275?27275:21006), ids(combat(preview)).subList(0,3));
 				assertPreserved(bank, preview);
 				BankOrganizationPreview fallback = buildWithoutStats(bank);
 				assertEquals("frontline IDs without equipment data for " + scythe + "/" + shadow,
-					Arrays.asList(scythe,20997,shadow), ids(combat(fallback)).subList(0,3));
+					Arrays.asList(scythe,20997,shadow==27275?27275:21006), ids(combat(fallback)).subList(0,3));
 				assertPreserved(bank,fallback);
 			}
 	}
@@ -165,7 +166,7 @@ public class EndgameCombatPlacementTest
 	}
 
 	@Test
-	public void inactiveBowfaAndCrystalKeepTheirRangedSetupWithoutOffensiveStatBonuses()
+	public void inactiveBowfaAndCrystalRemainRetainedWithoutClaimingTheirChargedBonuses()
 	{
 		List<Integer> ids = endgameBank(Collections.emptySet(),1,false).getItems().stream()
 			.map(BankItemSnapshot::getItemId).collect(Collectors.toList());
@@ -182,11 +183,11 @@ public class EndgameCombatPlacementTest
 			BankSnapshot bank = bank(ids,placeholders,1,false);
 			BankOrganizationPreview preview = build(bank);
 			List<Integer> combat = ids(combat(preview));
-			assertEquals("inactive Bowfa retains the Ranged weapon role",25862,(int) combat.get(49));
+			assertTrue("inactive Bowfa remains present",combat.contains(25862));
 			for (int row = 0; row < inactive.length; row++)
-				assertEquals("inactive Crystal retains the Ranged armour role " + row,inactive[row],
+				assertEquals("usable Masori retains the primary Ranged armour role " + row,PRIMARY_ARMOUR[1][row],
 					(int) combat.get(row * 8 + 1));
-			assertCanonicalBlock(combat,PRIMARY_ARMOUR[1]);
+			assertCanonicalBlock(combat,inactive);
 			if (expected == null) expected = combat;
 			else assertEquals("inactive kit placeholders keep the same Ranged setup",expected,combat);
 			assertPreserved(bank,preview);
@@ -203,7 +204,7 @@ public class EndgameCombatPlacementTest
 			for (BankOrganizationPreview preview : Arrays.asList(build(bank),buildWithoutStats(bank)))
 			{
 				assertEquals("Eye of ayak is the available primary Magic weapon " + eye + ": " + ids(combat(preview)),
-					eye, combat(preview).get(2).getItemId());
+					eye==31113?31113:22323, combat(preview).get(2).getItemId());
 				assertEquals(ItemCategory.GEAR,item(preview,eye).getItemCategory());
 				assertEquals("weapon",item(preview,eye).getSubcategory());
 				assertPreserved(bank,preview);
@@ -217,7 +218,7 @@ public class EndgameCombatPlacementTest
 		BankSnapshot bank = endgameBank(Collections.emptySet(),1,false);
 		BankOrganizationPreview preview = build(bank);
 		List<Integer> combatIds = ids(combat(preview));
-		assertEquals("Confliction occupies the Magic hands row",66,combatIds.indexOf(31106));
+		assertEquals("Confliction follows the two-handed Shadow without an incompatible shield",58,combatIds.indexOf(31106));
 		assertSecondary(combatIds,19544);
 		assertEquals("Rupture occupies the Ranged neck row",41,combatIds.indexOf(33639));
 		assertSecondary(combatIds,19547);
@@ -277,7 +278,7 @@ public class EndgameCombatPlacementTest
 		assertCanonicalBlock(combat,SPECIALIST_ARMOUR[2]);
 		for (int id : SPECIALIST_WEAPONS)
 			assertEquals("specialist weapon is useful Combat gear " + id, "gear", item(preview,id).getLayoutTagKey());
-		assertCompactRole(combat,Arrays.asList(28338,29796)); // Slash alternatives.
+		assertCompactRole(combat,Arrays.asList(22325,28338,29796)); // The displaced Scythe joins slash alternatives.
 		assertCompactRole(combat,Arrays.asList(26219,22324,22978)); // Stab alternatives.
 		assertCompactRole(combat,Arrays.asList(11802,11804,21003,13576)); // Special-attack switches.
 		assertCanonicalBlock(combat,new int[] {4716,4718,4720,4722}); // Dharok weapon belongs to its armour set.
@@ -468,7 +469,7 @@ public class EndgameCombatPlacementTest
 	// RuneLite item-stats snapshot, cached 2026-10-09. Each row is ID, equipment slot,
 	// stab/slash/crush/magic/ranged attack, melee/ranged strength, prayer,
 	// stab/slash/crush/magic/ranged defence, magic damage tenths, attack speed.
-	// These preserve the misleading raw stat scores which previously beat raid weapons.
+	// These retain the original raw vectors; the chosen primary policy is reviewed separately.
 	private static final int[][] RAW_STATS = {
 		{26382,0,0,0,0,-5,-5,8,0,1,59,60,62,-2,57,0,0},
 		{26384,4,0,0,0,-18,-14,6,0,1,117,111,117,-11,142,0,0},

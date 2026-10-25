@@ -28,7 +28,7 @@ public class AvernicTreadsProgressionTest
 		GearStyle.MELEE, GearStyle.MELEE, GearStyle.RANGED, GearStyle.MELEE
 	};
 	private static final int[] OLDER_BOOT_IDS = {13239, 13237, 13235};
-	private static final int[] RING_FILLERS = {2550, 2568, 6731, 6733};
+	private static final int[] RING_FILLERS = {2550,2568,6735,6737};
 
 	@Test
 	public void everyCanonicalStateSharesTheOlderBootsEndgameBase()

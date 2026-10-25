@@ -18,6 +18,7 @@ public final class BankAnalysisRequest
 	private final BankLayoutPlan layoutPlan;
 	private final BankLayoutOptions layoutOptions;
 	private final BankPreset preset;
+	private final String acceptedBlueprint, acceptanceContext;
 
 	public BankAnalysisRequest(BankSnapshot bankSnapshot,
 		Map<Integer, GearStats> gearStatsByItemId,
@@ -34,6 +35,17 @@ public final class BankAnalysisRequest
 		Map<Integer, Integer> alchValuesByItemId, Map<Integer, String> categoryKeysByItemId,
 		BankLayoutPlan layoutPlan, BankLayoutOptions layoutOptions, BankPreset preset)
 	{
+		this(bankSnapshot, gearStatsByItemId, alchValuesByItemId, categoryKeysByItemId,
+			layoutPlan, layoutOptions, preset, "", "");
+	}
+
+	public BankAnalysisRequest(BankSnapshot bankSnapshot, Map<Integer, GearStats> gearStatsByItemId,
+		Map<Integer, Integer> alchValuesByItemId, Map<Integer, String> categoryKeysByItemId,
+		BankLayoutPlan layoutPlan, BankLayoutOptions layoutOptions, BankPreset preset,
+		String acceptedBlueprint, String acceptanceContext)
+	{
+		this.acceptedBlueprint = Objects.requireNonNull(acceptedBlueprint);
+		this.acceptanceContext = Objects.requireNonNull(acceptanceContext);
 		this.preset = preset;
 		this.bankSnapshot = Objects.requireNonNull(bankSnapshot, "bankSnapshot");
 		this.gearStatsByItemId = immutableCopy(gearStatsByItemId, "gearStatsByItemId");
@@ -49,6 +61,8 @@ public final class BankAnalysisRequest
 	}
 
 	public BankPreset presetOr(BankPreset fallback) { return preset == null ? fallback : preset; }
+	public String acceptedBlueprint() { return acceptedBlueprint; }
+	public String acceptanceContext() { return acceptanceContext; }
 
 	public Optional<GearStats> gearStats(int itemId)
 	{

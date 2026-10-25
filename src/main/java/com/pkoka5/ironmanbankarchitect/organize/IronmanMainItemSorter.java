@@ -1,5 +1,6 @@
 package com.pkoka5.ironmanbankarchitect.organize;
 
+import static com.pkoka5.ironmanbankarchitect.organize.TeleportItemSorter.teleportJewelleryMetadata;
 import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
 import java.util.*;
@@ -79,7 +80,7 @@ final class IronmanMainItemSorter
 	 */
 	private static String familyOrder(BankPreviewItem item)
 	{
-		Optional<ItemSortMetadata> metadata = chargedJewelleryMetadata(item);
+		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
 		if (metadata.isPresent())
 		{
 			// The base name decides where the family sits; the key only breaks
@@ -100,16 +101,9 @@ final class IronmanMainItemSorter
 
 	private static int charge(BankPreviewItem item)
 	{
-		Optional<ItemSortMetadata> metadata = chargedJewelleryMetadata(item);
+		Optional<ItemSortMetadata> metadata = teleportJewelleryMetadata(item);
 		if (metadata.isPresent()) return metadata.get().getVariantValue();
 		return 0;
-	}
-
-	private static Optional<ItemSortMetadata> chargedJewelleryMetadata(BankPreviewItem item)
-	{
-		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
-			.filter(metadata -> metadata.getVariantKind() == ItemSortMetadata.VariantKind.CHARGE)
-			.filter(metadata -> metadata.getFamilyKey().startsWith("jewellery."));
 	}
 
 	/**
@@ -141,7 +135,7 @@ final class IronmanMainItemSorter
 	 */
 	private static int spellbookRank(BankPreviewItem item)
 	{
-		if (chargedJewelleryMetadata(item).isPresent())
+		if (teleportJewelleryMetadata(item).isPresent())
 		{
 			return 90;
 		}

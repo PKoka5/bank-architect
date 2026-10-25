@@ -25,28 +25,30 @@ public final class BankAnalysisStatus
 
 	private static final BankAnalysisStatus NOT_STARTED =
 		new BankAnalysisStatus(Kind.NOT_STARTED, null, null,
-			NO_CATALOG_SUMMARY_TEXT, NO_ORGANIZATION_PREVIEW_TEXT);
+			NO_CATALOG_SUMMARY_TEXT, NO_ORGANIZATION_PREVIEW_TEXT, null);
 	private static final BankAnalysisStatus RUNNING_STATUS =
-		new BankAnalysisStatus(Kind.RUNNING, null, null, RUNNING_TEXT, RUNNING_TEXT);
+		new BankAnalysisStatus(Kind.RUNNING, null, null, RUNNING_TEXT, RUNNING_TEXT, null);
 	private static final BankAnalysisStatus BANK_CLOSED =
 		new BankAnalysisStatus(Kind.BANK_CLOSED, null, null,
-			NO_CATALOG_SUMMARY_TEXT, NO_ORGANIZATION_PREVIEW_TEXT);
+			NO_CATALOG_SUMMARY_TEXT, NO_ORGANIZATION_PREVIEW_TEXT, null);
 	private static final BankAnalysisStatus FAILED_STATUS =
-		new BankAnalysisStatus(Kind.FAILED, null, null, FAILED_TEXT, FAILED_TEXT);
+		new BankAnalysisStatus(Kind.FAILED, null, null, FAILED_TEXT, FAILED_TEXT, null);
 
 	private final Kind kind;
 	private final BankCatalogSummary catalogSummary;
 	private final BankOrganizationPreview organizationPreview;
+	private final BankOrganizationPreview proposal;
 	private final String catalogSummaryText;
 	private final String organizationPreviewText;
 
 	private BankAnalysisStatus(Kind kind, BankCatalogSummary catalogSummary,
 		BankOrganizationPreview organizationPreview, String catalogSummaryText,
-		String organizationPreviewText)
+		String organizationPreviewText, BankOrganizationPreview proposal)
 	{
 		this.kind = Objects.requireNonNull(kind, "kind");
 		this.catalogSummary = catalogSummary;
 		this.organizationPreview = organizationPreview;
+		this.proposal = proposal;
 		this.catalogSummaryText = Objects.requireNonNull(catalogSummaryText, "catalogSummaryText");
 		this.organizationPreviewText = Objects.requireNonNull(
 			organizationPreviewText, "organizationPreviewText");
@@ -70,11 +72,17 @@ public final class BankAnalysisStatus
 	public static BankAnalysisStatus success(BankCatalogSummary catalogSummary,
 		BankOrganizationPreview organizationPreview)
 	{
+		return success(catalogSummary, organizationPreview, organizationPreview);
+	}
+
+	public static BankAnalysisStatus success(BankCatalogSummary catalogSummary,
+		BankOrganizationPreview organizationPreview, BankOrganizationPreview proposal)
+	{
 		BankCatalogSummary summary = Objects.requireNonNull(catalogSummary, "catalogSummary");
 		BankOrganizationPreview preview = Objects.requireNonNull(
 			organizationPreview, "organizationPreview");
 		return new BankAnalysisStatus(Kind.SUCCESS, summary, preview,
-			summary.toOverviewText(), preview.toPreviewText());
+			summary.toOverviewText(), preview.toPreviewText(), Objects.requireNonNull(proposal));
 	}
 
 	public static BankAnalysisStatus failed()
@@ -84,7 +92,7 @@ public final class BankAnalysisStatus
 
 	public static BankAnalysisStatus failed(String message)
 	{
-		return new BankAnalysisStatus(Kind.FAILED, null, null, message, message);
+		return new BankAnalysisStatus(Kind.FAILED, null, null, message, message, null);
 	}
 
 	public Kind kind()
@@ -101,6 +109,8 @@ public final class BankAnalysisStatus
 	{
 		return Optional.ofNullable(organizationPreview);
 	}
+
+	public Optional<BankOrganizationPreview> proposal() { return Optional.ofNullable(proposal); }
 
 	public String catalogSummaryText()
 	{

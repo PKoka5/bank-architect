@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.pkoka5.ironmanbankarchitect.util.BundledTable;
 import java.util.*;
 
 
@@ -18,8 +18,6 @@ import java.util.*;
  */
 public final class GearTierCatalog
 {
-	private static final String SCHEMA_HEADER = "# schema=1";
-
 	static final String RESOURCE_PATH =
 		"/com/pkoka5/ironmanbankarchitect/catalog/gear-tier-catalog.tsv";
 
@@ -60,22 +58,10 @@ public final class GearTierCatalog
 		Map<Integer, Integer> stages = new LinkedHashMap<>();
 		Map<String, Integer> normalizedStages = new LinkedHashMap<>();
 		Set<String> ambiguousNames = new HashSet<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		try
 		{
-			String header = reader.readLine();
-			if (header == null || !header.trim().equals(SCHEMA_HEADER))
+			BundledTable.read(stream, RESOURCE_PATH, true, true, (line, columns) ->
 			{
-				throw new IllegalStateException("Unexpected gear tier catalog schema header: " + header);
-			}
-
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				if (line.isEmpty() || line.startsWith("#"))
-				{
-					continue;
-				}
-				String[] columns = line.split("\t", -1);
 				if (columns.length != 3)
 				{
 					throw new IllegalStateException("Malformed gear tier catalog row: " + line);
@@ -97,7 +83,7 @@ public final class GearTierCatalog
 				{
 					ambiguousNames.add(normalizedName);
 				}
-			}
+			});
 		}
 		catch (IOException e)
 		{

@@ -1,0 +1,72 @@
+# schema=1
+# Original all-round navigation choices, reviewed 2026-10-24. Key: slot/kind/band/rank/baseTicks/hands/group.
+# Weapons compare band before kind; armour/offhands keep kind before band. Bands are layout policy, not DPS.
+# Mature one-handers (30+) retain the owner's general weapon+defender preference; advanced two-handers (24) precede earlier one-handers (10-22).
+# Facts: Wiki weapon/item pages and cached canonical identities; July buffs: Update:Summer_Sweep-Up_Gear_%26_PvM_Changes.
+8/2/40/1000/4/1/inquisitor-mace	24417
+8/2/40/950/4/1/rapier	22324,25734
+8/2/40/950/4/1/saeldor	23995,24551,25870,25872,25874,25876,25878,25880,25882
+8/2/30/900/4/1/tentacle	12006,26484
+8/2/30/850/4/1/whip	4151,12773,12774,26482
+8/2/30/800/4/1/abyssal-dagger	13265,13267,13269,13271
+8/2/35/800/5/1/fang	26219,27246
+8/2/22/800/4/1/cudgel	23528
+8/2/22/800/4/1/lance	22978
+8/2/22/750/4/1/zamorakian-hasta	11889
+8/2/21/800/5/1/zombie-axe	28810
+8/2/15/700/4/1/dragon-scimitar	4587,20000,28031
+8/2/14/600/5/1/dragon-longsword	1305,28033
+8/2/10/160/4/1/rune-scimitar	1333,12389,23330,23332,23334
+8/2/10/150/4/1/adamant-scimitar	1331
+8/2/10/140/4/1/mithril-scimitar	1329
+8/2/10/130/4/1/black-scimitar	1327
+8/2/10/120/4/1/steel-scimitar	1325
+8/2/10/110/4/1/iron-scimitar	1323
+8/2/10/100/4/1/bronze-scimitar	1321
+# Advanced two-handed fallbacks remain behind mature one-handers, but precede early/midgame one-handers.
+# Their ranks do not apply target/set/spec effects or compare raw Strength across different mechanics.
+8/1/24/960/5/2/soulreaper	28338,33335
+8/1/24/950/5/2/scythe-charged	22325,25736,25739
+8/1/0/850/5/2/scythe-uncharged	22486,25738,25741
+8/1/24/955/0/2/obligator	34715
+8/1/0/845/0/2/obligator-uncharged	34717
+8/1/24/900/5/2/noxious-halberd	29796
+8/1/24/880/4/2/bludgeon	13263
+8/1/0/700/4/1/emberlight	29589
+8/1/0/650/4/1/arclight	19675
+8/1/0/640/4/1/leaf-bladed-sword	11902
+8/1/0/660/5/1/leaf-bladed-battleaxe	20727
+8/1/0/600/6/2/godswords	11802,11804,11806,11808,20368,20370,20372,20374
+8/1/0/590/6/2/elder-maul	21003,27100
+8/1/0/580/6/1/dragon-warhammer	13576,28035
+8/1/0/570/4/1/voidwaker	27690
+8/1/0/560/4/2/claws	13652,28039,29577
+8/1/0/550/7/2/crystal-halberd	23987,24125
+8/1/0/540/4/1/dragon-dagger	1215,1231,5680,5698,28019,28021,28023,28025
+8/1/0/530/6/1/dragon-battleaxe	1377,28037
+8/1/0/520/6/2/anchor	10887
+8/1/0/510/7/2/dharok	4718,4886,4887,4888,4889
+8/1/0/500/5/2/guthan	4726,4910,4911,4912,4913
+8/1/0/490/5/2/verac	4755,4982,4983,4984,4985
+8/1/0/480/5/2/torag	4747,4958,4959,4960,4961
+8/0/0/0/0/0/inactive-weapons	23997,23989,30305,4890,4914,4962,4986,10888
+# Avernic/Dragon defenders receive an explicit all-round accuracy preference over DFS. Lower defenders do not.
+# Failed Emir's Arena ornament rewards 26708/26710 are not live-bank candidates.
+5/2/10/1000/0/0/avernic-defender	22322,24186,27550,27551,27552,27553
+5/2/10/900/0/0/dragon-defender	12954,24143,19722,27008
+5/2/0/800/0/0/dragonfire-shield	11283,11284
+5/2/0/700/0/0/rune-defender	8850,24142,23230,27009
+5/2/0/650/0/0/obsidian-shield	6524
+5/2/0/600/0/0/adamant-defender	8849,24141
+5/2/0/500/0/0/mithril-defender	8848,24140
+5/2/0/400/0/0/black-defender	8847,24139
+5/2/0/300/0/0/steel-defender	8846,24138
+5/2/0/200/0/0/iron-defender	8845,24137
+5/2/0/100/0/0/bronze-defender	8844,24136
+5/1/0/350/0/0/blessed-spirit-shield	12831
+5/1/0/340/0/0/spirit-shield	12829
+5/1/0/300/0/0/dragon-square	1187
+5/1/0/200/0/0/unholy-book	3842
+5/1/0/190/0/0/book-balance	3844
+5/1/0/180/0/0/anti-dragon-shield	1540
+5/0/0/0/0/0/broken-defenders	22441,20449,20451,20453,20455,20457,20459,20461,20463

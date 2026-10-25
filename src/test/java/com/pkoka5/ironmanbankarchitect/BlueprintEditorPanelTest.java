@@ -20,6 +20,206 @@ import static org.junit.Assert.*;
 
 public class BlueprintEditorPanelTest
 {
+	@Test public void proposalViewerHasNoActionsAndCannotPublishOrSaveTheActiveBankPreview() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			model.proposal = previewForAssignment();
+			int[] editingEvents = {0}, bankPreviews = {0};
+			BlueprintEditorPanel view = new BlueprintEditorPanel(model,
+				item -> new JLabel(Integer.toString(item.getItemId())), ignored -> editingEvents[0]++, true);
+			view.setPreview(model.proposal);
+			view.configureBankPreview(ignored -> bankPreviews[0]++);
+			assertNull(((java.awt.BorderLayout) view.getLayout()).getLayoutComponent(java.awt.BorderLayout.SOUTH));
+			for (String action : new String[]{"Edit this tab", "Save", "Save current bank...", "Review changes"})
+				assertNull(action + " must be absent from the proposal viewer", button(view, action));
+			click(view, "995");
+			view.beginEdit();
+			view.assignSelectedCategory("potions");
+			view.saveDraft();
+			view.saveCurrentBank("Must not save");
+			view.rememberBlueprint(model.proposal, model.context);
+			view.acceptBlueprint(model.proposal, model.proposal, model.context);
+			view.selectTab(1);
+			view.publishBankPreview();
+			view.setPreview(preview());
+			assertEquals(0, editingEvents[0]);
+			assertEquals("Opening or switching proposal tabs cannot replace the active bank overlay", 0, bankPreviews[0]);
+			assertEquals(0, model.saves);
+			assertEquals(0, model.captures);
+			assertEquals(0, model.remembered);
+			assertEquals(0, model.accepted);
+			assertEquals("", model.acceptedValue);
+		});
+	}
+
+	@Test public void acceptanceRefusesStaleEffectivePreviewProposalContextDraftOrClosedAnalysis() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			for (int reason = 0; reason < 6; reason++)
+			{
+				Model model = new Model();
+				BlueprintEditorPanel panel = panel(model);
+				BankOrganizationPreview expected = preview();
+				BankOrganizationPreview proposed = previewForAssignment();
+				model.proposal = proposed;
+				panel.setPreview(expected);
+				String expectedContext = model.context;
+				if (reason == 0) panel.setPreview(preview());
+				else if (reason == 1) model.proposal = previewForAssignment();
+				else if (reason == 2) model.context = "new profile or settings";
+				else if (reason == 3) panel.beginEdit();
+				else if (reason == 4) panel.setPreview(null);
+				else proposed = null;
+				panel.acceptBlueprint(expected, proposed, expectedContext);
+				assertEquals("Refuse stale acceptance case " + reason, 0, model.accepted);
+				assertEquals(0, model.saves);
+				assertEquals("", model.acceptedValue);
+			}
+		});
+	}
+
+	@Test public void queuedAcceptanceBlocksOtherMutationsAndUnlocksAfterSuccessOrFailure() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			for (boolean success : new boolean[]{false, true})
+			{
+				Model model = new Model();
+				model.deferSave = true;
+				model.proposal = previewForAssignment();
+				BlueprintEditorPanel panel = panel(model);
+				BankOrganizationPreview expected = preview();
+				panel.setPreview(expected);
+				PreviewCapture bankPreview = new PreviewCapture();
+				panel.configureBankPreview(bankPreview);
+				panel.publishBankPreview();
+				assertSame(expected, bankPreview.snapshot);
+				panel.acceptBlueprint(expected, model.proposal, model.context);
+				assertEquals(1, model.accepted);
+				assertSame(expected, model.acceptedExpected);
+				assertSame(model.proposal, model.acceptedProposal);
+				assertEquals(model.context, model.acceptedContext);
+				assertNull("Pending acceptance withdraws the bank overlay", bankPreview.snapshot);
+				for (String action : new String[]{"Edit this tab", "Save", "Cancel", "Save current bank...", "Review changes"})
+					assertFalse(action, button(panel, action).isEnabled());
+				panel.beginEdit();
+				panel.saveDraft();
+				panel.saveCurrentBank("Must wait");
+				panel.rememberBlueprint(expected, model.context);
+				panel.acceptBlueprint(expected, model.proposal, model.context);
+				assertEquals(1, model.accepted);
+				assertEquals(0, model.saves);
+				assertEquals(0, model.captures);
+				assertEquals(0, model.remembered);
+				assertEquals("", model.acceptedValue);
+				model.pending.accept(success);
+				assertTrue(button(panel, "Edit this tab").isEnabled());
+				assertTrue(button(panel, "Review changes").isEnabled());
+				assertTrue(button(panel, "Save current bank...").isEnabled());
+				assertSame(expected, bankPreview.snapshot);
+				assertEquals(success, !model.acceptedValue.isEmpty());
+				assertEquals("profile", model.context);
+			}
+		});
+	}
+
+	@Test public void acceptanceCallbackRendersAnyNewAnalysisReceivedWhileSaving() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			for (boolean success : new boolean[]{false, true})
+			{
+				Model model = new Model();
+				model.deferSave = true;
+				model.proposal = previewForAssignment();
+				BlueprintEditorPanel panel = panel(model);
+				BankOrganizationPreview expected = preview();
+				panel.setPreview(expected);
+				panel.acceptBlueprint(expected, model.proposal, model.context);
+				BankOrganizationPreview latest = new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
+					new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0), Arrays.asList(item(4151)))));
+				panel.setPreview(latest);
+				model.pending.accept(success);
+				assertNotNull("The completed save must render the latest analysis", find(panel, "4151"));
+				assertNull("The prior preview cannot remain clickable after the callback", find(panel, "995"));
+				assertTrue(button(panel, "Edit this tab").isEnabled());
+			}
+		});
+	}
+
+	@Test public void reviewComparesTheAcceptedSnapshotWithTheFreshProposalInsteadOfTheKeptTarget() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			BankOrganizationPreview kept = new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0), Arrays.asList(
+					item(995).withLayoutTag("currency"), item(2347).withLayoutTag("frequently-used"))),
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(1), Arrays.asList(item(4151).withLayoutTag("gear")))));
+			model.proposal = new BankOrganizationPreview(BankPresets.IRONMAN, Arrays.asList(
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(0), Arrays.asList(item(2347).withLayoutTag("frequently-used"))),
+				new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(1), Arrays.asList(
+					item(4151).withLayoutTag("gear"), item(995).withLayoutTag("gear").withPlacementReason("New rule fixture")))));
+			model.acceptedValue = AcceptedBlueprint.capture(kept, model.context);
+			model.reference = BlueprintChanges.capture(model.proposal);
+			BlueprintEditorPanel panel = panel(model);
+			panel.setPreview(kept);
+			String report = panel.reviewText();
+			assertTrue(report, report.contains("Saved rules"));
+			assertTrue(report, report.contains("1 destination/category changes"));
+			assertTrue(report, report.contains("0 new bank entries"));
+			assertTrue(report, report.contains("0 remembered entries currently absent"));
+			assertTrue(report, report.contains("Item 995"));
+			assertTrue(report, report.contains("New rule fixture"));
+			assertEquals(0, model.accepted);
+			assertEquals(0, model.saves);
+		});
+	}
+
+	@Test public void referenceReviewIsExplicitAndCannotAcceptAnEditingOrStalePreview() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			BlueprintEditorPanel panel = panel(model);
+			BankOrganizationPreview expected = preview();
+			panel.setPreview(expected);
+			assertEquals("", model.reference);
+			assertTrue(panel.reviewText().contains("No remembered blueprint"));
+			assertTrue(button(panel, "Review changes").isEnabled());
+			panel.beginEdit();
+			assertFalse(button(panel, "Review changes").isEnabled());
+			panel.rememberBlueprint(expected, model.context);
+			assertEquals(0, model.remembered);
+			panel.cancelEdit();
+			panel.rememberBlueprint(expected, "stale");
+			panel.rememberBlueprint(preview(), model.context);
+			assertEquals(0, model.remembered);
+			panel.rememberBlueprint(expected, model.context);
+			assertEquals(1, model.remembered);
+			assertEquals(0, model.saves);
+			assertTrue(panel.reviewText().contains("0 destination/category changes"));
+			panel.setPreview(null);
+			assertFalse(button(panel, "Review changes").isEnabled());
+			assertTrue(panel.reviewText().contains("Analyze"));
+		});
+	}
+
+	@Test public void referenceSaveDisablesEditingUntilItsCallbackCompletes() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			Model model = new Model();
+			model.deferSave = true;
+			BlueprintEditorPanel panel = panel(model);
+			BankOrganizationPreview expected = preview();
+			panel.setPreview(expected);
+			panel.rememberBlueprint(expected, model.context);
+			assertFalse(button(panel, "Edit this tab").isEnabled());
+			assertFalse(button(panel, "Review changes").isEnabled());
+			panel.rememberBlueprint(expected, model.context);
+			assertEquals(1, model.remembered);
+			model.pending.accept(false);
+			assertTrue(button(panel, "Review changes").isEnabled());
+		});
+	}
+
 	@Test public void bankPreviewPublishesAllPhysicalTabsWithoutSavingOrChangingProfile() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
@@ -564,7 +764,7 @@ public class BlueprintEditorPanelTest
 				ImageIO.write(image, "png", Paths.get("build/reports/blueprint-editor/editor.png").toFile());
 				panel.setSize(560, 500);
 				layout(panel);
-				for (String name : new String[]{"Edit this tab", "Undo", "Cancel", "Save", "Reset tab order", "Assign category..."})
+				for (String name : new String[]{"Edit this tab", "Undo", "Cancel", "Save", "Reset tab order", "Assign category...", "Save current bank...", "Review changes"})
 				{
 					Component button = find(panel, name);
 					java.awt.Rectangle bounds = SwingUtilities.convertRectangle(button.getParent(), button.getBounds(), panel);
@@ -647,10 +847,47 @@ public class BlueprintEditorPanelTest
 	private static final class Model extends TestBankLayoutModel
 	{
 		int saves;
+		int remembered;
+		int accepted;
+		int captures;
+		String reference = "";
+		String acceptedValue = "";
+		BankOrganizationPreview proposal;
+		BankOrganizationPreview acceptedExpected, acceptedProposal;
+		String acceptedContext;
 		List<Integer> ids;
 		String context = "profile";
 		boolean deferSave;
 		Consumer<Boolean> pending;
+		public String rememberedBlueprint() { return reference; }
+		public String acceptedBlueprint() { return acceptedValue; }
+		public BankOrganizationPreview proposedBlueprint() { return proposal; }
+		public String blueprintState() { return AcceptedBlueprint.description(acceptedValue, context); }
+		public void acceptBlueprint(BankOrganizationPreview expected, BankOrganizationPreview proposed,
+			String expectedContext, Consumer<Boolean> completed)
+		{
+			accepted++;
+			acceptedExpected = expected;
+			acceptedProposal = proposed;
+			acceptedContext = expectedContext;
+			Consumer<Boolean> result = success -> {
+				if (success) acceptedValue = AcceptedBlueprint.capture(proposed, expectedContext);
+				completed.accept(success);
+			};
+			if (deferSave) pending = result; else result.accept(true);
+		}
+		public void captureCurrentBank(String name, BankOrganizationPreview expected,
+			String expectedContext, Consumer<Boolean> completed)
+		{
+			captures++;
+			completed.accept(false);
+		}
+		public void rememberBlueprint(BankOrganizationPreview expected, String context, Consumer<Boolean> completed)
+		{
+			remembered++;
+			reference = BlueprintChanges.capture(expected);
+			if (deferSave) pending = completed; else completed.accept(true);
+		}
 		java.util.Map<Integer, List<Integer>> orders;
 		java.util.Map<String, BlueprintItemOrders.Destination> routes;
 		public void saveBlueprintEdit(java.util.Map<Integer, List<Integer>> orders,

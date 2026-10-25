@@ -15,6 +15,8 @@ public final class SemanticRule
 {
 	static final int MIN_WIDTH = 1;
 	static final int MAX_WIDTH = 8;
+	static final Set<Integer> ALL_WIDTHS = Collections.unmodifiableSet(
+		new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
 
 	private static final Pattern KEY_PATTERN = Pattern.compile("[a-z0-9]+(?:[._-][a-z0-9]+)*");
 
@@ -53,6 +55,12 @@ public final class SemanticRule
 	public static Builder builder()
 	{
 		return new Builder();
+	}
+
+	static Builder highConfidence(String key, List<SemanticAtom> atoms, ShapePrimitive shape, Set<Integer> widths)
+	{
+		return builder().ruleKey(key).atoms(atoms).confidenceTier(ConfidenceTier.HIGH)
+			.shapePrimitive(shape).allowedWidths(widths);
 	}
 
 	public String getRuleKey()

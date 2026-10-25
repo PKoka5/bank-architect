@@ -11,12 +11,14 @@ public final class BankTags
 	private static final List<BankTag> TAGS;
 	private static final Map<String, BankTag> BY_KEY;
 	private static final Map<String, List<Split>> SPLITS_BY_CATEGORY;
+	private static final Set<String> OPTIONAL_TAGS = new HashSet<>();
 
 	static
 	{
 		Map<String, List<Split>> splits = new LinkedHashMap<>();
 		for (String[] row : BankDefinitionRows.read("bank-tags.tsv", 4))
 		{
+			if (row[3].equals("@optional")) OPTIONAL_TAGS.add(row[1]);
 			splits.computeIfAbsent(row[0], key -> new ArrayList<>()).add(
 				new Split(row[1], row[2], row[3].isEmpty() ? new String[0] : row[3].split(",")));
 		}
@@ -71,6 +73,15 @@ public final class BankTags
 		return BY_KEY.containsKey(tagKey);
 	}
 
+	public static boolean isOptional(String tagKey) { return OPTIONAL_TAGS.contains(tagKey); }
+
+	/** Parent Combat records remain valid as its optional styles are enabled or merged. */
+	static boolean sameOriginalTag(String original, String current)
+	{
+		return Objects.equals(original, current) || "gear".equals(original) && isOptional(current)
+			|| "gear".equals(current) && isOptional(original);
+	}
+
 	/** The tags a category splits into, in the order they are offered. */
 	public static List<BankTag> forCategory(String categoryKey)
 	{
@@ -83,7 +94,7 @@ public final class BankTags
 		List<BankTag> tags = new ArrayList<>(splits.size());
 		for (Split split : splits)
 		{
-			tags.add(BY_KEY.get(split.key));
+			if (!isOptional(split.key)) tags.add(BY_KEY.get(split.key));
 		}
 
 		return Collections.unmodifiableList(tags);
@@ -108,6 +119,7 @@ public final class BankTags
 		Split fallback = null;
 		for (Split split : splits)
 		{
+			if (isOptional(split.key)) continue;
 			if (split.subcategories.isEmpty())
 			{
 				fallback = split;

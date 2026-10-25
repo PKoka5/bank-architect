@@ -226,6 +226,10 @@ public final class GearStats
 			: style == GearStyle.MAGIC ? magicDamageTenths : 0;
 	}
 
+	int prayerBonus() { return prayerBonus; }
+	int defenceSum() { return defenceSum; }
+	int attackSpeed() { return attackSpeed; }
+
 	public int accuracy(GearStyle style)
 	{
 		return style == GearStyle.RANGED ? rangedAttack : style == GearStyle.MAGIC ? magicAttack
@@ -235,22 +239,9 @@ public final class GearStats
 	/** Placement score for one combat role; it is not evidence for alching. */
 	public int score(GearStyle style)
 	{
-		int offence;
-		switch (style)
-		{
-			case MELEE:
-				offence = Math.max(0, Math.max(Math.max(stabAttack, slashAttack), crushAttack))
-					+ Math.max(0, meleeStrength);
-				break;
-			case RANGED:
-				offence = Math.max(0, rangedAttack) + Math.max(0, rangedStrength);
-				break;
-			case MAGIC:
-				offence = Math.max(0, magicAttack) + Math.max(0, magicDamageTenths);
-				break;
-			default:
-				offence = 0;
-		}
+		Objects.requireNonNull(style, "style");
+		int offence = style == GearStyle.PRAYER ? 0
+			: Math.max(0, accuracy(style)) + Math.max(0, power(style));
 		return offence * 4 + Math.max(0, prayerBonus) * 4 + Math.max(0, defenceSum);
 	}
 }

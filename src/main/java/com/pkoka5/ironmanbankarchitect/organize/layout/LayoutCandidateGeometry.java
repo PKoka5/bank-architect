@@ -14,6 +14,20 @@ final class LayoutCandidateGeometry
 	{
 	}
 
+	static List<LayoutCandidate> candidatesFor(SemanticRule rule,
+		List<LayoutCandidateGroup.AtomProjection> projections, List<String> atomKeys)
+	{
+		List<LayoutCandidate> candidates = new ArrayList<>();
+		for (int width = SemanticRule.MIN_WIDTH; width <= SemanticRule.MAX_WIDTH; width++)
+		{
+			if (!rule.getAllowedWidths().contains(width)) continue;
+			List<LayoutCandidate.Row> rows = rowsFor(rule.getShapePrimitive(), projections, width);
+			if (rows != null) candidates.add(new LayoutCandidate(rule.getRuleKey(),
+				rule.getShapePrimitive(), width, atomKeys, rows));
+		}
+		return candidates;
+	}
+
 	static List<LayoutCandidate.Row> rowsFor(ShapePrimitive primitive,
 		List<LayoutCandidateGroup.AtomProjection> projections, int width)
 	{

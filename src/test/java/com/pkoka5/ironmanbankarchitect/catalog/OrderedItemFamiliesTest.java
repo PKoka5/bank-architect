@@ -12,15 +12,15 @@ import static org.junit.Assert.*;
 public class OrderedItemFamiliesTest
 {
 	@Test
-	public void bundledTablesRetainEveryOriginalFamilyAndMemberInOrder() throws Exception
+	public void bundledTablesRetainReviewedFamilyAndMemberOrder() throws Exception
 	{
 		// Fingerprints independently calculated from the former Java literals at 0046cd2.
 		assertOriginal("potion", 4, 22, "30902cec1cf66b2e8807a265f6a367abd796203cabaf7e6da6e9154e4e1beb5f");
 		assertOriginal("farming", 0, 11, "b0d9cebddc4c4c19c2bf1ee30179f20424f5c1d77662280a9d50227ee50a65a1");
-		// Reviewed October 10: prior rows plus the separate Sanguine Torva family.
-		assertOriginal("gear", 0, 78, "e70f6ba98c98e6e7463b1ecd5edfa412a004925634854e43b7e12c702a504f49");
-		// Reviewed October 2: append Guild hunter and Golden prospector columns.
-		assertOriginal("tool", 0, 34, "dc28e8281d146af28855b2b5928eae099558ef9e22495fef296ac846944bd6ce");
+		// Reviewed October 25: expanded Void membership checked separately; other families retain order.
+		assertOriginal("gear", 0, 77, "dd5476807c7e7ede8e685663ffcb6530e821c343572e55dbc9a7577b1adccba7");
+		// Reviewed October 25: primary skill membership, outfit associations and container states.
+		assertOriginal("tool", 0, 36, "fdd4fe37dc9e435af95bb3fd4688640a24451adfb3265e516cc6950e26bcb182");
 		assertOriginal("resource", 0, 40, "8a8d2e0b5c704af9e462c61d3ee6d746d6de004db25ef573e82467d6e7b93a57");
 	}
 
@@ -103,14 +103,17 @@ public class OrderedItemFamiliesTest
 			assertEquals(List.of(13379,13381,13380,13377,13378), families.remove("gear.shayzien-5"));
 			assertEquals(List.of(29560,29562,29564), families.remove("gear.elite-black"));
 			assertEquals(List.of(33031,33033,33023,33025,33027,33029), families.remove("gear.crystal-deadman"));
+			assertEquals(List.of(11665,24185,26477,27007,11664,24184,26475,27006,11663,24183,26473,27005,
+				8839,24177,26463,27000,13072,24178,26469,27003,8840,24179,26465,27001,
+				13073,24180,26471,27004,8842,24182,26467,27002),families.remove("gear.void"));
 		}
 		if (name.equals("tool"))
 		{
 			families = new java.util.LinkedHashMap<>(families);
-			assertEquals(List.of(29472,29474,29476,29478), families.remove("outfits/outfit.prospector-fossil"));
-			assertEquals(List.of(28173,28169,28171,28175), families.remove("outfits/outfit.lumberjack-forestry"));
-			assertEquals(List.of(21061,21064,21067,21070,21073,21076), families.remove("outfits/outfit.graceful-agility-arena"));
-			assertEquals(List.of(27023,27025,27027,27031), families.remove("outfits/outfit.smiths-ice"));
+			assertEquals(List.of(29472,29474,29476,29478), families.remove("outfits/mining/outfit.prospector-fossil"));
+			assertEquals(List.of(28173,28169,28171,28175), families.remove("outfits/woodcutting/outfit.lumberjack-forestry"));
+			assertEquals(List.of(21061,21064,21067,21070,21073,21076), families.remove("outfits/agility/outfit.graceful-agility-arena"));
+			assertEquals(List.of(27023,27025,27027,27031), families.remove("outfits/smithing/outfit.smiths-ice"));
 		}
 		assertEquals(rows, families.size());
 		StringBuilder canonical = new StringBuilder();

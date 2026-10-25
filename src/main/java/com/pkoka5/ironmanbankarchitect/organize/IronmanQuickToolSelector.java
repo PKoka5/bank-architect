@@ -48,16 +48,23 @@ public final class IronmanQuickToolSelector
 	/** Functional tiers count recorded bank placeholders; equivalent ornaments are not upgrades. */
 	static boolean hasOwnedUpgrade(int itemId, Set<Integer> recorded)
 	{
+		return ownedUpgradeId(itemId, recorded) > 0;
+	}
+
+	static int ownedUpgradeId(int itemId, Set<Integer> recorded)
+	{
 		for (List<List<Integer>> family : Arrays.asList(PICKAXE_TIERS, AXE_TIERS))
 		{
-			boolean higherOwned = false;
+			int replacement = 0;
 			for (List<Integer> tier : family)
 			{
-				if (tier.contains(itemId)) return higherOwned;
-				higherOwned |= !Collections.disjoint(recorded, tier);
+				if (tier.contains(itemId)) return replacement;
+				if (replacement == 0)
+					for (int candidate : tier)
+						if (recorded.contains(candidate)) { replacement = candidate; break; }
 			}
 		}
-		return false;
+		return 0;
 	}
 
 	/** Canonical Main segment: axe, pickaxe, hammer, chisel, then spade. */

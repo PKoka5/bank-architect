@@ -5,6 +5,9 @@ currency-utilities	teleports	Teleports	teleport,teleport-tablet,teleport-scroll,
 currency-utilities	currency	Currency	currency
 combat-gear	gear	Combat Gear	
 combat-gear	ammunition	Ammunition	ammo,thrown-weapon
+combat-gear	combat-melee	Melee Gear	@optional
+combat-gear	combat-ranged	Ranged Gear	@optional
+combat-gear	combat-magic	Magic Gear	@optional
 potions-food	potions	Potions	potion,potion-dose-4
 potions-food	food	Food & Drink	food,drink
 herblore	herb-seeds	Herb Seeds	herb-seed

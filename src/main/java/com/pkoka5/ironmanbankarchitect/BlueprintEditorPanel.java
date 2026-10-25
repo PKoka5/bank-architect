@@ -23,6 +23,7 @@ final class BlueprintEditorPanel extends JPanel
 	private final BankLayoutModel model;
 	private final Function<BankPreviewItem, JLabel> cellRenderer;
 	private final Consumer<Boolean> editingChanged;
+	private final boolean readOnly;
 	private Consumer<BankOrganizationPreview> bankPreview = preview -> {};
 	private final JTabbedPane tabs = new JTabbedPane(JTabbedPane.LEFT);
 	private final JButton edit = new JButton("Edit this tab");
@@ -32,6 +33,7 @@ final class BlueprintEditorPanel extends JPanel
 	private final JButton reset = new JButton("Reset tab order");
 	private final JButton assign = new JButton("Assign category...");
 	private final JButton capture = new JButton("Save current bank...");
+	private final JButton review = new JButton("Review changes");
 	private final JCheckBox keepCurrentOrder = new JCheckBox("Keep current order");
 	private final JComboBox<String> moveMode = new JComboBox<>(new String[]{"Swap", "Insert"});
 	private int selectedItem = -1;
@@ -51,10 +53,17 @@ final class BlueprintEditorPanel extends JPanel
 	BlueprintEditorPanel(BankLayoutModel model, Function<BankPreviewItem, JLabel> renderer,
 		Consumer<Boolean> editingChanged)
 	{
+		this(model, renderer, editingChanged, false);
+	}
+
+	BlueprintEditorPanel(BankLayoutModel model, Function<BankPreviewItem, JLabel> renderer,
+		Consumer<Boolean> editingChanged, boolean readOnly)
+	{
 		super(new BorderLayout());
 		this.model = model;
 		this.cellRenderer = renderer;
 		this.editingChanged = editingChanged;
+		this.readOnly = readOnly;
 		setBackground(ColorScheme.DARK_GRAY_COLOR);
 		setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		tabs.setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -75,6 +84,9 @@ final class BlueprintEditorPanel extends JPanel
 		movement.add(moveMode);
 		movement.add(assign);
 		movement.add(capture);
+		movement.add(review);
+		review.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
+		review.setToolTipText("Compare destinations and relative item order, preview the latest proposal, or keep it as your target.");
 		capture.setToolTipText("Save your open bank's tabs and item order as a new active layout. Remove bank fillers first.");
 		moveMode.setBackground(ColorScheme.DARKER_GRAY_COLOR);
 		moveMode.setForeground(ColorScheme.TEXT_COLOR);
@@ -100,8 +112,9 @@ final class BlueprintEditorPanel extends JPanel
 		status.setFont(net.runelite.client.ui.FontManager.getRunescapeSmallFont());
 		footer.add(status, BorderLayout.SOUTH);
 		add(tabs, BorderLayout.CENTER);
-		add(footer, BorderLayout.SOUTH);
+		if (!readOnly) add(footer, BorderLayout.SOUTH);
 		edit.addActionListener(event -> beginEdit());
+		review.addActionListener(event -> showChanges());
 		undo.addActionListener(event -> { selectedItem = -1; draft.undo(); renderDraft(); });
 		cancel.addActionListener(event -> cancelEdit());
 		save.addActionListener(event -> saveDraft());
@@ -150,10 +163,85 @@ final class BlueprintEditorPanel extends JPanel
 		if (draft == null && tab >= 0 && tab < tabs.getTabCount()) tabs.setSelectedIndex(tab);
 	}
 
+	private BankOrganizationPreview proposal()
+	{
+		BankOrganizationPreview proposed = model.proposedBlueprint();
+		return proposed == null ? latest : proposed;
+	}
+
+	String reviewText()
+	{
+		return latest == null ? "Analyze your bank to review changes." : model.blueprintState() + "\n\n"
+			+ BlueprintChanges.compare(model.reviewReference(), proposal()).report()
+			+ "\n\nKeeping a proposal saves the order and destinations of its current items. New items append to their matching tab."
+			+ "\nAdopting another proposal replaces that snapshot, including any saved entries currently absent."
+			+ "\nEmpty planner cells are excluded; the saved layout can appear more compact."
+			+ "\nPersonal setting changes pause the saved target. Bank items always move manually.";
+	}
+
+	private void showChanges()
+	{
+		if (readOnly || latest == null || draft != null || saving) return;
+		BankOrganizationPreview expected = latest;
+		BankOrganizationPreview proposed = proposal();
+		String expectedContext = model.editingContext();
+		JTextArea text = new JTextArea(reviewText(), 16, 56);
+		text.setEditable(false);
+		text.setLineWrap(true);
+		text.setWrapStyleWord(true);
+		List<String> actions = new ArrayList<>();
+		actions.add("View proposal");
+		if (AcceptedBlueprint.isSupported(model.acceptedBlueprint())) actions.add("Keep this proposal");
+		if (model.acceptedBlueprint().isEmpty() && BlueprintChanges.compare(model.rememberedBlueprint(), expected).isSupported())
+			actions.add("Remember reference only");
+		actions.add("Close");
+		int choice = JOptionPane.showOptionDialog(this, new JScrollPane(text), "Review blueprint",
+			JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, actions.toArray(), "Close");
+		if (choice < 0) return;
+		if ("Keep this proposal".equals(actions.get(choice))) acceptBlueprint(expected, proposed, expectedContext);
+		else if ("Remember reference only".equals(actions.get(choice))) rememberBlueprint(expected, expectedContext);
+		else if ("View proposal".equals(actions.get(choice)))
+		{
+			BlueprintEditorPanel view = new BlueprintEditorPanel(model, cellRenderer, ignored -> {}, true);
+			view.setPreview(proposed);
+			view.setPreferredSize(new Dimension(700, 560));
+			JOptionPane.showMessageDialog(this, view, "Latest proposal — preview only", JOptionPane.PLAIN_MESSAGE);
+		}
+	}
+
+	void acceptBlueprint(BankOrganizationPreview expected, BankOrganizationPreview proposed, String expectedContext)
+	{
+		if (readOnly || latest == null || latest != expected || proposed == null || proposal() != proposed
+			|| draft != null || saving || !model.editingContext().equals(expectedContext)) return;
+		saving = true;
+		refreshControls();
+		model.acceptBlueprint(expected, proposed, expectedContext, success -> {
+			saving = false;
+			renderTabs();
+			refreshControls();
+			status.setText(success ? "Blueprint kept. Existing items keep their saved order; new items append to their matching tab."
+				: "Unable to keep the proposal. Bank or layout changed, or saved data is unsupported. Analyze again.");
+		});
+	}
+
+	void rememberBlueprint(BankOrganizationPreview expected, String expectedContext)
+	{
+		if (readOnly || latest == null || latest != expected || draft != null || saving || !model.editingContext().equals(expectedContext)) return;
+		saving = true;
+		refreshControls();
+		model.rememberBlueprint(expected, expectedContext, success -> {
+			saving = false;
+			refreshControls();
+			status.setText(success ? "Blueprint reference remembered. Future comparisons include destinations and relative order."
+				: "Unable to remember. Bank or layout changed, or the reference is unsupported. Analyze again.");
+		});
+	}
+
 	void configureBankPreview(Consumer<BankOrganizationPreview> action) { bankPreview = action; }
 
 	void publishBankPreview()
 	{
+		if (readOnly) return;
 		boolean ready = latest != null && !saving
 			&& (draft == null || source == latest && model.editingContext().equals(context));
 		BankOrganizationPreview snapshot = ready ? latest : null;
@@ -169,7 +257,7 @@ final class BlueprintEditorPanel extends JPanel
 
 	void beginEdit()
 	{
-		if (latest == null || saving || draft != null || tabs.getSelectedIndex() < 0) return;
+		if (readOnly || latest == null || saving || draft != null || tabs.getSelectedIndex() < 0) return;
 		editedTab = tabs.getSelectedIndex();
 		source = latest;
 		context = model.editingContext();
@@ -215,7 +303,7 @@ final class BlueprintEditorPanel extends JPanel
 
 	void saveCurrentBank(String name)
 	{
-		if (name == null || name.trim().isEmpty() || latest == null || draft != null || saving
+		if (readOnly || name == null || name.trim().isEmpty() || latest == null || draft != null || saving
 			|| !model.options().itemOrders().isSupported()) return;
 		saving = true;
 		refreshControls();
@@ -399,7 +487,7 @@ final class BlueprintEditorPanel extends JPanel
 	{
 		boolean editing = draft != null;
 		boolean stale = editing && (source == null || latest != source || !model.editingContext().equals(context));
-		boolean ready = latest != null && tabs.getSelectedIndex() >= 0 && !saving
+		boolean ready = !readOnly && latest != null && tabs.getSelectedIndex() >= 0 && !saving
 			&& model.options().itemOrders().isSupported();
 		keepCurrentOrder.setSelected(tabs.getSelectedIndex() >= 0 && model.plan().keepsCurrentOrder(tabs.getSelectedIndex()));
 		keepCurrentOrder.setEnabled(ready && !editing);
@@ -409,6 +497,7 @@ final class BlueprintEditorPanel extends JPanel
 		save.setEnabled(editing && !stale && !saving);
 		reset.setEnabled(ready && !editing && latest.getCategories().get(tabs.getSelectedIndex()).hasManualOrder());
 		capture.setEnabled(ready && !editing);
+		review.setEnabled(ready && !editing);
 		moveMode.setEnabled(editing && !stale && !saving);
 		assign.setEnabled(editing && selectedItem >= 0 && !draft.items().get(selectedItem).isBlank() && !stale && !saving);
 		if (saving) status.setText("Saving local blueprint...");

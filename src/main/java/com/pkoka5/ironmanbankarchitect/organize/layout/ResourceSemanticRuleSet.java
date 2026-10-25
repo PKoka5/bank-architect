@@ -20,8 +20,6 @@ public final class ResourceSemanticRuleSet
 	private static final String CRAFTING_RULE_KEY = "resource.crafting.workflow-rows";
 	private static final String FLETCHING_RULE_KEY = "resource.fletching.tier-runs";
 
-	private static final Set<Integer> ALL_WIDTHS = Collections.unmodifiableSet(
-		new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
 
 	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
 		ResourceSemanticRuleSet.class.getResourceAsStream(
@@ -187,24 +185,14 @@ public final class ResourceSemanticRuleSet
 			{
 				continue;
 			}
-			List<LayoutEntry> anchored = new ArrayList<>(entries.size());
-			for (LayoutEntry entry : entries)
-			{
-				anchored.add(entry.getItem().getItemId() == anchorItemId
-					? entry.withLockedTarget(0) : entry);
-			}
-			return Collections.unmodifiableList(anchored);
+			return LayoutEntry.withTargets(entries, Collections.singletonMap(anchorItemId, 0));
 		}
 		return entries;
 	}
 
 	private static List<SemanticRule> rulesForEntries(List<LayoutEntry> entries)
 	{
-		Set<Integer> present = new LinkedHashSet<>();
-		for (LayoutEntry entry : entries)
-		{
-			present.add(entry.getItem().getItemId());
-		}
+		Set<Integer> present = LayoutEntry.presentIds(entries);
 		if (Collections.disjoint(present, DATA.get().supplementalMiningMaterials))
 		{
 			return DATA.get().rules;
@@ -235,13 +223,8 @@ public final class ResourceSemanticRuleSet
 		}
 		addCompactPresentFletchingRows(atoms, present);
 
-		return SemanticRule.builder()
-			.ruleKey(PRESENT_MATERIAL_ROWS_RULE_KEY)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.ROW_GROUP_MATRIX)
-			.allowedWidths(ALL_WIDTHS)
-			.build();
+		return SemanticRule.highConfidence(PRESENT_MATERIAL_ROWS_RULE_KEY, atoms,
+			ShapePrimitive.ROW_GROUP_MATRIX, SemanticRule.ALL_WIDTHS).build();
 	}
 
 	private static void addCompactPresentFletchingRows(List<SemanticAtom> atoms, Set<Integer> present)
@@ -259,14 +242,7 @@ public final class ResourceSemanticRuleSet
 		int rowIndex = 0;
 		for (List<Integer> family : families)
 		{
-			List<Integer> ownedFamily = new ArrayList<>();
-			for (Integer itemId : family)
-			{
-				if (present.contains(itemId))
-				{
-					ownedFamily.add(itemId);
-				}
-			}
+			List<Integer> ownedFamily = LayoutEntry.ownedIds(family, present);
 			if (ownedFamily.isEmpty())
 			{
 				continue;
@@ -307,36 +283,12 @@ public final class ResourceSemanticRuleSet
 	private static void addPresentChunks(List<SemanticAtom> atoms, String atomKey,
 		List<Integer> canonicalIds, Set<Integer> present)
 	{
-		List<SemanticAtom.Member> members = new ArrayList<>();
-		int chunk = 0;
-		for (Integer itemId : canonicalIds)
-		{
-			if (!present.contains(itemId))
-			{
-				continue;
-			}
-			if (members.size() == 8)
-			{
-				atoms.add(new SemanticAtom(atomKey + "-" + chunk++, members));
-				members = new ArrayList<>();
-			}
-			members.add(new SemanticAtom.Member("member-" + members.size(), itemId));
-		}
-		if (!members.isEmpty())
-		{
-			atoms.add(new SemanticAtom(atomKey + "-" + chunk, members));
-		}
+		SemanticAtom.appendPresentChunks(atoms, atomKey, canonicalIds, present, "member-");
 	}
 
 	private static SemanticRule rowRule(String ruleKey, List<RowFact> rows, ShapePrimitive shape)
 	{
-		return SemanticRule.builder()
-			.ruleKey(ruleKey)
-			.atoms(atomsForRows(rows))
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(shape)
-			.allowedWidths(ALL_WIDTHS)
-			.build();
+		return SemanticRule.highConfidence(ruleKey, atomsForRows(rows), shape, SemanticRule.ALL_WIDTHS).build();
 	}
 
 	private static List<SemanticAtom> atomsForRows(List<RowFact> rows)
@@ -344,12 +296,7 @@ public final class ResourceSemanticRuleSet
 		List<SemanticAtom> atoms = new ArrayList<>(rows.size());
 		for (RowFact row : rows)
 		{
-			List<SemanticAtom.Member> members = new ArrayList<>(row.itemIds.size());
-			for (int index = 0; index < row.itemIds.size(); index++)
-			{
-				members.add(new SemanticAtom.Member("tier-" + index, row.itemIds.get(index)));
-			}
-			atoms.add(new SemanticAtom(row.familyKey, members));
+			atoms.add(SemanticAtom.indexed(row.familyKey, row.itemIds, i -> "tier-" + i));
 		}
 
 		return atoms;
@@ -366,12 +313,8 @@ public final class ResourceSemanticRuleSet
 				new SemanticAtom.Member("processed", family.processedItemId))));
 		}
 
-		SemanticRule.Builder builder = SemanticRule.builder()
-			.ruleKey(ruleKey)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.STAGE_MATRIX)
-			.allowedWidths(ALL_WIDTHS);
+		SemanticRule.Builder builder = SemanticRule.highConfidence(ruleKey, atoms,
+			ShapePrimitive.STAGE_MATRIX, SemanticRule.ALL_WIDTHS);
 		if (widthEvidence != null)
 		{
 			builder.widthEvidence(widthEvidence);
@@ -401,18 +344,8 @@ public final class ResourceSemanticRuleSet
 
 	private static void validateMember(String expectedFamilyKey, int itemId, int expectedStage)
 	{
-		ItemSortMetadata metadata = ResourceItemSortMetadataCatalog.INSTANCE.findById(itemId)
-			.orElseThrow(() -> new IllegalStateException(
-				"Missing resource semantic metadata for itemId " + itemId));
-		if (!expectedFamilyKey.equals(metadata.getFamilyKey())
-			|| metadata.getVariantKind() != ItemSortMetadata.VariantKind.WORKFLOW_STAGE
-			|| metadata.getVariantValue() != expectedStage)
-		{
-			throw new IllegalStateException("Resource semantic metadata mismatch for itemId " + itemId
-				+ ": expected family=" + expectedFamilyKey + ", kind=WORKFLOW_STAGE, stage="
-				+ expectedStage + " but was family=" + metadata.getFamilyKey() + ", kind="
-				+ metadata.getVariantKind() + ", stage=" + metadata.getVariantValue());
-		}
+		ResourceItemSortMetadataCatalog.INSTANCE.requireVariant(itemId, expectedFamilyKey,
+			ItemSortMetadata.VariantKind.WORKFLOW_STAGE, expectedStage);
 	}
 
 

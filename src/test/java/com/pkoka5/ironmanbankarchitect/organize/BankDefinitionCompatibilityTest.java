@@ -40,12 +40,13 @@ public class BankDefinitionCompatibilityTest
     }
 
     @Test
-    public void everyTagKeepsItsPreviousNameDeclarationOrderCategoryAndLookup()
+    public void everyStandardTagKeepsItsPreviousNameDeclarationOrderCategoryAndLookup()
     {
         List<String> actual = new ArrayList<>();
         int index = 0;
         for (BankTag tag : BankTags.all())
         {
+            if (BankTags.isOptional(tag.getKey())) continue;
             actual.add(row("TAG", index++, tag.getKey(), tag.getName(), tag.getCategoryKey()));
             BankTag lookup = BankTags.byKey(tag.getKey());
             assertTrue(BankTags.isKnown(tag.getKey()));

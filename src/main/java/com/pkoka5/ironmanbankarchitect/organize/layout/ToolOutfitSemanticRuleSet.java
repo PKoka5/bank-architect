@@ -1,6 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.catalog.*;
+import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
 import java.util.*;
 import java.util.List;
 
@@ -12,8 +13,6 @@ public final class ToolOutfitSemanticRuleSet
 {
 	private static final String OUTFIT_RULE_KEY = "tool.outfit-columns";
 	private static final String SKILL_RUN_RULE_KEY = "tool.primary-skill-runs";
-	private static final Set<Integer> ALL_WIDTHS = Collections.unmodifiableSet(
-		new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
 	private static final OrderedItemFamilies TABLE = new OrderedItemFamilies(
 		ToolOutfitSemanticRuleSet.class.getResourceAsStream(
 			"/com/pkoka5/ironmanbankarchitect/catalog/tool-layout-families.tsv"), 0, false);
@@ -31,7 +30,7 @@ public final class ToolOutfitSemanticRuleSet
 		List<OutfitFact> outfits = new ArrayList<>();
 		TABLE.group("outfits").forEach((key, ids) ->
 		{
-			if (key.equals("outfit.farmer"))
+			if (key.endsWith("/outfit.farmer"))
 			{
 				for (int variant = 0; variant < 2; variant++)
 				{
@@ -93,8 +92,7 @@ public final class ToolOutfitSemanticRuleSet
 
 	public static Set<Integer> outfitItemIds(List<LayoutEntry> entries)
 	{
-		Set<Integer> present = new HashSet<>(), protectedIds = new HashSet<>();
-		for (LayoutEntry entry : entries) present.add(entry.getItem().getItemId());
+		Set<Integer> present = LayoutEntry.presentIds(entries), protectedIds = new HashSet<>();
 		for (OutfitFact outfit : outfitsFor(entries))
 		{
 			List<Integer> owned = presentIds(outfit.itemIds, present);
@@ -109,6 +107,95 @@ public final class ToolOutfitSemanticRuleSet
 		List<Integer> order = new ArrayList<>();
 		for (OutfitFact outfit : outfitsFor(entries)) order.addAll(outfit.itemIds);
 		return order;
+	}
+
+	/** Keep real outfit cells and attach owned skill tools around their best present outfit. */
+	public static List<BankPreviewItem> groupSkills(List<BankPreviewItem> items,
+		java.util.function.IntPredicate reserved)
+	{
+		List<LayoutEntry> entries = new ArrayList<>();
+		Map<Integer, Integer> positions = new HashMap<>();
+		Map<Integer, BankPreviewItem> present = new HashMap<>();
+		for (int i = 0; i < items.size(); i++)
+		{
+			BankPreviewItem item = items.get(i);
+			entries.add(LayoutEntry.of(item, i)); positions.put(item.getItemId(), i); present.put(item.getItemId(), item);
+		}
+		BankPreviewItem[] cells = new BankPreviewItem[items.size()];
+		Map<String, List<Integer>> outfits = new LinkedHashMap<>();
+		Set<Integer> used = new HashSet<>();
+		for (OutfitFact outfit : outfitsFor(entries))
+		{
+			List<Integer> owned = presentIds(outfit.itemIds, present.keySet());
+			for (int id : owned) { cells[positions.get(id)] = present.get(id); used.add(id); }
+			int separator = outfit.key.indexOf('/');
+			if (separator > 0 && !owned.isEmpty())
+			{
+				String skill = outfit.key.substring(0, separator);
+				if (owned.size() > outfits.getOrDefault(skill, Collections.emptyList()).size()) outfits.put(skill, owned);
+			}
+		}
+		for (BankPreviewItem item : items) if (reserved.test(item.getItemId()))
+		{ cells[positions.get(item.getItemId())] = item; used.add(item.getItemId()); }
+		Map<String, List<Integer>> tools = new LinkedHashMap<>();
+		for (OutfitFact family : TOOL_FAMILIES.get())
+		{
+			List<Integer> owned = new ArrayList<>();
+			for (int id : family.itemIds) if (present.containsKey(id) && used.add(id)) owned.add(id);
+			tools.put(family.key.substring("tool.".length()), owned);
+		}
+		// Reserve each skill's own column before overflow can occupy another skill's continuation.
+		Map<String, Integer> ends = new HashMap<>();
+		for (Map.Entry<String, List<Integer>> group : tools.entrySet())
+		{
+			List<Integer> outfit = outfits.get(group.getKey());
+			if (outfit == null) continue;
+			int last = positions.get(outfit.get(outfit.size() - 1));
+			ends.put(group.getKey(), last);
+			for (int at = last + 8, placed = 0; at < cells.length && placed < 4 && !group.getValue().isEmpty(); at += 8)
+				if (cells[at] == null)
+				{
+					cells[at] = present.get(group.getValue().remove(0));
+					ends.put(group.getKey(), at); placed++;
+				}
+		}
+		List<Map.Entry<String, List<Integer>>> groups = new ArrayList<>(tools.entrySet());
+		groups.sort(Comparator.comparing(group -> !outfits.containsKey(group.getKey())));
+		for (Map.Entry<String, List<Integer>> group : groups)
+		{
+			List<Integer> owned = group.getValue();
+			if (owned.isEmpty()) continue;
+			List<Integer> outfit = outfits.get(group.getKey());
+			int first = outfit == null ? positions.get(owned.get(0)) : positions.get(outfit.get(0));
+			int anchor = outfit == null ? first : (first / 8 + ends.get(group.getKey()) / 8) / 2 * 8 + first % 8;
+			int run = -1;
+			if (outfit == null) for (int at = 0; at + owned.size() <= cells.length; at++)
+			{
+				if (owned.size() <= 8 && at % 8 + owned.size() > 8) continue;
+				boolean free = true;
+				for (int i = 0; i < owned.size(); i++) if (cells[at + i] != null) { free = false; break; }
+				if (free && (run < 0 || Math.abs(at - anchor) < Math.abs(run - anchor))) run = at;
+			}
+			for (int id : owned)
+			{
+				int target = run < 0 ? -1 : run++;
+				if (target < 0) for (int at = 0; at < cells.length; at++)
+					if (cells[at] == null && (target < 0 || distance(at, anchor) < distance(target, anchor))) target = at;
+				cells[target] = present.get(id);
+			}
+		}
+		int next = 0;
+		for (BankPreviewItem item : items) if (!used.contains(item.getItemId()))
+		{
+			while (cells[next] != null) next++;
+			cells[next] = item;
+		}
+		return Arrays.asList(cells);
+	}
+
+	private static int distance(int at, int anchor)
+	{
+		return Math.abs(at / 8 - anchor / 8) * 8 + Math.abs(at % 8 - anchor % 8);
 	}
 
 	private static List<LayoutEntry> anchoredEntries(List<LayoutEntry> entries)
@@ -175,13 +262,7 @@ public final class ToolOutfitSemanticRuleSet
 			return entries;
 		}
 
-		List<LayoutEntry> anchored = new ArrayList<>(entries.size());
-		for (LayoutEntry entry : entries)
-		{
-			Integer target = lockedTargets.get(entry.getItem().getItemId());
-			anchored.add(target == null ? entry : entry.withLockedTarget(target));
-		}
-		return Collections.unmodifiableList(anchored);
+		return LayoutEntry.withTargets(entries, lockedTargets);
 	}
 
 	private static int lockPriorityRows(List<Integer> itemIds, Set<Integer> present,
@@ -208,12 +289,7 @@ public final class ToolOutfitSemanticRuleSet
 
 	private static List<Integer> presentIds(List<Integer> itemIds, Set<Integer> present)
 	{
-		List<Integer> owned = new ArrayList<>();
-		for (Integer itemId : itemIds)
-		{
-			if (present.contains(itemId)) owned.add(itemId);
-		}
-		return owned;
+		return LayoutEntry.ownedIds(itemIds, present);
 	}
 
 	private static SemanticRule buildOutfitRule(List<LayoutEntry> entries)
@@ -221,15 +297,14 @@ public final class ToolOutfitSemanticRuleSet
 		List<ItemSetCatalog.SetDefinition> definitions = new ArrayList<>(OUTFITS.get().size());
 		for (OutfitFact outfit : outfitsFor(entries))
 		{
-			definitions.add(ItemSetCatalog.definition("tools", outfit.key, outfit.key, outfit.itemIds));
+			definitions.add(ItemSetCatalog.definition("tools", outfit.key.replace('/', '.'), outfit.key, outfit.itemIds));
 		}
 		return VerticalItemSetRuleFactory.build(OUTFIT_RULE_KEY, entries, definitions);
 	}
 
 	private static List<OutfitFact> outfitsFor(List<LayoutEntry> entries)
 	{
-		Set<Integer> present = new LinkedHashSet<>();
-		for (LayoutEntry entry : entries) present.add(entry.getItem().getItemId());
+		Set<Integer> present = LayoutEntry.presentIds(entries);
 		Map<String, List<OutfitFact>> families = new LinkedHashMap<>();
 		for (OutfitFact outfit : OUTFITS.get())
 			families.computeIfAbsent(outfitFamily(outfit.key), key -> new ArrayList<>()).add(outfit);
@@ -259,16 +334,16 @@ public final class ToolOutfitSemanticRuleSet
 				outfits.add(outfit(family.getKey() + "-mixed-" + column, pieces));
 			}
 		}
-		if (outfits.stream().noneMatch(outfit -> outfit.key.startsWith("outfit.raiments-eye"))
+		if (outfits.stream().noneMatch(outfit -> outfit.key.contains("outfit.raiments-eye"))
 			&& !Collections.disjoint(present, TABLE.ids("EYE_SHARED")))
-			outfits.add(outfit("outfit.raiments-eye", Collections.emptyList()));
+			outfits.add(outfit("runecrafting/outfit.raiments-eye", Collections.emptyList()));
 		int best = -1;
 		int count = -1;
 		for (int i = 0; i < outfits.size(); i++)
 		{
 			OutfitFact outfit = outfits.get(i);
 			int owned = presentIds(outfit.itemIds, present).size();
-			if (outfit.key.startsWith("outfit.raiments-eye") && owned > count)
+			if (outfit.key.contains("outfit.raiments-eye") && owned > count)
 			{
 				best = i;
 				count = owned;
@@ -286,23 +361,22 @@ public final class ToolOutfitSemanticRuleSet
 
 	private static String outfitFamily(String key)
 	{
-		if (key.startsWith("tools.graceful-")) return "outfit.graceful";
-		if (key.equals("outfit.golden-prospector")) return "outfit.prospector";
-		if (key.equals("outfit.spirit-angler")) return "outfit.angler";
+		int separator = key.indexOf('/');
+		String prefix = separator < 0 ? "" : key.substring(0, separator + 1);
+		key = separator < 0 ? key : key.substring(separator + 1);
+		if (key.startsWith("tools.graceful-")) return "agility/outfit.graceful";
+		if (key.equals("outfit.golden-prospector")) key = "outfit.prospector";
+		if (key.equals("outfit.spirit-angler")) key = "outfit.angler";
 		for (String family : Arrays.asList("outfit.graceful", "outfit.prospector", "outfit.lumberjack",
 			"outfit.raiments-eye", "outfit.farmer", "outfit.smiths"))
-			if (key.startsWith(family + "-")) return family;
-		return key;
+			if (key.startsWith(family + "-")) return prefix + family;
+		return prefix + key;
 	}
 
 	private static SemanticRule buildPresentRows(List<LayoutEntry> entries, String ruleKey,
 		List<OutfitFact> families)
 	{
-		Set<Integer> present = new LinkedHashSet<>();
-		for (LayoutEntry entry : entries)
-		{
-			present.add(entry.getItem().getItemId());
-		}
+		Set<Integer> present = LayoutEntry.presentIds(entries);
 
 		List<SemanticAtom> atoms = new ArrayList<>();
 		for (OutfitFact family : families)
@@ -311,37 +385,14 @@ public final class ToolOutfitSemanticRuleSet
 			{
 				continue;
 			}
-			List<SemanticAtom.Member> members = new ArrayList<>();
-			int chunk = 0;
-			for (Integer itemId : family.itemIds)
-			{
-				if (!present.contains(itemId))
-				{
-					continue;
-				}
-				if (members.size() == 8)
-				{
-					atoms.add(new SemanticAtom(family.key + "-" + chunk++, members));
-					members = new ArrayList<>();
-				}
-				members.add(new SemanticAtom.Member("tool-" + members.size(), itemId));
-			}
-			if (!members.isEmpty())
-			{
-				atoms.add(new SemanticAtom(family.key + "-" + chunk, members));
-			}
+			if (presentIds(family.itemIds, present).size() < 2) continue;
+			SemanticAtom.appendPresentChunks(atoms, family.key, family.itemIds, present, "tool-");
 		}
 		if (atoms.isEmpty())
 		{
 			return null;
 		}
-		return SemanticRule.builder()
-			.ruleKey(ruleKey)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.ROW_GROUP_MATRIX)
-			.allowedWidths(ALL_WIDTHS)
-			.build();
+		return SemanticRule.highConfidence(ruleKey, atoms, ShapePrimitive.ROW_GROUP_MATRIX, SemanticRule.ALL_WIDTHS).build();
 	}
 
 	private static OutfitFact outfit(String key, List<Integer> itemIds)

@@ -50,13 +50,8 @@ public final class AchievementDiarySemanticRuleSet
 			return new LayoutRequest(entries, Collections.emptyList());
 		}
 
-		SemanticRule rule = SemanticRule.builder()
-			.ruleKey("main.achievement-diary-grid")
-			.atoms(rows)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.ROW_GROUP_MATRIX)
-			.allowedWidths(Collections.singleton(4))
-			.build();
+		SemanticRule rule = SemanticRule.highConfidence("main.achievement-diary-grid", rows,
+			ShapePrimitive.ROW_GROUP_MATRIX, Collections.singleton(4)).build();
 		return new LayoutRequest(entries, Collections.singletonList(rule));
 	}
 

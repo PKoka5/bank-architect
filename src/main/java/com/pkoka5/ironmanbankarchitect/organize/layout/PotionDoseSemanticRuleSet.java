@@ -13,8 +13,6 @@ import java.util.List;
 public final class PotionDoseSemanticRuleSet
 {
 	private static final String RULE_KEY = "potion.dose-runs";
-	private static final Set<Integer> ALL_WIDTHS = Collections.unmodifiableSet(
-		new LinkedHashSet<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
 
 	private static final OrderedItemFamilies FAMILIES = new OrderedItemFamilies(
 		PotionDoseSemanticRuleSet.class.getResourceAsStream(
@@ -39,21 +37,10 @@ public final class PotionDoseSemanticRuleSet
 		List<SemanticAtom> atoms = new ArrayList<>(FAMILIES.entries().size());
 		for (Map.Entry<String, List<Integer>> family : FAMILIES.entries().entrySet())
 		{
-			List<SemanticAtom.Member> members = new ArrayList<>();
-			for (int index = 0; index < 4; index++)
-			{
-				members.add(new SemanticAtom.Member("dose-" + (4 - index), family.getValue().get(index)));
-			}
-			atoms.add(new SemanticAtom(family.getKey(), members));
+			atoms.add(SemanticAtom.indexed(family.getKey(), family.getValue(), i -> "dose-" + (4 - i)));
 		}
 
-		return SemanticRule.builder()
-			.ruleKey(RULE_KEY)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.HORIZONTAL_RUN)
-			.allowedWidths(ALL_WIDTHS)
-			.build();
+		return SemanticRule.highConfidence(RULE_KEY, atoms, ShapePrimitive.HORIZONTAL_RUN, SemanticRule.ALL_WIDTHS).build();
 	}
 
 	private static void validateMetadata()
@@ -62,24 +49,9 @@ public final class PotionDoseSemanticRuleSet
 		{
 			for (int index = 0; index < family.getValue().size(); index++)
 			{
-				validateMember(family.getKey(), family.getValue().get(index), 4 - index);
+				ResourceItemSortMetadataCatalog.INSTANCE.requireVariant(family.getValue().get(index),
+					family.getKey(), ItemSortMetadata.VariantKind.DOSE, 4 - index);
 			}
-		}
-	}
-
-	private static void validateMember(String expectedFamilyKey, int itemId, int expectedDose)
-	{
-		ItemSortMetadata metadata = ResourceItemSortMetadataCatalog.INSTANCE.findById(itemId)
-			.orElseThrow(() -> new IllegalStateException(
-				"Missing potion semantic metadata for itemId " + itemId));
-		if (!expectedFamilyKey.equals(metadata.getFamilyKey())
-			|| metadata.getVariantKind() != ItemSortMetadata.VariantKind.DOSE
-			|| metadata.getVariantValue() != expectedDose)
-		{
-			throw new IllegalStateException("Potion semantic metadata mismatch for itemId " + itemId
-				+ ": expected family=" + expectedFamilyKey + ", kind=DOSE, dose=" + expectedDose
-				+ " but was family=" + metadata.getFamilyKey() + ", kind="
-				+ metadata.getVariantKind() + ", dose=" + metadata.getVariantValue());
 		}
 	}
 

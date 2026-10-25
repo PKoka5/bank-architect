@@ -645,6 +645,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			event -> shiftWithinSelected(key, 1)));
 		buttons.add(layoutButton("✕", isFallback
 				? "This tag catches everything left over, so it always has a tab"
+				: BankTags.isOptional(key) ? "Merge this optional style back into Combat Gear. Personal item positions keep priority."
 				: "Take " + tag.getName() + " off this tab and send it to the "
 					+ fallbackName() + " tab",
 			!isFallback, event -> removeFromTab(key)));
@@ -791,8 +792,8 @@ final class IronmanBankArchitectPanel extends PluginPanel
 				continue;
 			}
 			keys.add(tag.getKey());
-			chooser.addItem(tag.getName() + "  (" + destinationName(
-				layoutPlan.destinationOf(tag.getKey())) + ")");
+			chooser.addItem(tag.getName() + "  (" + (BankTags.isOptional(tag.getKey())
+				&& layoutPlan.destinationOf(tag.getKey()) < 0 ? "optional" : destinationName(layoutPlan.destinationOf(tag.getKey()))) + ")");
 		}
 
 		chooser.setFont(FontManager.getRunescapeSmallFont());
@@ -919,34 +920,31 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private JComboBox<GearLayout> gearLayoutChooser(BankLayoutOptions options)
 	{
-		JComboBox<GearLayout> chooser = new JComboBox<>(GearLayout.values());
-		chooser.setSelectedItem(options.gearLayout());
-		chooser.setToolTipText("<html>Best in slot: full Melee, Ranged and Magic columns, with your best owned gear first.<br>"
-			+ "Other armour sets stay together vertically. Shared items appear once.<br>Sets and list provide alternative arrangements.</html>");
-		styleChooser(chooser);
-		chooser.addActionListener(event -> {
-			if (!refreshingOptions)
-			{
-				GearLayout chosen = (GearLayout) chooser.getSelectedItem();
-				bankLayoutModel.saveOptions(withGearLayout(bankLayoutModel.options(), chosen));
-				refreshProfiles();
-			}
-		});
-		return chooser;
+		return optionChooser(GearLayout.values(), options.gearLayout(),
+			"<html>Best in slot: full Melee, Ranged and Magic columns, with your best owned gear first.<br>"
+				+ "Other armour sets stay together vertically. Shared items appear once.<br>Sets and list provide alternative arrangements.</html>",
+			this::withGearLayout);
 	}
 
 	private JComboBox<TabOrder> orderChooser(BankLayoutOptions options, BankCategorySortMode mode,
 		String tooltip)
 	{
-		JComboBox<TabOrder> chooser = new JComboBox<>(TabOrder.values());
-		chooser.setSelectedItem(options.orderFor(mode));
+		return optionChooser(TabOrder.values(), options.orderFor(mode), tooltip,
+			(base, chosen) -> withOrder(base, mode, chosen));
+	}
+
+	private <T> JComboBox<T> optionChooser(T[] values, T selected, String tooltip,
+		BiFunction<BankLayoutOptions, T, BankLayoutOptions> update)
+	{
+		JComboBox<T> chooser = new JComboBox<>(values);
+		chooser.setSelectedItem(selected);
 		chooser.setToolTipText(tooltip);
 		styleChooser(chooser);
 		chooser.addActionListener(event -> {
 			if (!refreshingOptions)
 			{
-				TabOrder chosen = (TabOrder) chooser.getSelectedItem();
-				bankLayoutModel.saveOptions(withOrder(bankLayoutModel.options(), mode, chosen));
+				T chosen = chooser.getItemAt(chooser.getSelectedIndex());
+				bankLayoutModel.saveOptions(update.apply(bankLayoutModel.options(), chosen));
 				refreshProfiles();
 			}
 		});
@@ -971,14 +969,14 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 * would cost a row in a sidebar already short of them, so the name rides on
 	 * the closed value instead - the one place it is always visible.</p>
 	 */
-	private void nameTheClosedChooser(JComboBox<?> chooser)
+	private <T> void nameTheClosedChooser(JComboBox<T> chooser)
 	{
 		nameTheClosedChooser(chooser, "Layout");
 	}
 
-	private void nameTheClosedChooser(JComboBox<?> chooser, String label)
+	private <T> void nameTheClosedChooser(JComboBox<T> chooser, String label)
 	{
-		ListCellRenderer<Object> base = (ListCellRenderer<Object>) chooser.getRenderer();
+		ListCellRenderer<? super T> base = chooser.getRenderer();
 		chooser.setRenderer((list, value, index, selected, focused) -> {
 			Component cell = base.getListCellRendererComponent(
 				list, value, index, selected, focused);
@@ -1175,6 +1173,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 */
 	void removeFromTab(String tagKey)
 	{
+		if (BankTags.isOptional(tagKey))
+		{
+			applyLayoutPlan(bankLayoutModel.plan().withoutOptionalTag(tagKey));
+			return;
+		}
 		if (BankLayoutPlan.FALLBACK_TAG_KEY.equals(tagKey))
 		{
 			return;
@@ -1656,6 +1659,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	static String itemTooltip(BankPreviewItem item)
 	{
 		String text = item.toCompactLabel();
+		if (!item.getPlacementReason().isEmpty()) text += "\nWhy here: " + item.getPlacementReason();
 		if (item.getLayoutTagKey() != null)
 			text += "\nPlacement: " + BankTags.byKey(item.getLayoutTagKey()).getName();
 		if (!item.getUsageTags().isEmpty())

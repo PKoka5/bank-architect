@@ -21,11 +21,11 @@ import org.junit.runners.Parameterized;
 public class ReportedMidgameCombatTest
 {
 	private static final List<Integer> PRIMARY = Arrays.asList(10828, 3749, 3755, 11832, 2503, 4091,
-		11834, 2497, 4093, 26219, 26770, 25975, 25865, 31115, 6570, 6585, 12954, 7462,
+		11834, 2497, 4093, 26219, 26770, 25975, 25865, 12658, 6570, 6585, 12954, 7462,
 		29286, 10499, 31088, 21795, 6889, 6920);
 	private static final int[][] CORES = {{10828,11832,11834},{3749,2503,2497},{3755,4091,4093}};
 	private static final int[][] ROLE_GROUPS = {
-		{4151,4587}, {28997,29889}, {1215,10887,11061}, {24699,4158,7668},
+		{4151,4587}, {26219,13265}, {28997,29889}, {1215,10887,11061}, {24699,4158,7668},
 		{23985,12788,859,855,847}, {805,865}, {10033,10034}, {1381,1383,1385,1393,3053}
 	};
 	private final BankPreset preset;
@@ -74,6 +74,8 @@ public class ReportedMidgameCombatTest
 			"item-"+id,0,0,"loose",stats.get(id)));
 		new CombatQualityReport(preset.getType()+"-reported-midgame",bank(source,Collections.emptySet()),preview,
 			plan,new LinkedHashSet<>(PRIMARY),true,0,false,facts).write(Paths.get("build/reports/combat-quality"));
+		java.nio.file.Files.writeString(Paths.get("build/reports/combat-quality",preset.getType()+"-reported-midgame.txt"),
+			BankBlueprintTextExporter.export(preview),StandardCharsets.UTF_8);
 		assertEquals(preset.getType()==BankPresetType.MAIN?84:85,actual.size());
 		assertEquals("the Main preset retains its separate transport destination",preset.getType()!=BankPresetType.MAIN,actual.contains(9084));
 		for (int column=0;column<CORES.length;column++)
@@ -90,7 +92,9 @@ public class ReportedMidgameCombatTest
 	public void reviewedWeaponRolesFormWholeCanonicalGroups()
 	{
 		List<Integer> actual = ids(build(source,Collections.emptySet(),BlueprintItemOrders.EMPTY));
-		for (int[] group : ROLE_GROUPS) assertGroup(actual,group);
+		assertEquals("the reviewed general Fang preference joins the complete Melee column",Integer.valueOf(26219),actual.get(48));
+		for (int[] group : ROLE_GROUPS)
+			assertGroup(actual,Arrays.stream(group).filter(id -> id != 26219).toArray());
 		int slash = actual.indexOf(4151), stab = actual.indexOf(13265), crush = actual.indexOf(28997);
 		assertTrue("slash then stab then crush",slash<stab && stab<crush);
 		assertTrue("quest sword follows combat/task weapons",actual.indexOf(10858)>actual.indexOf(6746));

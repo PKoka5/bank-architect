@@ -251,7 +251,8 @@ final class CombatQualityReport
 		appendGrid(html, "Tools / cannon", tools);
 		html.append("<h2>Geometry diagnostics</h2><pre>").append(escape(String.join("\n",geometry))).append("</pre>");
 		Files.write(directory.resolve(slug + ".html"), html.toString().getBytes(StandardCharsets.UTF_8));
-		png(directory.resolve(slug + ".png"));
+		png(directory.resolve(slug + ".png"),combat);
+		if (!tools.isEmpty()) png(directory.resolve(slug + "-tools.png"),tools);
 	}
 
 	private void appendGrid(StringBuilder html, String title, List<BankPreviewItem> items)
@@ -273,17 +274,17 @@ final class CombatQualityReport
 		html.append("</table>");
 	}
 
-	private void png(Path path) throws IOException
+	private void png(Path path, List<BankPreviewItem> shown) throws IOException
 	{
-		int rows = (combat.size() + 7) / 8;
+		int rows = (shown.size() + 7) / 8;
 		BufferedImage image = new BufferedImage(1200, Math.max(160, 70 + rows * 80), BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = image.createGraphics();
 		graphics.setColor(new Color(24,27,32)); graphics.fillRect(0,0,image.getWidth(),image.getHeight());
 		graphics.setFont(new Font(Font.SANS_SERIF,Font.BOLD,18)); graphics.setColor(Color.WHITE);
 		graphics.drawString(name + " / " + (violations.isEmpty() ? "PASS" : violations.size() + " violations"),12,28);
-		for (int i = 0; i < combat.size(); i++)
+		for (int i = 0; i < shown.size(); i++)
 		{
-			BankPreviewItem item = combat.get(i); Fact fact = expectedFacts.get(item.getItemId());
+			BankPreviewItem item = shown.get(i); Fact fact = expectedFacts.get(item.getItemId());
 			int x = i % 8 * 150, y = 50 + i / 8 * 80;
 			graphics.setColor(color(fact == null ? "" : fact.zone)); graphics.fillRect(x,y,149,79);
 			graphics.setColor(primary.contains(item.getItemId()) ? new Color(190,210,235) : new Color(90,100,120));

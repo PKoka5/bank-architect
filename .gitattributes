@@ -3,3 +3,5 @@
 
 # Empty final fields are part of this TSV schema.
 src/main/resources/com/pkoka5/ironmanbankarchitect/organize/bank-tags.tsv whitespace=-blank-at-eol
+src/main/resources/com/pkoka5/ironmanbankarchitect/catalog/compiled-item-registry.tsv text eol=lf whitespace=-blank-at-eol
+src/main/resources/com/pkoka5/ironmanbankarchitect/organize/melee-primary-candidates.tsv text eol=lf

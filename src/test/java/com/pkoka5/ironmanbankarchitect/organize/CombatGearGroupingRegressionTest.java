@@ -94,7 +94,9 @@ public class CombatGearGroupingRegressionTest
 			Map<Integer, GearStats> stats = new LinkedHashMap<>();
 			for (int slot = 0; slot < family.length; slot++)
 			{
-				int primaryId = 980000 + slot;
+				// Reviewed identities with controlled stats exercise all three selection policies.
+				int primaryId = familyIndex == 0 ? new int[]{26382,26384,26386}[slot]
+					: familyIndex == 1 ? new int[]{27235,27238,27241}[slot] : new int[]{21018,21021,21024,19544,13235}[slot];
 				primaryIds.add(primaryId);
 				items.add(new BankPreviewItem(new CatalogItem(primaryId, "Primary " + FAMILY_SLOTS[slot],
 					ItemCategory.GEAR, "gear", Collections.emptySet(), null), 1));
@@ -163,7 +165,8 @@ public class CombatGearGroupingRegressionTest
 			int slotCount = style == GearStyle.MAGIC ? 5 : style == GearStyle.PRAYER ? 1 : 3;
 			for (int slot = 0; slot < slotCount; slot++)
 			{
-				int itemId = 981000 + primaryIds.size();
+				int itemId = style == GearStyle.RANGED ? new int[]{27235,27238,27241}[slot]
+					: style == GearStyle.MAGIC ? new int[]{21018,21021,21024,19544,13235}[slot] : 981000 + primaryIds.size();
 				primaryIds.add(itemId);
 				primaryCatalog.put(itemId, new CatalogItem(itemId, "Primary " + style + " " + FAMILY_SLOTS[slot],
 					ItemCategory.GEAR, "gear", Collections.emptySet(), null));
@@ -202,8 +205,8 @@ public class CombatGearGroupingRegressionTest
 			List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();
 			String context = preset.getType() + ", full primary columns and two Mystic sets";
 
-			int[][] primaryColumns = {{981000, 981001, 981002}, {981003, 981004, 981005},
-				{981006, 981007, 981008, 981010, 981009}};
+			int[][] primaryColumns = {{981000,981001,981002}, {27235,27238,27241},
+				{21018,21021,21024,13235,19544}};
 			for (int style = 0; style < primaryColumns.length; style++)
 				for (int row = 0; row < primaryColumns[style].length; row++)
 					assertEquals(context + ", independent full-column target", Integer.valueOf(primaryColumns[style][row]),

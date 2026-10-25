@@ -20,4 +20,6 @@ public interface CategoryOverrideSource
 	CategoryOverrideSource NONE = itemId -> Optional.empty();
 
 	Optional<String> categoryKeyFor(int itemId);
+
+	default boolean isPersonalChoice(int itemId) { return true; }
 }

@@ -2,7 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.catalog.RequiredResource;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.pkoka5.ironmanbankarchitect.util.BundledTable;
 import java.util.*;
 import java.util.List;
 
@@ -14,7 +14,6 @@ public final class ItemSetCatalog
 {
 	private static final String RESOURCE_PATH =
 		"/com/pkoka5/ironmanbankarchitect/organize/item-set-catalog.tsv";
-	private static final String SCHEMA_HEADER = "# schema=1";
 	private static final String COSMETIC_FAMILY_DOMAIN = "cosmetic-family";
 	private static final RequiredResource<Map<String, List<SetDefinition>>> SETS_BY_DOMAIN =
 		new RequiredResource<>("item set", () -> load(ItemSetCatalog.class.getResourceAsStream(RESOURCE_PATH)));
@@ -116,28 +115,11 @@ public final class ItemSetCatalog
 
 	static Map<String, List<SetDefinition>> load(InputStream stream)
 	{
-		if (stream == null)
-		{
-			throw new IllegalStateException("Missing item set catalog resource: " + RESOURCE_PATH);
-		}
-
 		Map<String, MutableSet> byKey = new LinkedHashMap<>();
-		try (BufferedReader reader = new BufferedReader(
-			new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		try
 		{
-			String header = reader.readLine();
-			if (!SCHEMA_HEADER.equals(header))
+			BundledTable.read(stream, RESOURCE_PATH, false, true, (line, columns) ->
 			{
-				throw new IllegalStateException("Unexpected item set catalog schema: " + header);
-			}
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				if (line.isEmpty() || line.startsWith("#"))
-				{
-					continue;
-				}
-				String[] columns = line.split("\t", -1);
 				if (columns.length != 5)
 				{
 					throw new IllegalStateException("Malformed item set catalog row: " + line);
@@ -159,7 +141,7 @@ public final class ItemSetCatalog
 					throw new IllegalStateException("Conflicting set name for " + key);
 				}
 				set.add(slotRank, itemId);
-			}
+			});
 		}
 		catch (IOException | NumberFormatException e)
 		{

@@ -14,11 +14,7 @@ final class VerticalItemSetRuleFactory
 	static SemanticRule build(String ruleKey, List<LayoutEntry> entries,
 		List<ItemSetCatalog.SetDefinition> definitions)
 	{
-		Set<Integer> present = new LinkedHashSet<>();
-		for (LayoutEntry entry : entries)
-		{
-			present.add(entry.getItem().getItemId());
-		}
+		Set<Integer> present = LayoutEntry.presentIds(entries);
 
 		List<SemanticAtom> atoms = new ArrayList<>();
 		for (ItemSetCatalog.SetDefinition definition : definitions)
@@ -40,12 +36,6 @@ final class VerticalItemSetRuleFactory
 		{
 			return null;
 		}
-		return SemanticRule.builder()
-			.ruleKey(ruleKey)
-			.atoms(atoms)
-			.confidenceTier(ConfidenceTier.HIGH)
-			.shapePrimitive(ShapePrimitive.VERTICAL_RUN)
-			.allowedWidths(Collections.singleton(1))
-			.build();
+		return SemanticRule.highConfidence(ruleKey, atoms, ShapePrimitive.VERTICAL_RUN, Collections.singleton(1)).build();
 	}
 }

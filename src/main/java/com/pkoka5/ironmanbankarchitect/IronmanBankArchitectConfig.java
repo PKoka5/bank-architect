@@ -209,7 +209,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = toolsSection,
 		position = 0,
 		name = "Layout",
-		description = "Grid: empty container columns above their filled forms. List: tools in skill order without fillers."
+		description = "Grid: keep skill outfits with their tools, accessories and containers where they share a tab. List keeps the chosen reading order."
 	)
 	default TabOrder toolsLayout()
 	{
@@ -269,7 +269,7 @@ public interface IronmanBankArchitectConfig extends Config
 		section = frequentlyUsedSection,
 		position = 0,
 		name = "Gather frequently used items",
-		description = "Gather your best axe and pickaxe, hammer, Graceful, rune pouches, diary rewards and staple utilities under Frequently Used. Off keeps their usual categories."
+		description = "Gather your best axe and pickaxe, hammer, Graceful, rune pouches, diary rewards and staple utilities under Frequently Used. Off keeps their usual categories, with skilling tools grouped beside matching outfits. Personal item choices win."
 	)
 	default boolean gatherFrequentlyUsed()
 	{

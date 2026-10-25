@@ -54,14 +54,14 @@ public class RequiredResourceTest
 		{
 			assertBroken(() -> GearTierCatalog.load(stream(input)));
 			assertBroken(() -> WikiItemCategories.load(stream(input)));
-			assertBroken(() -> ResourceItemRegistry.loadItems(stream(input), CanonicalItemClassificationOverrides.INSTANCE));
+			assertBroken(() -> RegistryCompiler.loadItems(stream(input), CanonicalItemClassificationOverrides.INSTANCE));
 			assertBroken(() -> ResourceItemSortMetadataCatalog.loadMetadata(stream(input), Set.of()));
 			assertBroken(() -> ResourceItemSortMetadataCatalog.loadSourceKeys(stream(input)));
 		}
 		assertBroken(() -> GearTierCatalog.load(null));
 		assertBroken(() -> WikiItemCategories.load(null));
 		assertBroken(() -> WikiItemLists.loadNames(null));
-		assertBroken(() -> ResourceItemRegistry.loadItems(null, CanonicalItemClassificationOverrides.INSTANCE));
+		assertBroken(() -> RegistryCompiler.loadItems(null, CanonicalItemClassificationOverrides.INSTANCE));
 		assertBroken(() -> ResourceItemSortMetadataCatalog.loadMetadata(null, Set.of()));
 		assertBroken(() -> ResourceItemSortMetadataCatalog.loadSourceKeys(null));
 		assertBroken(() -> WikiItemLists.loadNames(stream("# comments only\n")));
@@ -81,7 +81,7 @@ public class RequiredResourceTest
 		}
 		for (String row : List.of("1\tName\tUNKNOWN\tNAME", "0\tName\tUNKNOWN\tNAME", "2\t\tUNKNOWN\tNAME"))
 		{
-			assertBroken(() -> ResourceItemRegistry.loadItems(stream("1\tName\tUNKNOWN\tNAME\n" + row),
+			assertBroken(() -> RegistryCompiler.loadItems(stream("1\tName\tUNKNOWN\tNAME\n" + row),
 				CanonicalItemClassificationOverrides.INSTANCE));
 		}
 		assertEquals(Set.of("dragon dagger"), WikiItemLists.loadNames(stream("\uFEFF# comment\nDragon dagger\n")));

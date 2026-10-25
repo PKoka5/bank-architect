@@ -95,7 +95,7 @@ public class CanonicalItemClassificationOverridesTest
 	private static void assertUnavailable(InputStream stream)
 	{
 		CanonicalItemClassificationOverrides table = new CanonicalItemClassificationOverrides(stream);
-		ResourceItemRegistry registry = new ResourceItemRegistry(table);
+		RegistryCompiler registry = new RegistryCompiler(table);
 		ItemCatalog catalog = new CompositeItemCatalog(StaticItemCatalog.INSTANCE, registry);
 		// Even an item known to the first catalogue must not bypass the failed required table.
 		assertThrows(CatalogUnavailableException.class, () -> catalog.findById(5297));

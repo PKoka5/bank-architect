@@ -80,7 +80,7 @@ public class PlaceholderGearStabilityTest
 	{
 		Session session = new Session(preset);
 		int[][] rows = {{BANDOS_BODY, 11828, 21021, 9674}, {BANDOS_LEGS, 11830, 21024, 9676}};
-		int[] rings = {6737, 6735, 6733, 6731, 22975, 19550, 12601, 12605};
+		int[] rings = {6737,6735,21739,21752,2550,19550,12601,12605};
 		List<BankItemSnapshot> entries = new ArrayList<>(bank(false).getPhysicalItems());
 		for (int row = 0; row < rows.length; row++)
 		{

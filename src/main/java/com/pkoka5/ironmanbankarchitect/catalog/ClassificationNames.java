@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.pkoka5.ironmanbankarchitect.util.BundledTable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,20 +15,16 @@ public final class ClassificationNames
 
 	static List<String[]> load(InputStream stream)
 	{
-		if (stream == null) throw new IllegalStateException("Missing classification names");
 		List<String[]> groups = new ArrayList<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		try
 		{
-			if (!"# schema=1".equals(reader.readLine())) throw new IllegalStateException("Invalid name-group schema");
-			String line;
-			while ((line = reader.readLine()) != null)
+			BundledTable.read(stream, "classification names", false, false, (line, fields) ->
 			{
-				String[] fields = line.split("\t", -1);
 				if (fields.length < 2 || Integer.parseInt(fields[0]) != groups.size())
 					throw new IllegalStateException("Invalid name-group index");
 				for (String field : fields) if (field.isEmpty()) throw new IllegalStateException("Empty name-group field");
 				groups.add(java.util.Arrays.copyOfRange(fields, 1, fields.length));
-			}
+			});
 		}
 		catch (java.io.IOException ex) { throw new IllegalStateException("Cannot read classification names", ex); }
 		if (groups.size() != 88) throw new IllegalStateException("Incomplete classification names");

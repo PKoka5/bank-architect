@@ -23,9 +23,9 @@ public class MixedProgressionCombatTest
 {
 	private static final Path REPORTS = Paths.get("build/reports/combat-quality");
 	private static final int[][] PRIMARY_COLUMNS = {
-		{26382,26384,26386,21295,31097,29801,22325,22322,22981,28307},
-		{27235,27238,27241,28951,31088,33639,20997,21000,26235},
-		{21018,21021,21024,21791,13235,12002,27275,27251,31106}
+		{26382,26384,26386,21295,31097,29801,24417,22322,22981,28307},
+		{27235,27238,27241,28951,31088,33639,20997,26235},
+		{21018,21021,21024,21791,13235,12002,27275,31106}
 	};
 	// The ordinary Treads are a separate real pair: after max Treads go to Melee,
 	// their frozen +15 Ranged/+2 strength beat the owned Pegasians' +12/+1.
@@ -37,6 +37,8 @@ public class MixedProgressionCombatTest
 	};
 	private static final int[] SPECIAL_WEAPONS = {11802,11804,21003,13576,1215,10887,11061};
 	private static final int[] SPECIAL_CELLS = {27,28,29,30,31,35,36};
+	private static final int[] SECONDARY_SLASH = {22325,28338,29796,4151,4587};
+	private static final int[] SLASH_CELLS = {3,4,5,6,7};
 	private static final int[] SECONDARY_BOWS = {25865,25867,27610,23985,12788,859,855,847};
 	private static final int[] BOW_CELLS = {43,44,45,46,47,51,52,53};
 	private static final Set<Integer> RINGS = Collections.unmodifiableSet(new LinkedHashSet<>(
@@ -181,8 +183,8 @@ public class MixedProgressionCombatTest
 			assertEquals(185,preview.getPlannedItemCount());
 			List<Integer> combat = combatIds(preview);
 			assertColumns(combat);
-			assertEquals("the Ranged column ends with its actual Venator ring",Integer.valueOf(28310),combat.get(73));
-			assertEquals("the Magic column ends with its actual Magus ring",Integer.valueOf(28313),combat.get(74));
+			assertEquals("the Ranged column ends with its actual Venator ring",Integer.valueOf(28310),combat.get(65));
+			assertEquals("the Magic column ends with its actual Magus ring",Integer.valueOf(28313),combat.get(66));
 			Set<Integer> extraRings = new LinkedHashSet<>(allRings);
 			extraRings.removeAll(Arrays.asList(28307,28310,28313));
 			assertEquals("eight extra rings share the full row directly below the three best rings",
@@ -242,6 +244,9 @@ public class MixedProgressionCombatTest
 		for (int i = 0; i < SPECIAL_WEAPONS.length; i++)
 			assertEquals("specials share two right-hand rows near the other Melee weapons",
 				Integer.valueOf(SPECIAL_WEAPONS[i]),combat.get(SPECIAL_CELLS[i]));
+		for (int i = 0; i < SECONDARY_SLASH.length; i++)
+			assertEquals("the displaced Scythe stays in the canonical secondary slash row",
+				Integer.valueOf(SECONDARY_SLASH[i]),combat.get(SLASH_CELLS[i]));
 		for (int i = 0; i < SECONDARY_BOWS.length; i++)
 			assertEquals("the large bow group also uses the right-hand region",
 				Integer.valueOf(SECONDARY_BOWS[i]),combat.get(BOW_CELLS[i]));

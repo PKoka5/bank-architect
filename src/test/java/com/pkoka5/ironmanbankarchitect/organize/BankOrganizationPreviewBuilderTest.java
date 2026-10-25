@@ -1449,7 +1449,7 @@ public class BankOrganizationPreviewBuilderTest
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		assertEquals("best Magic gloves occupy their full-column equipment row", 8 * 8 + 2, target.indexOf(9099));
+		assertEquals("Magic gloves follow a weapon of unverified handedness without assuming an offhand", 7 * 8 + 2, target.indexOf(9099));
 		List<Integer> remainder = Arrays.asList(9096, 9101, 9102, 9084, 9097, 9098, 9100, 9104);
 		assertGroupedFamily(target, remainder);
 		assertEquals(snapshots.size(), target.size());
@@ -1780,7 +1780,8 @@ public class BankOrganizationPreviewBuilderTest
 		List<Integer> main = itemIds(category(preview, "currency-utilities").getItems());
 		assertPhysicalRun(main, Arrays.asList(6739, 11920, 2347, 1755, 952));
 		List<Integer> tools = itemIds(category(preview, "skilling-tools").getItems());
-		assertPhysicalRun(tools, Arrays.asList(11941, 13226, 13639, 19634));
+		assertPhysicalRun(tools, Arrays.asList(11941, 19634));
+		assertTrue("Herb sack and seed box retain their skill destinations",tools.containsAll(Arrays.asList(13226,13639)));
 		List<BankPreviewItem> allItems = new ArrayList<>();
 		for (BankCategoryPreview category : preview.getCategories())
 		{

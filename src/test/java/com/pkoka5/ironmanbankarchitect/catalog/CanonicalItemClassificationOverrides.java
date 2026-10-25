@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.catalog;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import com.pkoka5.ironmanbankarchitect.util.BundledTable;
 import java.util.*;
 
 
@@ -15,7 +15,6 @@ import java.util.*;
 final class CanonicalItemClassificationOverrides
 {
 	private static final String RESOURCE_PATH = "canonical-item-classification-overrides.tsv";
-	private static final String SCHEMA_HEADER = "# schema=1";
 	static final CanonicalItemClassificationOverrides INSTANCE = new CanonicalItemClassificationOverrides(
 		CanonicalItemClassificationOverrides.class.getResourceAsStream(RESOURCE_PATH));
 	private Map<Integer, ItemClassificationRefiner.Classification> overrides = Collections.emptyMap();
@@ -51,30 +50,13 @@ final class CanonicalItemClassificationOverrides
 
 	private static Map<Integer, ItemClassificationRefiner.Classification> load(InputStream stream)
 	{
-		if (stream == null)
-		{
-			throw new IllegalStateException("Missing override table: " + RESOURCE_PATH);
-		}
-
 		Map<Integer, ItemClassificationRefiner.Classification> overrides = new LinkedHashMap<>();
-		try (BufferedReader reader = new BufferedReader(
-			new InputStreamReader(stream, StandardCharsets.UTF_8)))
+		try
 		{
-			String header = reader.readLine();
-			if (!SCHEMA_HEADER.equals(header))
+			BundledTable.read(stream, RESOURCE_PATH, false, true, (line, columns) ->
 			{
-				throw new IllegalStateException("Unexpected override table schema: " + header);
-			}
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				if (line.isEmpty() || line.startsWith("#"))
-				{
-					continue;
-				}
 				// A fourth column names the item for a reader of the file; the
 				// classification is decided by the first three.
-				String[] columns = line.split("\t", -1);
 				if (columns.length < 3)
 				{
 					throw new IllegalStateException("Malformed override row: " + line);
@@ -92,7 +74,7 @@ final class CanonicalItemClassificationOverrides
 				{
 					throw new IllegalStateException("Item ID " + itemId + " is overridden twice");
 				}
-			}
+			});
 		}
 		catch (IOException | IllegalArgumentException e)
 		{

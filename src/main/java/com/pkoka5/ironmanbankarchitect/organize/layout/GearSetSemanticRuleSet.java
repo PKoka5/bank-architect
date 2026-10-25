@@ -31,6 +31,14 @@ public final class GearSetSemanticRuleSet
 		return ItemSetCatalog.setKeyOf(itemId).orElse("").startsWith("gear.dwarf-cannon");
 	}
 
+	public static boolean isVoid(int itemId) { return TABLE.ids("gear.void").contains(itemId); }
+
+	/** Preserve partial kits too; duplicate physical copies of one item are not another set piece. */
+	public static boolean keepsVoidTogether(java.util.stream.IntStream itemIds)
+	{
+		return itemIds.filter(GearSetSemanticRuleSet::isVoid).distinct().limit(2).count() == 2;
+	}
+
 	public static boolean isMeleeTankArmour(int itemId)
 	{
 		return ItemSetCatalog.setKeyOf(itemId).orElse("").startsWith("gear.justiciar")
@@ -166,7 +174,8 @@ public final class GearSetSemanticRuleSet
 				{ first = Arrays.asList(cells).indexOf(items.get(blocks.get(previous).get(0))) + 1; break; }
 		for (int[] shape : shapes.get(block))
 		{
-			boolean matrix = shape != shapes.get(block).get(shapes.get(block).size() - 1);
+			boolean matrix = shape != shapes.get(block).get(shapes.get(block).size() - 1)
+				|| block.size() <= 8 && block.stream().allMatch(GearSetSemanticRuleSet::isVoid);
 			int width = 1;
 			if (matrix) for (int offset : shape) width = Math.max(width, offset % 8 + 1);
 			int last = cells.length - 1 - shape[shape.length - 1];
@@ -303,7 +312,7 @@ public final class GearSetSemanticRuleSet
 		ROLES.entries().forEach((key, ids) ->
 		{
 			String role = key.split("/", 3)[1];
-			if (role.startsWith("weapon-"))
+			if (role.startsWith("weapon-") || role.equals("support-defence"))
 				for (int id : ids)
 					weaponRoles.computeIfAbsent(role, ignored -> new ArrayList<>()).add(id);
 		});

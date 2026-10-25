@@ -65,7 +65,7 @@ public class BankLayoutPlanTest
 	}
 
 	@Test
-	public void everyTagOfThePlanHasExactlyOneDestination()
+	public void everyStandardTagHasOneDestinationAndOptionalTagsStayInactive()
 	{
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(PRESET)
 			.withTagAt("runes", 2)
@@ -73,6 +73,12 @@ public class BankLayoutPlanTest
 
 		for (BankTag tag : BankTags.all())
 		{
+			if (BankTags.isOptional(tag.getKey()))
+			{
+				assertEquals(-1, plan.destinationOf(tag.getKey()));
+				assertEquals(0, countPlacements(plan, tag.getKey()));
+				continue;
+			}
 			assertTrue(tag.getKey(), plan.destinationOf(tag.getKey()) >= 0);
 			assertEquals(tag.getKey(), 1, countPlacements(plan, tag.getKey()));
 		}
@@ -141,7 +147,7 @@ public class BankLayoutPlanTest
 			"potions|" + BankLayoutPlan.FALLBACK_TAG_KEY + "||||||||");
 
 		assertEquals(1, plan.destinationOf(BankLayoutPlan.FALLBACK_TAG_KEY));
-		assertEquals(BankTags.all().size(), placedCount(plan));
+		assertEquals(standardTagCount(), placedCount(plan));
 		assertTrue(plan.getTagKeys(1).contains("clean-herbs"));
 	}
 
@@ -150,7 +156,7 @@ public class BankLayoutPlanTest
 	{
 		BankLayoutPlan plan = BankLayoutPlan.parse(PRESET, "potions|||||||||");
 
-		assertEquals(BankTags.all().size(), placedCount(plan));
+		assertEquals(standardTagCount(), placedCount(plan));
 		assertTrue(plan.getTagKeys(BankLayoutPlan.DESTINATION_COUNT - 1)
 			.contains(BankLayoutPlan.FALLBACK_TAG_KEY));
 	}
@@ -163,7 +169,7 @@ public class BankLayoutPlanTest
 
 		assertEquals(Collections.singletonList("potions"), plan.getTagKeys(0));
 		assertTrue(plan.getTagKeys(1).isEmpty());
-		assertEquals(BankTags.all().size(), placedCount(plan));
+		assertEquals(standardTagCount(), placedCount(plan));
 	}
 
 	/** A plan stored before tags existed named categories, and must still load. */
@@ -219,6 +225,11 @@ public class BankLayoutPlanTest
 			.withTagAt("collection-log", 1);
 
 		assertTrue(plan.getTagKeys(1).containsAll(Arrays.asList("cosmetics", "collection-log")));
+	}
+
+	private static long standardTagCount()
+	{
+		return BankTags.all().stream().filter(tag -> !BankTags.isOptional(tag.getKey())).count();
 	}
 
 	private static int countPlacements(BankLayoutPlan plan, String tagKey)

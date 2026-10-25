@@ -247,21 +247,7 @@ final class LayoutCandidateGroup
 
 		canonical.sort(Comparator.comparingInt(LayoutCandidate::getWidth));
 
-		List<LayoutCandidate> expected = new ArrayList<>();
-		for (int width = SemanticRule.MIN_WIDTH; width <= SemanticRule.MAX_WIDTH; width++)
-		{
-			if (!rule.getAllowedWidths().contains(width))
-			{
-				continue;
-			}
-			List<LayoutCandidate.Row> rows = LayoutCandidateGeometry.rowsFor(
-				rule.getShapePrimitive(), projections, width);
-			if (rows != null)
-			{
-				expected.add(new LayoutCandidate(rule.getRuleKey(), rule.getShapePrimitive(), width,
-					atomKeys, rows));
-			}
-		}
+		List<LayoutCandidate> expected = LayoutCandidateGeometry.candidatesFor(rule, projections, atomKeys);
 		if (!expected.equals(canonical))
 		{
 			throw new IllegalArgumentException(
@@ -270,7 +256,7 @@ final class LayoutCandidateGroup
 		return Collections.unmodifiableList(canonical);
 	}
 
-	private static List<String> atomKeys(List<AtomProjection> projections)
+	static List<String> atomKeys(List<AtomProjection> projections)
 	{
 		List<String> keys = new ArrayList<>(projections.size());
 		for (AtomProjection projection : projections)

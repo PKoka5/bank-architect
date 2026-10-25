@@ -129,6 +129,7 @@ public class StaticItemCatalogTest
 	{
 		Set<Integer> uniqueIds = new HashSet<>(VERIFIED_PHASE_B_ITEM_IDS);
 		uniqueIds.add(34024);
+		uniqueIds.add(34401);
 		assertEquals(uniqueIds.size(), StaticItemCatalog.INSTANCE.size());
 	}
 

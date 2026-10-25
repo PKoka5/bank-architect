@@ -113,7 +113,7 @@ public class GearSlotCoverageTest
 		List<Integer> expected = new ArrayList<>();
 		for (int slot = 0; slot < subcategories.length; slot++)
 		{
-			int itemId = FIXTURE_BASE + 300 + slot;
+			int itemId = slot == 8 ? 4587 : FIXTURE_BASE + 300 + slot;
 			items.add(new BankPreviewItem(catalogItem(itemId, "Rune ring token " + (20 - slot), subcategories[slot]), 1));
 			expected.add(itemId);
 		}
@@ -236,7 +236,8 @@ public class GearSlotCoverageTest
 
 	private static int primaryId(int row, int style)
 	{
-		return FIXTURE_BASE + row * 8 + style * 2 + 1;
+		// A real one-handed candidate permits the shield; other slots remain controlled vectors.
+		return row == 8 ? new int[]{4587,9185,12658}[style] : FIXTURE_BASE + row * 8 + style * 2 + 1;
 	}
 
 	private static CatalogItem catalogItem(int itemId, String name, String subcategory)
@@ -267,9 +268,9 @@ public class GearSlotCoverageTest
 				{
 					for (int variant = 0; variant < 2; variant++)
 					{
-						int itemId = primaryId(row, style) + variant;
+						int itemId = variant == 0 ? primaryId(row, style) : FIXTURE_BASE + row * 8 + style * 2 + 2;
 						String name = slot == GearSlot.WEAPON && style == 0
-							? "2h sword token " + itemId : "Wizard hat token " + itemId;
+							? "Scimitar token " + itemId : "Wizard hat token " + itemId;
 						add(itemId, name, fullStats(slot, GearStyle.values()[style], variant == 0 ? 20 : 10));
 					}
 				}

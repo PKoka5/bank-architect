@@ -1,7 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
 import com.pkoka5.ironmanbankarchitect.organize.BankPreviewItem;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Bank item plus placement context. Flat source slots do not imply a dense category rank; ranks
@@ -59,6 +59,31 @@ public final class LayoutEntry
 	public BankPreviewItem getItem()
 	{
 		return item;
+	}
+
+	static Set<Integer> presentIds(List<LayoutEntry> entries)
+	{
+		Set<Integer> present = new LinkedHashSet<>();
+		for (LayoutEntry entry : entries) present.add(entry.item.getItemId());
+		return present;
+	}
+
+	static List<Integer> ownedIds(List<Integer> canonicalIds, Set<Integer> present)
+	{
+		List<Integer> owned = new ArrayList<>();
+		for (Integer id : canonicalIds) if (present.contains(id)) owned.add(id);
+		return owned;
+	}
+
+	static List<LayoutEntry> withTargets(List<LayoutEntry> entries, Map<Integer, Integer> targets)
+	{
+		List<LayoutEntry> anchored = new ArrayList<>(entries.size());
+		for (LayoutEntry entry : entries)
+		{
+			Integer target = targets.get(entry.item.getItemId());
+			anchored.add(target == null ? entry : entry.withLockedTarget(target));
+		}
+		return Collections.unmodifiableList(anchored);
 	}
 
 	public int getSourceFlatBankSlot()

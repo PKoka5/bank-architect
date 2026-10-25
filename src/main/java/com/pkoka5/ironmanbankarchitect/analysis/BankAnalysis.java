@@ -97,19 +97,21 @@ public final class BankAnalysis implements AutoCloseable
 			itemCatalog.requireAvailable();
 			BankCatalogSummary summary = BankCatalogSummarizer.summarize(
 				analysisRequest.bankSnapshot(), itemCatalog, analysisRequest.presetOr(bankPreset));
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview proposal = BankOrganizationPreviewBuilder.build(
 				analysisRequest.bankSnapshot(), itemCatalog, analysisRequest.presetOr(bankPreset),
 				analysisRequest::gearStats, analysisRequest::alchValue,
 				retainedCategories(analysisRequest), analysisRequest.layoutPlan(),
 				analysisRequest.layoutOptions());
+			BankOrganizationPreview preview = AcceptedBlueprint.apply(analysisRequest.acceptedBlueprint(), analysisRequest.acceptanceContext(),
+				proposal, analysisRequest.layoutPlan());
 			synchronized (this)
 			{
 				if (!isLatestRequest(requestGeneration)) return;
 				successfulRequest = analysisRequest;
 				establishedAlch = new HashMap<>();
-				for (BankPreviewItem item : preview.getPlannedItems())
+				for (BankPreviewItem item : proposal.getPlannedItems())
 					if ("alch".equals(item.getLayoutTagKey())) establishedAlch.put(item.getItemId(), "alch");
-				publishAnalysisIfLatest(requestGeneration, BankAnalysisStatus.success(summary, preview));
+				publishAnalysisIfLatest(requestGeneration, BankAnalysisStatus.success(summary, preview, proposal));
 			}
 		}
 		catch (RuntimeException ex)
@@ -126,7 +128,14 @@ public final class BankAnalysis implements AutoCloseable
 		retained.keySet().removeIf(id -> BankOrganizationPreviewBuilder.needsScurriusMace(id, request.bankSnapshot())
 			|| request.bankSnapshot().getTotalQuantity(id) > 0
 			&& request.bankSnapshot().getTotalQuantity(id) != successfulRequest.bankSnapshot().getTotalQuantity(id));
-		return id -> request.categoryKey(id).isPresent() ? request.categoryKey(id) : Optional.ofNullable(retained.get(id));
+		return new CategoryOverrideSource()
+		{
+			@Override public Optional<String> categoryKeyFor(int id)
+			{
+				return request.categoryKey(id).isPresent() ? request.categoryKey(id) : Optional.ofNullable(retained.get(id));
+			}
+			@Override public boolean isPersonalChoice(int id) { return request.categoryKey(id).isPresent(); }
+		};
 	}
 
 	private void publishFailure(long requestGeneration, RuntimeException failure)
