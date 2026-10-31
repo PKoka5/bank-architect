@@ -202,7 +202,7 @@ public class HerbloreLayoutStyleTest
 	private static BankOrganizationPreview build(BankSnapshot bank, BankPreset preset,
 		BankLayoutPlan plan, CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			GearStatsSource.NONE, ItemValueSource.NONE, overrides, plan, options);
 	}
 

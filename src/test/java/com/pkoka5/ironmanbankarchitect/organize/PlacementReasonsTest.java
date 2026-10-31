@@ -242,7 +242,7 @@ public class PlacementReasonsTest
 	private BankOrganizationPreview build(BankSnapshot bank, CategoryOverrideSource overrides, BankLayoutOptions options,
 		GearStatsSource stats, ItemValueSource values)
 	{
-		BankOrganizationPreview result = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview result = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, stats, values, overrides, plan, options);
 		assertContents(bank, result);
 		return result;

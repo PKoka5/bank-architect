@@ -72,11 +72,11 @@ public class CurrencyUtilityPlacementTest
 	}
 
 	@Test
-	public void lowerWesternBannersAreUtilitiesInsteadOfCurrencyOrInventedTeleports()
+	public void lowerWesternBannersKeepTheirToolFunctionButFollowThePresetGrouping()
 	{
 		BankLayoutPlan plan = separatedPlan();
 		BankOrganizationPreview preview = build(bank(false, 13141, 13142), plan, CategoryOverrideSource.NONE);
-		String tag = preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "tools";
+		String tag = preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "teleports";
 		for (int id : new int[] {13141, 13142})
 		{
 			assertAt(preview, plan, id, tag);
@@ -103,7 +103,7 @@ public class CurrencyUtilityPlacementTest
 		BankOrganizationPreview automatic = build(bank, plan, UserCategoryOverrides.parse(restored.serialize()));
 		assertAt(automatic, plan, 12012, "currency");
 		assertAt(automatic, plan, 22947, "teleports");
-		assertAt(automatic, plan, 13141, preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "tools");
+		assertAt(automatic, plan, 13141, preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "teleports");
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class CurrencyUtilityPlacementTest
 		BankLayoutOptions options)
 	{
 		GearStatsSource stats = id -> Optional.of(new GearStats(GearSlot.SHIELD, 0, 0, 0, 0, 0, 0, 0, 2, 0));
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
 			ItemValueSource.NONE, overrides, plan, options);
 	}
 

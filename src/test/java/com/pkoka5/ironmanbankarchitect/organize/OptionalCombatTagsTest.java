@@ -28,7 +28,7 @@ public class OptionalCombatTagsTest
 			BankLayoutPlan.parse(preset,"combat-gear|||||||||")))
 		{
 			for (String style : STYLES) assertEquals(-1,plan.destinationOf(style));
-			assertEquals(30,plan.getDestinations().stream().mapToInt(List::size).sum());
+			assertEquals(31,plan.getDestinations().stream().mapToInt(List::size).sum());
 		}
 		assertEquals(Arrays.asList("gear","ammunition"),BankTags.forCategory("combat-gear").stream()
 			.map(BankTag::getKey).collect(Collectors.toList()));
@@ -191,7 +191,7 @@ public class OptionalCombatTagsTest
 	private BankLayoutOptions options() { return BankLayoutOptions.defaultFor(preset); }
 	private BankOrganizationPreview build(BankSnapshot bank,BankLayoutPlan plan,BankLayoutOptions options,CategoryOverrideSource choices)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,stats,ItemValueSource.NONE,choices,plan,options);
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,stats,ItemValueSource.NONE,choices,plan,options);
 	}
 	private static BankPreviewItem item(int id) { return new BankPreviewItem(CompositeItemCatalog.DEFAULT.findById(id).get(),1); }
 	private static BankSnapshot bank(List<Integer> ids,boolean placeholders)

@@ -140,7 +140,7 @@ public class CombatGearGroupingRegressionTest
 		{
 			BankSnapshot bank = bank(input, Collections.emptyList());
 			BankLayoutPlan plan = BankLayoutPlan.defaultFor(preset);
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 				catalog, preset, source, ItemValueSource.NONE, CategoryOverrideSource.NONE,
 				plan, BankLayoutOptions.defaultFor(preset));
 			List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();
@@ -199,7 +199,7 @@ public class CombatGearGroupingRegressionTest
 		for (BankPreset preset : Arrays.asList(BankPresets.MAIN, BankPresets.IRONMAN))
 		{
 			BankLayoutPlan plan = BankLayoutPlan.defaultFor(preset);
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank(input, Collections.emptyList()),
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank(input, Collections.emptyList()),
 				catalog, preset, source, ItemValueSource.NONE, CategoryOverrideSource.NONE,
 				plan, BankLayoutOptions.defaultFor(preset));
 			List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();
@@ -292,7 +292,7 @@ public class CombatGearGroupingRegressionTest
 	private static BankOrganizationPreview build(BankSnapshot bank, BankPreset preset,
 		GearStatsSource stats, BankLayoutPlan plan)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			stats, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(preset));
 	}
 

@@ -164,7 +164,7 @@ public class BlockOrderTest
 
 	private static BankOrganizationPreview build(BankSnapshot snapshot, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(snapshot, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(snapshot, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN), options);
 	}

@@ -10,6 +10,21 @@ import org.junit.Test;
 public class BankSnapshotReaderTest
 {
 	@Test
+	public void actualVisagePlaceholderIdsResolveToTheirOrdinaryComponentIds()
+	{
+		int[] raw = {ItemID.Placeholder.DRAGONFIRE_VISAGE, ItemID.Placeholder.WYVERN_VISAGE, ItemID.Placeholder.SKELETAL_VISAGE};
+		int[] canonical = {ItemID.DRAGONFIRE_VISAGE, ItemID.WYVERN_VISAGE, ItemID.SKELETAL_VISAGE};
+		for (int index = 0; index < raw.length; index++)
+		{
+			BankItemSnapshot item = BankSnapshotReader.snapshotItem(raw[index], 0, 14401, canonical[index], index)
+				.orElseThrow(AssertionError::new);
+			assertEquals(canonical[index], item.getItemId());
+			assertEquals(0, item.getQuantity());
+			assertTrue(item.isPlaceholder());
+		}
+	}
+
+	@Test
 	public void bankFillerIsSkipped()
 	{
 		assertFalse(BankSnapshotReader.isSnapshotItem(ItemID.BANK_FILLER, 1));

@@ -66,6 +66,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	final JButton resetOverridesButton;
 	final JButton tabOrderButton;
 	private final JButton resetLayoutButton;
+	private final JButton forgetBlueprintButton;
 	private final JButton saveProfileButton;
 	private final JButton importButton;
 	private final JButton exportButton;
@@ -132,6 +133,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		BiConsumer<BankPreviewItem, JLabel> itemIconRenderer, Runnable resetOverridesCallback,
 		BankLayoutModel bankLayoutModel)
 	{
+		super(false);
 		this.guideController = guideController;
 		this.itemIconRenderer = itemIconRenderer;
 		this.bankLayoutModel = bankLayoutModel;
@@ -178,6 +180,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		resetLayoutButton.addActionListener(event ->
 			applyLayoutPlan(BankLayoutPlan.defaultFor(bankLayoutModel.preset())));
 		resetLayoutButton.setAlignmentX(LEFT_ALIGNMENT);
+		forgetBlueprintButton = layoutActionButton("Forget kept blueprint",
+			"Remove only this profile's kept proposal; keep tab layout, corrections and saved item orders",
+			event -> forgetKeptBlueprint());
+		forgetBlueprintButton.setAlignmentX(LEFT_ALIGNMENT);
 		// Asked separately, because they are the same mechanism but not the same
 		alchPileBox = layoutOptionBox("Gather Alch items",
 			"<html>Use the selected Alch sorting mode.<br>Fixed list always sends listed items to Alch.<br>Flexible checks replacements. Personal choices win.<br>Off: keep normal categories.</html>");
@@ -206,6 +212,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		layoutRows.setAlignmentX(LEFT_ALIGNMENT);
 		sizeToSidebar(profileActions, 22);
 		layoutEditor.add(profileActions);
+		layoutEditor.add(forgetBlueprintButton);
 		layoutEditor.add(Box.createVerticalStrut(6));
 		layoutEditor.add(layoutHelp);
 		layoutEditor.add(Box.createVerticalStrut(6));
@@ -303,6 +310,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		scrollPane.getViewport().setOpaque(false);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
 		add(identityStrip(), BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
@@ -549,6 +557,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 	private void renderLayoutEditor()
 	{
+		forgetBlueprintButton.setVisible(!bankLayoutModel.acceptedBlueprint().isEmpty());
 		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		layoutHelp.setText(sidebarHtml(layoutHelpText()));
 		BankOrganizationPreview preview = guideController.bankAnalysisStatus()
@@ -1309,6 +1318,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		return BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(
 			active ? new Color(111, 169, 130) : ColorScheme.BORDER_COLOR),
 			BorderFactory.createEmptyBorder(7, 4, 7, 4));
+	}
+
+	private void forgetKeptBlueprint()
+	{
+		String value = bankLayoutModel.acceptedBlueprint();
+		String context = bankLayoutModel.editingContext();
+		if (value.isEmpty() || JOptionPane.showConfirmDialog(this,
+			"Forget this profile's kept blueprint?\nTab layout, corrections and saved item orders stay unchanged.",
+			"Forget kept blueprint", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) return;
+		bankLayoutModel.forgetAcceptedBlueprint(value, context, ignored -> refreshSettings());
 	}
 
 	void refreshSettings()

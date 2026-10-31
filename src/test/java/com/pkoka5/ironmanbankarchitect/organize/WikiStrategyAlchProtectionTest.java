@@ -242,7 +242,7 @@ public class WikiStrategyAlchProtectionTest
 	private BankOrganizationPreview build(BankSnapshot bank, Map<Integer, GearStats> stats,
 		ItemValueSource values, CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CATALOG, preset,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CATALOG, preset,
 			id -> Optional.ofNullable(stats.get(id)), values, overrides, plan, options);
 		assertEquals(bank.getItems().size(), preview.getPlannedItemCount());
 		assertEquals(bank.getItems().size(), preview.getPlannedItems().size());

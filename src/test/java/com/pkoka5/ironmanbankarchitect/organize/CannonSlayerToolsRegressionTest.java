@@ -165,7 +165,7 @@ public class CannonSlayerToolsRegressionTest
 		BankLayoutOptions options = new BankLayoutOptions(defaults.fillGearRows(), defaults.fillHerbloreRows(),
 			defaults.alchPile(), Collections.emptyMap(), defaults.gearLayout(), defaults.potionDoses(),
 			defaults.runeOrder(), defaults.teleportOrder(), false).withItemOrders(orders).withBlockArrangements(blocks);
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(fixture.bank),
+		return PreviewFixtureBuilder.build(new BankSnapshot(fixture.bank),
 			id -> Optional.ofNullable(fixture.catalog.get(id)), preset, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, plan, options);
 	}

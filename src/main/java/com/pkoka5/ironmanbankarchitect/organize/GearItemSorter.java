@@ -98,7 +98,8 @@ final class GearItemSorter
 				continue;
 			}
 			boolean primaryRole = !GearSetSemanticRuleSet.roleOf(item.getItemId()).startsWith("support-");
-			boolean otherCore = slot < 3 && !PrimaryGearSelector.candidate(item.getItemId(),slot)
+			boolean otherCore = !PrimaryGearSelector.candidate(item.getItemId(),slot)
+				&& (slot < 3 || !gearStats.statsFor(item.getItemId()).map(stats -> stats.supports(GearStyle.MELEE)).orElse(false))
 				&& (PrimaryGearSelector.slot(GearStyle.RANGED,item.getItemId()) >= 0 || PrimaryGearSelector.slot(GearStyle.MAGIC,item.getItemId()) >= 0);
 			if (primaryRole) for (int candidateStyle : new int[]{STYLE_RANGED,STYLE_MAGIC})
 			{
@@ -135,6 +136,7 @@ final class GearItemSorter
 				? -gearStats.statsFor(item.getItemId()).map(stats -> stats.accuracy(desired)).orElse(0) : 0)
 			.thenComparingInt(item -> -gearScore(item) - gearStats.statsFor(item.getItemId()).map(stats -> stats.score(desired)).orElse(0))
 			.thenComparing(item -> -ownedFamilySizes.getOrDefault(item.getItemId(), 0))
+			.thenComparingInt(item -> desired == GearStyle.MELEE ? item.getItemId() : 0)
 			.thenComparing(item -> normalized(item.getDisplayName()))
 			.thenComparingInt(BankPreviewItem::getItemId);
 		int primarySlot = Integer.parseInt(entry.getKey().substring(2));
@@ -171,7 +173,7 @@ final class GearItemSorter
 					BankPreviewItem item = candidates.stream().filter(candidate -> !usedItemIds.contains(candidate.getItemId())).findFirst().orElse(null);
 					if (item != null && usedItemIds.add(item.getItemId()))
 					{
-						if (slot == 8 + style) compatibleOffhand = PrimaryGearSelector.oneHanded(GearStyle.values()[style],item.getItemId());
+						if (slot == 8 + style) compatibleOffhand = !PrimaryGearSelector.twoHanded(GearStyle.values()[style],item.getItemId());
 						laidOut.add(item); columns.put(item.getItemId(),style);
 					}
 				}

@@ -373,7 +373,7 @@ public class BankLayoutOptionsTest
 	private static BankOrganizationPreview build(BankSnapshot snapshot, BankLayoutOptions options,
 		BankLayoutPlan plan)
 	{
-		return BankOrganizationPreviewBuilder.build(snapshot, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(snapshot, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, plan, options);
 	}

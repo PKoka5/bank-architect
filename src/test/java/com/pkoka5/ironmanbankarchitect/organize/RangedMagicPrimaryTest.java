@@ -13,12 +13,32 @@ import org.junit.Test;
 public class RangedMagicPrimaryTest
 {
 	private static final Map<Integer,GearStats> FROZEN=frozen();
+
+	@Test public void darkBowIsASpecialistFallbackAndRestrictedBhStaysOutOfGeneralPrimary()
+	{
+		for(int id:new int[]{11235,12765,12766,12767,12768,29611})
+			for(boolean live:new boolean[]{false,true})
+			{
+				Map<Integer,GearStats> stats=new HashMap<>();
+				if(live) stats.put(id,new GearStats(GearSlot.WEAPON,0,0,0,0,95,0,0,0,0,0,0,0,0,0,9));
+				assertEquals(Collections.singletonList(861),column(select(stats,id,861,22002),1));
+				GearItemSorter.GearLayout fallback=select(stats,id,22002);
+				assertEquals(Collections.singletonList(id),column(fallback,1));
+				assertTrue(fallback.getTail().stream().anyMatch(item -> item.getItemId()==22002));
+				assertTrue(PrimaryGearSelector.twoHanded(GearStyle.RANGED,id));
+				assertEquals("weapon-ranged-special",com.pkoka5.ironmanbankarchitect.organize.layout.GearSetSemanticRuleSet.weaponRole(id));
+			}
+		assertTrue(select(Collections.emptyMap(),27853).getSetupRows().isEmpty());
+		Map<Integer,int[]> facts=PrimaryGearSelector.load(getClass().getResourceAsStream("ranged-primary-candidates.tsv"));
+		assertFalse("LMS-only copy is not a bank candidate",facts.containsKey(20408));
+		assertEquals(0,facts.get(27853)[1]);
+	}
 	@Test public void reviewedTablesCoverTenSlotsAndOnlyKnownExactIdentities()
 	{
 		for (String style:Arrays.asList("ranged","magic"))
 		{
 			Map<Integer,int[]> facts=PrimaryGearSelector.load(getClass().getResourceAsStream(style+"-primary-candidates.tsv"));
-			assertEquals(style.equals("ranged")?427:442,facts.size());
+			assertEquals(style.equals("ranged")?437:443,facts.size());
 			Set<Integer> slots=new HashSet<>();
 			facts.forEach((id,fact) -> {
 				assertTrue("registered "+style+" candidate "+id,CompositeItemCatalog.DEFAULT.findById(id).isPresent());
@@ -130,17 +150,17 @@ public class RangedMagicPrimaryTest
 		java.nio.file.Path output=java.nio.file.Path.of("build/reports/ranged-magic");
 		java.nio.file.Files.createDirectories(output);
 		List<Integer> universe=com.pkoka5.ironmanbankarchitect.simulate.RandomBankSimulator.loadItemUniverse();
-		for(int[] sample:new int[][]{{20260718,34,24},{20260737,71,43}})
+		for(int[] sample:new int[][]{{20260718,34},{20260737,71}})
 		{
 			com.pkoka5.ironmanbankarchitect.simulate.RandomBankSimulator.SimulationResult result=
 				com.pkoka5.ironmanbankarchitect.simulate.RandomBankSimulator.simulate(sample[0],
 					com.pkoka5.ironmanbankarchitect.simulate.RandomBankSimulator.Scenario.RANDOM_TABS,sample[1],universe);
 			assertEquals(com.pkoka5.ironmanbankarchitect.simulate.RandomBankSimulator.Outcome.COMPLETED,result.getOutcome());
-			assertTrue(result.isFinalOrderVerified()); assertEquals(sample[2],result.getSwapMoves());
+			assertTrue(result.isFinalOrderVerified());
 			assertEquals(result.getMinimumSwapsAtSortStart(),result.getSwapMoves());
 			List<BankItemSnapshot> entries=new ArrayList<>();
 			for(int id:result.getSampledItemIds())entries.add(new BankItemSnapshot(id,1,entries.size()));
-			BankOrganizationPreview preview=BankOrganizationPreviewBuilder.build(new BankSnapshot(entries),CompositeItemCatalog.DEFAULT,BankPresets.IRONMAN);
+			BankOrganizationPreview preview=PreviewFixtureBuilder.build(new BankSnapshot(entries),CompositeItemCatalog.DEFAULT,BankPresets.IRONMAN);
 			String gear=preview.getPlannedItems().stream().filter(item -> item.getItemCategory()==ItemCategory.GEAR)
 				.map(item -> item.getItemId()+"\t"+item.getDisplayName()+"\t"+item.getPlacementReason()).collect(Collectors.joining("\n"));
 			java.nio.file.Files.writeString(output.resolve(sample[0]+"-gear.txt"),gear);

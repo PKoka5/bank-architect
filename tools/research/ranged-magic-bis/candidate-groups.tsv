@@ -85,13 +85,13 @@ ranged	8	2	70	1000	6	2	twisted-bow	^Twisted bow$
 ranged	8	2	60	900	5	2	bowfa	^Bow of [Ff]aerdhinen.*$
 ranged	8	2	55	850	6	1	zaryte-crossbow	^Zaryte crossbow$
 ranged	8	2	50	800	3	2	blowpipe	^Toxic blowpipe$
-ranged	8	2	45	750	6	1	dragon-hunter-crossbow	^Dragon hunter crossbow$
+ranged	8	2	45	750	6	1	dragon-hunter-crossbow	^Dragon hunter crossbow( \([tb]\))?$
 ranged	8	2	44	740	5	2	venator-bow	^Venator bow$
 ranged	8	2	42	720	5	2	scorching-bow	^Scorching bow$
 ranged	8	2	40	700	6	1	armadyl-crossbow	^Armadyl crossbow$
 ranged	8	2	38	680	4	2	webweaver	^Webweaver bow$
 ranged	8	2	36	660	4	2	craws	^Craw's bow$
-ranged	8	2	35	650	6	1	dragon-crossbow	^Dragon crossbow$
+ranged	8	2	35	650	6	1	dragon-crossbow	^Dragon crossbow( \(cr\))?$
 ranged	8	2	32	620	5	2	crystal-bow	^Crystal bow$
 ranged	8	2	30	600	4	2	karils-crossbow	^Karil's crossbow$
 ranged	8	2	28	580	3	2	atlatl	^Eclipse atlatl$
@@ -105,6 +105,8 @@ ranged	8	2	16	460	4	2	willow-shortbow	^Willow shortbow$
 ranged	8	2	14	440	4	2	oak-shortbow	^Oak shortbow$
 ranged	8	2	12	420	4	2	shortbow	^Shortbow$
 ranged	8	2	18	470	5	1	dorgeshuun-crossbow	^Dorgeshuun crossbow$
+ranged	8	1	10	400	9	2	dark-bow-specialist	^Dark bow( \(deadman\))?$
+ranged	8	0	0	0	0	0	dark-bow-restricted	^Dark bow \(bh\)$
 ranged	12	2	0	1000	0	0	venator-ring	^Venator ring$
 ranged	12	2	0	700	0	0	archers-ring-i	^Archers ring \(i\)$
 ranged	12	2	0	400	0	0	archers-ring	^Archers ring$
@@ -143,7 +145,7 @@ magic	3	2	0	1000	0	0	imbued-cape	^Imbued (saradomin|guthix|zamorak)( max)? cape$
 magic	3	2	0	600	0	0	god-cape	^(Saradomin|Guthix|Zamorak) cape$
 magic	4	2	0	1000	0	0	occult	^Occult necklace( \(or\))?$
 magic	4	2	0	300	0	0	amulet-magic	^Amulet of magic( \(t\))?$
-magic	5	2	0	1000	0	0	ward-f	^Elidinis' ward \(f\)( \(or\))?$
+magic	5	2	0	1000	0	0	ward-f	^Elidinis' ward \((f|or)\)$
 magic	5	2	0	900	0	0	ward	^Elidinis' ward$
 magic	5	2	0	850	0	0	mages-book	^Mage's book$
 magic	5	2	0	800	0	0	arcane	^Arcane spirit shield$

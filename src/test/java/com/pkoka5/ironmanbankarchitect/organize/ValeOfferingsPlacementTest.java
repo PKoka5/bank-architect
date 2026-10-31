@@ -93,7 +93,7 @@ public class ValeOfferingsPlacementTest
 	private static BankOrganizationPreview build(BankSnapshot bank, BankPreset preset,
 		BankLayoutPlan plan, CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			GearStatsSource.NONE, ItemValueSource.NONE, overrides, plan, BankLayoutOptions.defaultFor(preset));
 	}
 

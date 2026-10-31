@@ -37,14 +37,10 @@ final class PrimaryGearSelector
 		return Collections.unmodifiableMap(result);
 	}
 
-	static boolean oneHanded(int itemId)
-	{
-		return oneHanded(GearStyle.MELEE,itemId);
-	}
-	static boolean oneHanded(GearStyle style, int itemId)
+	static boolean twoHanded(GearStyle style, int itemId)
 	{
 		int[] fact = facts(style).get(itemId);
-		return fact != null && fact[0] == 8 && fact[1] > 0 && fact[5] == 1;
+		return fact != null && fact[0] == 8 && fact[1] > 0 && fact[5] == 2;
 	}
 
 	static boolean candidate(int itemId, int slot)
@@ -91,14 +87,13 @@ final class PrimaryGearSelector
 		{
 			int id = item.getItemId();
 			int[] fact = facts.get(id);
-			int[] key = new int[7];
+			int[] key = new int[6];
 			if (fact != null && fact[0] == slot)
 			{
 				// Weapon navigation allows advanced two-handers ahead of budget one-handers.
 				key[0] = slot == 8 ? fact[2] : fact[1];
 				key[1] = slot == 8 ? fact[1] : fact[2];
 				key[2] = fact[3];
-				key[6] = style == GearStyle.MELEE ? -id : 0;
 				if (complete.get(fact[1] * 100 + fact[2]))
 				{
 					GearStats value = stats.get(id);

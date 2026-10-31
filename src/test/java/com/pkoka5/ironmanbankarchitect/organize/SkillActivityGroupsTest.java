@@ -203,7 +203,7 @@ public class SkillActivityGroupsTest
 	}
 	private BankOrganizationPreview build(BankSnapshot bank,BankLayoutPlan layout,BankLayoutOptions options,CategoryOverrideSource choices)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,GearStatsSource.NONE,
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,GearStatsSource.NONE,
 			ItemValueSource.NONE,choices,layout,options);
 	}
 	private static List<Integer> largeIds()

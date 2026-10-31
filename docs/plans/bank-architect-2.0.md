@@ -1,5 +1,9 @@
 # Bank Architect 2.0 direction
 
+**26 October 2026:** the open-ended feature stages below are superseded by
+[the bounded 1.0 completion plan](finish-1.0.md). Existing implementation notes
+remain useful history; deferred features are not outstanding release requirements.
+
 Development starts above 0.9.8 (`675ccbd0e708ed6ea3396f0f35ff54ad96dfea21`).
 The owner authorized this work on 23 October 2026. This is an incremental
 development plan, not a published 2.0 release. Existing release notices keep

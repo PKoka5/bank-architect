@@ -213,6 +213,32 @@ public final class BlueprintItemOrders
 		return new BlueprintItemOrders(moved, null, routes);
 	}
 
+	/** Whole accepted records use occurrence keys in their new natural tab order. */
+	BlueprintItemOrders movedSnapshot(int from, int to)
+	{
+		requireSnapshot();
+		Map<Integer,List<Integer>> moved = new TreeMap<>();
+		Map<Integer,List<Destination>> rows = new TreeMap<>();
+		Map<Integer,Integer> seen = new HashMap<>();
+		for (int tab = 0; tab < BankLayoutPlan.DESTINATION_COUNT; tab++)
+			for (int id : orders.getOrDefault(tab, Collections.emptyList()))
+			{
+				int target = BankLayoutPlan.destinationAfterMove(tab, from, to);
+				moved.computeIfAbsent(target, ignored -> new ArrayList<>()).add(id);
+				rows.computeIfAbsent(target, ignored -> new ArrayList<>()).add(
+					destinations.get(id + "#" + (seen.merge(id,1,Integer::sum) - 1)));
+			}
+		seen.clear();
+		Map<String,Destination> routes = new LinkedHashMap<>();
+		moved.forEach((tab, ids) -> {
+			for (int i = 0; i < ids.size(); i++) {
+				int id = ids.get(i); String tag = rows.get(tab).get(i).tag;
+				routes.put(id + "#" + (seen.merge(id,1,Integer::sum) - 1), new Destination(tab,tag,tag,true));
+			}
+		});
+		return new BlueprintItemOrders(moved,null,routes);
+	}
+
 	public BlueprintItemOrders withDestinations(Map<String, Destination> changes)
 	{
 		if (!isSupported()) throw new IllegalStateException("Newer blueprint format");
@@ -274,11 +300,11 @@ public final class BlueprintItemOrders
 
 	public BankOrganizationPreview apply(BankOrganizationPreview preview, BankLayoutPlan plan)
 	{
-		return apply(preview, plan, id -> false);
+		return apply(preview, plan, (id, target) -> false);
 	}
 
 	BankOrganizationPreview apply(BankOrganizationPreview preview, BankLayoutPlan plan,
-		java.util.function.IntPredicate retainSavedDestination)
+		java.util.function.BiPredicate<Integer, Destination> retainSavedDestination)
 	{
 		if (orders.isEmpty() && destinations.isEmpty()) return preview;
 		if (!destinations.isEmpty()) preview = route(preview, plan, retainSavedDestination);
@@ -316,7 +342,7 @@ public final class BlueprintItemOrders
 	}
 
 	private BankOrganizationPreview route(BankOrganizationPreview preview, BankLayoutPlan plan,
-		java.util.function.IntPredicate retainSavedDestination)
+		java.util.function.BiPredicate<Integer, Destination> retainSavedDestination)
 	{
 		boolean captured = isCaptured();
 		List<List<BankPreviewItem>> routed = new ArrayList<>();
@@ -332,7 +358,7 @@ public final class BlueprintItemOrders
 				BankPreviewItem identified = item.withBlueprintOccurrence(occurrence);
 				Destination target = destinations.get(occurrenceKey(identified, occurrence));
 				boolean savedTagApplies = target != null && (BankTags.sameOriginalTag(target.originalTag,item.getLayoutTagKey())
-					|| retainSavedDestination.test(item.getItemId()));
+					|| retainSavedDestination.test(item.getItemId(), target));
 				if (target != null && target.tab < routed.size()
 					&& (target.captured || savedTagApplies
 						&& plan != null && plan.destinationOf(target.tag) == target.tab))

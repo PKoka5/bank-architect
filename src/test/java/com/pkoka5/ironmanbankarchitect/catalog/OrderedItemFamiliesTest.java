@@ -11,6 +11,22 @@ import static org.junit.Assert.*;
 
 public class OrderedItemFamiliesTest
 {
+	@Test public void quickToolTiersMatchThePublishedJavaLiterals() throws Exception
+	{
+		Map<String,List<Integer>> rows = new OrderedItemFamilies(getClass().getResourceAsStream(
+			"/com/pkoka5/ironmanbankarchitect/organize/quick-tool-tiers.tsv"),0).entries();
+		assertEquals(25,rows.size());
+		assertEquals(49,rows.values().stream().mapToInt(List::size).sum());
+		StringBuilder canonical = new StringBuilder();
+		rows.forEach((key,ids) -> canonical.append(key).append('\t')
+			.append(ids.stream().map(String::valueOf).collect(Collectors.joining(","))).append('\n'));
+		StringBuilder digest = new StringBuilder();
+		for (byte b : MessageDigest.getInstance("SHA-256").digest(canonical.toString().getBytes(StandardCharsets.UTF_8)))
+			digest.append(String.format("%02x",b & 255));
+		// Independently extracted from IronmanQuickToolSelector at published b3583ca.
+		assertEquals("624e1fd43e6aa6f8902d0812d56f7a4a7a862330aad5ddf7262dec8a87e64af5",digest.toString());
+	}
+
 	@Test
 	public void bundledTablesRetainReviewedFamilyAndMemberOrder() throws Exception
 	{
@@ -100,6 +116,15 @@ public class OrderedItemFamiliesTest
 		if (name.equals("gear"))
 		{
 			families = new java.util.LinkedHashMap<>(families);
+			for (String metal : List.of("bronze","iron","steel","black","mithril","adamant","rune"))
+				for (String trim : List.of("g","t"))
+				{
+					List<Integer> ids=families.remove("gear."+metal+"-"+trim);
+					assertNotNull(ids);assertEquals(5,ids.size());
+					String[] pieces={"full helm","platebody","platelegs","plateskirt","kiteshield"};
+					for (int i=0;i<pieces.length;i++) assertEquals(metal+" "+pieces[i]+" ("+trim+")",
+						ResourceItemRegistry.INSTANCE.findById(ids.get(i)).get().getDisplayName().toLowerCase(java.util.Locale.ROOT));
+				}
 			assertEquals(List.of(13379,13381,13380,13377,13378), families.remove("gear.shayzien-5"));
 			assertEquals(List.of(29560,29562,29564), families.remove("gear.elite-black"));
 			assertEquals(List.of(33031,33033,33023,33025,33027,33029), families.remove("gear.crystal-deadman"));

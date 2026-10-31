@@ -52,7 +52,7 @@ public class CannonToolsPlacementTest
 		for (int id : allParts()) assertPlacement(preview, id, "tools", plan.destinationOf("tools"));
 		assertPlacement(preview, 12863, "tools", plan.destinationOf("tools"));
 		for (int id : new int[] {2, 21728})
-			assertPlacement(preview, id, "boss-loot", plan.destinationOf("boss-loot"));
+			assertPlacement(preview, id, "loot-ammunition", plan.destinationOf("loot-ammunition"));
 		List<Integer> tools = ids(preview.getCategories().get(plan.destinationOf("tools")));
 		assertCompactRectangle(tools, NORMAL);
 		assertCompactRectangle(tools, ORNAMENTED);
@@ -129,7 +129,7 @@ public class CannonToolsPlacementTest
 				BankLayoutOptions options = new BankLayoutOptions(fill, defaults.fillHerbloreRows(),
 					defaults.alchPile(), Collections.emptyMap(), gearLayout, defaults.potionDoses(),
 					defaults.runeOrder(), defaults.teleportOrder(), false);
-				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+				BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 					CompositeItemCatalog.DEFAULT, preset, GearStatsSource.NONE, ItemValueSource.NONE,
 					CategoryOverrideSource.NONE, plan, options);
 				List<Integer> actual = ids(preview.getCategories().get(plan.destinationOf("tools")));
@@ -216,7 +216,7 @@ public class CannonToolsPlacementTest
 		BankLayoutOptions options = new BankLayoutOptions(defaults.fillGearRows(), defaults.fillHerbloreRows(),
 			defaults.alchPile(), Collections.emptyMap(), defaults.gearLayout(), defaults.potionDoses(),
 			defaults.runeOrder(), defaults.teleportOrder(), false).withItemOrders(orders);
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			GearStatsSource.NONE, ItemValueSource.NONE, overrides, layout, options);
 	}
 

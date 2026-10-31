@@ -15,6 +15,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.*;
@@ -1109,45 +1110,20 @@ public final class BankGuideOverlay extends Overlay
 
 		if (draggingSource)
 		{
-			if (target != null) drawMoveCell(graphics, target.bounds, MOVE_TARGET, targetLabel);
-			else
-			{
-				int targetY = edgeY(logicalTarget, viewportBounds);
-				drawEdgeBadge(graphics, edgeX(logicalTarget,
-					viewportBounds.x + viewportBounds.width / 2, viewportBounds), targetY,
-					MOVE_TARGET, targetLabel, targetY <= viewportBounds.y + 14, viewportBounds);
-			}
+			drawMoveEndpoint(graphics, target, movePoint(target, logicalTarget,
+				viewportBounds.x + viewportBounds.width / 2, viewportBounds),
+				MOVE_TARGET, targetLabel, viewportBounds);
 			return;
 		}
-
-		if (source != null && target != null)
+		if (source != null || target != null)
 		{
-			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds),
-				centerX(target.bounds), centerY(target.bounds));
-			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, sourceLabel);
-			drawMoveCell(graphics, target.bounds, MOVE_TARGET, targetLabel);
-			return;
-		}
-
-		if (source != null)
-		{
-			int targetY = edgeY(logicalTarget, viewportBounds);
-			int targetX = edgeX(logicalTarget, centerX(source.bounds), viewportBounds);
-			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds), targetX, targetY);
-			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, sourceLabel);
-			drawEdgeBadge(graphics, targetX, targetY, MOVE_TARGET,
-				targetLabel, targetY <= viewportBounds.y + 14, viewportBounds);
-			return;
-		}
-
-		if (target != null)
-		{
-			int sourceY = edgeY(logicalSource, viewportBounds);
-			int sourceX = edgeX(logicalSource, centerX(target.bounds), viewportBounds);
-			drawArrowConnector(graphics, sourceX, sourceY, centerX(target.bounds), centerY(target.bounds));
-			drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
-				sourceLabel, sourceY <= viewportBounds.y + 14, viewportBounds);
-			drawMoveCell(graphics, target.bounds, MOVE_TARGET, targetLabel);
+			Point from = movePoint(source, logicalSource,
+				target == null ? 0 : centerX(target.bounds), viewportBounds);
+			Point to = movePoint(target, logicalTarget,
+				source == null ? 0 : centerX(source.bounds), viewportBounds);
+			drawArrowConnector(graphics, from.x, from.y, to.x, to.y);
+			drawMoveEndpoint(graphics, source, from, MOVE_SOURCE, sourceLabel, viewportBounds);
+			drawMoveEndpoint(graphics, target, to, MOVE_TARGET, targetLabel, viewportBounds);
 			return;
 		}
 
@@ -1192,23 +1168,26 @@ public final class BankGuideOverlay extends Overlay
 
 		BankSlotWidget source = visibleByLogicalSlot.get(move.getFromSlot());
 		BankSlotWidget logicalSource = allByLogicalSlot.get(move.getFromSlot());
-		if (source != null)
-		{
-			drawArrowConnector(graphics, centerX(source.bounds), centerY(source.bounds),
-				centerX(targetBounds), centerY(targetBounds));
-			drawMoveCell(graphics, source.bounds, MOVE_SOURCE, "FROM");
-			drawMoveCell(graphics, targetBounds, MOVE_TARGET, targetLabel);
-			return;
-		}
-
-		int sourceY = edgeY(logicalSource, viewportBounds);
-		int sourceX = logicalSource == null ? viewportBounds.x + viewportBounds.width / 2
-			: clamp(centerX(logicalSource.bounds), viewportBounds.x + 14,
-				viewportBounds.x + viewportBounds.width - 14);
-		drawArrowConnector(graphics, sourceX, sourceY, centerX(targetBounds), centerY(targetBounds));
-		drawEdgeBadge(graphics, sourceX, sourceY, MOVE_SOURCE,
-			"FROM", sourceY <= viewportBounds.y + 14, viewportBounds);
+		Point from = source == null && logicalSource == null
+			? new Point(viewportBounds.x + viewportBounds.width / 2, edgeY(null, viewportBounds))
+			: movePoint(source, logicalSource, 0, viewportBounds);
+		drawArrowConnector(graphics, from.x, from.y, centerX(targetBounds), centerY(targetBounds));
+		drawMoveEndpoint(graphics, source, from, MOVE_SOURCE, "FROM", viewportBounds);
 		drawMoveCell(graphics, targetBounds, MOVE_TARGET, targetLabel);
+	}
+
+	private static Point movePoint(BankSlotWidget visible, BankSlotWidget logical,
+		int fallbackX, Rectangle viewport)
+	{
+		return visible == null ? new Point(edgeX(logical, fallbackX, viewport), edgeY(logical, viewport))
+			: new Point(centerX(visible.bounds), centerY(visible.bounds));
+	}
+
+	private static void drawMoveEndpoint(Graphics2D graphics, BankSlotWidget visible, Point point,
+		Color color, String label, Rectangle viewport)
+	{
+		if (visible != null) drawMoveCell(graphics, visible.bounds, color, label);
+		else drawEdgeBadge(graphics, point.x, point.y, color, label, point.y <= viewport.y + 14, viewport);
 	}
 
 	private static int edgeX(BankSlotWidget offscreenSlot, int fallbackX, Rectangle viewportBounds)

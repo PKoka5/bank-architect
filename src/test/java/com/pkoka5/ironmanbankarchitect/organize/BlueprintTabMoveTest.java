@@ -89,14 +89,14 @@ public class BlueprintTabMoveTest
 		for (GearStatsSource stats : Arrays.asList(GearStatsSource.NONE, ammoStats()))
 		{
 			BankOrganizationPreview before = ammoPreview(bank, defaults, stats, CategoryOverrideSource.NONE);
-			for (int id : AMMO) assertAmmo(before, id, "boss-loot", defaults.destinationOf("boss-loot"));
+			for (int id : AMMO) assertAmmo(before, id, "loot-ammunition", defaults.destinationOf("boss-loot"));
 			for (int from = 0; from < 10; from++) for (int to = 0; to < 10; to++)
 			{
 				BankLayoutPlan moved = BankLayoutPlan.parse(preset,
 					defaults.withDestinationMoved(from, to, preset).serialize());
 				assertFalse(moved.ammoUsesAssignedTag(preset));
 				BankOrganizationPreview after = ammoPreview(bank, moved, stats, CategoryOverrideSource.NONE);
-				for (int id : AMMO) assertAmmo(after, id, "boss-loot",
+				for (int id : AMMO) assertAmmo(after, id, "loot-ammunition",
 					orderAfterMove(from, to).indexOf(defaults.destinationOf("boss-loot")));
 				assertConserved(bank, after);
 			}
@@ -218,7 +218,7 @@ public class BlueprintTabMoveTest
 		BankOrganizationPreview preview = ammoPreview(ammoBank(), moved, ammoStats(),
 			id -> id == 882 ? Optional.of("tools") : Optional.empty());
 		assertAmmo(preview, 882, "tools", moved.destinationOf("tools"));
-		for (int id : new int[]{877, 806, 2}) assertAmmo(preview, id, "boss-loot", moved.destinationOf("boss-loot"));
+		for (int id : new int[]{877, 806, 2}) assertAmmo(preview, id, "loot-ammunition", moved.destinationOf("boss-loot"));
 	}
 
 	@Test public void invalidIndexesAreRejectedAndFutureOrderFormatsRemainUntouched()
@@ -318,7 +318,7 @@ public class BlueprintTabMoveTest
 	private BankOrganizationPreview ammoPreview(BankSnapshot bank, BankLayoutPlan plan, GearStatsSource stats,
 		CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
 			ItemValueSource.NONE, overrides, plan, BankLayoutOptions.defaultFor(preset));
 	}
 

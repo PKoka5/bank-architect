@@ -61,7 +61,7 @@ public class BlueprintItemOrdersTest
 	private static BankOrganizationPreview weaponPreview(BankLayoutPlan plan, BlueprintItemOrders orders,
 		CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		return PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(4151, 1, 0), new BankItemSnapshot(4151, 1, 1))),
 			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			overrides, plan, BankLayoutOptions.DEFAULTS.withItemOrders(orders));
@@ -73,7 +73,7 @@ public class BlueprintItemOrdersTest
 			new BankItemSnapshot(995, 500, 1), new BankItemSnapshot(13204, 12, 2)));
 		BlueprintItemOrders orders = BlueprintItemOrders.parse(BlueprintItemOrders.EMPTY
 			.withTab(0, Arrays.asList(995, 13204, 2347)).serialize());
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN),
 			BankLayoutOptions.DEFAULTS.withItemOrders(orders));

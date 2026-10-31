@@ -267,7 +267,7 @@ public class SkillingOutfitVariantsTest
 		BankLayoutOptions options = new BankLayoutOptions(defaults.fillGearRows(), defaults.fillHerbloreRows(),
 			defaults.alchPile(), Collections.emptyMap(), defaults.gearLayout(), defaults.potionDoses(),
 			defaults.runeOrder(), defaults.teleportOrder(), false).withItemOrders(orders);
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(bank), CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(new BankSnapshot(bank), CompositeItemCatalog.DEFAULT,
 			preset, GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan, options);
 	}
 

@@ -12,7 +12,7 @@ public class MeleeCandidateDataTest
 	@Test public void bundledDecisionsHaveKnownExactIdentitiesAcrossAllTenPositions()
 	{
 		Map<Integer,int[]> facts = PrimaryGearSelector.load(getClass().getResourceAsStream("melee-primary-candidates.tsv"));
-		assertEquals(624,facts.size());
+		assertEquals(647,facts.size());
 		Set<Integer> slots = new HashSet<>();
 		facts.forEach((id,fact) -> {
 			assertTrue("Unregistered exact candidate " + id,CompositeItemCatalog.DEFAULT.findById(id).isPresent());

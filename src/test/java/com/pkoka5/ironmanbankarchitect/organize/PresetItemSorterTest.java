@@ -14,7 +14,7 @@ import org.junit.Test;
 public class PresetItemSorterTest
 {
 	@Test
-	public void everyBundledGenericCategoryUsesOnlyNormalizedNameAndItemId()
+	public void customGenericCategoryUsesOnlyNormalizedNameAndItemId()
 	{
 		List<BankPreviewItem> mixed = Arrays.asList(
 			item(892, "Rune arrow", ItemCategory.GEAR),
@@ -27,16 +27,9 @@ public class PresetItemSorterTest
 			item(9001, "air rune", ItemCategory.RUNE),
 			item(2347, "Hammer", ItemCategory.TOOL));
 		List<Integer> expected = Arrays.asList(9001, 9002, 995, 4587, 199, 2347, 2434, 892, 385);
-		int checked = 0;
-		for (BankPresetType type : BankPresetType.values())
-			for (BankCategory category : BankPresets.forType(type).getCategories())
-				if (category.getSortMode() == BankCategorySortMode.GENERIC)
-				{
-					checked++;
-					assertEquals(type + "/" + category.getKey(), expected, PresetItemSorter.sort(category, mixed)
-						.stream().map(BankPreviewItem::getItemId).collect(Collectors.toList()));
-				}
-		org.junit.Assert.assertTrue("Exercise the real bundled GENERIC categories", checked > 0);
+		BankCategory category = new BankCategory("custom", "Custom", BankCategorySortMode.GENERIC);
+		assertEquals(expected, PresetItemSorter.sort(category,mixed).stream()
+			.map(BankPreviewItem::getItemId).collect(Collectors.toList()));
 		assertEquals("Sorting must not mutate the supplied bank order",
 			Arrays.asList(892, 995, 9002, 199, 2434, 385, 4587, 9001, 2347),
 			mixed.stream().map(BankPreviewItem::getItemId).collect(Collectors.toList()));
@@ -96,10 +89,10 @@ public class PresetItemSorterTest
 	}
 
 	@Test
-	public void pvpSupplyCategoryReusesDoseAwareSupplySorting()
+	public void customSupplyCategoryReusesDoseAwareSupplySorting()
 	{
 		List<BankPreviewItem> sorted = PresetItemSorter.sort(
-			BankPresets.PVP.getCategory("food-potions"), Arrays.asList(
+			new BankCategory("custom-supplies", "Supplies", BankCategorySortMode.SUPPLIES), Arrays.asList(
 				item(385, "Shark", ItemCategory.POTION),
 				item(143, "Prayer potion(1)", ItemCategory.POTION),
 				item(2434, "Prayer potion(4)", ItemCategory.POTION)));

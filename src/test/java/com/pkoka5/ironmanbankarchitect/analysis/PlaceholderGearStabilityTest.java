@@ -307,6 +307,25 @@ public class PlaceholderGearStabilityTest
 		assertTag(preview, RUNE_LEGS, "gear");
 	}
 
+	@Test public void settingsAndGeometryRefreshRetainEvidenceButChangedAlchRulesReevaluate()
+	{
+		Session session=new Session(preset);
+		establishMemory(session);
+		session.analysis.invalidate(false);
+		assertEquals(BankAnalysisStatus.Kind.NOT_STARTED,session.status.get().kind());
+		BankOrganizationPreview same=session.analyze(memoryBank(true));
+		assertTag(same,RUNE_BODY,"alch");assertTag(same,RUNE_LEGS,"alch");
+		session.analysis.invalidate(false);
+		BankOrganizationPreview changed=session.analyze(memoryBank(true),preset,
+			BankLayoutPlan.defaultFor(preset).withTagAt("alch",9),BankLayoutOptions.defaultFor(preset),Collections.emptyMap(),0);
+		assertTag(changed,RUNE_BODY,"alch");assertTag(changed,RUNE_LEGS,"alch");
+		assertTrue(tabIds(changed).get(9).containsAll(Arrays.asList(RUNE_BODY,RUNE_LEGS)));
+		session.analysis.invalidate(false);
+		BankOrganizationPreview disabled=session.analyze(memoryBank(true),preset,
+			BankLayoutPlan.defaultFor(preset),new BankLayoutOptions(true,true,false),Collections.emptyMap(),0);
+		assertTag(disabled,RUNE_BODY,"gear");assertTag(disabled,RUNE_LEGS,"gear");
+	}
+
 	@Test
 	public void successThatAlreadyStartedBeforeInvalidationCannotPublishOrRestoreItsMemory()
 	{

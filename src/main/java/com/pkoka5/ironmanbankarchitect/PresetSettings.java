@@ -33,6 +33,7 @@ final class PresetSettings
 	String get(String key, String fallback) { return reader.apply(key(key), fallback); }
 	void set(String key, Object value) { writer.accept(key(key), value); }
 	String getFor(BankPreset base, String key, String fallback) { return reader.apply(key(base, key), fallback); }
+	void setFor(BankPreset base, String key, Object value) { writer.accept(key(base, key), value); }
 
 	PresetSettings forProfile(String name)
 	{

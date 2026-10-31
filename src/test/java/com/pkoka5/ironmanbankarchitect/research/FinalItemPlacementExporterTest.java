@@ -88,7 +88,7 @@ public class FinalItemPlacementExporterTest
 			}
 		}
 		assertPlacement(result, 13142, "IRONMAN", "TOOL", "frequently-used", "0");
-		assertPlacement(result, 13142, "MAIN", "TOOL", "tools", "5");
+		assertPlacement(result, 13142, "MAIN", "TOOL", "teleports", "1");
 	}
 
 	@Test

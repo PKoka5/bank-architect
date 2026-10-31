@@ -42,11 +42,11 @@ public class FracturedArchiveItemsTest
 		{34677, "Fragment of burning fire", ItemCategory.UNIQUE, "equipment-upgrade", "boss-loot"},
 		{34679, "Horn of Bran", ItemCategory.UNIQUE, "equipment-upgrade", "boss-loot"},
 		{34681, "Ascension crossbows", ItemCategory.GEAR, "weapon", "gear"},
-		{34684, "Ascension bolts", ItemCategory.GEAR, "ammo", "boss-loot"},
-		{34690, "Diamond ascension bolts", ItemCategory.GEAR, "ammo", "boss-loot"},
-		{34696, "Diamond ascension bolts (e)", ItemCategory.GEAR, "ammo", "boss-loot"},
-		{34702, "Onyx ascension bolts", ItemCategory.GEAR, "ammo", "boss-loot"},
-		{34708, "Onyx ascension bolts (e)", ItemCategory.GEAR, "ammo", "boss-loot"},
+		{34684, "Ascension bolts", ItemCategory.GEAR, "ammo", "loot-ammunition"},
+		{34690, "Diamond ascension bolts", ItemCategory.GEAR, "ammo", "loot-ammunition"},
+		{34696, "Diamond ascension bolts (e)", ItemCategory.GEAR, "ammo", "loot-ammunition"},
+		{34702, "Onyx ascension bolts", ItemCategory.GEAR, "ammo", "loot-ammunition"},
+		{34708, "Onyx ascension bolts (e)", ItemCategory.GEAR, "ammo", "loot-ammunition"},
 		{34715, "Obligator", ItemCategory.GEAR, "weapon", "gear"},
 		{34717, "Obligator (uncharged)", ItemCategory.GEAR, "weapon", "gear"},
 		{34719, "Rondache", ItemCategory.GEAR, "shield", "gear"},
@@ -166,7 +166,7 @@ public class FracturedArchiveItemsTest
 			assertEquals(ASCENSION_AMMO, loot.subList(first, first + ASCENSION_AMMO.size()));
 			assertEquals("Existing relative ammunition order is preserved", oldOrder,
 				loot.stream().filter(oldOrder::contains).collect(Collectors.toList()));
-			for (int id : ASCENSION_AMMO) assertTag(preview, id, "boss-loot");
+			for (int id : ASCENSION_AMMO) assertTag(preview, id, "loot-ammunition");
 		}
 	}
 
@@ -291,7 +291,7 @@ public class FracturedArchiveItemsTest
 	private BankOrganizationPreview build(BankSnapshot bank, Map<Integer, GearStats> stats,
 		CategoryOverrideSource choices, BankLayoutOptions options)
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, id -> Optional.of(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, id -> Optional.of(
 			CompositeItemCatalog.DEFAULT.findById(id).orElseGet(() -> new CatalogItem(id, "Synthetic control " + id,
 				ItemCategory.GEAR, "gear", Collections.emptySet(), null))), preset,
 			id -> Optional.ofNullable(stats.get(id)), id -> id == 9185 ? 9720 : 39000, choices, plan, options);

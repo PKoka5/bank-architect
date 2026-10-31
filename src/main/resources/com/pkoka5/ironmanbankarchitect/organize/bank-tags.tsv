@@ -4,7 +4,7 @@ currency-utilities	runes	Runes	rune,rune-container
 currency-utilities	teleports	Teleports	teleport,teleport-tablet,teleport-scroll,teleport-charge,teleport-container,transport-access
 currency-utilities	currency	Currency	currency
 combat-gear	gear	Combat Gear	
-combat-gear	ammunition	Ammunition	ammo,thrown-weapon
+combat-gear	ammunition	Ammo Slot Equipment	ammo,thrown-weapon
 combat-gear	combat-melee	Melee Gear	@optional
 combat-gear	combat-ranged	Ranged Gear	@optional
 combat-gear	combat-magic	Magic Gear	@optional
@@ -26,6 +26,7 @@ resources	raw-resources	Raw & Processed Resources
 resources	gems	Gems & Jewellery	gem,uncut-gem,crafting-jewellery
 resources	ammo-components	Ammo Components	ammo-component
 slayer-boss-loot	boss-loot	Slayer & Boss Loot	
+slayer-boss-loot	loot-ammunition	Ammunition	finished-ammunition
 slayer-boss-loot	alch	Alch	alch
 clues-cosmetics	clues	Clue Scrolls & Caskets	
 clues-cosmetics	cosmetics	Cosmetics	cosmetic

@@ -207,7 +207,7 @@ public class MixedProgressionCombatTest
 
 	private BankOrganizationPreview build(BankSnapshot bank)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
 			id -> Optional.ofNullable(facts.get(id)).map(fact -> fact.stats),ItemValueSource.NONE,
 			CategoryOverrideSource.NONE,plan,BankLayoutOptions.defaultFor(preset));
 	}

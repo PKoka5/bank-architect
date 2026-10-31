@@ -78,42 +78,6 @@ public final class BankOrganizationPreviewBuilder
 		return subcategory == null ? "" : subcategory.trim().toLowerCase(java.util.Locale.ROOT);
 	}
 
-	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset)
-	{
-		return build(snapshot, catalog, preset, GearStatsSource.NONE, ItemValueSource.NONE);
-	}
-
-	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
-		GearStatsSource gearStats)
-	{
-		return build(snapshot, catalog, preset, gearStats, ItemValueSource.NONE);
-	}
-
-	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
-		GearStatsSource gearStats, ItemValueSource itemValues)
-	{
-		return build(snapshot, catalog, preset, gearStats, itemValues, CategoryOverrideSource.NONE);
-	}
-
-	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
-		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides)
-	{
-		return build(snapshot, catalog, preset, gearStats, itemValues, overrides, null);
-	}
-
-	/**
-	 * The blueprint arranged into the destinations of a plan, rather than into
-	 * the preset's own ten categories. Pass {@code null} for the plan to get the
-	 * per-category blueprint the rest of the analysis is built from.
-	 */
-	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
-		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides,
-		BankLayoutPlan layoutPlan)
-	{
-		return build(snapshot, catalog, preset, gearStats, itemValues, overrides, layoutPlan,
-			BankLayoutOptions.DEFAULTS);
-	}
-
 	/** The blueprint under a plan and the player's layout options. */
 	public static BankOrganizationPreview build(BankSnapshot snapshot, ItemCatalog catalog, BankPreset preset,
 		GearStatsSource gearStats, ItemValueSource itemValues, CategoryOverrideSource overrides,
@@ -126,10 +90,13 @@ public final class BankOrganizationPreviewBuilder
 		Objects.requireNonNull(gearStats, "gearStats");
 		Objects.requireNonNull(itemValues, "itemValues");
 		Objects.requireNonNull(overrides, "overrides");
-		java.util.function.IntPredicate retainSavedDestination = id -> options.alchPile()
-			&& options.alchMode() == AlchMode.FIXED
-			&& (preset.getType() == BankPresetType.MAIN || preset.getType() == BankPresetType.IRONMAN)
-			&& IronmanAlchCandidateCatalog.containsFixed(id) && !overrides.categoryKeyFor(id).isPresent();
+		java.util.function.BiPredicate<Integer, BlueprintItemOrders.Destination> retainSavedDestination =
+			(id, target) -> !overrides.categoryKeyFor(id).isPresent()
+			&& (options.alchPile() && options.alchMode() == AlchMode.FIXED
+				&& IronmanAlchCandidateCatalog.containsFixed(id)
+				|| preset.getType() == BankPresetType.MAIN && !target.isCaptured()
+					&& PresetCategoryMapper.isMainDiaryReward(catalog.describeOrUnknown(id))
+					&& target.originalTag.equals(PresetCategoryMapper.originalMainDiaryTag(catalog.describeOrUnknown(id))));
 
 		// A plan buckets by destination and category together, and those buckets
 		// are only known once the items are read, so they are filled in as they
@@ -143,6 +110,14 @@ public final class BankOrganizationPreviewBuilder
 		// per-category blueprint keeps the recipe rows it has always had.
 		boolean main = preset.getType() == BankPresetType.MAIN;
 		boolean ammunitionMoved = plan != null && plan.ammoUsesAssignedTag(preset);
+		List<String> legacyBlocks = options.blockArrangements().orders().getOrDefault("boss-loot", Collections.emptyList());
+		boolean legacyAmmoBlocks = !legacyBlocks.isEmpty() && !options.blockArrangements().orders().containsKey("loot-ammunition")
+			&& (plan == null || plan.destinationOf("loot-ammunition") == plan.destinationOf("boss-loot"))
+			&& snapshot.getItems().stream().anyMatch(entry -> {
+				CatalogItem item = catalog.describeOrUnknown(entry.getItemId());
+				return PresetItemSorter.isDropAmmunition(item.getCategory(), normalizedSubcategory(item), item.getDisplayName())
+					&& legacyBlocks.contains(BlockKeys.blockKeyOf(new BankPreviewItem(item,entry.getQuantity())));
+			});
 		boolean herbloreRecipeRows = !main && (plan == null || BankLayoutStyles.herbloreUsesRecipeRows(plan));
 		Map<String, Integer> tagCounts = new LinkedHashMap<>();
 		Map<String, MutableCategoryPreview> previewsByCategory = new LinkedHashMap<>();
@@ -164,8 +139,7 @@ public final class BankOrganizationPreviewBuilder
 			? IronmanQuickToolSelector.select(snapshot) : Collections.emptySet();
 		for (BankItemSnapshot bankItem : snapshot.getItems())
 		{
-			if (!options.alchPile() || options.alchMode() == AlchMode.FIXED
-				|| (!main && preset.getType() != BankPresetType.IRONMAN)) break;
+			if (!options.alchPile() || options.alchMode() == AlchMode.FIXED) break;
 			int itemId = bankItem.getItemId();
 			recorded.add(itemId);
 			if (!bankItem.isPlaceholder()) realOwned.add(itemId);
@@ -221,7 +195,7 @@ public final class BankOrganizationPreviewBuilder
 				reason = "Potion doses grouped as a family.";
 			}
 			String alchExplanation = null;
-			if (options.alchPile() && (main || preset.getType() == BankPresetType.IRONMAN))
+			if (options.alchPile())
 			{
 				if (options.alchMode() == AlchMode.FIXED)
 				{
@@ -290,7 +264,7 @@ public final class BankOrganizationPreviewBuilder
 			MutableCategoryPreview preview;
 			BankTag routedTag = pinnedTag != null ? pinnedTag
 				: alchCandidate && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("alch")
-				: ammoDrops && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey("boss-loot") : null;
+				: ammoDrops && ALCH_CATEGORY_KEY.equals(category.getKey()) ? BankTags.byKey(legacyAmmoBlocks ? "boss-loot" : "loot-ammunition") : null;
 			if (routedTag == null && combatStyles && "combat-gear".equals(category.getKey())
 				&& BankTags.tagFor(category.getKey(),catalogItem.getSubcategory()).getKey().equals("gear"))
 			{
@@ -317,7 +291,8 @@ public final class BankOrganizationPreviewBuilder
 				// category on one tab share a bucket, which is what keeps a
 				// bundle's layout intact while its parts stay together.
 				BankTag tag = routedTag != null ? routedTag
-					: main && catalogItem.getItemId() == 9084 && "currency-utilities".equals(category.getKey())
+					: main && (catalogItem.getItemId() == 9084 || PresetCategoryMapper.isMainDiaryReward(catalogItem))
+						&& "currency-utilities".equals(category.getKey())
 						? BankTags.byKey("teleports")
 					: partDoseAsPotion && "potions-food".equals(category.getKey()) ? BankTags.byKey("potions")
 					: BankTags.tagFor(category.getKey(), catalogItem.getSubcategory());
@@ -592,10 +567,6 @@ public final class BankOrganizationPreviewBuilder
 	{
 		if (PresetItemSorter.isDropAmmunition(catalogItem.getCategory(),
 			normalizedSubcategory(catalogItem), catalogItem.getDisplayName())) return null;
-		if (preset.getType() != BankPresetType.MAIN && preset.getType() != BankPresetType.IRONMAN)
-		{
-			return null;
-		}
 		// Owner-reviewed policy: the ordinary Dragon halberd is always alch stock.
 		if (catalogItem.getItemId() == net.runelite.api.gameval.ItemID.DRAGON_HALBERD)
 			return itemValues.highAlchValue(catalogItem.getItemId()) > 0
@@ -986,7 +957,7 @@ public final class BankOrganizationPreviewBuilder
 				case MAIN:
 					return semanticLayout(
 						orderBlocks(IronmanMainItemSorter.sort(items, options.runeOrder(), options.teleportOrder())),
-						MainQuickAccessSemanticRuleSet.forEntries(entries),
+						MainQuickAccessSemanticRuleSet.forEntries(entries, main),
 						sequential(BankCategorySortMode.MAIN));
 				case RESOURCES:
 					return resourceLayout(items);

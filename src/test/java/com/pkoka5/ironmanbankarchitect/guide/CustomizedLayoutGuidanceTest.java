@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
@@ -51,7 +53,7 @@ public class CustomizedLayoutGuidanceTest
 						.withTag("cosmetics", Arrays.asList("set:cosmetic-family.partyhats")).serialize()));
 			}
 			String context = gear + "/" + doses + "/" + order + "/" + gather + "/" + arranged;
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(raw),
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(raw),
 				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 				corrections, layout, options);
 			Map<String, Integer> actual = new HashMap<>();

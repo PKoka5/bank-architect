@@ -111,7 +111,7 @@ public class CombatFunctionalRoleCoverageTest
 		assertAt(preview, CAPE_POUCH, "containers");
 		assertEquals(ItemCategory.TOOL, item(preview, CAPE_POUCH).getItemCategory());
 		for (int id : FUNCTIONAL_CAPES) assertAt(preview, id, "gear");
-		String utility = preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "tools";
+		String utility = preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "teleports";
 		for (int id : new int[]{13141, 13142}) assertAt(preview, id, utility);
 		for (int id : new int[]{13143, 13144}) assertAt(preview, id, "teleports");
 	}
@@ -232,13 +232,13 @@ public class CombatFunctionalRoleCoverageTest
 		if (id == 11140 || id == 13103) return "teleports";
 		if (id == 25557 || id == 21180) return "tools";
 		if (id == 11136 || id == 11138)
-			return preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "tools";
+			return preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "teleports";
 		return "cosmetics";
 	}
 
 	private BankOrganizationPreview build(BankSnapshot bank, GearStatsSource stats, CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
 			id -> 25000, overrides, plan, BankLayoutOptions.defaultFor(preset));
 	}
 

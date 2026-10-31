@@ -199,7 +199,7 @@ public class ReviewedAlchWithdrawalStabilityTest
 		assertFalse(stats.get(UNKNOWN_UPGRADE).dominates(stats.get(UNKNOWN_STOCK)));
 		assertFalse(stats.get(UNKNOWN_BACKUP).dominates(stats.get(UNKNOWN_STOCK)));
 		assertTag(build(unknownBank(25, 1, 1), stats), UNKNOWN_STOCK, "gear");
-		BankOrganizationPreview unknown = BankOrganizationPreviewBuilder.build(unknownBank(25, 1, 1),
+		BankOrganizationPreview unknown = PreviewFixtureBuilder.build(unknownBank(25, 1, 1),
 			CompositeItemCatalog.DEFAULT, preset, id -> Optional.ofNullable(unknownStats().get(id)),
 			id -> 39000, CategoryOverrideSource.NONE, plan, defaults());
 		assertFalse("Unknown catalogue entries cannot become reviewed Alch stock",
@@ -237,7 +237,7 @@ public class ReviewedAlchWithdrawalStabilityTest
 	private BankOrganizationPreview build(BankSnapshot bank, Map<Integer, GearStats> stats,
 		ItemValueSource values, CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CATALOG, preset, id -> Optional.ofNullable(stats.get(id)),
+		return PreviewFixtureBuilder.build(bank, CATALOG, preset, id -> Optional.ofNullable(stats.get(id)),
 			values, overrides, plan, options);
 	}
 

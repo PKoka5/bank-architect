@@ -187,7 +187,7 @@ public class IronmanAlchTagRoutingTest
 	private static BankOrganizationPreview build(BankSnapshot bank, ItemCatalog catalog,
 		BankLayoutPlan plan, BankLayoutOptions options, CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, catalog, BankPresets.IRONMAN,
+		return PreviewFixtureBuilder.build(bank, catalog, BankPresets.IRONMAN,
 			IronmanAlchTagRoutingTest::stats, VALUES, overrides, plan, options);
 	}
 

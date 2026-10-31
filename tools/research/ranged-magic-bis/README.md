@@ -1,5 +1,12 @@
 # Reviewed Ranged and Magic primary candidates
 
+The remaining-review follow-up explicitly adds ordinary/painted/Deadman Dark bow
+as a two-handed specialist fallback behind reviewed general weapons. Its BH form
+is restricted to specific combat areas and stays out of the general primary pool;
+the temporary LMS copy is not included. This adds no Alch eligibility. See
+[the follow-up record](../../../docs/testing/remaining-review-2026-10-26.md) for
+source verification and regression evidence.
+
 Local development research, 25 October 2026. Item facts and original selection
 policy only; no third-party plugin code, UI or layout is used.
 

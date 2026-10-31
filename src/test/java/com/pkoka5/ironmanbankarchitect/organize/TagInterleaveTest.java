@@ -231,7 +231,7 @@ public class TagInterleaveTest
 	private static BankOrganizationPreview build(BankSnapshot bank, BankLayoutOptions options,
 		BankLayoutPlan plan, CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			overrides, plan, options);
 	}

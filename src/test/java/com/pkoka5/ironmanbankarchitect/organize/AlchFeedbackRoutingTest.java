@@ -305,7 +305,7 @@ public class AlchFeedbackRoutingTest
 				for (String correction : Arrays.asList("slayer-boss-loot", "boss-loot"))
 				{
 					CategoryOverrideSource overrides = id -> id == candidate ? Optional.of(correction) : Optional.empty();
-					BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+					BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 						CompositeItemCatalog.DEFAULT, preset, id -> Optional.ofNullable(stats.get(id)),
 						VALUES, overrides, plan, BankLayoutOptions.defaultFor(preset));
 					assertTag(preview, candidate, "boss-loot");
@@ -384,7 +384,7 @@ public class AlchFeedbackRoutingTest
 	private static BankOrganizationPreview build(BankPreset preset, BankSnapshot bank, Map<Integer, GearStats> stats,
 		ItemValueSource values, CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			id -> Optional.ofNullable(stats.get(id)), values, overrides, BankLayoutPlan.defaultFor(preset), options);
 	}
 

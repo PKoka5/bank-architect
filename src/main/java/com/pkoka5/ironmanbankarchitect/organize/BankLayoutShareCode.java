@@ -66,7 +66,6 @@ public final class BankLayoutShareCode
 			if (versioned.length != 3) return Optional.empty();
 			try { type = BankPresetType.valueOf(versioned[1].trim()); }
 			catch (IllegalArgumentException invalid) { return Optional.empty(); }
-			if (type != BankPresetType.IRONMAN && type != BankPresetType.MAIN) return Optional.empty();
 			trimmed = PREFIX + SEPARATOR + versioned[2];
 		}
 		String[] parts = trimmed.split(SEPARATOR, PARTS);

@@ -7,6 +7,8 @@ import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutOptions;
 import com.pkoka5.ironmanbankarchitect.organize.BankLayoutPlan;
+import com.pkoka5.ironmanbankarchitect.organize.BlueprintItemOrders;
+import com.pkoka5.ironmanbankarchitect.organize.BlockArrangements;
 import com.pkoka5.ironmanbankarchitect.organize.BankPreset;
 import com.pkoka5.ironmanbankarchitect.organize.BankPresets;
 import com.pkoka5.ironmanbankarchitect.organize.GearSlot;
@@ -149,11 +151,30 @@ public class BankAnalysisRequestContextTest
 	}
 
 	@Test
-	public void changingThePlanResetsTheContext()
+	public void changingOnlyTheLayoutGeometryKeepsTheAlchContext()
 	{
 		BankAnalysisRequest current = new BankAnalysisRequest(bank(BODY), Collections.emptyMap(),
 			Collections.emptyMap(), Collections.emptyMap(), PLAN.withCurrentOrder(0, true), OPTIONS, PRESET);
-		assertFalse(current.sameLayoutContext(request(bank(BODY)), PRESET));
+		assertTrue(current.sameLayoutContext(request(bank(BODY)), PRESET));
+	}
+
+	@Test public void movingATagWithExplicitSavedItemRoutesStillReevaluates()
+	{
+		BankLayoutOptions options=OPTIONS.withItemOrders(BlueprintItemOrders.parse("v1|1:1127|r:1127#0:1:gear:gear"));
+		BankAnalysisRequest previous=new BankAnalysisRequest(bank(BODY),Collections.emptyMap(),Collections.emptyMap(),
+			Collections.emptyMap(),PLAN,options,PRESET);
+		BankAnalysisRequest current=new BankAnalysisRequest(bank(BODY),Collections.emptyMap(),Collections.emptyMap(),
+			Collections.emptyMap(),PLAN.withTagAt("gear",9),options,PRESET);
+		assertFalse(current.sameLayoutContext(previous,PRESET));
+	}
+
+	@Test public void rearrangingBlocksAndChangingGridShapeDoNotChangeDisposalEvidence()
+	{
+		BankLayoutOptions options=new BankLayoutOptions(false,false,OPTIONS.alchPile())
+			.withBlockArrangements(BlockArrangements.EMPTY.withTag("gear",java.util.Arrays.asList("item:1127")));
+		BankAnalysisRequest current=new BankAnalysisRequest(bank(BODY),Collections.emptyMap(),Collections.emptyMap(),
+			Collections.emptyMap(),PLAN,options,PRESET);
+		assertTrue(current.sameLayoutContext(request(bank(BODY)),PRESET));
 	}
 
 	@Test

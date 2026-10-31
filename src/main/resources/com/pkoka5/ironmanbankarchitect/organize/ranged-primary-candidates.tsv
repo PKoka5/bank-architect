@@ -133,9 +133,11 @@
 8/0/0/0/0/0/bowfa	25862
 8/0/0/0/0/0/craws	22547
 8/0/0/0/0/0/crystal-bow	23985
+8/0/0/0/0/0/dark-bow-restricted	27853
 8/0/0/0/0/0/karils-crossbow	4938
 8/0/0/0/0/0/venator-bow	27612
 8/0/0/0/0/0/webweaver	27652
+8/1/10/400/9/2/dark-bow-specialist	11235,12765,12766,12767,12768,29611
 8/2/12/420/4/2/shortbow	841
 8/2/14/440/4/2/oak-shortbow	843
 8/2/16/460/4/2/willow-shortbow	849
@@ -149,13 +151,13 @@
 8/2/28/580/3/2/atlatl	29000
 8/2/30/600/4/2/karils-crossbow	4734,4934,4935,4936,4937
 8/2/32/620/5/2/crystal-bow	23983,24123
-8/2/35/650/6/1/dragon-crossbow	21902
+8/2/35/650/6/1/dragon-crossbow	21902,28053
 8/2/36/660/4/2/craws	22550
 8/2/38/680/4/2/webweaver	27655
 8/2/40/700/6/1/armadyl-crossbow	11785
 8/2/42/720/5/2/scorching-bow	29591
 8/2/44/740/5/2/venator-bow	27610
-8/2/45/750/6/1/dragon-hunter-crossbow	21012
+8/2/45/750/6/1/dragon-hunter-crossbow	21012,25916,25918
 8/2/50/800/3/2/blowpipe	12926
 8/2/55/850/6/1/zaryte-crossbow	26374
 8/2/60/900/5/2/bowfa	25865,25867,25884,25886,25888,25890,25892,25894,25896,33021

@@ -1,4 +1,6 @@
 # schema=1
+# Non-wearable shield components stay outside every primary setup.
+0/support-upgrade/visages	11286,21637,22006
 # priority/role/family, exact active/inactive/cosmetic IDs. Navigation policy, not target DPS or Alch proof.
 # General strength at the front; slash/crush/tank armour remains in its existing vertical family.
 100/armour-strength/torva	26382,26384,26386,28254,28256,28258
@@ -34,6 +36,7 @@
 0/weapon-ranged-crossbow/dragonhunter	21012
 0/weapon-ranged-crossbow/armadyl	11785
 0/weapon-ranged-rapid/blowpipe	12926,12924
+0/weapon-ranged-special/dark-bow	11235,12765,12766,12767,12768,29611,27853
 0/weapon-ranged-rapid/ascension	34681
 100/weapon-magic-powered/shadow	27275,27277
 20/weapon-magic-powered/ayak	31113,31115

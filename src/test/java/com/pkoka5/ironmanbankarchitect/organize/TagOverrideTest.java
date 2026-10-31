@@ -85,7 +85,7 @@ public class TagOverrideTest
 	private static BankOrganizationPreview build(UserCategoryOverrides overrides,
 		BankLayoutPlan plan)
 	{
-		return BankOrganizationPreviewBuilder.build(BANK, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(BANK, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE, overrides, plan);
 	}
 

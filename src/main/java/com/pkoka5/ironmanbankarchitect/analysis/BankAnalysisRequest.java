@@ -90,12 +90,15 @@ public final class BankAnalysisRequest
 		return layoutOptions;
 	}
 
-	/** Additions and withdrawals preserve routing; changed previous facts or removed slots do not. */
+	/** Layout geometry may change; disposal rules, explicit routes and previous item facts must remain compatible. */
 	boolean sameLayoutContext(BankAnalysisRequest other, BankPreset fallback)
 	{
 		if (other == null || presetOr(fallback) != other.presetOr(fallback)
-			|| !layoutPlan.serialize().equals(other.layoutPlan.serialize())
-			|| !layoutOptions.equals(other.layoutOptions)
+			|| layoutOptions.alchPile() != other.layoutOptions.alchPile()
+			|| layoutOptions.alchMode() != other.layoutOptions.alchMode()
+			|| layoutOptions.gatherFrequentlyUsed() != other.layoutOptions.gatherFrequentlyUsed()
+			|| !layoutOptions.itemOrders().serialize().equals(other.layoutOptions.itemOrders().serialize())
+			|| !layoutOptions.itemOrders().destinations().isEmpty() && !layoutPlan.serialize().equals(other.layoutPlan.serialize())
 			|| !categoryKeysByItemId.equals(other.categoryKeysByItemId)) return false;
 		Map<Integer, List<Integer>> mine = bankSnapshot.contents();
 		Map<Integer, List<Integer>> theirs = other.bankSnapshot.contents();

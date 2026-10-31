@@ -79,7 +79,8 @@ public final class BankTags
 	static boolean sameOriginalTag(String original, String current)
 	{
 		return Objects.equals(original, current) || "gear".equals(original) && isOptional(current)
-			|| "gear".equals(current) && isOptional(original);
+			|| "gear".equals(current) && isOptional(original)
+			|| "boss-loot".equals(original) && "loot-ammunition".equals(current);
 	}
 
 	/** The tags a category splits into, in the order they are offered. */

@@ -1,4 +1,8 @@
 # schema=1
+# Exact ordinary visage IDs; upgrade function protects Flexible Alch, not price.
+11286	equipment-upgrade
+21637	equipment-upgrade
+22006	equipment-upgrade
 # Fractured Archive shield utility survives ordinary full-stat Alch comparisons.
 34719	damage-mitigation,shield-special
 34681	restricted-ammo

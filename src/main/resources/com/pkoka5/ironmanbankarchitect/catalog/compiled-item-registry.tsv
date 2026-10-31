@@ -11284,7 +11284,7 @@
 11283	Dragonfire shield	GEAR	gear	
 11284	Dragonfire shield	GEAR	gear	
 11285	Dragonfire Shield Uncharged	GEAR	gear	
-11286	Draconic visage	CLEANUP	cleanup	
+11286	Draconic visage	UNIQUE	equipment-upgrade	equipment-upgrade
 11287	Dragonfire Visage	CLEANUP	cleanup	
 11288	Brut Potion Empty Lefthand	POTION	potion	
 11289	Brut Potion Yellow	POTION	potion	
@@ -21635,7 +21635,7 @@
 21634	Ancient wyvern shield	GEAR	gear	
 21635	Wyvern Shield Uncharged	GEAR	gear	
 21636	Wyvern Shield Uncharged	GEAR	gear	
-21637	Wyvern visage	CLEANUP	cleanup	
+21637	Wyvern visage	UNIQUE	equipment-upgrade	equipment-upgrade
 21638	Wyvern Visage	CLEANUP	cleanup	
 21639	Wyvern Visage	CLEANUP	cleanup	
 21640	Antique lamp	CLEANUP	cleanup	
@@ -22004,7 +22004,7 @@
 22003	Dragonfire ward	CLEANUP	cleanup	
 22004	Dragonfire Ward Uncharged	CLEANUP	cleanup	
 22005	Dragonfire Ward Uncharged	CLEANUP	cleanup	
-22006	Skeletal visage	CLEANUP	cleanup	
+22006	Skeletal visage	UNIQUE	equipment-upgrade	equipment-upgrade
 22007	Skeletal Visage	CLEANUP	cleanup	
 22008	Skeletal Visage	CLEANUP	cleanup	
 22009	Map piece	CLEANUP	quest-item	

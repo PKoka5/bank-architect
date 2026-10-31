@@ -139,7 +139,7 @@ public class TwoMainCombatLayoutRegressionTest
 	private static BankOrganizationPreview build(Fixture fixture,List<BankItemSnapshot> bank)
 	{
 		ItemCatalog catalog = id -> Optional.ofNullable(fixture.catalog.get(id));
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(bank),catalog,BankPresets.MAIN,
+		return PreviewFixtureBuilder.build(new BankSnapshot(bank),catalog,BankPresets.MAIN,
 			controlledStats(),ItemValueSource.NONE,CategoryOverrideSource.NONE,
 			BankLayoutPlan.defaultFor(BankPresets.MAIN),BankLayoutOptions.defaultFor(BankPresets.MAIN));
 	}

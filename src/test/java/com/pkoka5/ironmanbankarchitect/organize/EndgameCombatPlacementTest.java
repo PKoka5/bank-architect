@@ -339,14 +339,14 @@ public class EndgameCombatPlacementTest
 
 	private BankOrganizationPreview buildWithoutStats(BankSnapshot bank)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan,
 			BankLayoutOptions.defaultFor(preset));
 	}
 
 	private BankOrganizationPreview build(BankSnapshot bank, CategoryOverrideSource choices, BlueprintItemOrders orders)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			id -> Optional.ofNullable(STATS.get(id)), id -> 25000, choices, plan,
 			BankLayoutOptions.defaultFor(preset).withItemOrders(orders));
 	}

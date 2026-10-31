@@ -118,7 +118,7 @@ public class ObsidianPlatebodyPlacementTest
 
 	private BankOrganizationPreview build(BankSnapshot bank, CategoryOverrideSource choices, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			id -> Optional.ofNullable(stats(id)), id -> 39000, choices, plan, options);
 	}
 

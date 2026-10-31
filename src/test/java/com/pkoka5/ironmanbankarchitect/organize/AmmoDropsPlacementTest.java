@@ -64,22 +64,22 @@ public class AmmoDropsPlacementTest
 			finishedAmmoStats(DROP_AMMO)))
 		{
 			BankOrganizationPreview preview = build(bank, stats, CategoryOverrideSource.NONE, plan, BlueprintItemOrders.EMPTY);
-			for (int id : DROP_AMMO) assertPlacement(preview, id, "boss-loot", plan.destinationOf("boss-loot"));
-			assertEquals(DROP_AMMO.length, preview.getTagCounts().get("boss-loot").intValue());
+			for (int id : DROP_AMMO) assertPlacement(preview, id, "loot-ammunition", plan.destinationOf("boss-loot"));
+			assertEquals(DROP_AMMO.length, preview.getTagCounts().get("loot-ammunition").intValue());
 			assertEquals(0, preview.getTagCounts().getOrDefault("ammunition", 0).intValue());
 			assertPreserved(bank, preview);
 		}
-		BankLayoutPlan movedDrops = plan.withTagAt("boss-loot", 9);
+		BankLayoutPlan movedDrops = plan.withTagAt("loot-ammunition", 9);
 		BankOrganizationPreview moved = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE,
 			movedDrops, BlueprintItemOrders.EMPTY);
-		for (int id : DROP_AMMO) assertPlacement(moved, id, "boss-loot", 9);
+		for (int id : DROP_AMMO) assertPlacement(moved, id, "loot-ammunition", 9);
 		assertPreserved(bank, moved);
 		BankOrganizationPreview categories = build(bank, finishedAmmoStats(DROP_AMMO), CategoryOverrideSource.NONE,
 			null, BlueprintItemOrders.EMPTY);
 		assertEquals(DROP_AMMO.length, categories.getCategories().stream()
 			.filter(category -> "slayer-boss-loot".equals(category.getCategory().getKey()))
 			.mapToInt(BankCategoryPreview::getItemCount).sum());
-		for (int id : DROP_AMMO) assertEquals("boss-loot", item(categories, id).getLayoutTagKey());
+		for (int id : DROP_AMMO) assertEquals("loot-ammunition", item(categories, id).getLayoutTagKey());
 		assertPreserved(bank, categories);
 	}
 
@@ -98,7 +98,7 @@ public class AmmoDropsPlacementTest
 				String expectedTag = "combat-gear".equals(choice) ? (id == 806 ? "gear" : "ammunition") : choice;
 				assertPlacement(preview, id, expectedTag, plan.destinationOf("gear"));
 			}
-			assertPlacement(preview, 28991, "boss-loot", plan.destinationOf("boss-loot"));
+			assertPlacement(preview, 28991, "loot-ammunition", plan.destinationOf("boss-loot"));
 			assertPreserved(bank, preview);
 		}
 		for (String originalTag : Arrays.asList("ammunition", "boss-loot"))
@@ -107,12 +107,12 @@ public class AmmoDropsPlacementTest
 			GearStatsSource savedStats = "ammunition".equals(originalTag) ? ammoStats(9243, 806, 28991) : stats;
 			BankOrganizationPreview preview = build(bank, savedStats, CategoryOverrideSource.NONE, plan, saved);
 			for (int id : corrected) assertPlacement(preview, id, "gear", plan.destinationOf("gear"));
-			assertPlacement(preview, 28991, "boss-loot", plan.destinationOf("boss-loot"));
+			assertPlacement(preview, 28991, "loot-ammunition", plan.destinationOf("boss-loot"));
 			assertPreserved(bank, preview);
 		}
 		BankOrganizationPreview reset = build(bank, stats, CategoryOverrideSource.NONE, plan, BlueprintItemOrders.EMPTY);
 		for (int id : new int[] {9243, 806, 28991})
-			assertPlacement(reset, id, "boss-loot", plan.destinationOf("boss-loot"));
+			assertPlacement(reset, id, "loot-ammunition", plan.destinationOf("boss-loot"));
 	}
 
 	@Test
@@ -124,12 +124,12 @@ public class AmmoDropsPlacementTest
 		BlueprintItemOrders saved = routes("gear", "tools", tools, Collections.singletonList(806));
 		BankOrganizationPreview preview = build(bank, stats, CategoryOverrideSource.NONE, plan, saved);
 		assertPlacement(preview, 806, "tools", tools);
-		assertPlacement(preview, 11230, "boss-loot", plan.destinationOf("boss-loot"));
+		assertPlacement(preview, 11230, "loot-ammunition", plan.destinationOf("boss-loot"));
 		assertPreserved(bank, preview);
 		BankLayoutPlan changed = plan.withTagAt("tools", 9);
 		BankOrganizationPreview invalidated = build(bank, stats, CategoryOverrideSource.NONE, changed, saved);
 		for (int id : new int[] {806, 11230})
-			assertPlacement(invalidated, id, "boss-loot", changed.destinationOf("boss-loot"));
+			assertPlacement(invalidated, id, "loot-ammunition", changed.destinationOf("boss-loot"));
 		assertPreserved(bank, invalidated);
 	}
 
@@ -143,12 +143,12 @@ public class AmmoDropsPlacementTest
 		BankOrganizationPreview preview = build(bank, finishedAmmoStats(DROP_AMMO), CategoryOverrideSource.NONE, plan,
 			BlueprintItemOrders.EMPTY);
 		for (int id : new int[] {892, 2, 11212, 21728, 806, 9243})
-			assertPlacement(preview, id, "boss-loot", plan.destinationOf("boss-loot"));
+			assertPlacement(preview, id, "loot-ammunition", plan.destinationOf("boss-loot"));
 		assertTrue(item(preview, 892).isPlaceholder());
 		assertTrue(item(preview, 2).isPlaceholder());
 		assertTrue(item(preview, 806).isPlaceholder());
 		assertTrue(item(preview, 9243).isPlaceholder());
-		assertEquals(2, preview.getTagCounts().get("boss-loot").intValue());
+		assertEquals(2, preview.getTagCounts().get("loot-ammunition").intValue());
 		assertPreserved(bank, preview);
 	}
 
@@ -166,7 +166,7 @@ public class AmmoDropsPlacementTest
 		}
 		BankOrganizationPreview cleared = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, plan,
 			BlueprintItemOrders.EMPTY);
-		for (int id : CORRECTABLE) assertPlacement(cleared, id, "boss-loot", plan.destinationOf("boss-loot"));
+		for (int id : CORRECTABLE) assertPlacement(cleared, id, "loot-ammunition", plan.destinationOf("boss-loot"));
 	}
 
 	@Test
@@ -176,11 +176,11 @@ public class AmmoDropsPlacementTest
 		BlueprintItemOrders saved = routes("ammunition", "gear", plan.destinationOf("gear"), CORRECTABLE);
 		BankOrganizationPreview preview = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, plan, saved);
 		for (int id : CORRECTABLE) assertPlacement(preview, id, "gear", plan.destinationOf("gear"));
-		assertPlacement(preview, 11212, "boss-loot", plan.destinationOf("boss-loot"));
+		assertPlacement(preview, 11212, "loot-ammunition", plan.destinationOf("boss-loot"));
 		assertPreserved(bank, preview);
 		BankLayoutPlan changed = plan.withTagAt("gear", 9);
 		BankOrganizationPreview released = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, changed, saved);
-		for (int id : CORRECTABLE) assertPlacement(released, id, "boss-loot", changed.destinationOf("boss-loot"));
+		for (int id : CORRECTABLE) assertPlacement(released, id, "loot-ammunition", changed.destinationOf("boss-loot"));
 		assertPreserved(bank, released);
 	}
 
@@ -191,11 +191,11 @@ public class AmmoDropsPlacementTest
 		BlueprintItemOrders saved = routes("boss-loot", "gear", plan.destinationOf("gear"), CORRECTABLE);
 		BankOrganizationPreview preview = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, plan, saved);
 		for (int id : CORRECTABLE) assertPlacement(preview, id, "gear", plan.destinationOf("gear"));
-		assertPlacement(preview, 11212, "boss-loot", plan.destinationOf("boss-loot"));
+		assertPlacement(preview, 11212, "loot-ammunition", plan.destinationOf("boss-loot"));
 		assertPreserved(bank, preview);
 		BankOrganizationPreview reset = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, plan,
 			saved.resetTab(plan.destinationOf("gear")));
-		for (int id : CORRECTABLE) assertPlacement(reset, id, "boss-loot", plan.destinationOf("boss-loot"));
+		for (int id : CORRECTABLE) assertPlacement(reset, id, "loot-ammunition", plan.destinationOf("boss-loot"));
 	}
 
 	@Test
@@ -208,6 +208,40 @@ public class AmmoDropsPlacementTest
 		for (int id : new int[] {892, 2, 8882, 806, 9433}) assertPlacement(preview, id, "ammunition", 9);
 		assertEquals(5, preview.getTagCounts().get("ammunition").intValue());
 		assertPreserved(bank, preview);
+	}
+
+	@Test public void newAmmoGroupMovesIndependentlyAndOldPlansInheritTheirLootDestination()
+	{
+		BankSnapshot bank=bank(892,2,989);
+		CategoryOverrideSource choices=id -> id==989?Optional.of("boss-loot"):Optional.empty();
+		BankLayoutPlan moved=plan.withTagAt("loot-ammunition",plan.destinationOf("gear"));
+		BankOrganizationPreview preview=build(bank,ammoStats(DROP_AMMO),choices,moved,BlueprintItemOrders.EMPTY);
+		for(int id:new int[]{892,2}) assertPlacement(preview,id,"loot-ammunition",plan.destinationOf("gear"));
+		assertPlacement(preview,989,"boss-loot",plan.destinationOf("boss-loot"));
+		assertEquals("Ammunition",BankTags.byKey("loot-ammunition").getName());
+		String old=plan.withTagAt("boss-loot",9).serialize().replace("loot-ammunition+","")
+			.replace("+loot-ammunition","").replace("loot-ammunition","");
+		BankLayoutPlan restored=BankLayoutPlan.parse(preset,old);
+		assertEquals(9,restored.destinationOf("loot-ammunition"));
+		BankOrganizationPreview migrated=build(bank,ammoStats(DROP_AMMO),choices,restored,BlueprintItemOrders.EMPTY);
+		for(int id:new int[]{892,2}) assertPlacement(migrated,id,"loot-ammunition",9);
+		assertPlacement(migrated,989,"boss-loot",9);
+		assertPreserved(bank,migrated);
+	}
+
+	@Test public void explicitAmmoBlockOrderUsesItsOwnGroupAndOverridesAnOldCombinedOrder()
+	{
+		BankSnapshot bank=mixedDropsBank();
+		BlockArrangements blocks=BlockArrangements.EMPTY.withTag("boss-loot",Arrays.asList("item:2","item:882"))
+			.withTag("loot-ammunition",Arrays.asList("item:882","item:2"));
+		BankOrganizationPreview preview=PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+			finishedAmmoStats(DROP_AMMO),ItemValueSource.NONE,sortingOverrides(),plan,
+			BankLayoutOptions.defaultFor(preset).withBlockArrangements(BlockArrangements.parse(blocks.serialize())));
+		List<Integer> ammo=preview.getPlannedItems().stream().filter(item -> "loot-ammunition".equals(item.getLayoutTagKey()))
+			.map(BankPreviewItem::getItemId).collect(Collectors.toList());
+		assertEquals(Integer.valueOf(882),ammo.get(0));assertTrue(ammo.indexOf(882)<ammo.indexOf(2));
+		assertTrue(preview.getBlockDescriptors().containsKey("loot-ammunition"));
+		assertPreserved(bank,preview);
 	}
 
 	@Test
@@ -224,7 +258,7 @@ public class AmmoDropsPlacementTest
 				BlueprintItemOrders.EMPTY).serialize());
 			assertTrue(captured.isCaptured());
 			BankOrganizationPreview after = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, plan, captured);
-			String retainedTag = legacy ? "ammunition" : "boss-loot";
+			String retainedTag = legacy ? "ammunition" : "loot-ammunition";
 			for (int id : CORRECTABLE) assertPlacement(after, id, retainedTag, physicalTab);
 			assertEquals(Arrays.asList(2, 892), after.getCategories().get(physicalTab).getItems().stream()
 				.map(BankPreviewItem::getItemId).collect(Collectors.toList()));
@@ -246,7 +280,7 @@ public class AmmoDropsPlacementTest
 		captured = BlueprintItemOrders.parse(captured.serialize());
 		BankLayoutPlan changed = plan.withTagAt("gear", 9);
 		BankOrganizationPreview after = build(bank, ammoStats(DROP_AMMO), CategoryOverrideSource.NONE, changed, captured);
-		assertPlacement(after, 892, "boss-loot", changed.destinationOf("boss-loot"));
+		assertPlacement(after, 892, "loot-ammunition", changed.destinationOf("boss-loot"));
 		assertPlacement(after, 2, "ammunition", combat);
 		assertPreserved(bank, after);
 	}
@@ -282,12 +316,14 @@ public class AmmoDropsPlacementTest
 		for (GearStatsSource stats : Arrays.asList(GearStatsSource.NONE, finishedAmmoStats(DROP_AMMO)))
 		{
 			BankOrganizationPreview preview = build(bank, stats, sortingOverrides(), plan, BlueprintItemOrders.EMPTY);
-			assertEquals(Arrays.asList(4207, 19677, 20718, 989,
+			List<Integer> expected=new ArrayList<>(Arrays.asList(4207, 19677, 20718, 989,
 				11212, 892, 890, 882,
 				9243, 21905, 9144, 9143, 8882,
 				11230, 25849, 811, 810, 806, 28991,
 				31916, 31914, 31912, 31910, 2, 31908,
-				20714, 1373, 1163, 1093), dropsIds(preview));
+				20714, 1373, 1163, 1093));
+			if (preset.getType()==BankPresetType.MAIN) { expected.remove(Integer.valueOf(20714));expected.add(4,20714); }
+			assertEquals(expected,dropsIds(preview));
 			assertPreserved(bank, preview);
 		}
 	}
@@ -296,13 +332,13 @@ public class AmmoDropsPlacementTest
 	public void customAlchTagOrderIsRespectedWithoutScatteringAmmo()
 	{
 		BankSnapshot bank = mixedDropsBank();
-		BankLayoutPlan custom = BankLayoutPlan.parse(preset, plan.withTagShifted("alch", -1).serialize());
+		BankLayoutPlan custom = BankLayoutPlan.parse(preset, plan.withTagShifted("alch", -2).serialize());
 		BankOrganizationPreview preview = build(bank, finishedAmmoStats(DROP_AMMO), sortingOverrides(), custom,
 			BlueprintItemOrders.EMPTY);
 		assertEquals(Arrays.asList(1373, 1163, 1093), dropsIds(preview).subList(0, 3));
 		assertEquals(Arrays.asList(11212, 892, 890, 882, 9243, 21905, 9144, 9143, 8882,
 			11230, 25849, 811, 810, 806, 28991, 31916, 31914, 31912, 31910, 2, 31908),
-			dropsIds(preview).subList(7, 28));
+			dropsIds(preview).subList(8, 29));
 		assertPreserved(bank, preview);
 	}
 
@@ -328,7 +364,7 @@ public class AmmoDropsPlacementTest
 		BankSnapshot bank = mixedDropsBank();
 		BlockArrangements blocks = BlockArrangements.parse(BlockArrangements.EMPTY
 			.withTag("boss-loot", Arrays.asList("item:2", "item:882")).serialize());
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, finishedAmmoStats(DROP_AMMO), ItemValueSource.NONE, sortingOverrides(), plan,
 			BankLayoutOptions.defaultFor(preset).withBlockArrangements(blocks));
 		List<Integer> arranged = dropsIds(preview);
@@ -374,21 +410,21 @@ public class AmmoDropsPlacementTest
 			assertTrue(GearItemSorter.score(new BankPreviewItem(CompositeItemCatalog.DEFAULT.findById(id).get(), 50),
 				stats) > GearItemSorter.score(onyx, stats));
 		}
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, stats, values, CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(preset));
 		assertEquals(Arrays.asList(11212, 892, 21946, 21905, 21950, 9245, 2), dropsIds(preview));
 		for (BankItemSnapshot source : bank.getItems())
-			assertPlacement(preview, source.getItemId(), "boss-loot", plan.destinationOf("boss-loot"));
+			assertPlacement(preview, source.getItemId(), "loot-ammunition", plan.destinationOf("boss-loot"));
 		assertFalse(preview.getTagCounts().containsKey("alch"));
 		assertPreserved(bank, preview);
 		BankLayoutPlan relocated = plan.withTagAt("ammunition", 9);
-		BankOrganizationPreview custom = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview custom = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, stats, values, CategoryOverrideSource.NONE, relocated, BankLayoutOptions.defaultFor(preset));
 		for (BankItemSnapshot source : bank.getItems())
 			assertPlacement(custom, source.getItemId(), "ammunition", 9);
 		assertFalse(custom.getTagCounts().containsKey("alch"));
 		assertPreserved(bank, custom);
-		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview corrected = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, stats, values, id -> id == 9245 ? Optional.of("alch") : Optional.empty(), plan,
 			BankLayoutOptions.defaultFor(preset));
 		assertPlacement(corrected, 9245, "alch", plan.destinationOf("alch"));
@@ -419,7 +455,7 @@ public class AmmoDropsPlacementTest
 	private BankOrganizationPreview build(BankSnapshot bank, GearStatsSource stats, CategoryOverrideSource overrides,
 		BankLayoutPlan layout, BlueprintItemOrders orders)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset, stats,
 			ItemValueSource.NONE, overrides, layout, BankLayoutOptions.defaultFor(preset).withItemOrders(orders));
 	}
 

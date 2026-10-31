@@ -49,7 +49,7 @@ public class AlchCandidateRoutingTest
 				int id = ItemID.RUNE_PLATEBODY;
 				ItemCatalog catalog = candidate -> Optional.of(new CatalogItem(candidate, "Gear " + candidate,
 					ItemCategory.GEAR, "body", candidate == id ? Collections.singleton(role) : Collections.emptySet(), null));
-				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+				BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99002, 1, 1),
 					new BankItemSnapshot(id, quantity, 2))), catalog, preset,
 					candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
@@ -68,13 +68,13 @@ public class AlchCandidateRoutingTest
 				: Collections.emptySet(), null));
 		for (int quantity : new int[] {1, 2, 25})
 		{
-			BankOrganizationPreview withoutUpgrade = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+			BankOrganizationPreview withoutUpgrade = PreviewFixtureBuilder.build(new BankSnapshot(
 				Collections.singletonList(new BankItemSnapshot(id, quantity, 0))), catalog, preset,
 				candidate -> Optional.of(meleeBody(100)), candidate -> 39000);
 			assertEquals(1, categoryByKey(withoutUpgrade, "combat-gear").getItemCount());
 			assertEquals(0, categoryByKey(withoutUpgrade, "slayer-boss-loot").getItemCount());
 
-			BankOrganizationPreview withUpgrade = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			BankOrganizationPreview withUpgrade = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 				new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(id, quantity, 1))), catalog, preset,
 				candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
 			assertEquals(1, categoryByKey(withUpgrade, "combat-gear").getItemCount());
@@ -98,7 +98,7 @@ public class AlchCandidateRoutingTest
 		alchValues.put(3, 39000);
 		// item 4 untradeable: no alch value.
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 17, 2),
@@ -128,7 +128,7 @@ public class AlchCandidateRoutingTest
 		stats.put(3, body(100, 100, 100, 100, 100));
 		stats.put(4, body(0, 0, 0, 0, 480));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 3, 2),
@@ -158,7 +158,7 @@ public class AlchCandidateRoutingTest
 		stats.put(ItemID.ADAMANT_2H_SWORD, new GearStats(GearSlot.WEAPON, 50, 0, 0, 0, 0, 50, 0, 0,
 			0, 0, 5, 0, 0, 0, 4));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(betterWeaponId, 1, 0),
 			new BankItemSnapshot(ItemID.ADAMANT_2H_SWORD, 1, 1))),
 			catalog, preset, itemId -> Optional.ofNullable(stats.get(itemId)),
@@ -176,7 +176,7 @@ public class AlchCandidateRoutingTest
 		stats.put(2, meleeBody(200));
 		stats.put(3, meleeBody(100));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 1, 2)
@@ -198,7 +198,7 @@ public class AlchCandidateRoutingTest
 		alchValues.put(1, 60000);
 		alchValues.put(2, 50000);
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1)
 		)), GEAR_CATALOG, preset,
@@ -221,7 +221,7 @@ public class AlchCandidateRoutingTest
 		alchValues.put(2, 50000);
 		alchValues.put(3, 300);
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 2, 2)
@@ -245,7 +245,7 @@ public class AlchCandidateRoutingTest
 		assertFalse(torva.dominates(dharok));
 		for (int quantity : new int[]{3, 8, 25})
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 				new BankItemSnapshot(26384, 1, 0), new BankItemSnapshot(4720, quantity, 1))),
 				CompositeItemCatalog.DEFAULT, preset,
 				itemId -> itemId == 26384 ? Optional.of(torva) : Optional.of(dharok),
@@ -264,7 +264,7 @@ public class AlchCandidateRoutingTest
 		stats.put(26384, meleeBody(300));
 		stats.put(ItemID.MITHRIL_PLATEBODY, meleeBody(100));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(26384, 1, 0),
 			new BankItemSnapshot(ItemID.MITHRIL_PLATEBODY, 820, 1)
 		)), CompositeItemCatalog.DEFAULT, preset,
@@ -283,7 +283,7 @@ public class AlchCandidateRoutingTest
 		{
 			for (int value : new int[] {999, 1000})
 			{
-				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+				BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 					new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99003, quantity, 1))),
 					GEAR_CATALOG, preset, itemId -> Optional.of(meleeBody(itemId == 99001 ? 300 : 100)),
 					itemId -> value);
@@ -301,7 +301,7 @@ public class AlchCandidateRoutingTest
 		ItemCatalog catalog = candidate -> Optional.of(new CatalogItem(candidate, "Gear " + candidate,
 			ItemCategory.GEAR, "body", candidate == id ? Collections.singleton("clue-required")
 				: Collections.emptySet(), null));
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(99002, 1, 1),
 			new BankItemSnapshot(id, 25, 2))), catalog, preset,
 			candidate -> Optional.of(meleeBody(candidate == id ? 100 : 300)), candidate -> 39000);
@@ -319,7 +319,7 @@ public class AlchCandidateRoutingTest
 		stats.put(3, new GearStats(GearSlot.AMMO, 0, 0, 0, 0, 0, 0, 5, 0, 0));
 		stats.put(4, new GearStats(GearSlot.AMMO, 0, 0, 0, 0, 0, 0, 31, 0, 0));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 296, 1),
 			new BankItemSnapshot(3, 450, 2),
@@ -339,7 +339,7 @@ public class AlchCandidateRoutingTest
 		stats.put(1, meleeBody(300));
 		stats.put(2, meleeBody(100));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 19, 1)
 		)), GEAR_CATALOG, preset,
@@ -363,7 +363,7 @@ public class AlchCandidateRoutingTest
 		stats.put(2, new GearStats(GearSlot.WEAPON, 0, 50, 0, 0, 0, 45, 0, 0, 0));
 		stats.put(3, new GearStats(GearSlot.WEAPON, 25, 0, 0, 0, 0, 20, 0, 0, 0));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(1, 1, 0),
 			new BankItemSnapshot(2, 1, 1),
 			new BankItemSnapshot(3, 12, 2)
@@ -381,7 +381,7 @@ public class AlchCandidateRoutingTest
 		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
 			"Dragon dagger(p++)", ItemCategory.GEAR, "weapon", Collections.emptySet(), null));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(
 			Collections.singletonList(new BankItemSnapshot(ItemID.DRAGON_DAGGER_P__, 2, 0))),
 			catalog, preset, GearStatsSource.NONE, itemId -> 18000);
 
@@ -400,7 +400,7 @@ public class AlchCandidateRoutingTest
 			for (GearStatsSource stats : Arrays.asList(GearStatsSource.NONE,
 				(GearStatsSource) itemId -> Optional.of(meleeBody(100))))
 			{
-				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+				BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(
 					Collections.singletonList(new BankItemSnapshot(ItemID.RUNE_PLATEBODY, quantity, 0))),
 					catalog, preset, stats, itemId -> 39000);
 				assertEquals(1, categoryByKey(preview, "combat-gear").getItemCount());
@@ -414,7 +414,7 @@ public class AlchCandidateRoutingTest
 	{
 		for (int quantity : new int[] {1, 2, 25})
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 				new BankItemSnapshot(99001, 1, 0), new BankItemSnapshot(ItemID.RUNE_PLATEBODY, quantity, 1))),
 				GEAR_CATALOG, preset, itemId -> Optional.of(meleeBody(100)), itemId -> 39000);
 			assertEquals(2, categoryByKey(preview, "combat-gear").getItemCount());
@@ -438,7 +438,7 @@ public class AlchCandidateRoutingTest
 				0, 0, 0, 0, 0, 0, 4));
 		assertTrue(stats.get(betterWeaponId).dominates(stats.get(ItemID.ADAMANT_2H_SWORD)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(betterWeaponId, 1, 0),
 			new BankItemSnapshot(ItemID.ADAMANT_2H_SWORD, 1, 1))),
 			catalog, preset, itemId -> Optional.ofNullable(stats.get(itemId)),
@@ -465,7 +465,7 @@ public class AlchCandidateRoutingTest
 				0, 0, 0, 0, 0, 0, 4));
 		assertTrue(stats.get(betterWeaponId).dominates(stats.get(ItemID.DRAGON_DAGGER)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(betterWeaponId, 1, 0),
 			new BankItemSnapshot(ItemID.DRAGON_DAGGER, 1, 1))),
 			catalog, preset, itemId -> Optional.ofNullable(stats.get(itemId)),
@@ -481,7 +481,7 @@ public class AlchCandidateRoutingTest
 		ItemCatalog catalog = itemId -> Optional.of(new CatalogItem(itemId,
 			"Mystic robe top", ItemCategory.GEAR, "body", Collections.emptySet(), null));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(
 			Collections.singletonList(new BankItemSnapshot(ItemID.MYSTIC_ROBE_TOP, 2, 0))),
 			catalog, preset, GearStatsSource.NONE, ItemValueSource.NONE);
 
@@ -495,7 +495,7 @@ public class AlchCandidateRoutingTest
 		Map<Integer, GearStats> stats = new LinkedHashMap<>();
 		stats.put(1, meleeBody(300));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(
 			Collections.singletonList(new BankItemSnapshot(1, 40, 0))),
 			GEAR_CATALOG, preset,
 			itemId -> Optional.ofNullable(stats.get(itemId)),
@@ -523,7 +523,7 @@ public class AlchCandidateRoutingTest
 		assertFalse(stats.get(11832).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
 		assertFalse(stats.get(10551).dominates(stats.get(ItemID.RUNE_PLATEBODY)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(11832, 1, 0),
 			new BankItemSnapshot(10551, 1, 1),
 			new BankItemSnapshot(ItemID.RUNE_PLATEBODY, 25, 2)

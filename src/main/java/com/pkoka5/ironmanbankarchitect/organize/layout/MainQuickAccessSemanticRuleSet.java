@@ -24,18 +24,25 @@ public final class MainQuickAccessSemanticRuleSet
 
 	public static LayoutRequest forEntries(List<LayoutEntry> entries)
 	{
+		return forEntries(entries, false);
+	}
+
+	public static LayoutRequest forEntries(List<LayoutEntry> entries, boolean mainPreset)
+	{
 		Objects.requireNonNull(entries, "entries");
 		List<LayoutEntry> nativeEntries = new ArrayList<>();
 		List<LayoutEntry> reassigned = new ArrayList<>();
 		for (LayoutEntry entry : entries)
 		{
-			(BankTags.hasDifferentMainTag(entry.getItem()) ? reassigned : nativeEntries).add(entry);
+			(BankTags.hasDifferentMainTag(entry.getItem())
+				&& !(mainPreset && AchievementDiarySemanticRuleSet.isDiaryReward(entry.getItem()))
+				? reassigned : nativeEntries).add(entry);
 		}
 		if (!reassigned.isEmpty())
 		{
 			// Retagged runes/tools must not be pulled back into their old
 			// geometry. They remain real entries placed by the effective order.
-			LayoutRequest nativeRequest = forEntries(nativeEntries);
+			LayoutRequest nativeRequest = forEntries(nativeEntries, mainPreset);
 			List<LayoutEntry> combined = new ArrayList<>(nativeRequest.getEntries());
 			combined.addAll(reassigned);
 			return new LayoutRequest(combined, nativeRequest.getRules());

@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
@@ -20,6 +21,27 @@ import static org.junit.Assert.*;
 
 public class BlueprintEditorPanelTest
 {
+	@Test public void tabNumbersMatchTheMainAndNineNumberedBankDestinationsIncludingDrafts() throws Exception
+	{
+		SwingUtilities.invokeAndWait(() -> {
+			String[] expected={"MAIN","TAB 1","TAB 2","TAB 3","TAB 4","TAB 5","TAB 6","TAB 7","TAB 8","TAB 9"};
+			List<BankCategoryPreview> categories=new ArrayList<>();
+			for (int i=0;i<10;i++) categories.add(new BankCategoryPreview(BankPresets.IRONMAN.getCategories().get(i),
+				Arrays.asList(new BankPreviewItem(1000+i,"Item "+i,1))));
+			for (boolean readOnly : new boolean[]{false,true})
+			{
+				BlueprintEditorPanel view=new BlueprintEditorPanel(new Model(),item -> new JLabel(Integer.toString(item.getItemId())),ignored->{},readOnly);
+				view.setPreview(new BankOrganizationPreview(BankPresets.IRONMAN,categories));
+				javax.swing.JTabbedPane tabs=(javax.swing.JTabbedPane)view.getComponent(0);
+				assertEquals(10,tabs.getTabCount());
+				for(int i=0;i<10;i++) assertEquals(expected[i]+"  1",tabs.getTitleAt(i));
+				if(!readOnly) {
+					view.beginEdit();
+					for(int i=0;i<10;i++) assertEquals(expected[i]+"  1",tabs.getTitleAt(i));
+				}
+			}
+		});
+	}
 	@Test public void proposalViewerHasNoActionsAndCannotPublishOrSaveTheActiveBankPreview() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {

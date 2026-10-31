@@ -172,7 +172,7 @@ public class CombatQualityReportTest
 	}
 	private BankOrganizationPreview build(BankSnapshot bank,CategoryOverrideSource corrections,BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
 			id -> Optional.ofNullable(CombatQualityReport.FACTS.get(id)).map(fact -> fact.stats),
 			id -> 25000,corrections,plan,options);
 	}

@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -337,6 +339,32 @@ public class IronmanBankArchitectPanelTest
 		panel.shutdown();
 	}
 
+	@Test public void savedProposalRecoveryRemainsReachableAfterFailedAnalysis() throws Exception
+	{
+		String[] stored={"BAkeep99|future-data"};
+		BankLayoutModel model=new TestBankLayoutModel() {
+			@Override public com.pkoka5.ironmanbankarchitect.organize.BankPreset preset() { return BankPresets.IRONMAN; }
+			@Override public BankLayoutPlan plan() { return BankLayoutPlan.defaultFor(preset()); }
+			@Override public void save(BankLayoutPlan plan) { }
+			@Override public String acceptedBlueprint() { return stored[0]; }
+		};
+		BankGuideController controller=new BankGuideController();
+		controller.publishBankAnalysis(BankAnalysisStatus.failed());
+		IronmanBankArchitectPanel panel=TestBankLayoutModel.panel(controller,()->{},(item,label)->{},()->{},model);
+		try {
+			panel.tabOrderButton.doClick();
+			java.lang.reflect.Field field=IronmanBankArchitectPanel.class.getDeclaredField("forgetBlueprintButton");
+			field.setAccessible(true);javax.swing.JButton forget=(javax.swing.JButton)field.get(panel);
+			assertTrue(forget.isVisible());assertTrue(forget.isEnabled());assertFalse(panel.showBankButton.isEnabled());
+			panel.setSize(225,800);layoutTree(panel);
+			java.awt.image.BufferedImage image=new java.awt.image.BufferedImage(225,800,java.awt.image.BufferedImage.TYPE_INT_ARGB);
+			java.awt.Graphics2D graphics=image.createGraphics();panel.paint(graphics);graphics.dispose();
+			Files.createDirectories(Paths.get("build/reports/blueprint-recovery"));
+			javax.imageio.ImageIO.write(image,"png",Paths.get("build/reports/blueprint-recovery/failed-analysis-225.png").toFile());
+			stored[0]="";panel.refreshSettings();assertFalse(forget.isVisible());
+		} finally { panel.shutdown(); }
+	}
+
 	@Test
 	public void sidebarCardsAndButtonsStayInsideTheVisibleViewport()
 	{
@@ -384,6 +412,38 @@ public class IronmanBankArchitectPanelTest
 		panel.shutdown();
 	}
 
+	@Test public void mouseWheelScrollsTheMountedSidebarWithoutMovingItsHeaderOrChangingPreset() throws Exception
+	{
+		javax.swing.LookAndFeel previous=javax.swing.UIManager.getLookAndFeel();
+		try {
+			for (javax.swing.LookAndFeel theme : new javax.swing.LookAndFeel[]{previous,new net.runelite.client.ui.laf.RuneLiteLAF()})
+			{
+				javax.swing.UIManager.setLookAndFeel(theme);
+				SwingUtilities.invokeAndWait(() -> {
+					IronmanBankArchitectPanel panel=TestBankLayoutModel.panel(new BankGuideController(),()->{});
+					try {
+						panel.tabOrderButton.doClick();
+						JPanel mounted=panel.getWrappedPanel(); mounted.setSize(225,400);layoutTree(mounted);
+						JScrollPane scroll=findScrollPane(panel);
+						javax.swing.JScrollBar bar=scroll.getVerticalScrollBar();
+						assertTrue("The visible sidebar must own a scrollable viewport",bar.getMaximum()>bar.getVisibleAmount());
+						Rectangle heading=SwingUtilities.convertRectangle(panel.presetChooser.getParent(),panel.presetChooser.getBounds(),mounted);
+						Object preset=panel.presetChooser.getSelectedItem();
+						scroll.dispatchEvent(new java.awt.event.MouseWheelEvent(scroll,java.awt.event.MouseEvent.MOUSE_WHEEL,
+							1L,0,40,40,0,false,java.awt.event.MouseWheelEvent.WHEEL_UNIT_SCROLL,3,1));
+						assertTrue("A wheel notch must move readable content, not only a few pixels",bar.getValue()>=16);
+						int after=bar.getValue();
+						scroll.dispatchEvent(new java.awt.event.MouseWheelEvent(scroll,java.awt.event.MouseEvent.MOUSE_WHEEL,
+							2L,0,40,40,0,false,java.awt.event.MouseWheelEvent.WHEEL_UNIT_SCROLL,3,-1));
+						assertTrue(bar.getValue()<after);
+						assertEquals(preset,panel.presetChooser.getSelectedItem());
+						assertEquals(heading,SwingUtilities.convertRectangle(panel.presetChooser.getParent(),panel.presetChooser.getBounds(),mounted));
+					} finally { panel.shutdown(); }
+				});
+			}
+		} finally { javax.swing.UIManager.setLookAndFeel(previous); }
+	}
+
 	@Test
 	public void panelSourceHasNoRuneLiteClientApiImports() throws Exception
 	{
@@ -414,7 +474,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		return BankAnalysisStatus.success(
 			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE),
-			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 				BankPresets.IRONMAN));
 	}
 
@@ -422,7 +482,7 @@ public class IronmanBankArchitectPanelTest
 	{
 		return BankAnalysisStatus.success(
 			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE),
-			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 				BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 				CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN),
 				BankLayoutOptions.DEFAULTS));

@@ -108,7 +108,7 @@ public class MainRealBankLayoutTest
 		{
 			items.add(new BankItemSnapshot(itemIds.get(slot), 1, slot));
 		}
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(items),
+		return PreviewFixtureBuilder.build(new BankSnapshot(items),
 			CompositeItemCatalog.DEFAULT, BankPresets.MAIN, GearStatsSource.NONE,
 			ItemValueSource.NONE, CategoryOverrideSource.NONE, layout, options);
 	}

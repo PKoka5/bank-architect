@@ -387,7 +387,7 @@ public class AlchReplacementFamiliesTest
 	private BankOrganizationPreview build(BankSnapshot bank, GearStatsSource stats, ItemValueSource values,
 		CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			stats, values, overrides, plan, options);
 	}
 

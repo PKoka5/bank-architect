@@ -40,7 +40,7 @@ public class BankOrganizationPreviewBuilderTest
 		{
 			BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 				new BankItemSnapshot(itemId, 1, 4), new BankItemSnapshot(itemId, 1, 19)));
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 				snapshot, StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
 			long physicalSlots = BankTabPlan.fromPreview(preview).getFlattenedItems().stream()
 				.filter(item -> item.getItemId() == itemId).count();
@@ -51,7 +51,7 @@ public class BankOrganizationPreviewBuilderTest
 	@Test
 	public void previewKeepsPresetOrderAndOwnedItemSamples()
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 3, 0),
 			new BankItemSnapshot(209, 2, 1),
 			new BankItemSnapshot(145, 1, 2),
@@ -81,11 +81,11 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(999999, 1, 1)
 		));
 
-		BankOrganizationPreview automatic = BankOrganizationPreviewBuilder.build(snapshot,
+		BankOrganizationPreview automatic = PreviewFixtureBuilder.build(snapshot,
 			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
 		assertEquals(1, automatic.getCategories().get(9).getItemCount());
 
-		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(snapshot,
+		BankOrganizationPreview corrected = PreviewFixtureBuilder.build(snapshot,
 			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN, GearStatsSource.NONE,
 			ItemValueSource.NONE, overrides(999999, "currency-utilities"));
 
@@ -102,10 +102,10 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(5297, 3, 0)));
 
 		// Irit seed is confidently routed to herblore without a correction.
-		assertEquals(1, BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+		assertEquals(1, PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 			BankPresets.IRONMAN).getCategories().get(3).getItemCount());
 
-		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(snapshot,
+		BankOrganizationPreview corrected = PreviewFixtureBuilder.build(snapshot,
 			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN, GearStatsSource.NONE,
 			ItemValueSource.NONE, overrides(5297, "combat-gear"));
 
@@ -119,7 +119,7 @@ public class BankOrganizationPreviewBuilderTest
 		BankSnapshot snapshot = new BankSnapshot(Collections.singletonList(
 			new BankItemSnapshot(999999, 1, 0)));
 
-		BankOrganizationPreview corrected = BankOrganizationPreviewBuilder.build(snapshot,
+		BankOrganizationPreview corrected = PreviewFixtureBuilder.build(snapshot,
 			StaticItemCatalog.INSTANCE, BankPresets.IRONMAN, GearStatsSource.NONE,
 			ItemValueSource.NONE, overrides(999999, "not-a-preset-category"));
 
@@ -137,9 +137,9 @@ public class BankOrganizationPreviewBuilderTest
 		));
 
 		assertEquals(
-			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 				BankPresets.IRONMAN).toPreviewText(),
-			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 				BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 				CategoryOverrideSource.NONE).toPreviewText());
 	}
@@ -152,7 +152,7 @@ public class BankOrganizationPreviewBuilderTest
 	@Test
 	public void previewTextRendersReadableTabPlan()
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(5297, 1, 0),
 			new BankItemSnapshot(145, 1, 1)
 		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
@@ -174,7 +174,7 @@ public class BankOrganizationPreviewBuilderTest
 			ItemCategory.CLEANUP, "cleanup", Collections.emptySet(), null));
 		GearStats stats = new GearStats(GearSlot.BODY, 0, 0, 0, 0, 0, 0, 0, 0, 10);
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(Collections.singletonList(new BankItemSnapshot(900001, 1, 0))),
 			catalog, BankPresets.IRONMAN, itemId -> Optional.of(stats));
 
@@ -192,7 +192,7 @@ public class BankOrganizationPreviewBuilderTest
 			ItemCategory.CLEANUP, "cleanup", Collections.emptySet(), null));
 		GearStats noCombatStats = new GearStats(GearSlot.WEAPON, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(Collections.singletonList(new BankItemSnapshot(900002, 1, 0))),
 			catalog, BankPresets.IRONMAN, itemId -> Optional.of(noCombatStats));
 
@@ -207,7 +207,7 @@ public class BankOrganizationPreviewBuilderTest
 			ItemCategory.GEAR, "gear", Collections.emptySet(), null));
 		GearStats stats = new GearStats(GearSlot.FEET, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(Collections.singletonList(new BankItemSnapshot(900003, 1, 0))),
 			catalog, BankPresets.IRONMAN, itemId -> Optional.of(stats));
 
@@ -222,7 +222,7 @@ public class BankOrganizationPreviewBuilderTest
 		BankSnapshot snapshot = new BankSnapshot(Collections.singletonList(
 			new BankItemSnapshot(6687, 0, 5, true)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			snapshot, CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN);
 		BankCategoryPreview herblore = preview.getCategories().get(3);
 
@@ -246,7 +246,7 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(comparisonWeapon, 1, 4),
 			new BankItemSnapshot(adamant2hSword, 0, 17, true)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			snapshot, catalog, BankPresets.IRONMAN, itemId -> Optional.of(stats));
 
 		List<BankPreviewItem> gear = category(preview, "combat-gear").getItems();
@@ -302,7 +302,7 @@ public class BankOrganizationPreviewBuilderTest
 				11 + index * 73));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		BankCategoryPreview resources = category(preview, "resources");
 		List<Integer> expected = Arrays.asList(440, 442, 444, 447, 449, 451, 900001, 900002,
@@ -351,7 +351,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(901000 + offset, 1, 81 + offset * 19));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<BankPreviewItem> resources = category(preview, "resources").getItems();
 
@@ -394,7 +394,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(itemId, 1, 900 + offset * 13));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "resources").getItems());
 
@@ -439,7 +439,7 @@ public class BankOrganizationPreviewBuilderTest
 			}
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<BankPreviewItem> resources = category(preview, "resources").getItems();
 
@@ -491,7 +491,7 @@ public class BankOrganizationPreviewBuilderTest
 				40 + index * 29));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "resources").getItems());
 
@@ -572,7 +572,7 @@ public class BankOrganizationPreviewBuilderTest
 		{
 			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), 1, 80 + index * 31));
 		}
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"resources").getItems());
 
@@ -616,7 +616,7 @@ public class BankOrganizationPreviewBuilderTest
 				60 + index * 37));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "resources").getItems());
 
@@ -666,7 +666,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), 1, index * 17));
 		}
 
-		List<BankPreviewItem> resources = category(BankOrganizationPreviewBuilder.build(
+		List<BankPreviewItem> resources = category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"resources").getItems();
 
@@ -700,7 +700,7 @@ public class BankOrganizationPreviewBuilderTest
 				70 + index * 41));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "resources").getItems());
 
@@ -740,7 +740,7 @@ public class BankOrganizationPreviewBuilderTest
 				90 + index * 37));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "resources").getItems());
 
@@ -801,7 +801,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), 1, 90 + index * 23));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"resources").getItems());
 
@@ -836,9 +836,9 @@ public class BankOrganizationPreviewBuilderTest
 		}
 		Set<Integer> expectedIds = new HashSet<>(itemIdsFromSnapshots(snapshots));
 
-		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.SKILLER))
+		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN))
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 				new BankSnapshot(snapshots), catalog(catalogItems), preset);
 
 			List<Integer> plannedIds = new ArrayList<>();
@@ -882,7 +882,7 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(900103, 1, 4),
 			new BankItemSnapshot(900102, 1, 211)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			snapshot, catalog(catalogItems), BankPresets.IRONMAN);
 
 		assertEquals(Arrays.asList(900102, 900103, 900101),
@@ -916,7 +916,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), 1, 20 + index * 17));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> target = itemIds(category(preview, "skilling-tools").getItems());
 
@@ -964,10 +964,9 @@ public class BankOrganizationPreviewBuilderTest
 
 		List<Integer> expected = fallbackOrder;
 		BankSnapshot snapshot = new BankSnapshot(snapshots);
-		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN,
-			BankPresets.PVM, BankPresets.PVP))
+		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN, BankPresets.MAIN))
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 				snapshot, catalog(catalogItems), preset);
 			List<BankPreviewItem> supplies = category(preview, BankCategorySortMode.SUPPLIES).getItems();
 
@@ -1015,7 +1014,7 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(139, 6, 2),
 			new BankItemSnapshot(2434, 0, 144, true)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			snapshot, catalog(catalogItems), BankPresets.IRONMAN);
 		List<BankPreviewItem> supplies = category(preview, "potions-food").getItems();
 		List<BankPreviewItem> herblore = category(preview, "herblore").getItems();
@@ -1038,7 +1037,7 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(385, 10, 71),
 			new BankItemSnapshot(2434, 2, 8)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			snapshot, catalog(catalogItems), BankPresets.IRONMAN);
 
 		assertEquals(Arrays.asList(2434, 385),
@@ -1046,7 +1045,7 @@ public class BankOrganizationPreviewBuilderTest
 	}
 
 	@Test
-	public void skillerGenericHerbloreCategoryDoesNotUseSupplyDoseSemantics()
+	public void genericCategoryDoesNotUseSupplyDoseSemantics()
 	{
 		List<CatalogItem> catalogItems = Arrays.asList(
 			catalogItem(2434, "Zulu dose", ItemCategory.POTION, "potion-dose-4"),
@@ -1057,11 +1056,10 @@ public class BankOrganizationPreviewBuilderTest
 			new BankItemSnapshot(2434, 1, 1), new BankItemSnapshot(139, 1, 2),
 			new BankItemSnapshot(141, 1, 3), new BankItemSnapshot(143, 1, 4)));
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
-			snapshot, catalog(catalogItems), BankPresets.SKILLER);
-
-		assertEquals(Arrays.asList(139, 143, 141, 2434),
-			itemIds(category(preview, "herblore-materials").getItems()));
+		List<BankPreviewItem> items = new ArrayList<>();
+		for (CatalogItem item : catalogItems) items.add(new BankPreviewItem(item,1));
+		assertEquals(Arrays.asList(139, 143, 141, 2434), itemIds(PresetItemSorter.sort(
+			new BankCategory("custom-generic", "Custom", BankCategorySortMode.GENERIC),items)));
 	}
 
 	@Test
@@ -1089,7 +1087,7 @@ public class BankOrganizationPreviewBuilderTest
 			rewardIds.add(itemId);
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"currency-utilities").getItems());
 
@@ -1158,7 +1156,7 @@ public class BankOrganizationPreviewBuilderTest
 				17 + index * 31));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> main = itemIds(category(preview, "currency-utilities").getItems());
 
@@ -1193,14 +1191,14 @@ public class BankOrganizationPreviewBuilderTest
 			BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
 				new BankItemSnapshot(1275, 1, 0),
 				new BankItemSnapshot(11920, quantity, 1, quantity == 0)));
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 				snapshot, catalog(tools), BankPresets.IRONMAN);
 			List<Integer> main = itemIds(category(preview, "currency-utilities").getItems());
 			assertTrue(main.contains(11920));
 			assertFalse(main.contains(1275));
 			if (placeholderMain != null) assertEquals(placeholderMain, main);
 			placeholderMain = main;
-			BankOrganizationPreview overridden = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview overridden = PreviewFixtureBuilder.build(
 				snapshot, catalog(tools), BankPresets.IRONMAN,
 				GearStatsSource.NONE, ItemValueSource.NONE,
 				id -> id == 11920 ? Optional.of("tools") : Optional.empty());
@@ -1225,7 +1223,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(catalogItems.get(index).getItemId(), 1, index));
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 
 		assertEquals(new HashSet<>(Arrays.asList(2347, 11920, 6739)),
@@ -1255,7 +1253,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(ids.get(index), 1, 31 + index * 29));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"combat-gear").getItems());
 
@@ -1286,7 +1284,7 @@ public class BankOrganizationPreviewBuilderTest
 				200 + index * 11));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"clues-cosmetics").getItems());
 
@@ -1329,7 +1327,7 @@ public class BankOrganizationPreviewBuilderTest
 			}
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
@@ -1381,7 +1379,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
@@ -1445,11 +1443,12 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId))), "combat-gear").getItems());
 
-		assertEquals("Magic gloves follow a weapon of unverified handedness without assuming an offhand", 7 * 8 + 2, target.indexOf(9099));
+		assertEquals("Magic gloves follow the retained offhand when weapon handedness is unknown", 8 * 8 + 2, target.indexOf(9099));
+		assertEquals(7 * 8 + 2,target.indexOf(937052));
 		List<Integer> remainder = Arrays.asList(9096, 9101, 9102, 9084, 9097, 9098, 9100, 9104);
 		assertGroupedFamily(target, remainder);
 		assertEquals(snapshots.size(), target.size());
@@ -1496,7 +1495,7 @@ public class BankOrganizationPreviewBuilderTest
 			}
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
@@ -1547,7 +1546,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
@@ -1614,7 +1613,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(itemId, 1, sourceSlot++));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN,
 			itemId -> Optional.ofNullable(stats.get(itemId)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, null, SET_COLUMNS), "combat-gear").getItems());
@@ -1663,7 +1662,7 @@ public class BankOrganizationPreviewBuilderTest
 
 		for (BankPresetType type : BankPresetType.values())
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 				snapshot, catalog, BankPresets.forType(type));
 			List<Integer> actualIds = new ArrayList<>();
 			for (BankPreviewItem item : preview.getPlannedItems())
@@ -1701,7 +1700,7 @@ public class BankOrganizationPreviewBuilderTest
 			snapshots.add(new BankItemSnapshot(itemId, 1, 500 + offset * 19));
 		}
 
-		List<Integer> target = itemIds(category(BankOrganizationPreviewBuilder.build(
+		List<Integer> target = itemIds(category(PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN),
 			"currency-utilities").getItems());
 
@@ -1775,7 +1774,7 @@ public class BankOrganizationPreviewBuilderTest
 			quantities.put(itemId, quantity);
 		}
 
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.IRONMAN);
 		List<Integer> main = itemIds(category(preview, "currency-utilities").getItems());
 		assertPhysicalRun(main, Arrays.asList(6739, 11920, 2347, 1755, 952));
@@ -1887,7 +1886,7 @@ public class BankOrganizationPreviewBuilderTest
 
 		List<Integer> expected = Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452,
 			2446, 2428, 9739, 3024, 2450, 385);
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
 		assertEquals(expected,
 			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));
@@ -2007,7 +2006,7 @@ public class BankOrganizationPreviewBuilderTest
 		// Main's complete family leads; the default grab-area sorter remains unchanged.
 		List<Integer> expected = Arrays.asList(2434, 139, 141, 143, 12905, 12913, 2452,
 			2446, 2428, 9739, 3024, 385);
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 			new BankSnapshot(snapshots), catalog(catalogItems), BankPresets.MAIN);
 		assertEquals(expected,
 			itemIds(category(preview, BankCategorySortMode.SUPPLIES).getItems()));

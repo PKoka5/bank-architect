@@ -415,7 +415,7 @@ public class MainAlchRoutingTest
 		Map<Integer, GearStats> stats, ItemValueSource values, CategoryOverrideSource overrides,
 		BankLayoutPlan plan, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, catalog, BankPresets.MAIN,
+		return PreviewFixtureBuilder.build(bank, catalog, BankPresets.MAIN,
 			id -> Optional.ofNullable(stats.get(id)), values, overrides, plan, options);
 	}
 

@@ -95,7 +95,7 @@ public class TagLayoutGroupingTest
 
 	private static BankOrganizationPreview build(BankLayoutPlan plan)
 	{
-		return BankOrganizationPreviewBuilder.build(HERBLORE_BANK, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(HERBLORE_BANK, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, plan);
 	}

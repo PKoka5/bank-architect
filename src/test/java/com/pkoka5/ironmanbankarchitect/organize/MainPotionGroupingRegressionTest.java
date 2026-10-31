@@ -136,7 +136,7 @@ public class MainPotionGroupingRegressionTest
 	{
 		BankSnapshot bank = bank(179, 2428, 121, 123, 125, 2434, 139, 141, 143);
 		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.IRONMAN);
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(BankPresets.IRONMAN));
 
@@ -171,7 +171,7 @@ public class MainPotionGroupingRegressionTest
 
 	private static BankOrganizationPreview main(BankSnapshot bank, ItemCatalog catalog, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, catalog, BankPresets.MAIN,
+		return PreviewFixtureBuilder.build(bank, catalog, BankPresets.MAIN,
 			GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, MAIN_PLAN, options);
 	}
 

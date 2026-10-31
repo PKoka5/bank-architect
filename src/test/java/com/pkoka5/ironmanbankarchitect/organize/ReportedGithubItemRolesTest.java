@@ -154,7 +154,7 @@ public class ReportedGithubItemRolesTest
 	public void reviewedSlotsAndRolesWorkEvenWhenRuntimeEquipmentStatsAreUnavailable()
 	{
 		BankSnapshot bank = bank(false);
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan,
 			BankLayoutOptions.defaultFor(preset));
 		for (int id : DEADMAN_CRYSTAL)
@@ -182,7 +182,7 @@ public class ReportedGithubItemRolesTest
 		BankLayoutOptions base = BankLayoutOptions.defaultFor(preset);
 		BankLayoutOptions sets = new BankLayoutOptions(true,base.fillHerbloreRows(),false,Collections.emptyMap(),
 			GearLayout.GRID_SETS,base.potionDoses(),base.runeOrder(),base.teleportOrder(),base.gatherFrequentlyUsed());
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan, sets);
 		List<Integer> actual = idsOn(preview,plan.destinationOf("gear"));
 		assertEquals("All 27 real Ranged pieces provide the physical region", 27,actual.size());
@@ -206,7 +206,7 @@ public class ReportedGithubItemRolesTest
 
 	private BankOrganizationPreview build(BankSnapshot bank, CategoryOverrideSource choices, BlueprintItemOrders orders)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			id -> Optional.ofNullable(stats(id)), id -> 25000, choices, plan,
 			BankLayoutOptions.defaultFor(preset).withItemOrders(orders));
 	}

@@ -187,7 +187,7 @@ public class GearProgressionConsistencyTest
 			{
 				BankSnapshot bank = fixtureBank(placeholders);
 				BankLayoutPlan plan = BankLayoutPlan.defaultFor(preset);
-				BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+				BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 					CompositeItemCatalog.DEFAULT, preset, source, ItemValueSource.NONE,
 					CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(preset));
 				List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();

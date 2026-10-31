@@ -58,6 +58,29 @@ public class DragScrollOverlayTest
 	@Parameterized.Parameter
 	public RearrangeMode mode;
 
+	@Test public void endpointVisibilityMatrixKeepsSourceAndTargetGuidance() throws IOException
+	{
+		int[] positions = {40, 130, 280, 90};
+		for (boolean dragging : new boolean[]{false, true})
+			for (int source = 0; source < positions.length; source++)
+				for (int target = 0; target < positions.length; target++)
+				{
+					Fixture fixture = new Fixture(mode);
+					fixture.bothOffscreen();
+					fixture.slotBounds[fixture.move.getFromSlot()] = new Rectangle(110, positions[source], 32, 32);
+					fixture.slotBounds[fixture.move.getToSlot()] = new Rectangle(350, positions[target], 32, 32);
+					if (dragging) fixture.startDrag();
+					BufferedImage image = fixture.render();
+					boolean sourceVisible = source == 1, targetVisible = target == 1;
+					assertEquals("Target guidance follows an active drag or a visible endpoint",
+						dragging || sourceVisible || targetVisible, cyanPixels(image, Fixture.VIEWPORT) > 20);
+					assertEquals("Source guidance remains available before dragging",
+						!dragging, yellowPixels(image, Fixture.VIEWPORT) > 20);
+					assertFalse(fixture.text(), fixture.text().contains("SYNCING"));
+					writeRender(mode + "-endpoints-" + dragging + "-" + source + "-" + target + ".png", image);
+				}
+	}
+
 	@Test public void draggingKeepsTargetCellAfterSourceScrollsAway() throws IOException
 	{
 		Fixture fixture = new Fixture(mode);

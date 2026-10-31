@@ -98,6 +98,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private final Cache<SpritePixels, BufferedImage> bankBackgrounds = CacheBuilder.newBuilder().maximumSize(16).build();
 	private final AtomicBoolean settingsRefreshQueued = new AtomicBoolean();
 	private volatile long settingsRevision;
+	private volatile String syncingOption;
+	private String syncingValue;
 	/** The items the latest analysis request saw; null until a bank was captured. */
 	private Map<Integer, List<Integer>> analyzedBankContents;
 
@@ -107,6 +109,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 		settingsRefreshQueued.set(false);
 		initializeCustomProfiles();
 		guideController = new BankGuideController();
+		syncOptions();
 		guideController.setBankOpenedListener(this::onBankOpened);
 		guideController.publishCategoryOverrideCount(categoryOverrides().size());
 		bankAnalysis = new BankAnalysis(
@@ -338,12 +341,15 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	@Subscribe
 	public void onProfileChanged(ProfileChanged event)
 	{
-		refreshSettings();
+		refreshSettings(true);
 	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
+		String internalOption = syncingOption;
+		if (internalOption != null && IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
+			&& internalOption.equals(event.getKey()) && Objects.equals(syncingValue,event.getNewValue())) return;
 		if (guideController != null && IronmanBankArchitectConfig.GROUP.equals(event.getGroup())
 			&& Arrays.asList(OPTION_KEYS).contains(event.getKey())
 			&& !Objects.equals(event.getOldValue(), event.getNewValue()))
@@ -356,22 +362,25 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			&& !String.valueOf(event.getKey()).endsWith(".rememberedBlueprint")
 			&& !Arrays.asList("suggestNextMove", "showCategoryOverlay", "hideSortedHighlights",
 				"categoryOverlayOpacity", "lastSeenRelease").contains(event.getKey()))
-			refreshSettings();
+			refreshSettings(String.valueOf(event.getKey()).endsWith("activeLayoutProfile") || "bankPreset".equals(event.getKey()));
 	}
 
-	private void refreshSettings()
+	private void refreshSettings() { refreshSettings(false); }
+
+	private void refreshSettings(boolean forgetHistory)
 	{
 		BankAnalysis analysis = bankAnalysis;
 		BankGuideController controller = guideController;
 		if (analysis == null || controller == null) return;
 		settingsRevision++;
-		analysis.invalidate();
+		analysis.invalidate(forgetHistory);
 		if (!settingsRefreshQueued.compareAndSet(false, true)) return;
 		clientThread.invokeLater(() -> {
 			if (bankAnalysis != analysis || guideController != controller) return;
 			settingsRefreshQueued.set(false);
 			analyzedBankContents = null;
 			initializeCustomProfiles();
+			syncOptions();
 			controller.publishCategoryOverrideCount(categoryOverrides().size());
 			IronmanBankArchitectPanel currentPanel = panel;
 			if (currentPanel != null) SwingUtilities.invokeLater(() -> {
@@ -458,6 +467,27 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	{
 		Object[] values = optionValues(options);
 		for (int index = 0; index < OPTION_KEYS.length; index++) target.set(OPTION_KEYS[index], values[index]);
+	}
+
+	/** RuneLite edits the global keys; the current profile remains the source of truth. */
+	private void syncOptions()
+	{
+		Object[] values = optionValues(activeOptions());
+		try
+		{
+			for (int index = 0; index < OPTION_KEYS.length; index++)
+			{
+				Object value = values[index];
+				String serialized = value instanceof Enum ? ((Enum<?>) value).name() : value.toString();
+				if (!serialized.equals(settings().getFor(BankPresets.IRONMAN, OPTION_KEYS[index], "")))
+				{
+					syncingValue = serialized;
+					syncingOption = OPTION_KEYS[index];
+					settings().setFor(BankPresets.IRONMAN, OPTION_KEYS[index], value);
+				}
+			}
+		}
+		finally { syncingOption = null; }
 	}
 
 	private void copyPreferences(String name, BankLayoutOptions options, String corrections, String blocks)
@@ -637,6 +667,21 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				});
 			}
 
+			@Override public void forgetAcceptedBlueprint(String expectedValue, String expectedContext, Consumer<Boolean> completed)
+			{
+				BankAnalysis analysis = bankAnalysis;
+				clientThread.invoke(() -> {
+					boolean valid = bankAnalysis == analysis && editingContext().equals(expectedContext)
+						&& !expectedValue.isEmpty() && acceptedBlueprint().equals(expectedValue);
+					if (valid)
+					{
+						referenceSettings().set("acceptedBlueprint", "");
+						analyzeBank();
+					}
+					SwingUtilities.invokeLater(() -> completed.accept(valid));
+				});
+			}
+
 			@Override
 			public void saveItemOrder(int tab, List<Integer> itemIds,
 				BankOrganizationPreview expected, String expectedContext,
@@ -746,8 +791,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void selectPreset(BankPresetType type)
 			{
-				if (type != BankPresetType.IRONMAN && type != BankPresetType.MAIN
-					|| type == activePreset().getType() && builtin()) return;
+				if (type == null || type == activePreset().getType() && builtin()) return;
 				if (bankAnalysis != null) bankAnalysis.invalidate();
 				config.setBankPreset(type.name());
 				initializeCustomProfiles();
@@ -798,6 +842,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 						{
 							BankLayoutPlan moved = activePlan().withDestinationMoved(from, to, activePreset());
 							BlueprintItemOrders items = activeOptions().itemOrders().withDestinationMoved(from, to);
+							String kept = acceptedBlueprint(), previousContext = acceptanceContext();
 							if (ensureCustom())
 							{
 								BlueprintOrderProfiles orders = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
@@ -805,6 +850,8 @@ public final class IronmanBankArchitectPlugin extends Plugin
 								settings().set("blueprintOrdersByProfile", orders.serialize());
 								storeProfiles(savedProfiles().withProfile(activeProfileName(), moved.serialize()));
 								settings().set("tabOrder", moved.serialize());
+								String updated = AcceptedBlueprint.withDestinationMoved(kept, previousContext, acceptanceContext(), from, to);
+								if (!updated.equals(kept)) referenceSettings().set("acceptedBlueprint", updated);
 								analyzeBank();
 								success = true;
 							}
@@ -843,6 +890,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				settings().set("tabOrder", BankLayoutPlan
 					.parse(activePreset(), profiles.activePlan())
 					.serialize());
+				syncOptions();
 				analyzeBank();
 			}
 
@@ -913,6 +961,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 					if (!ensureCustom()) return;
 					storeOptions(preferences(), options);
 				}
+				syncOptions();
 				analyzeBank();
 			}
 		};
@@ -974,7 +1023,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 	private void analyzeBank()
 	{
 		BankAnalysis analysis = bankAnalysis;
-		if (analysis != null)
+		if (analysis != null && !settingsRefreshQueued.get())
 		{
 			analysis.analyzeBank();
 		}

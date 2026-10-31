@@ -7,9 +7,6 @@ public final class BankPresets
 	private static final Map<BankPresetType, BankPreset> BY_TYPE = load();
 	public static final BankPreset IRONMAN = forType(BankPresetType.IRONMAN);
 	public static final BankPreset MAIN = forType(BankPresetType.MAIN);
-	public static final BankPreset PVM = forType(BankPresetType.PVM);
-	public static final BankPreset PVP = forType(BankPresetType.PVP);
-	public static final BankPreset SKILLER = forType(BankPresetType.SKILLER);
 
 	private BankPresets() {}
 

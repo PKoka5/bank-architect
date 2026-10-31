@@ -34,6 +34,10 @@ interface BankLayoutModel
 	{
 		completed.accept(false);
 	}
+	default void forgetAcceptedBlueprint(String expectedValue, String expectedContext, Consumer<Boolean> completed)
+	{
+		completed.accept(false);
+	}
 	void saveOptions(BankLayoutOptions options);
 	void saveBlockOrder(String tagKey, List<String> blockKeys);
 	void captureCurrentBank(String name, BankOrganizationPreview expected,

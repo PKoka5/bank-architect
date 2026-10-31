@@ -187,7 +187,7 @@ public class FixedAlchRoutingTest
 	@Test public void onyxBoltsUseTheExplicitFixedListWhileFlexibleKeepsTheirAmmunitionRole()
 	{
 		BankSnapshot bank = bank(entry(9245, 100, 0));
-		assertTag(build(bank, Collections.emptyMap(), flexible()), 9245, "boss-loot");
+		assertTag(build(bank, Collections.emptyMap(), flexible()), 9245, "loot-ammunition");
 		assertTag(build(bank, Collections.emptyMap(), fixed()), 9245, "alch");
 	}
 
@@ -320,7 +320,7 @@ public class FixedAlchRoutingTest
 		int ammoTarget = (alchTarget + 1) % BankLayoutPlan.DESTINATION_COUNT;
 		BankLayoutPlan changed = plan.withTagAt("alch", alchTarget).withTagAt("ammunition", ammoTarget);
 		BankSnapshot bank = bank(entry(9245, 25, 0));
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CATALOG, preset,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CATALOG, preset,
 			GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, changed, fixed());
 		assertContents(bank, preview);
 		assertTag(preview, 9245, "alch");
@@ -395,7 +395,7 @@ public class FixedAlchRoutingTest
 	private BankOrganizationPreview build(BankSnapshot bank, ItemCatalog catalog, Map<Integer, GearStats> stats,
 		ItemValueSource values, CategoryOverrideSource choices, BankLayoutOptions options)
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, catalog, preset,
 			id -> Optional.ofNullable(stats.get(id)), values, choices, plan, options);
 		assertContents(bank, preview);
 		return preview;

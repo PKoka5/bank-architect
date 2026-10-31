@@ -44,17 +44,23 @@ public final class ResourceItemRegistry implements ItemCatalog
 
 	static Map<Integer, CatalogItem> loadItems(InputStream stream)
 	{
+		return loadItems(stream, false);
+	}
+
+	static Map<Integer, CatalogItem> loadItems(InputStream stream, boolean workflow)
+	{
 		Map<Integer, CatalogItem> result = new LinkedHashMap<>();
 		try
 		{
 			BundledTable.read(stream, RESOURCE_PATH, false, false, (line, fields) -> {
-				if (fields.length != 5) throw new IllegalStateException("Invalid compiled item row: " + line);
+				if (fields.length != (workflow ? 6 : 5)) throw new IllegalStateException("Invalid compiled item row: " + line);
 				int id = Integer.parseInt(fields[0]);
 				Set<String> tags = new LinkedHashSet<>();
 				if (!fields[4].isEmpty()) for (String tag : fields[4].split(",", -1))
 					if (!tag.matches("[a-z][a-z0-9-]*") || !tags.add(tag))
 						throw new IllegalStateException("Invalid compiled item tags: " + line);
-				CatalogItem item = new CatalogItem(id, fields[1], ItemCategory.valueOf(fields[2]), fields[3], tags, null);
+				CatalogItem item = new CatalogItem(id, fields[1], ItemCategory.valueOf(fields[2]), fields[3], tags,
+					workflow && !fields[5].isEmpty() ? fields[5] : null);
 				if (result.putIfAbsent(id, item) != null) throw new IllegalStateException("Duplicate compiled item: " + id);
 			});
 		}

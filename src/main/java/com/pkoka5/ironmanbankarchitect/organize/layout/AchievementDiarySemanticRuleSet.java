@@ -57,7 +57,12 @@ public final class AchievementDiarySemanticRuleSet
 
 	public static boolean isDiaryReward(BankPreviewItem item)
 	{
-		String name = normalized(item.getDisplayName());
+		return isDiaryReward(item.getDisplayName());
+	}
+
+	public static boolean isDiaryReward(String displayName)
+	{
+		String name = normalized(displayName);
 		for (String[] row : REGION_ROWS)
 		{
 			for (String prefix : row)

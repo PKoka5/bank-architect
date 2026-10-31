@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.guide;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -243,7 +245,7 @@ public class BankGuideControllerTest
 			new BankItemSnapshot(999999, 1, 1)
 		));
 		controller.publishBankAnalysis(BankAnalysisStatus.success(summary,
-			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 				BankPresets.IRONMAN)));
 
 		assertEquals(summary, controller.bankAnalysisStatus().catalogSummary().orElse(null));
@@ -271,7 +273,7 @@ public class BankGuideControllerTest
 	@Test
 	public void organizationPreviewIsStoredAndReadable()
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(995, 1, 0),
 			new BankItemSnapshot(5297, 1, 1)
 		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
@@ -292,7 +294,7 @@ public class BankGuideControllerTest
 	@Test
 	public void liveGuideProgressIsShownOnlyForAnOpenEnabledGuide()
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(Arrays.asList(
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(Arrays.asList(
 			new BankItemSnapshot(995, 1, 0)
 		)), StaticItemCatalog.INSTANCE, BankPresets.IRONMAN);
 		BankSnapshot snapshot = new BankSnapshot(Arrays.asList(
@@ -449,7 +451,7 @@ public class BankGuideControllerTest
 	{
 		return BankAnalysisStatus.success(
 			BankCatalogSummarizer.summarize(snapshot, StaticItemCatalog.INSTANCE),
-			BankOrganizationPreviewBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
+			PreviewFixtureBuilder.build(snapshot, StaticItemCatalog.INSTANCE,
 				BankPresets.IRONMAN));
 	}
 }

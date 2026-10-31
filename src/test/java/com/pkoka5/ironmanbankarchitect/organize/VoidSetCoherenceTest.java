@@ -134,7 +134,7 @@ public class VoidSetCoherenceTest
 	}
 	private BankOrganizationPreview build(BankSnapshot bank,BankLayoutPlan layout,BankLayoutOptions options,CategoryOverrideSource choice)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,source(),ItemValueSource.NONE,choice,layout,options);
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,source(),ItemValueSource.NONE,choice,layout,options);
 	}
 	private static List<BankPreviewItem> combat(BankOrganizationPreview preview,BankLayoutPlan plan){return preview.getCategories().get(plan.destinationOf("gear")).getItems();}
 	private static BankPreviewItem item(BankOrganizationPreview preview,int id){return preview.getPlannedItems().stream().filter(item -> item.getItemId()==id).findFirst().get();}

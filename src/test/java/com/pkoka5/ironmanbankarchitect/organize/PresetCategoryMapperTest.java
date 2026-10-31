@@ -184,25 +184,13 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
-	public void pvmSeparatesRunesIntoMagicGear()
-	{
-		BankCategory category = PresetCategoryMapper.map(BankPresets.PVM,
-			item(ItemCategory.RUNE, "Blood rune"));
-
-		assertEquals("magic-gear", category.getKey());
-		assertEquals(BankCategorySortMode.GENERIC, category.getSortMode());
-	}
-
-	@Test
-	public void everyCombatPresetKeepsCanonicalPartialDosesInItsSupplyCategory()
+	public void mainKeepsCanonicalPartialDosesInSuppliesWhileIronmanUsesHerblore()
 	{
 		CatalogItem prayerThree = new CatalogItem(139, "Prayer potion(3)", ItemCategory.POTION,
 			"potion-dose-3", Collections.emptySet(), null);
 
 		assertEquals("herblore", PresetCategoryMapper.map(BankPresets.IRONMAN, prayerThree).getKey());
 		assertEquals("potions-food", PresetCategoryMapper.map(BankPresets.MAIN, prayerThree).getKey());
-		assertEquals("potions-food", PresetCategoryMapper.map(BankPresets.PVM, prayerThree).getKey());
-		assertEquals("food-potions", PresetCategoryMapper.map(BankPresets.PVP, prayerThree).getKey());
 	}
 
 	@Test
@@ -249,8 +237,6 @@ public class PresetCategoryMapperTest
 		assertEquals("currency-utilities", PresetCategoryMapper.map(BankPresets.IRONMAN,
 			item(952, ItemCategory.TOOL, "Spade")).getKey());
 		assertEquals("skilling-tools", PresetCategoryMapper.map(BankPresets.MAIN,
-			item(19634, ItemCategory.UNKNOWN, "Soul bearer")).getKey());
-		assertEquals("loot-clues-storage", PresetCategoryMapper.map(BankPresets.SKILLER,
 			item(19634, ItemCategory.UNKNOWN, "Soul bearer")).getKey());
 	}
 
@@ -439,14 +425,12 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
-	public void sharedMainAndIronmanReroutesDoNotChangeCombatOrSkillerRouting()
+	public void mainRoutesEssenceAndCouponsToResources()
 	{
 		CatalogItem essence = item(7936, ItemCategory.RUNE, "Pure essence");
 		CatalogItem coupon = item(32083, ItemCategory.SKILLING, "Sawmill coupon (wood plank)");
 
 		assertEquals("resources", PresetCategoryMapper.map(BankPresets.MAIN, essence).getKey());
-		assertEquals("magic-gear", PresetCategoryMapper.map(BankPresets.PVM, essence).getKey());
-		assertEquals("teleports-runes", PresetCategoryMapper.map(BankPresets.SKILLER, essence).getKey());
 		assertEquals("resources", PresetCategoryMapper.map(BankPresets.MAIN, coupon).getKey());
 	}
 
@@ -466,50 +450,12 @@ public class PresetCategoryMapperTest
 	}
 
 	@Test
-	public void skillerSplitWorkflowStaysGenericUntilCrossTabRoutingIsDesigned()
-	{
-		BankCategory farming = PresetCategoryMapper.map(BankPresets.SKILLER,
-			item(ItemCategory.FARMING, "Irit seed"));
-		BankCategory herblore = PresetCategoryMapper.map(BankPresets.SKILLER,
-			item(ItemCategory.HERBLORE, "Clean irit"));
-
-		assertEquals("farming", farming.getKey());
-		assertEquals(BankCategorySortMode.GENERIC, farming.getSortMode());
-		assertEquals("herblore-materials", herblore.getKey());
-		assertEquals(BankCategorySortMode.GENERIC, herblore.getSortMode());
-	}
-
-	@Test
-	public void skillerRoutesFoodToCookingAndTruePotionsToHerbloreMaterials()
-	{
-		CatalogItem curatedFood = new CatalogItem(385, "Shark", ItemCategory.POTION,
-			"legacy-supplies", Collections.emptySet(), null);
-		CatalogItem classifiedFood = new CatalogItem(999_999, "New cooked fish", ItemCategory.POTION,
-			"food", Collections.emptySet(), null);
-		CatalogItem potion = new CatalogItem(2434, "Prayer potion(4)", ItemCategory.POTION,
-			"potion-dose-4", Collections.emptySet(), null);
-
-		assertEquals("fishing-cooking",
-			PresetCategoryMapper.map(BankPresets.SKILLER, curatedFood).getKey());
-		assertEquals("fishing-cooking",
-			PresetCategoryMapper.map(BankPresets.SKILLER, classifiedFood).getKey());
-		assertEquals("herblore-materials",
-			PresetCategoryMapper.map(BankPresets.SKILLER, potion).getKey());
-	}
-
-	@Test
 	public void everyPresetKeepsUniqueAndClueItemsOutOfGenericJunkFallbacks()
 	{
 		assertEquals("slayer-boss-loot", PresetCategoryMapper.map(BankPresets.MAIN,
 			item(ItemCategory.UNIQUE, "Pegasian crystal")).getKey());
 		assertEquals("clues-cosmetics", PresetCategoryMapper.map(BankPresets.MAIN,
 			item(ItemCategory.CLUE, "Clue scroll (hard)")).getKey());
-		assertEquals("loot-drops", PresetCategoryMapper.map(BankPresets.PVM,
-			item(ItemCategory.UNIQUE, "Burnt page")).getKey());
-		assertEquals("loot-keys-review", PresetCategoryMapper.map(BankPresets.PVP,
-			item(ItemCategory.CLUE, "Clue scroll (elite)")).getKey());
-		assertEquals("loot-clues-storage", PresetCategoryMapper.map(BankPresets.SKILLER,
-			item(ItemCategory.UNIQUE, "Crystal weapon seed")).getKey());
 	}
 
 	/**

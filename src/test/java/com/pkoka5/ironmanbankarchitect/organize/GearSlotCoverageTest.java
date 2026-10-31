@@ -84,7 +84,7 @@ public class GearSlotCoverageTest
 					BankLayoutOptions options = new BankLayoutOptions(true, true, false,
 						Collections.emptyMap(), layout, PotionDoseOrder.BY_FAMILY,
 						RuneOrder.ELEMENTAL, TeleportOrder.ALPHABETICAL, false);
-					BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,
+					BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,
 						fixture.catalog(), preset, fixture.source(), ItemValueSource.NONE,
 						CategoryOverrideSource.NONE, plan, options);
 					List<BankPreviewItem> combat = preview.getCategories().get(plan.destinationOf("gear")).getItems();

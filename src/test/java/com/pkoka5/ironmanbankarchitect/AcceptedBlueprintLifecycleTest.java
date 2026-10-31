@@ -193,6 +193,43 @@ public class AcceptedBlueprintLifecycleTest
 		}
 	}
 
+	@Test public void explicitRecoveryClearsOnlyTheActiveSnapshotEvenWhenAnalysisFailsAndBankIsClosed() throws Exception
+	{
+		for (String value : Arrays.asList("BAkeep99|future-data","damaged-snapshot","valid"))
+		{
+			Fixture fixture=acceptedCustom();
+			if (!value.equals("valid")) fixture.values.put(fixture.profileKey("acceptedBlueprint"),value);
+			String saved=fixture.model.acceptedBlueprint();
+			fixture.bankOpen=false;
+			fixture.controller.publishBankAnalysis(BankAnalysisStatus.failed());
+			Map<String,String> expected=new LinkedHashMap<>(fixture.values);
+			expected.put(fixture.profileKey("acceptedBlueprint"),"");
+			fixture.model.forgetAcceptedBlueprint(saved,fixture.model.editingContext(),fixture.result::set);
+			assertEquals(saved,fixture.model.acceptedBlueprint());
+			fixture.complete(true,false);
+			assertEquals(expected,fixture.values);
+			assertEquals("",fixture.model.acceptedBlueprint());
+		}
+	}
+
+	@Test public void staleRecoveryCannotClearAnotherProfileOrAChangedSnapshot() throws Exception
+	{
+		for (String change : Arrays.asList("profile","snapshot","settings"))
+		{
+			Fixture fixture=acceptedCustom();
+			fixture.model.forgetAcceptedBlueprint(fixture.model.acceptedBlueprint(),fixture.model.editingContext(),fixture.result::set);
+			if (change.equals("profile")) fixture.values.put("activeLayoutProfile","Other");
+			else if (change.equals("snapshot")) fixture.values.put(fixture.profileKey("acceptedBlueprint"),"BAkeep99|new-value");
+			else {
+				fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+				fixture.event("alchMode","FLEXIBLE","FIXED");
+			}
+			Map<String,String> expected=new LinkedHashMap<>(fixture.values);
+			fixture.complete(false,false);
+			assertEquals(expected,fixture.values);
+		}
+	}
+
 	@Test public void changingAPersonalOptionPausesTheStoredSnapshotWithoutDeletingIt() throws Exception
 	{
 		Fixture fixture = acceptedCustom();
@@ -200,6 +237,52 @@ public class AcceptedBlueprintLifecycleTest
 		String context = fixture.context();
 		fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
 		fixture.assertPaused(saved, context);
+	}
+
+	@Test public void movingAWholeTabKeepsItsAcceptedOrderActiveAndSurvivesRestart() throws Exception
+	{
+		for(boolean main:Arrays.asList(false,true))
+		{
+			Fixture fixture=new Fixture(new LinkedHashMap<>());
+			if(main) fixture.select("Main",0);
+			fixture.custom("Personal",0);fixture.accept();
+			String before=fixture.model.acceptedBlueprint();
+			fixture.model.moveTab(0,3,fixture.model.editingContext(),fixture.result::set);
+			fixture.complete(true,false);
+			assertNotEquals(before,fixture.model.acceptedBlueprint());
+			assertTrue(fixture.model.blueprintState().contains("active"));
+			BankOrganizationPreview applied=AcceptedBlueprint.apply(fixture.model.acceptedBlueprint(),fixture.context(),fixture.proposal,fixture.model.plan());
+			assertEquals(Arrays.asList(995,2347,1755),applied.getCategories().get(3).getItems().stream()
+				.map(BankPreviewItem::getItemId).collect(java.util.stream.Collectors.toList()));
+			Fixture restarted=new Fixture(new LinkedHashMap<>(fixture.values));
+			assertEquals(fixture.model.acceptedBlueprint(),restarted.model.acceptedBlueprint());
+			assertTrue(restarted.model.blueprintState().contains("active"));
+		}
+	}
+
+	@Test public void wholeTabMovesPreservePausedAndUnsupportedStoredRecords() throws Exception
+	{
+		for(String state:Arrays.asList("paused","BAkeep99|future-data","damaged-snapshot"))
+		{
+			Fixture fixture=acceptedCustom();
+			if(state.equals("paused")) fixture.model.saveOptions(fixture.model.options().withAlchMode(AlchMode.FIXED));
+			else fixture.values.put(fixture.profileKey("acceptedBlueprint"),state);
+			String before=fixture.model.acceptedBlueprint();
+			fixture.model.moveTab(0,3,fixture.model.editingContext(),fixture.result::set);
+			fixture.complete(true,false);
+			assertEquals(before,fixture.model.acceptedBlueprint());
+			assertFalse(fixture.model.blueprintState().contains("are active"));
+		}
+	}
+
+	@Test public void staleWholeTabMoveCannotOverwriteANewerAcceptedSnapshot() throws Exception
+	{
+		Fixture fixture=acceptedCustom();
+		fixture.model.moveTab(0,3,fixture.model.editingContext(),fixture.result::set);
+		String key=fixture.profileKey("acceptedBlueprint"),before=fixture.values.get(key);
+		fixture.values.put(key,"BAkeep99|newer-record");fixture.event(key,before,"BAkeep99|newer-record");
+		Map<String,String> expected=new LinkedHashMap<>(fixture.values);
+		fixture.complete(false,false);assertEquals(expected,fixture.values);
 	}
 
 	@Test public void changingTheTabPlanOrAnExplicitItemCorrectionPausesTheStoredSnapshot() throws Exception

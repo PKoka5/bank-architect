@@ -1,0 +1,11 @@
+# schema=1
+5297	Irit seed	FARMING	herb-seed	herb-seed,irit,herblore-source	herblore.irit.seed
+209	Grimy irit	HERBLORE	grimy-herb	herb,irit,grimy	herblore.irit.grimy
+259	Clean irit	HERBLORE	clean-herb	herb,irit,clean	herblore.irit.clean
+101	Irit potion (unf)	HERBLORE	unfinished-potion	unfinished-potion,irit	herblore.irit.unf
+221	Eye of newt	HERBLORE	secondary	secondary,super-attack	herblore.irit.secondary
+145	Super attack (3)	POTION	dose-3	super-attack,dose-3,partial-dose	herblore.super-attack.3
+147	Super attack (2)	POTION	dose-2	super-attack,dose-2,partial-dose	herblore.super-attack.2
+149	Super attack (1)	POTION	dose-1	super-attack,dose-1,partial-dose	herblore.super-attack.1
+34024	Jeweller's chisel	TOOL	crafting-tool		
+34401	Necklace of Fangs	GEAR	neck		

@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.analysis;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -175,7 +177,7 @@ public class ScurriusMaterialProtectionTest
 	private BankOrganizationPreview fresh(BankSnapshot bank, Map<Integer, String> choices, BlueprintItemOrders orders)
 	{
 		BankAnalysisRequest request = request(bank, choices, orders);
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT, preset,
 			request::gearStats, request::alchValue, request::categoryKey, plan, request.layoutOptions());
 		assertContents(bank, preview);
 		return preview;

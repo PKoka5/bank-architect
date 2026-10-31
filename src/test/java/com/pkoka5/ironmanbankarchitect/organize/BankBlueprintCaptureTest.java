@@ -256,7 +256,7 @@ public class BankBlueprintCaptureTest
 
 	private static BankOrganizationPreview fromBank(BankSnapshot snapshot, BlueprintItemOrders orders)
 	{
-		return BankOrganizationPreviewBuilder.build(snapshot, CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
+		return PreviewFixtureBuilder.build(snapshot, CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN,
 			GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE, PLAN,
 			BankLayoutOptions.DEFAULTS.withItemOrders(orders));
 	}

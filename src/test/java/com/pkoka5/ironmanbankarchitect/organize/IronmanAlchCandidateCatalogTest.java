@@ -4,10 +4,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import net.runelite.api.gameval.ItemID;
+import com.pkoka5.ironmanbankarchitect.catalog.OrderedItemFamilies;
 import org.junit.Test;
 
 public class IronmanAlchCandidateCatalogTest
 {
+	@Test public void everyDeclaredSlashStockItemAlreadyHasCandidateMembership()
+	{
+		OrderedItemFamilies table=new OrderedItemFamilies(getClass().getResourceAsStream("alch-candidates.tsv"),0,false);
+		assertTrue(table.ids("candidates").containsAll(table.ids("slash-stock")));
+		for(int id:new int[]{1371,1317,1331}) assertTrue("Reviewed Adamant stock "+id,IronmanAlchCandidateCatalog.contains(id));
+	}
 	@Test
 	public void canonicalRepresentativesCoverEveryReviewedFamily()
 	{

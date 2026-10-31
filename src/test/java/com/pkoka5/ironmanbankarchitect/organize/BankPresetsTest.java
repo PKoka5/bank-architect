@@ -54,29 +54,14 @@ public class BankPresetsTest
 	@Test
 	public void accountPresetsReuseSemanticSortModesInsteadOfCategoryKeyNames()
 	{
-		assertEquals(BankCategorySortMode.SUPPLIES,
-			BankPresets.PVP.getCategory("food-potions").getSortMode());
-		assertEquals(BankCategorySortMode.GEAR,
-			BankPresets.PVP.getCategory("replacement-sets").getSortMode());
-		assertEquals(BankCategorySortMode.CLUES,
-			BankPresets.MAIN.getCategory("clues-cosmetics").getSortMode());
-		assertEquals(BankCategorySortMode.TOOLS,
-			BankPresets.SKILLER.getCategory("tools-outfits-pets").getSortMode());
-		assertEquals(BankCategorySortMode.REVIEW,
-			BankPresets.PVM.getCategory("low-use-review").getSortMode());
-	}
-
-	@Test
-	public void mixedFutureCategoriesStayGenericUntilTheirRoutingIsComplete()
-	{
-		assertEquals(BankCategorySortMode.GENERIC,
-			BankPresets.PVM.getCategory("magic-gear").getSortMode());
-		assertEquals(BankCategorySortMode.GENERIC,
-			BankPresets.PVP.getCategory("magic-pk-gear").getSortMode());
-		assertEquals(BankCategorySortMode.GENERIC,
-			BankPresets.SKILLER.getCategory("farming").getSortMode());
-		assertEquals(BankCategorySortMode.GENERIC,
-			BankPresets.SKILLER.getCategory("herblore-materials").getSortMode());
+		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN,BankPresets.MAIN))
+		{
+			assertEquals(BankCategorySortMode.CLUES,preset.getCategory("clues-cosmetics").getSortMode());
+			assertEquals(BankCategorySortMode.SUPPLIES,preset.getCategory("potions-food").getSortMode());
+			assertEquals(BankCategorySortMode.GEAR,preset.getCategory("combat-gear").getSortMode());
+			assertEquals(BankCategorySortMode.TOOLS,preset.getCategory("skilling-tools").getSortMode());
+			assertEquals(BankCategorySortMode.REVIEW,preset.getCategory("storage-cleanup").getSortMode());
+		}
 	}
 
 	@Test

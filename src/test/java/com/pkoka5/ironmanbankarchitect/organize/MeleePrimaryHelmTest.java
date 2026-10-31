@@ -294,7 +294,7 @@ public class MeleePrimaryHelmTest
 	private static BankOrganizationPreview build(BankSnapshot bank,BankPreset preset,BankLayoutPlan plan,
 		BankLayoutOptions options,CategoryOverrideSource choices)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
 			source(helmStats()),ItemValueSource.NONE,choices,plan,options);
 	}
 	private static List<Integer> combatIds(BankOrganizationPreview preview,BankLayoutPlan plan)

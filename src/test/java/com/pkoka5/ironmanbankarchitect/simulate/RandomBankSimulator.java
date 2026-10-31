@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.simulate;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CompositeItemCatalog;
@@ -152,7 +154,7 @@ public final class RandomBankSimulator
 				rawEntries.add(new BankItemSnapshot(sampled.get(slot),
 					1 + random.nextInt(100), slot));
 			}
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(
 				new BankSnapshot(rawEntries), CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN);
 			plan = BankTabPlan.fromPreview(preview);
 		}

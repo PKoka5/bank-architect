@@ -112,7 +112,7 @@ public final class BankLayoutPlan
 		{
 			return parse(preset, "frequently-used+currency|runes+teleports|gear+ammunition|potions+food+potion-doses"
 				+ "|grimy-herbs+clean-herbs+herb-seeds+seeds+unfinished-potions+secondaries+herblore-other+produce"
-				+ "|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|boss-loot+alch"
+				+ "|tools+skilling-outfits+containers|raw-resources+gems+ammo-components|boss-loot+loot-ammunition+alch"
 				+ "|clues+cosmetics+collection-log|cleanup+quest-items");
 		}
 
@@ -384,13 +384,13 @@ public final class BankLayoutPlan
 	private static List<List<String>> withRemainder(BankPreset preset,
 		List<List<String>> destinations, Set<String> placed)
 	{
-		// Older custom plans keep the new Alch tag with their existing loot tab.
-		if (!placed.contains("alch"))
+		// New groups inherit the existing loot destination without moving saved choices.
+		for (String added : new String[]{"loot-ammunition","alch"}) if (!placed.contains(added))
 			for (List<String> destination : destinations)
 				if (destination.contains("boss-loot"))
 				{
-					destination.add("alch");
-					placed.add("alch");
+					destination.add(added.equals("loot-ammunition") ? destination.indexOf("boss-loot") + 1 : destination.size(), added);
+					placed.add(added);
 					break;
 				}
 		List<String> remainder = new ArrayList<>();

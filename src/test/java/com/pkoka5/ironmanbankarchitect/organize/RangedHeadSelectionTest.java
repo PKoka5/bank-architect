@@ -174,7 +174,7 @@ public class RangedHeadSelectionTest
 		List<BankItemSnapshot> entries = new ArrayList<>();
 		for (int id : ids)
 			entries.add(new BankItemSnapshot(id, withdrawn.contains(id) ? 0 : 1, entries.size(), withdrawn.contains(id)));
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(entries),
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(entries),
 			id -> Optional.of(catalog(id)), preset, id -> Optional.ofNullable(stats.get(id)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(preset).withItemOrders(orders));
 		assertEquals(ids.size(), preview.getPlannedItemCount());

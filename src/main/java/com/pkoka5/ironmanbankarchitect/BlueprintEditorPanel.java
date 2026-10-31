@@ -176,7 +176,7 @@ final class BlueprintEditorPanel extends JPanel
 			+ "\n\nKeeping a proposal saves the order and destinations of its current items. New items append to their matching tab."
 			+ "\nAdopting another proposal replaces that snapshot, including any saved entries currently absent."
 			+ "\nEmpty planner cells are excluded; the saved layout can appear more compact."
-			+ "\nPersonal setting changes pause the saved target. Bank items always move manually.";
+			+ "\nWhole-tab moves carry the saved order with them. Other personal setting changes pause the saved target. Bank items always move manually.";
 	}
 
 	private void showChanges()
@@ -480,7 +480,7 @@ final class BlueprintEditorPanel extends JPanel
 
 	private String tabTitle(int tab, int count)
 	{
-		return (tab == 0 ? "MAIN" : "TAB " + (tab + 1)) + "  " + count;
+		return (tab == 0 ? "MAIN" : "TAB " + tab) + "  " + count;
 	}
 
 	private void refreshControls()

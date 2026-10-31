@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.research;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -76,7 +78,7 @@ public class ReviewedItemRolesTest
 	{
 		String context = role.itemId + " " + role.name + " / " + preset.getType();
 		BankSnapshot bank = new BankSnapshot(Collections.singletonList(new BankItemSnapshot(role.itemId, 1, 0)));
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			preset, GearStatsSource.NONE, ItemValueSource.NONE, CategoryOverrideSource.NONE,
 			BankLayoutPlan.defaultFor(preset), BankLayoutOptions.defaultFor(preset));
 		assertEquals(context + " must remain exactly one owned physical bank item", 1, preview.getPlannedItemCount());

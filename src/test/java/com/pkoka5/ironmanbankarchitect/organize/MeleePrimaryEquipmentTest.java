@@ -36,7 +36,7 @@ public class MeleePrimaryEquipmentTest
 		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN,BankPresets.MAIN))
 		{
 			BankLayoutPlan plan = BankLayoutPlan.defaultFor(preset);
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
 				GearStatsSource.NONE,ItemValueSource.NONE,CategoryOverrideSource.NONE,plan,BankLayoutOptions.defaultFor(preset));
 			assertEquals("The sparse bank keeps every owned equipment position in its compact real-cell order",
 				expected,combat(preview,plan));
@@ -48,6 +48,37 @@ public class MeleePrimaryEquipmentTest
 			new CombatQualityReport(name,bank,preview,plan,new LinkedHashSet<>(expected),false,0,false,facts).write(output);
 			java.nio.file.Files.writeString(output.resolve(name+".txt"),BankBlueprintTextExporter.export(preview),StandardCharsets.UTF_8);
 		}
+	}
+
+	@Test public void withdrawingEitherDragonfireShieldOrDefenderKeepsTheReviewedOffhandOrder()
+	{
+		for (BankPreset preset : Arrays.asList(BankPresets.IRONMAN,BankPresets.MAIN))
+			for (int shield : new int[]{1540,11283,11284})
+				for (int defender : new int[]{12954,19722,8850})
+					for (Map<Integer,GearStats> stats : Arrays.asList(FROZEN,Collections.<Integer,GearStats>emptyMap()))
+						for (int withdrawn : new int[]{shield,defender})
+						{
+							BankLayoutPlan layout = BankLayoutPlan.defaultFor(preset);
+							List<Integer> previous = null;
+							int expected = defender != 8850 || shield == 1540 ? defender : shield;
+							for (int quantity : new int[]{1,0,1})
+							{
+								List<BankItemSnapshot> entries = new ArrayList<>();
+								for (int id : new int[]{4151,shield,defender})
+									entries.add(new BankItemSnapshot(id,id == withdrawn ? quantity : 1,entries.size(),id == withdrawn && quantity == 0));
+								BankSnapshot bank = new BankSnapshot(entries);
+								BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+									id -> Optional.ofNullable(stats.get(id)),ItemValueSource.NONE,CategoryOverrideSource.NONE,layout,BankLayoutOptions.defaultFor(preset));
+								List<Integer> current = combat(preview,layout);
+								if (previous != null) assertEquals("Placeholder withdrawal/return must not reorder " + shield + "/" + defender,previous,current);
+								previous = current;
+								assertTrue(meleeTargets(plan(preview.getPlannedItems(),stats)).contains(expected));
+								assertEquals(entries.size(),preview.getPlannedItemCount());
+								BankPreviewItem item = preview.getPlannedItems().stream().filter(i -> i.getItemId() == withdrawn).findFirst().get();
+								assertEquals(quantity,item.getQuantity());
+								assertEquals(quantity == 0,item.isPlaceholder());
+							}
+						}
 	}
 
 	@Test public void bodySelectionPrefersRawStrengthRatherThanDefensiveTier()
@@ -267,14 +298,14 @@ public class MeleePrimaryEquipmentTest
 		assertEquals("the compatible shield occupies the next real Melee row",Integer.valueOf(8),targets.get(22322));
 	}
 
-	@Test public void unknownWeaponHandednessIsNotAssumedButNoWeaponAllowsAnOffhand()
+	@Test public void unknownWeaponDoesNotExcludeAnOffhandWithoutPositiveTwoHandedEvidence()
 	{
 		int unknown = 989920;
 		Map<Integer,GearStats> stats = new LinkedHashMap<>(FROZEN); stats.put(unknown,weapon(100,100,4));
-		List<BankPreviewItem> input = Arrays.asList(new BankPreviewItem(unknown,"Unreviewed spear",1),item(12954));
+		List<BankPreviewItem> input = Arrays.asList(new BankPreviewItem(unknown,"Unreviewed weapon",1),item(12954));
 		GearItemSorter.GearLayout selected = plan(input,stats);
-		assertEquals(Collections.singletonList(unknown),meleeTargets(selected));
-		assertEquals(Collections.singletonList(12954),ids(selected.getTail()));
+		assertEquals(Arrays.asList(unknown,12954),meleeTargets(selected));
+		assertTrue(selected.getTail().isEmpty());
 		assertEquals(Collections.singletonList(12954),meleeTargets(plan(items(12954),FROZEN)));
 	}
 
@@ -334,7 +365,7 @@ public class MeleePrimaryEquipmentTest
 
 	private static BankOrganizationPreview build(BankSnapshot bank,BankPreset preset,BankLayoutPlan plan,BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
+		return PreviewFixtureBuilder.build(bank,CompositeItemCatalog.DEFAULT,preset,
 			source(FROZEN),ItemValueSource.NONE,CategoryOverrideSource.NONE,plan,options);
 	}
 	private static List<Integer> combat(BankOrganizationPreview preview,BankLayoutPlan plan)

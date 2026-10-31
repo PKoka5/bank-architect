@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.pkoka5'
-version = '0.9.9'
+version = '1.0.0'
 
 def runeLiteVersion = 'latest.release'
 def pluginMainClass = 'com.pkoka5.ironmanbankarchitect.IronmanBankArchitectPluginTest'
@@ -22,6 +22,11 @@ dependencies {
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
+}
+
+tasks.withType(Jar).configureEach {
+	preserveFileTimestamps = false
+	reproducibleFileOrder = true
 }
 
 processResources {
@@ -117,12 +122,14 @@ tasks.register('verifySimulationBaselines') {
 	dependsOn tasks.named('simulateRandomBanks'), tasks.named('aggregateCleanupReview')
 	doLast {
 		def expected = [
-			// Reviewed Ranged/Magic targets: two RANDOM_TABS swap counts change by +1/-3; other reports stay identical.
-			// Evidence: docs/testing/ranged-magic-equipment-2026-10-25.md.
-			'report.tsv': '33a46d530a97e390521c34059dd8da816df5efb838e41450dc67902929df5cee',
+			// Reviewed unknown-handedness policy: seed 20260737 retains its offhand (+3 minimum swaps); other reports stay identical.
+			// Evidence: docs/testing/claude-review-follow-up-2026-10-25.md.
+			'report.tsv': '508b2d96f85a68b98b5eb671bb0701a2901a1f56df6adc83a7dc994a1fd5bc47',
 			'cleanup-review.tsv': '00c1f0eac9310e3ec869fe7c29aebdf4e3aa85c800b02adc01afd124f84f1fdf',
-			'aggregate/cleanup-review.tsv': 'ba33e9144824c0e1d0e9671f3933385f6dd6605f9b60bcbfc7ab43794a013edd',
-			'aggregate/metadata.tsv': 'b4eb3aa665c848f66a832f7cd0b8ecb5d64079ee6b13a2e3c3d26dd175048431'
+			// Issue #50: Skeletal visage leaves Cleanup (one ID, twelve aggregate occurrences).
+			// All 1,950 banks complete; standard reports stay identical. See docs/testing/visage-components-2026-10-31.md.
+			'aggregate/cleanup-review.tsv': '2fd497cca8aca3ce276a77046053003c3484f6786656d662a5b7e638dae51215',
+			'aggregate/metadata.tsv': '89d005930a195e33236265ceb51c09ec85a993c7b8a073d0c55bdcb9c8bf70fe'
 		]
 		def customParameters = ['simBanks', 'simSeed', 'simMinItems', 'simMaxItems', 'simOutput', 'aggregateOutput']
 		if (customParameters.any { project.hasProperty(it) }) {

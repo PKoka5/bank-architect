@@ -135,7 +135,7 @@ public class ReportedMidgameCombatTest
 
 	private BankOrganizationPreview build(List<Integer> ids,Set<Integer> placeholders,BlueprintItemOrders orders)
 	{
-		return BankOrganizationPreviewBuilder.build(bank(ids,placeholders),id->Optional.ofNullable(catalog.get(id)),preset,
+		return PreviewFixtureBuilder.build(bank(ids,placeholders),id->Optional.ofNullable(catalog.get(id)),preset,
 			id->Optional.ofNullable(stats.get(id)),ItemValueSource.NONE,CategoryOverrideSource.NONE,plan,
 			BankLayoutOptions.defaultFor(preset).withItemOrders(orders));
 	}

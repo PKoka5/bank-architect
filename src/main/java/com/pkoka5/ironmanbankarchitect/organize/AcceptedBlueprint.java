@@ -8,7 +8,7 @@ import com.pkoka5.ironmanbankarchitect.catalog.CatalogUnavailableException;
 public final class AcceptedBlueprint
 {
 	// Advance when classification or layout rules change. Older accepted targets remain usable.
-	public static final String RULES = "7";
+	public static final String RULES = "12";
 	private AcceptedBlueprint() { }
 
 	public static String capture(BankOrganizationPreview preview, String context)
@@ -25,11 +25,11 @@ public final class AcceptedBlueprint
 		{
 			String[] fields = read(value);
 			return fields[2].equals(fingerprint(context))
-				? BlueprintItemOrders.parse(fields[3]).apply(proposal, plan, id -> true) : proposal;
+				? BlueprintItemOrders.parse(fields[3]).apply(proposal, plan, (id, target) -> true) : proposal;
 		}
 		catch (IllegalArgumentException invalid)
 		{
-			throw new CatalogUnavailableException("Saved blueprint is unsupported or damaged. Select another profile to continue.", invalid);
+			throw new CatalogUnavailableException("Saved blueprint is unsupported or damaged. In Tab Layout choose Forget kept blueprint, or select another profile.", invalid);
 		}
 	}
 
@@ -37,6 +37,17 @@ public final class AcceptedBlueprint
 	{
 		try { if (!value.isEmpty()) read(value); return true; }
 		catch (IllegalArgumentException invalid) { return false; }
+	}
+
+	public static String withDestinationMoved(String value, String previousContext, String currentContext, int from, int to)
+	{
+		BankLayoutPlan.destinationAfterMove(0,from,to);
+		if (value.isEmpty() || from == to || !isSupported(value)) return value;
+		String[] fields = read(value);
+		if (!fields[2].equals(fingerprint(previousContext))) return value;
+		fields[2] = fingerprint(currentContext);
+		fields[3] = BlueprintItemOrders.parse(fields[3]).movedSnapshot(from,to).serialize();
+		return String.join("|",fields);
 	}
 
 	public static String reference(String value)

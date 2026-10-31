@@ -82,7 +82,7 @@ public class CombatLargeConditionQualityTest
 			Set<Integer> placeholders = trial == 2 ? primary : Collections.emptySet();
 			BankSnapshot source = bank(order,placeholders);
 			long started = System.nanoTime();
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(source,CompositeItemCatalog.DEFAULT,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(source,CompositeItemCatalog.DEFAULT,
 				preset,id -> Optional.ofNullable(facts.get(id)).map(fact -> fact.stats),id -> 25000,
 				CategoryOverrideSource.NONE,plan,BankLayoutOptions.defaultFor(preset));
 			long elapsed = System.nanoTime()-started; timings.add(elapsed);
@@ -126,7 +126,7 @@ public class CombatLargeConditionQualityTest
 		{
 			if (trial == 1) Collections.shuffle(entries,new Random(20261012L));
 			BankSnapshot source = new BankSnapshot(entries);
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(source,CompositeItemCatalog.DEFAULT,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(source,CompositeItemCatalog.DEFAULT,
 				preset,id -> Optional.ofNullable(CombatQualityReport.FACTS.get(id)).map(fact -> fact.stats),id -> 25000,
 				CategoryOverrideSource.NONE,plan,BankLayoutOptions.defaultFor(preset));
 			List<BankPreviewItem> planned = preview.getPlannedItems();

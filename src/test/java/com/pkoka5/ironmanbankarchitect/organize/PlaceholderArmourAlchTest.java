@@ -210,7 +210,7 @@ public class PlaceholderArmourAlchTest
 	private BankOrganizationPreview build(BankSnapshot bank, Map<Integer, GearStats> stats,
 		CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CATALOG, preset, id -> Optional.ofNullable(stats.get(id)),
+		return PreviewFixtureBuilder.build(bank, CATALOG, preset, id -> Optional.ofNullable(stats.get(id)),
 			id -> 39000, overrides, plan, options);
 	}
 

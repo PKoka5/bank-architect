@@ -16,21 +16,21 @@ public class ReleaseNoticePanelTest
 	@Test public void newReleaseAppearsAfterPreviousReleaseWasDismissedAndStaysDismissedAfterRestart() throws Exception
 	{
 		SwingUtilities.invokeAndWait(() -> {
-			assertEquals("0.9.9", ReleaseNoticePanel.RELEASE_ID);
-			AtomicReference<String> seen = new AtomicReference<>("0.9.8");
+			assertEquals("1.0.0", ReleaseNoticePanel.RELEASE_ID);
+			AtomicReference<String> seen = new AtomicReference<>("0.9.9");
 			JPanel normal = new JPanel();
 			ReleaseNoticePanel panel = new ReleaseNoticePanel(normal, seen::get, seen::set);
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.8", seen.get());
+			assertEquals("0.9.9", seen.get());
 			panel.opened();
 			assertFalse(normal.isVisible());
-			assertEquals("0.9.8", seen.get());
+			assertEquals("0.9.9", seen.get());
 			JButton dismiss = button(panel);
 			assertNotNull(dismiss);
 			dismiss.doClick();
 			assertTrue(normal.isVisible());
-			assertEquals("0.9.9", seen.get());
+			assertEquals("1.0.0", seen.get());
 			panel.opened();
 			assertTrue(normal.isVisible());
 			JPanel restarted = new JPanel();
@@ -55,9 +55,9 @@ public class ReleaseNoticePanelTest
 				layout(panel);
 				JLabel notes = notes(panel);
 				assertNotNull(notes);
-				assertTrue(notes.getText().contains("Bank Architect 0.9.9"));
+				assertTrue(notes.getText().contains("Bank Architect 1.0.0"));
 				String text = notes.getText().toLowerCase(java.util.Locale.ROOT);
-				for (String feature : new String[] {"melee", "ranged", "magic", "void", "skill", "frequently used", "style tags", "keep this proposal", "new items", "flexible alch", "saved", "manual"})
+				for (String feature : new String[] {"mouse-wheel", "tab numbers", "ammunition", "kept item order", "forget kept blueprint", "diary", "visages", "placeholder", "personal", "manual"})
 					assertTrue("Missing layout release note: " + feature, text.contains(feature));
 				JScrollPane scroll = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, notes);
 				assertNotNull(scroll);

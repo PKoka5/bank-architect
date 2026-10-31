@@ -79,7 +79,7 @@ public class CombatLayoutQualityRegressionTest
 			new BankItemSnapshot(swordId, 1, 0), new BankItemSnapshot(casterId, 1, 1)));
 		for (BankPreset preset : Arrays.asList(BankPresets.MAIN, BankPresets.IRONMAN))
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, catalog, preset,
 				source, id -> 20000);
 			assertEquals(preset.getType() + ": both distinct weapon roles remain in Combat",
 				Arrays.asList(swordId, casterId), ids(category(preview, "combat-gear").getItems()));
@@ -256,7 +256,7 @@ public class CombatLayoutQualityRegressionTest
 		for (BankPreset preset : Arrays.asList(BankPresets.MAIN, BankPresets.IRONMAN))
 		{
 			BankLayoutPlan plan = BankLayoutPlan.defaultFor(preset);
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(entries), catalog,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(entries), catalog,
 				preset, source, ItemValueSource.NONE, CategoryOverrideSource.NONE, plan, BankLayoutOptions.defaultFor(preset));
 			List<Integer> combat = ids(preview.getCategories().get(plan.destinationOf("gear")).getItems());
 			for (int style = 0; style < 3; style++)

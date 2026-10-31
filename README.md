@@ -15,6 +15,8 @@ Main groups runes and teleports in one tab, all combat styles together, complete
 puts complete recipe rows first, then compact incomplete ingredients by kind. Both use the same reviewed
 Alch modes: Flexible checks replacements and protects functional gear; Fixed
 always sends items on its exact list to Alch. Personal corrections take priority.
+Main also groups all regional diary reward tiers and the diary cape with
+Teleports; this placement does not imply every tier has its own teleport.
 
 Combat keeps the best owned Melee, Ranged and Magic gear at the front, with remaining sets
 arranged vertically in combat-style and progression order. Loose alternatives
@@ -138,10 +140,16 @@ your active guidance. **Keep this proposal** saves its real-item order, categori
 and tabs locally. From Main or Ironman, this creates a Custom profile. New items
 append to their matching tab; absent items regain their saved place on return.
 Empty planner cells are excluded, so the saved preview may become more compact.
-Personal setting changes pause the snapshot and take priority. Accepting another
+Moving a complete tab carries its kept item order and destinations with it.
+Other personal setting changes pause the snapshot and take priority. Accepting another
 proposal replaces the snapshot, including saved entries currently absent.
 **Remember reference only** establishes a comparison without fixing positions.
 The bank must stay open and match the analysis when accepting or remembering.
+
+To return to automatic recommendations, open **Tab Layout** and choose
+**Forget kept blueprint**. Confirming removes only the active profile's kept
+proposal, preserving its tab layout, corrections and saved item orders. This
+control also works when a damaged or unsupported proposal blocks analysis.
 
 Flexible Alch tooltips name the recorded replacement that triggered the rule,
 including when it is a bank placeholder. Armour progression and full-stat
@@ -351,12 +359,17 @@ modes. Layout share codes continue to share the tag plan; they do not encode
 sorting preferences.
 
 Main and Ironman place finished arrows, bolts (including Bolt rack), darts and
-cannonballs in **Slayer & Boss Loot** by default, including placeholders.
+cannonballs in their own **Ammunition** group in the Loot tab by default,
+including placeholders. Move that group through Tab Layout to place it in Combat
+or another tab without moving Slayer & Boss Loot.
 They form separate groups in that order, using the existing ammunition tiers;
 Alch items stay together afterward. Components and the Bolt pouch keep their
 existing roles. Assign an item to **Combat Gear** or
-**Ammunition** to keep it in Combat. Existing captured banks, valid saved editor
-destinations and relocated Ammunition groups retain the player's choice.
+**Ammo Slot Equipment** to keep the original Combat role. Existing captured banks,
+valid saved editor destinations and relocated Ammo Slot Equipment groups retain
+the player's choice. Older plans place the new group beside their existing loot.
+Saved combined Loot block orders that explicitly arrange ammo stay intact until
+reset; an explicit new Ammunition order or destination takes priority.
 Moving a whole blueprint tab also retains the existing ammunition placement
 choice; it does not bring default Drops ammunition back into Combat.
 
@@ -480,6 +493,13 @@ provide support for it.
 
 The project targets Java 11 and follows RuneLite's standard Plugin Hub project
 layout.
+
+Start with [MAINTAINING.md](MAINTAINING.md) for item updates, saved-data
+compatibility, release checks and issue triage. The supported scope is Main and
+Ironman on eight columns. The [completion plan](docs/plans/finish-1.0.md)
+records the original finish criteria. With the owner's 1.0.0 release decision,
+maintenance focuses on bugs, compatibility and reviewed item corrections;
+there is no fixed release schedule or commitment to expand features.
 
 Run the tests:
 

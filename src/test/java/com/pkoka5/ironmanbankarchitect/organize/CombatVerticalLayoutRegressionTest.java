@@ -261,7 +261,7 @@ public class CombatVerticalLayoutRegressionTest
 
 	private static BankOrganizationPreview build(List<BankItemSnapshot> bank, BankPreset preset, GearStatsSource stats)
 	{
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(bank), CompositeItemCatalog.DEFAULT, preset,
+		return PreviewFixtureBuilder.build(new BankSnapshot(bank), CompositeItemCatalog.DEFAULT, preset,
 			stats, ItemValueSource.NONE, CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(preset),
 			BankLayoutOptions.defaultFor(preset));
 	}

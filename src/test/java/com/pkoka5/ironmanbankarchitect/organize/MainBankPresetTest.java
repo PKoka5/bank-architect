@@ -155,7 +155,7 @@ public class MainBankPresetTest
 	public void mainPoliciesLeaveTheExistingIronmanHomesUnchanged()
 	{
 		BankSnapshot bank = bank(995, 556, 8013, 9084, 27641, 2434, 139, 141, 143);
-		BankOrganizationPreview ironman = BankOrganizationPreviewBuilder.build(bank,
+		BankOrganizationPreview ironman = PreviewFixtureBuilder.build(bank,
 			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE,
 			ItemValueSource.NONE, CategoryOverrideSource.NONE,
 			BankLayoutPlan.defaultFor(BankPresets.IRONMAN), BankLayoutOptions.DEFAULTS);
@@ -189,7 +189,7 @@ public class MainBankPresetTest
 	private static BankOrganizationPreview main(BankSnapshot bank, BankLayoutOptions options,
 		CategoryOverrideSource overrides)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			BankPresets.MAIN, GearStatsSource.NONE, ItemValueSource.NONE, overrides,
 			BankLayoutPlan.defaultFor(BankPresets.MAIN), options);
 	}

@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.research;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
@@ -148,7 +150,7 @@ public final class FinalItemPlacementExporter
 			mappedCategoryKey = PresetCategoryMapper.map(preset, catalogItem, false).getKey();
 			BankSnapshot bank = new BankSnapshot(Collections.singletonList(
 				new BankItemSnapshot(record.itemId, 1, 0)));
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, catalog, preset,
 				gearStats, ItemValueSource.NONE, CategoryOverrideSource.NONE,
 				BankLayoutPlan.defaultFor(preset), BankLayoutOptions.defaultFor(preset));
 			placement = placementOf(preview, record.itemId);

@@ -169,11 +169,17 @@ public final class BankAnalysis implements AutoCloseable
 		currentRequestGeneration++;
 	}
 
-	public synchronized void invalidate()
+	public void invalidate() { invalidate(true); }
+
+	/** Cancel stale work; compatible settings refreshes may retain their last successful evidence. */
+	public synchronized void invalidate(boolean forgetHistory)
 	{
 		if (closed) return;
-		successfulRequest = null;
-		establishedAlch = Collections.emptyMap();
+		if (forgetHistory)
+		{
+			successfulRequest = null;
+			establishedAlch = Collections.emptyMap();
+		}
 		currentRequestGeneration++;
 		statusPublisher.accept(BankAnalysisStatus.notStarted());
 	}

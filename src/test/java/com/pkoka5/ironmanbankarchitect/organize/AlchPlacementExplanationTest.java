@@ -258,7 +258,7 @@ public class AlchPlacementExplanationTest
 	private BankOrganizationPreview build(BankSnapshot bank, Map<Integer, GearStats> stats,
 		CategoryOverrideSource overrides, BankLayoutOptions options)
 	{
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank, CATALOG, preset,
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank, CATALOG, preset,
 			id -> Optional.ofNullable(stats.get(id)), id -> 39000, overrides, plan, options);
 		assertEquals(bank.getPhysicalItems().size(), preview.getPlannedItemCount());
 		assertEquals(bank.getPhysicalItems().stream().collect(Collectors.groupingBy(

@@ -157,7 +157,7 @@ public class FullCombatColumnsTest
 
 	private BankOrganizationPreview build(BankSnapshot bank, BlueprintItemOrders orders)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, id -> Optional.ofNullable(catalog.get(id)), preset,
+		return PreviewFixtureBuilder.build(bank, id -> Optional.ofNullable(catalog.get(id)), preset,
 			id -> Optional.ofNullable(stats.get(id)), ItemValueSource.NONE, CategoryOverrideSource.NONE, plan,
 			BankLayoutOptions.defaultFor(preset).withItemOrders(orders));
 	}

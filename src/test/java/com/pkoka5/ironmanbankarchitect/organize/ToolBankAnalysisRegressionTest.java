@@ -82,7 +82,7 @@ public class ToolBankAnalysisRegressionTest
 		BankLayoutOptions options = new BankLayoutOptions(true, true, true,
 			Collections.singletonMap(BankCategorySortMode.TOOLS, order), GearLayout.GRID_STYLES,
 			PotionDoseOrder.GRAB_AREA, RuneOrder.ALPHABETICAL, TeleportOrder.ALPHABETICAL, gather);
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(bankItems), CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(new BankSnapshot(bankItems), CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE, overrides,
 			BankLayoutPlan.defaultFor(BankPresets.IRONMAN), options);
 	}

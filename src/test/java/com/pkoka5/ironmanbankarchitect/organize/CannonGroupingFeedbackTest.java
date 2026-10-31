@@ -199,7 +199,7 @@ public class CannonGroupingFeedbackTest
 		{
 			snapshots.add(new BankItemSnapshot(itemId, 1, snapshots.size() * 2));
 		}
-		return BankOrganizationPreviewBuilder.build(new BankSnapshot(snapshots),
+		return PreviewFixtureBuilder.build(new BankSnapshot(snapshots),
 			id -> Optional.ofNullable(fixture.items.get(id)), preset,
 			id -> Optional.ofNullable(fixture.stats.get(id)), ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(preset), options);

@@ -260,7 +260,7 @@ public class CommunityFeedbackPlacementTest
 			0, 0, 0, id == 4089 ? 4 : 2, 0, 0, 0, 0, id == 4089 ? 4 : 2));
 		for (GearStatsSource stats : new GearStatsSource[]{GearStatsSource.NONE, magicHats})
 		{
-			BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(bank(4089, 1017),
+			BankOrganizationPreview preview = PreviewFixtureBuilder.build(bank(4089, 1017),
 				CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, stats, ItemValueSource.NONE,
 				overrides, BankLayoutPlan.defaultFor(BankPresets.IRONMAN), BankLayoutOptions.DEFAULTS);
 			assertEquals(Arrays.asList(4089, 1017), ids(preview, 1));
@@ -332,7 +332,7 @@ public class CommunityFeedbackPlacementTest
 	private static BankOrganizationPreview build(BankSnapshot bank, UserCategoryOverrides overrides,
 		BankLayoutPlan plan, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, CompositeItemCatalog.DEFAULT,
+		return PreviewFixtureBuilder.build(bank, CompositeItemCatalog.DEFAULT,
 			BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE, overrides, plan, options);
 	}
 

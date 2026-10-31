@@ -1,5 +1,7 @@
 package com.pkoka5.ironmanbankarchitect.organize.layout;
 
+import com.pkoka5.ironmanbankarchitect.organize.PreviewFixtureBuilder;
+
 import com.pkoka5.ironmanbankarchitect.bank.BankItemSnapshot;
 import com.pkoka5.ironmanbankarchitect.bank.BankSnapshot;
 import com.pkoka5.ironmanbankarchitect.catalog.CatalogItem;
@@ -163,7 +165,7 @@ public class MainQuickAccessSemanticRuleSetTest
 		Collections.reverse(bank);
 		BankLayoutOptions defaults = BankLayoutOptions.defaultFor(BankPresets.IRONMAN);
 		assertTrue(defaults.gatherFrequentlyUsed());
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(bank),
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(bank),
 			CompositeItemCatalog.DEFAULT, BankPresets.IRONMAN, GearStatsSource.NONE, ItemValueSource.NONE,
 			CategoryOverrideSource.NONE, BankLayoutPlan.defaultFor(BankPresets.IRONMAN), defaults);
 		List<Integer> main = preview.getCategories().get(0).getItems().stream()

@@ -2,6 +2,7 @@ package com.pkoka5.ironmanbankarchitect.organize;
 
 import com.pkoka5.ironmanbankarchitect.catalog.*;
 import com.pkoka5.ironmanbankarchitect.organize.layout.ItemSetCatalog;
+import com.pkoka5.ironmanbankarchitect.organize.layout.AchievementDiarySemanticRuleSet;
 import java.util.*;
 import net.runelite.api.gameval.ItemID;
 
@@ -43,9 +44,6 @@ public final class PresetCategoryMapper
 		{
 			case IRONMAN: return mapIronman(item, gather);
 			case MAIN: return mapMain(item);
-			case PVM:
-			case PVP: return mapCombat(item.getCategory(), type == BankPresetType.PVP);
-			case SKILLER: return mapSkiller(item);
 			default: throw new IllegalArgumentException("Unsupported preset type: " + type);
 		}
 	}
@@ -54,6 +52,8 @@ public final class PresetCategoryMapper
 		boolean gatherFrequentlyUsed)
 	{
 		ItemCategory category = item.getCategory();
+		if (item.getItemId() == ItemID.DRAGONFIRE_VISAGE || item.getItemId() == ItemID.WYVERN_VISAGE
+			|| item.getItemId() == ItemID.SKELETAL_VISAGE) return "combat-gear";
 		if (IRONMAN_RESOURCE_IDS.contains(item.getItemId()))
 		{
 			return "resources";
@@ -140,19 +140,9 @@ public final class PresetCategoryMapper
 				&& (item.getSubcategory().matches("(?:potion-)?dose-[123]")));
 	}
 
-	private static boolean isKnownFood(CatalogItem item)
-	{
-		if ("food".equals(item.getSubcategory()))
-		{
-			return true;
-		}
-		return ResourceItemSortMetadataCatalog.INSTANCE.findById(item.getItemId())
-			.map(metadata -> metadata.isFood())
-			.orElse(false);
-	}
-
 	private static String mapMain(CatalogItem item)
 	{
+		if (isMainDiaryReward(item)) return "currency-utilities";
 		if (item.getItemId() == 27641 || item.getItemId() == 22324 || item.getItemId() == 25734
 			|| IRONMAN_REVIEWED_LOOT_IDS.contains(item.getItemId())) return "combat-gear";
 		if (item.getItemId() == 9084) return "currency-utilities";
@@ -160,37 +150,17 @@ public final class PresetCategoryMapper
 		return mapIronman(item, false);
 	}
 
-	private static String mapCombat(ItemCategory category, boolean pvp)
+	/** Regional reward tiers and the completion cape; excludes quest props and the cosmetic hood. */
+	static boolean isMainDiaryReward(CatalogItem item)
 	{
-		switch (category)
-		{
-			case CURRENCY: return pvp ? "coins-risk" : "currency-utilities";
-			case TELEPORT: return "teleports-escapes";
-			case RUNE: return pvp ? "magic-pk-gear" : "magic-gear";
-			case POTION: return pvp ? "food-potions" : "potions-food";
-			case GEAR: return pvp ? "melee-pk-gear" : "melee-gear";
-			case UNIQUE:
-			case CLUE: return pvp ? "loot-keys-review" : "loot-drops";
-			case CLEANUP:
-			case UNKNOWN:
-			case UNCATEGORIZED: return pvp ? "loot-keys-review" : "low-use-review";
-			default: return pvp ? "wildy-tools" : "slayer-boss-tools";
-		}
+		return item.getItemId() == 19476 || item.getItemId() == 13069
+			|| AchievementDiarySemanticRuleSet.isDiaryReward(item.getDisplayName())
+				&& item.getDisplayName().matches(".* [1-4]");
 	}
 
-	private static String mapSkiller(CatalogItem item)
+	static String originalMainDiaryTag(CatalogItem item)
 	{
-		switch (item.getCategory())
-		{
-			case CURRENCY: return "currency-utilities";
-			case RUNE:
-			case TELEPORT: return "teleports-runes";
-			case FARMING: return "farming";
-			case POTION: return isKnownFood(item) ? "fishing-cooking" : "herblore-materials";
-			case HERBLORE: return "herblore-materials";
-			case SKILLING:
-			case TOOL: return "tools-outfits-pets";
-			default: return "loot-clues-storage";
-		}
+		return BankTags.tagFor(mapIronman(item, false), item.getSubcategory()).getKey();
 	}
+
 }

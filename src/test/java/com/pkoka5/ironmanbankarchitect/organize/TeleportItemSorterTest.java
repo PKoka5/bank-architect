@@ -178,7 +178,7 @@ public class TeleportItemSorterTest
 		{
 			bank.add(new BankItemSnapshot(input[index], 1, index));
 		}
-		BankOrganizationPreview preview = BankOrganizationPreviewBuilder.build(new BankSnapshot(bank),
+		BankOrganizationPreview preview = PreviewFixtureBuilder.build(new BankSnapshot(bank),
 			CompositeItemCatalog.DEFAULT, BankPresets.MAIN, GearStatsSource.NONE,
 			ItemValueSource.NONE, CategoryOverrideSource.NONE,
 			BankLayoutPlan.defaultFor(BankPresets.MAIN), BankLayoutOptions.DEFAULTS);

@@ -65,7 +65,7 @@ public class ReviewedFunctionalPlacementTest
 		for (int id : new int[] {28152, 31946}) assertTag(preview, id, "raw-resources");
 		assertTag(preview, 4485, "quest-items");
 		for (int id : new int[] {13137, 13138})
-			assertTag(preview, id, preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "tools");
+			assertTag(preview, id, preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "teleports");
 		for (int id : new int[] {995, 20017, 22840, 22842, 24719, 28152, 31946, 4485, 13137, 13138})
 		{
 			CatalogItem catalog = CompositeItemCatalog.DEFAULT.describeOrUnknown(id);
@@ -78,10 +78,11 @@ public class ReviewedFunctionalPlacementTest
 		{
 			assertEquals("Functional equipment " + id, ItemCategory.GEAR, item(preview, id).getItemCategory());
 			assertFalse("Equipment is not currency " + id, "currency".equals(item(preview, id).getLayoutTagKey()));
-			assertFalse("Lower-tier item has no own teleport " + id, "teleports".equals(item(preview, id).getLayoutTagKey()));
+			if (preset.getType() == BankPresetType.IRONMAN || id == 9768 || id == 9769)
+				assertFalse("Item stays outside the preset's teleport group " + id, "teleports".equals(item(preview, id).getLayoutTagKey()));
 		}
 		for (int id : new int[] {13108, 13109})
-			assertTag(preview, id, preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "gear");
+			assertTag(preview, id, preset.getType() == BankPresetType.IRONMAN ? "frequently-used" : "teleports");
 	}
 
 	@Test
@@ -158,7 +159,7 @@ public class ReviewedFunctionalPlacementTest
 			new BankItemSnapshot(900001, 100, 0), new BankItemSnapshot(900002, 100, 1),
 			new BankItemSnapshot(900003, 100, 2), new BankItemSnapshot(1127, 1, 3),
 			new BankItemSnapshot(3140, 1, 4), new BankItemSnapshot(11832, 1, 5)));
-		BankOrganizationPreview automatic = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
+		BankOrganizationPreview automatic = PreviewFixtureBuilder.build(bank, catalog, preset,
 			equipment, VALUES, CategoryOverrideSource.NONE, plan, defaults);
 		// Same weak stats, bulk quantity and value qualify the reviewed control for Alch.
 		assertTag(automatic, 900003, "alch");
@@ -171,13 +172,13 @@ public class ReviewedFunctionalPlacementTest
 			assertEquals(100, item(automatic, id).getQuantity());
 		}
 		UserCategoryOverrides ownerChoice = UserCategoryOverrides.parse("900001=alch,900002=alch");
-		BankOrganizationPreview manual = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
+		BankOrganizationPreview manual = PreviewFixtureBuilder.build(bank, catalog, preset,
 			equipment, VALUES, ownerChoice, plan, defaults);
 		assertTag(manual, 900001, "alch");
 		assertTag(manual, 900002, "alch");
 		assertEquals(automatic.getPlannedItemCount(), manual.getPlannedItemCount());
 
-		BankOrganizationPreview withoutStats = BankOrganizationPreviewBuilder.build(bank, catalog, preset,
+		BankOrganizationPreview withoutStats = PreviewFixtureBuilder.build(bank, catalog, preset,
 			GearStatsSource.NONE, VALUES, CategoryOverrideSource.NONE, plan, defaults);
 		assertTag(withoutStats, 900001, "cleanup");
 		assertEquals(ItemCategory.UNKNOWN, item(withoutStats, 900001).getItemCategory());
@@ -188,7 +189,7 @@ public class ReviewedFunctionalPlacementTest
 	private BankOrganizationPreview build(BankSnapshot bank, ItemCatalog catalog,
 		CategoryOverrideSource choices, BankLayoutOptions options)
 	{
-		return BankOrganizationPreviewBuilder.build(bank, catalog, preset, STATS, VALUES, choices, plan, options);
+		return PreviewFixtureBuilder.build(bank, catalog, preset, STATS, VALUES, choices, plan, options);
 	}
 
 	private static BankSnapshot bank(int... ids)

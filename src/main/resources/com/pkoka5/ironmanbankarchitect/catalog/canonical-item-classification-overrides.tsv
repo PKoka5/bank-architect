@@ -1,4 +1,11 @@
 # schema=1
+# Shield upgrade components, reviewed for issue #50 on 2026-10-31.
+# https://oldschool.runescape.wiki/w/Draconic_visage
+# https://oldschool.runescape.wiki/w/Ancient_wyvern_shield#Creation
+# https://oldschool.runescape.wiki/w/Skeletal_visage
+11286	UNIQUE	equipment-upgrade	Draconic visage: shield component, not wearable equipment or cleanup
+21637	UNIQUE	equipment-upgrade	Wyvern visage: shield component, not wearable equipment or cleanup
+22006	UNIQUE	equipment-upgrade	Skeletal visage: shield component, not wearable equipment or cleanup
 # Final clue/quest audit: docs/research/item-role-audit-final-october-2.md
 # Ordinary functional gear audit: docs/testing/combat-gear-audit-2026-10-09.md.
 # Combat quality audit: docs/testing/combat-layout-quality-2026-10-09.md.
