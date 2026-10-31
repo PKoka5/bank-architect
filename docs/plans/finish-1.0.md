@@ -1,5 +1,11 @@
 # Bank Architect: finish the product, then maintain it
 
+**Published:** [1.0.0 publication checkpoint](../releases/1.0.0-publication.md).
+GitHub release and issue cleanup are complete; Hub #19838 has a successful build
+and awaits maintainer review. #50 closed completed; the unreproduced part of #48
+closed not planned pending concrete reproduction. Earlier open-status entries
+below describe the development history, not the current tracker.
+
 **31 October publication decision:** the owner authorized releasing 1.0.0 and
 replying to/closing the remaining issues. [The release record](../release-1.0.0.md)
 supersedes the development-only pending status below: it records the 3,604-token

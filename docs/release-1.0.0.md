@@ -1,5 +1,10 @@
 # Bank Architect 1.0.0
 
+**Published 31 October 2026:** exact source, clean-checkout artifact digest, issue
+closures and [Hub request #19838](https://github.com/runelite/plugin-hub/pull/19838)
+are recorded in [the publication checkpoint](releases/1.0.0-publication.md).
+The preparation text below is retained as the release audit trail.
+
 Release prepared 31 October 2026 above published 0.9.9 source
 `b3583ca8e48bedb37514e89006cb677e5b7ea75a`. The owner explicitly authorized
 publication and replies/closure for the remaining issues after reviewing the
