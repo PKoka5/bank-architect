@@ -191,7 +191,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		saveProfileButton = layoutActionButton("Save as", "Save this layout under a name",
 			event -> saveLayoutAs());
 		importButton = layoutActionButton("Import", "Paste a layout shared with you",
-			event -> importLayout());
+			event -> importLayout(this));
 		exportButton = layoutActionButton("Export", "Copy this layout to the clipboard to share",
 			event -> exportLayout());
 		deleteProfileButton = layoutActionButton("Delete", "Forget the selected saved layout",
@@ -1120,10 +1120,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 * Reads a pasted share code into a new saved layout. It is always saved under
 	 * a free name, so importing can never overwrite a layout the player built.
 	 */
-	private void importLayout()
+	private void importLayout(Component parent)
 	{
-		String pasted = JOptionPane.showInputDialog(this,
-			"Paste the layout code you were given:", "");
+		String pasted = JOptionPane.showInputDialog(parent,
+			"Paste a layout code or Blueprint Export:", "");
 		if (pasted == null)
 		{
 			return;
@@ -1132,7 +1132,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		java.util.Optional<BankLayoutShareCode> decoded = BankLayoutShareCode.decode(pasted);
 		if (!decoded.isPresent())
 		{
-			JOptionPane.showMessageDialog(this,
+			JOptionPane.showMessageDialog(parent,
 				"That does not look like a Bank Architect layout code.",
 				"Import failed", JOptionPane.WARNING_MESSAGE);
 			return;
@@ -1140,14 +1140,17 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		if (decoded.get().getPresetType() != bankLayoutModel.preset().getType())
 		{
-			JOptionPane.showMessageDialog(this, "Choose the " + decoded.get().getPresetType()
+			JOptionPane.showMessageDialog(parent, "Choose the " + decoded.get().getPresetType()
 				+ " preset before importing this layout.", "Different preset", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 		BankLayoutPlan imported = BankLayoutPlan
 			.parse(bankLayoutModel.preset(), decoded.get().getPlan())
 			.completedFor(bankLayoutModel.preset());
-		bankLayoutModel.saveProfile(freeProfileName(decoded.get().getName()), imported);
+		String name = freeProfileName(decoded.get().getName());
+		java.util.Optional<BlueprintItemOrders> items = decoded.get().getItemOrders();
+		if (items.isPresent()) bankLayoutModel.saveProfile(name, imported, items.get());
+		else bankLayoutModel.saveProfile(name, imported);
 		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		renderLayoutEditor();
 	}
@@ -1600,8 +1603,14 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			bankDialog.setLocationRelativeTo(this);
 			exportBlueprintButton = new JButton("Copy Blueprint Export");
 			exportBlueprintButton.addActionListener(event -> copyBlueprintExport());
-			blueprintEditor = new BlueprintEditorPanel(bankLayoutModel, this::itemCell,
-				editing -> exportBlueprintButton.setEnabled(!editing));
+			exportBlueprintButton.setToolTipText("Copy the blueprint as text, ending with a share code that Import Blueprint restores");
+			JButton importBlueprintButton = new JButton("Import Blueprint");
+			importBlueprintButton.setToolTipText("Paste a Blueprint Export or share code as a new layout, with its saved item order");
+			importBlueprintButton.addActionListener(event -> importLayout(bankDialog));
+			blueprintEditor = new BlueprintEditorPanel(bankLayoutModel, this::itemCell, editing -> {
+				exportBlueprintButton.setEnabled(!editing);
+				importBlueprintButton.setEnabled(!editing);
+			});
 			blueprintEditor.configureBankPreview(snapshot -> {
 				if (previewOnBank.isSelected() && bankDialog != null && bankDialog.isVisible()) bankPreview.accept(snapshot);
 			});
@@ -1613,7 +1622,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			});
 			JPanel footer = new JPanel(new BorderLayout());
 			footer.add(previewOnBank, BorderLayout.WEST);
-			footer.add(exportBlueprintButton, BorderLayout.CENTER);
+			JPanel buttons = new JPanel(new GridLayout(1, 0, 2, 0));
+			buttons.add(exportBlueprintButton);
+			buttons.add(importBlueprintButton);
+			footer.add(buttons, BorderLayout.CENTER);
 			bankDialog.add(blueprintEditor, BorderLayout.CENTER);
 			bankDialog.add(footer, BorderLayout.SOUTH);
 			bankDialog.addWindowListener(new java.awt.event.WindowAdapter()
@@ -1640,9 +1652,16 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			return;
 		}
 
-		String export = BankBlueprintTextExporter.export(preview);
+		// The closing share code lets Import Blueprint (or a maintainer) restore this exact layout.
+		String matching = bankLayoutModel.matchingProfile();
+		String export = BankBlueprintTextExporter.export(preview) + "\n" + BankLayoutShareCode.EXPORT_LABEL
+			+ BankLayoutShareCode.encode(matching.isEmpty() ? "Shared layout" : matching,
+				bankLayoutModel.plan(), bankLayoutModel.preset(), bankLayoutModel.options().itemOrders()) + "\n";
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(export), null);
 		exportBlueprintButton.setText("Copied Blueprint Export");
+		Timer restore = new Timer(2000, event -> exportBlueprintButton.setText("Copy Blueprint Export"));
+		restore.setRepeats(false);
+		restore.start();
 	}
 
 	private void refreshBankDialog(BankOrganizationPreview preview)

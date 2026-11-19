@@ -897,8 +897,13 @@ public final class IronmanBankArchitectPlugin extends Plugin
 			@Override
 			public void saveProfile(String name, BankLayoutPlan plan)
 			{
+				saveProfile(name, plan, activeOptions().itemOrders());
+			}
+
+			@Override
+			public void saveProfile(String name, BankLayoutPlan plan, BlueprintItemOrders items)
+			{
 				BlueprintOrderProfiles itemProfiles = BlueprintOrderProfiles.parse(settings().get("blueprintOrdersByProfile", ""));
-				BlueprintItemOrders previousItems = activeOptions().itemOrders();
 				BankLayoutProfiles previous = savedProfiles();
 				BankLayoutProfiles profiles = previous.withProfile(name,
 					plan.completedFor(activePreset()).serialize());
@@ -906,7 +911,7 @@ public final class IronmanBankArchitectPlugin extends Plugin
 				copyPreferences(profiles.getActiveName(), activeOptions(), categoryOverrides().serialize(),
 					activeOptions().blockArrangements().serialize());
 				storeProfiles(profiles);
-				itemProfiles.put(profiles.getActiveName(), previousItems);
+				itemProfiles.put(profiles.getActiveName(), items);
 				settings().set("blueprintOrdersByProfile", itemProfiles.serialize());
 				save(plan);
 			}

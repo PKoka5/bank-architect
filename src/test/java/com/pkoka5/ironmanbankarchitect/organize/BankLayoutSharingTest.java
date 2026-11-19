@@ -80,6 +80,71 @@ public class BankLayoutSharingTest
 	}
 
 	@Test
+	public void includedItemPositionsSurviveTheRoundTripAlongsideTheTagPlan()
+	{
+		BlueprintItemOrders items = BlueprintItemOrders.parse("v1|0:995,13204|3:563,560,555|r:995#0:4:currency:runes");
+		for (BankPreset preset : new BankPreset[]{BankPresets.IRONMAN, BankPresets.MAIN})
+		{
+			BankLayoutPlan mine = BankLayoutPlan.defaultFor(preset).withTagAt("food", 8).withCurrentOrder(0, true);
+			String encoded = BankLayoutShareCode.encode("Exact bank", mine, preset, items);
+			BankLayoutShareCode decoded = BankLayoutShareCode.decode(" " + encoded + "\n").get();
+
+			assertTrue(encoded, encoded.startsWith("BAv3~" + preset.getType().name() + "~"));
+			assertEquals(preset.getType(), decoded.getPresetType());
+			assertEquals("Exact bank", decoded.getName());
+			assertEquals(mine.serialize(), BankLayoutPlan.parse(preset, decoded.getPlan()).serialize());
+			assertTrue(BankLayoutPlan.parse(preset, decoded.getPlan()).keepsCurrentOrder(0));
+			assertEquals(items.serialize(), decoded.getItemOrders().get().serialize());
+		}
+	}
+
+	@Test
+	public void codesWithoutItemPositionsKeepTheirExistingFormat()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(BankPresets.MAIN).withCurrentOrder(2, true);
+		BlueprintItemOrders future = BlueprintItemOrders.parse("v9|later");
+		for (BlueprintItemOrders items : new BlueprintItemOrders[]{BlueprintItemOrders.EMPTY, future})
+		{
+			String encoded = BankLayoutShareCode.encode("Main setup", plan, BankPresets.MAIN, items);
+
+			assertEquals(BankLayoutShareCode.encode("Main setup", plan, BankPresets.MAIN), encoded);
+			assertFalse(BankLayoutShareCode.decode(encoded).get().getItemOrders().isPresent());
+		}
+		assertFalse(BankLayoutShareCode.decode("BAv1~Old layout~currency|gear").get().getItemOrders().isPresent());
+	}
+
+	@Test
+	public void aPastedBlueprintExportImportsThroughItsClosingShareCode()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(PRESET).withCurrentOrder(1, true);
+		BlueprintItemOrders items = BlueprintItemOrders.parse("v1|0:995,13204");
+		String code = BankLayoutShareCode.encode("My bank", plan, PRESET, items);
+		String export = "Bank Architect blueprint export\nPreset: Ironman\nColumns: 8\n\n"
+			+ "TAB 1 | placement=MAIN | key=currency | name=Currency | items=2\n"
+			+ "row=1 col=1 slot=1 | id=995 | name=Coins | quantity=1000\n\n"
+			+ BankLayoutShareCode.EXPORT_LABEL + code + "\n";
+
+		// A single-line input field turns the export's newlines into spaces.
+		for (String pasted : new String[]{export, export.replace('\n', ' ')})
+		{
+			BankLayoutShareCode decoded = BankLayoutShareCode.decode(pasted).get();
+			assertEquals("My bank", decoded.getName());
+			assertEquals(plan.serialize(), BankLayoutPlan.parse(PRESET, decoded.getPlan()).serialize());
+			assertEquals(items.serialize(), decoded.getItemOrders().get().serialize());
+		}
+		assertFalse(BankLayoutShareCode.decode(export.substring(0, export.indexOf(BankLayoutShareCode.EXPORT_LABEL))).isPresent());
+	}
+
+	@Test
+	public void itemPositionCodesRejectMissingOrUnreadableParts()
+	{
+		for (String malformed : new String[]{"BAv3", "BAv3~", "BAv3~MAIN~name~food|gear~",
+			"BAv3~MAIN~name~food|gear~v9|0:995", "BAv3~MAIN~name~food|gear~v1|bad", "BAv3~MAIN~v1|0:995",
+			"BAv3~Unknown~name~food|gear~v1|0:995", "BAv3~MAIN~name~~v1|0:995", "BAv3~MAIN~name~~keep"})
+			assertFalse(malformed, BankLayoutShareCode.decode(malformed).isPresent());
+	}
+
+	@Test
 	public void pastedTextWithSurroundingWhitespaceStillDecodes()
 	{
 		String code = BankLayoutShareCode.encode("Setup", BankLayoutPlan.defaultFor(PRESET));
