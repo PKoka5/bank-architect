@@ -192,7 +192,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		saveProfileButton = layoutActionButton("Save as", "Save this layout under a name",
 			event -> saveLayoutAs());
 		importButton = layoutActionButton("Import", "Paste a layout shared with you",
-			event -> importLayout());
+			event -> importLayout(this));
 		exportButton = layoutActionButton("Export", "Copy this layout to the clipboard to share",
 			event -> exportLayout());
 		deleteProfileButton = layoutActionButton("Delete", "Forget the selected saved layout",
@@ -1121,9 +1121,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	 * Reads a pasted share code into a new saved layout. It is always saved under
 	 * a free name, so importing can never overwrite a layout the player built.
 	 */
-	private void importLayout()
+	private void importLayout(Component parent)
 	{
-		String pasted = JOptionPane.showInputDialog(this,
+		String pasted = JOptionPane.showInputDialog(parent,
 			"Paste the layout code you were given:", "");
 		if (pasted == null)
 		{
@@ -1133,7 +1133,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		java.util.Optional<BankLayoutShareCode> decoded = BankLayoutShareCode.decode(pasted);
 		if (!decoded.isPresent())
 		{
-			JOptionPane.showMessageDialog(this,
+			JOptionPane.showMessageDialog(parent,
 				"That does not look like a Bank Architect layout code.",
 				"Import failed", JOptionPane.WARNING_MESSAGE);
 			return;
@@ -1141,7 +1141,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 
 		if (decoded.get().getPresetType() != bankLayoutModel.preset().getType())
 		{
-			JOptionPane.showMessageDialog(this, "Choose the " + decoded.get().getPresetType()
+			JOptionPane.showMessageDialog(parent, "Choose the " + decoded.get().getPresetType()
 				+ " preset before importing this layout.", "Different preset", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
@@ -1607,9 +1607,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			shareCodeButton = new JButton("Copy Share Code");
 			shareCodeButton.setToolTipText("Copy this layout with its saved item order, for Tab Layout > Import. Lists item IDs from your bank.");
 			shareCodeButton.addActionListener(event -> copyShareCode());
+			JButton importCodeButton = new JButton("Import Share Code");
+			importCodeButton.setToolTipText("Paste a share code as a new layout, with its item order when included");
+			importCodeButton.addActionListener(event -> importLayout(bankDialog));
 			blueprintEditor = new BlueprintEditorPanel(bankLayoutModel, this::itemCell, editing -> {
 				exportBlueprintButton.setEnabled(!editing);
 				shareCodeButton.setEnabled(!editing);
+				importCodeButton.setEnabled(!editing);
 			});
 			blueprintEditor.configureBankPreview(snapshot -> {
 				if (previewOnBank.isSelected() && bankDialog != null && bankDialog.isVisible()) bankPreview.accept(snapshot);
@@ -1622,10 +1626,11 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			});
 			JPanel footer = new JPanel(new BorderLayout());
 			footer.add(previewOnBank, BorderLayout.WEST);
-			JPanel copyButtons = new JPanel(new GridLayout(1, 0, 2, 0));
-			copyButtons.add(shareCodeButton);
-			copyButtons.add(exportBlueprintButton);
-			footer.add(copyButtons, BorderLayout.CENTER);
+			footer.add(exportBlueprintButton, BorderLayout.CENTER);
+			JPanel shareButtons = new JPanel(new GridLayout(1, 0, 2, 0));
+			shareButtons.add(shareCodeButton);
+			shareButtons.add(importCodeButton);
+			footer.add(shareButtons, BorderLayout.SOUTH);
 			bankDialog.add(blueprintEditor, BorderLayout.CENTER);
 			bankDialog.add(footer, BorderLayout.SOUTH);
 			bankDialog.addWindowListener(new java.awt.event.WindowAdapter()

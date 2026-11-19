@@ -222,9 +222,9 @@ Remove bank fillers before saving. If bank contents, the active layout or the
 analysis changes while saving, nothing is overwritten; analyze and try again.
 Captured item positions are local to your saved layout. To share them, select
 **Copy Share Code** at the bottom of the blueprint window: the code holds the tab
-layout plus these positions, and **Tab Layout > Import** restores both as a new
-layout. The code lists the item IDs in your bank. **Tab Layout > Export** still
-shares category assignments only.
+layout plus these positions, and **Import Share Code** beside it (or **Tab Layout >
+Import**) restores both as a new layout. The code lists the item IDs in your bank.
+**Tab Layout > Export** still shares category assignments only.
 
 ### Arrange categories
 
