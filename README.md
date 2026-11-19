@@ -202,7 +202,7 @@ cross-tab assignments. The option also works for Main and empty destinations.
 
 Changes are saved locally. Use **Tab Layout > Save as** to include the choices
 in a named layout; switching layouts restores that layout's choices. Layout
-share codes include these choices; only **Copy Share Code** also includes saved item positions.
+share codes include these choices; only a Blueprint Export also includes saved item positions.
 
 ### Use your current bank as the blueprint
 
@@ -220,11 +220,12 @@ positions in that tab. Use the header preset chooser to switch back to your prev
 
 Remove bank fillers before saving. If bank contents, the active layout or the
 analysis changes while saving, nothing is overwritten; analyze and try again.
-Captured item positions are local to your saved layout. To share them, select
-**Copy Share Code** at the bottom of the blueprint window: the code holds the tab
-layout plus these positions, and **Import Share Code** beside it (or **Tab Layout >
-Import**) restores both as a new layout. The code lists the item IDs in your bank.
-**Tab Layout > Export** still shares category assignments only.
+Captured item positions are local to your saved layout. To move them to another
+client or profile, select **Copy Blueprint Export** at the bottom of the blueprint
+window. The export ends with a share code holding the tab layout plus these
+positions. Paste the whole export into **Import Blueprint** beside it (or **Tab
+Layout > Import**) to restore both as a new layout. **Tab Layout > Export** still
+shares category assignments only.
 
 ### Arrange categories
 
@@ -273,10 +274,10 @@ its defaults. Saved customs keep their own layout preferences and corrections.
 - **Save as** stores the current layout under a name.
 - **Export** copies it to your clipboard as a share code you can paste anywhere.
 - **Import** reads a code someone gave you. It is always saved under a free
-  name, so importing never overwrites a layout you built. A `BAv3` code from
-  **Copy Share Code** in the blueprint window also restores its saved item
-  positions. Plugin versions without this support reject a `BAv3` code instead
-  of misreading it.
+  name, so importing never overwrites a layout you built. It also accepts a
+  whole Blueprint Export, whose `BAv3` code restores saved item positions too.
+  Plugin versions without this support reject a `BAv3` code instead of
+  misreading it.
 - **Delete** forgets a saved layout. The bundled one cannot be deleted.
 
 A share code looks like `BAv1~Maugor setup~frequently-used+runes|gear|...` — the

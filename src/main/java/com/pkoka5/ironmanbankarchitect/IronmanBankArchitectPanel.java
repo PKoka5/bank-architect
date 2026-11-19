@@ -101,7 +101,6 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private JDialog bankDialog;
 	private BlueprintEditorPanel blueprintEditor;
 	private JButton exportBlueprintButton;
-	private JButton shareCodeButton;
 	private ReleaseNoticePanel releaseNotice;
 	private Runnable settingsAction = () -> {}, issuesAction = () -> {};
 	private Consumer<BankOrganizationPreview> bankPreview = preview -> {};
@@ -1124,7 +1123,7 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void importLayout(Component parent)
 	{
 		String pasted = JOptionPane.showInputDialog(parent,
-			"Paste the layout code you were given:", "");
+			"Paste a layout code or Blueprint Export:", "");
 		if (pasted == null)
 		{
 			return;
@@ -1604,16 +1603,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			bankDialog.setLocationRelativeTo(this);
 			exportBlueprintButton = new JButton("Copy Blueprint Export");
 			exportBlueprintButton.addActionListener(event -> copyBlueprintExport());
-			shareCodeButton = new JButton("Copy Share Code");
-			shareCodeButton.setToolTipText("Copy this layout with its saved item order, for Tab Layout > Import. Lists item IDs from your bank.");
-			shareCodeButton.addActionListener(event -> copyShareCode());
-			JButton importCodeButton = new JButton("Import Share Code");
-			importCodeButton.setToolTipText("Paste a share code as a new layout, with its item order when included");
-			importCodeButton.addActionListener(event -> importLayout(bankDialog));
+			exportBlueprintButton.setToolTipText("Copy the blueprint as text, ending with a share code that Import Blueprint restores");
+			JButton importBlueprintButton = new JButton("Import Blueprint");
+			importBlueprintButton.setToolTipText("Paste a Blueprint Export or share code as a new layout, with its saved item order");
+			importBlueprintButton.addActionListener(event -> importLayout(bankDialog));
 			blueprintEditor = new BlueprintEditorPanel(bankLayoutModel, this::itemCell, editing -> {
 				exportBlueprintButton.setEnabled(!editing);
-				shareCodeButton.setEnabled(!editing);
-				importCodeButton.setEnabled(!editing);
+				importBlueprintButton.setEnabled(!editing);
 			});
 			blueprintEditor.configureBankPreview(snapshot -> {
 				if (previewOnBank.isSelected() && bankDialog != null && bankDialog.isVisible()) bankPreview.accept(snapshot);
@@ -1626,11 +1622,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			});
 			JPanel footer = new JPanel(new BorderLayout());
 			footer.add(previewOnBank, BorderLayout.WEST);
-			footer.add(exportBlueprintButton, BorderLayout.CENTER);
-			JPanel shareButtons = new JPanel(new GridLayout(1, 0, 2, 0));
-			shareButtons.add(shareCodeButton);
-			shareButtons.add(importCodeButton);
-			footer.add(shareButtons, BorderLayout.SOUTH);
+			JPanel buttons = new JPanel(new GridLayout(1, 0, 2, 0));
+			buttons.add(exportBlueprintButton);
+			buttons.add(importBlueprintButton);
+			footer.add(buttons, BorderLayout.CENTER);
 			bankDialog.add(blueprintEditor, BorderLayout.CENTER);
 			bankDialog.add(footer, BorderLayout.SOUTH);
 			bankDialog.addWindowListener(new java.awt.event.WindowAdapter()
@@ -1657,19 +1652,13 @@ final class IronmanBankArchitectPanel extends PluginPanel
 			return;
 		}
 
-		String export = BankBlueprintTextExporter.export(preview);
+		// The closing share code lets Import Blueprint (or a maintainer) restore this exact layout.
+		String matching = bankLayoutModel.matchingProfile();
+		String export = BankBlueprintTextExporter.export(preview) + "\n" + BankLayoutShareCode.EXPORT_LABEL
+			+ BankLayoutShareCode.encode(matching.isEmpty() ? "Shared layout" : matching,
+				bankLayoutModel.plan(), bankLayoutModel.preset(), bankLayoutModel.options().itemOrders()) + "\n";
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(export), null);
 		exportBlueprintButton.setText("Copied Blueprint Export");
-	}
-
-	/** One step from a saved bank to a code that restores it exactly; Tab Layout > Export stays tags-only. */
-	private void copyShareCode()
-	{
-		String matching = bankLayoutModel.matchingProfile();
-		String code = BankLayoutShareCode.encode(matching.isEmpty() ? "Shared layout" : matching,
-			bankLayoutModel.plan(), bankLayoutModel.preset(), bankLayoutModel.options().itemOrders());
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(code), null);
-		shareCodeButton.setText("Copied Share Code");
 	}
 
 	private void refreshBankDialog(BankOrganizationPreview preview)

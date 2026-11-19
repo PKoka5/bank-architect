@@ -114,6 +114,28 @@ public class BankLayoutSharingTest
 	}
 
 	@Test
+	public void aPastedBlueprintExportImportsThroughItsClosingShareCode()
+	{
+		BankLayoutPlan plan = BankLayoutPlan.defaultFor(PRESET).withCurrentOrder(1, true);
+		BlueprintItemOrders items = BlueprintItemOrders.parse("v1|0:995,13204");
+		String code = BankLayoutShareCode.encode("My bank", plan, PRESET, items);
+		String export = "Bank Architect blueprint export\nPreset: Ironman\nColumns: 8\n\n"
+			+ "TAB 1 | placement=MAIN | key=currency | name=Currency | items=2\n"
+			+ "row=1 col=1 slot=1 | id=995 | name=Coins | quantity=1000\n\n"
+			+ BankLayoutShareCode.EXPORT_LABEL + code + "\n";
+
+		// A single-line input field turns the export's newlines into spaces.
+		for (String pasted : new String[]{export, export.replace('\n', ' ')})
+		{
+			BankLayoutShareCode decoded = BankLayoutShareCode.decode(pasted).get();
+			assertEquals("My bank", decoded.getName());
+			assertEquals(plan.serialize(), BankLayoutPlan.parse(PRESET, decoded.getPlan()).serialize());
+			assertEquals(items.serialize(), decoded.getItemOrders().get().serialize());
+		}
+		assertFalse(BankLayoutShareCode.decode(export.substring(0, export.indexOf(BankLayoutShareCode.EXPORT_LABEL))).isPresent());
+	}
+
+	@Test
 	public void itemPositionCodesRejectMissingOrUnreadableParts()
 	{
 		for (String malformed : new String[]{"BAv3", "BAv3~", "BAv3~MAIN~name~food|gear~",

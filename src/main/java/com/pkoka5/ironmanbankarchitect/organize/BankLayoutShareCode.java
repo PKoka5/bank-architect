@@ -9,6 +9,9 @@ public final class BankLayoutShareCode
 	/** Marks the text as ours and says which format it is in. */
 	public static final String PREFIX = "BAv1";
 
+	/** Precedes the share code on the last line of a Blueprint Export. */
+	public static final String EXPORT_LABEL = "Share code: ";
+
 	private static final String SEPARATOR = "~";
 	private static final int PARTS = 3;
 	static final int MAX_NAME_LENGTH = 40;
@@ -75,6 +78,10 @@ public final class BankLayoutShareCode
 		}
 
 		String trimmed = text.trim();
+		// A whole Blueprint Export ends with its code; single-line fields turn its newlines into spaces.
+		int label = trimmed.lastIndexOf(EXPORT_LABEL);
+		if (label >= 0 && !trimmed.regionMatches(true, 0, "BAv", 0, 3))
+			trimmed = trimmed.substring(label + EXPORT_LABEL.length()).trim();
 		String orders = "";
 		if (trimmed.regionMatches(true, 0, "BAv3~", 0, 5))
 		{
