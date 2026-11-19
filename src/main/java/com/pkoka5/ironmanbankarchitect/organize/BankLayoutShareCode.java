@@ -16,15 +16,23 @@ public final class BankLayoutShareCode
 	private final String name;
 	private final String plan;
 	private final BankPresetType presetType;
+	private final String itemOrders;
 
-	private BankLayoutShareCode(String name, String plan, BankPresetType presetType)
+	private BankLayoutShareCode(String name, String plan, BankPresetType presetType, String itemOrders)
 	{
 		this.name = name;
 		this.plan = plan;
 		this.presetType = presetType;
+		this.itemOrders = itemOrders;
 	}
 
 	public BankPresetType getPresetType() { return presetType; }
+
+	/** Saved item positions, present only when the sharer chose to include them. */
+	public Optional<BlueprintItemOrders> getItemOrders()
+	{
+		return itemOrders.isEmpty() ? Optional.empty() : Optional.of(BlueprintItemOrders.parse(itemOrders));
+	}
 
 	public String getName()
 	{
@@ -50,6 +58,14 @@ public final class BankLayoutShareCode
 			: "BAv2~" + preset.getType().name() + "~" + sanitize(name) + "~" + plan.serialize();
 	}
 
+	/** Adds saved item positions as a BAv3 code; without any, the code stays BAv1/BAv2. */
+	public static String encode(String name, BankLayoutPlan plan, BankPreset preset, BlueprintItemOrders items)
+	{
+		String orders = items.isSupported() ? items.serialize() : "";
+		return orders.isEmpty() ? encode(name, plan, preset)
+			: "BAv3~" + preset.getType().name() + "~" + sanitize(name) + "~" + plan.serialize() + "~" + orders;
+	}
+
 	/** Ignores surrounding whitespace; rejects missing or unsupported prefixes. */
 	public static Optional<BankLayoutShareCode> decode(String text)
 	{
@@ -59,6 +75,16 @@ public final class BankLayoutShareCode
 		}
 
 		String trimmed = text.trim();
+		String orders = "";
+		if (trimmed.regionMatches(true, 0, "BAv3~", 0, 5))
+		{
+			// The plan may contain the separator (~keep), but serialized orders never do.
+			int split = trimmed.lastIndexOf(SEPARATOR);
+			BlueprintItemOrders items = BlueprintItemOrders.parse(trimmed.substring(split + 1).trim());
+			orders = items.isSupported() ? items.serialize() : "";
+			if (orders.isEmpty()) return Optional.empty();
+			trimmed = "BAv2" + trimmed.substring(4, split);
+		}
 		BankPresetType type = BankPresetType.IRONMAN;
 		if (trimmed.regionMatches(true, 0, "BAv2~", 0, 5))
 		{
@@ -81,7 +107,7 @@ public final class BankLayoutShareCode
 			return Optional.empty();
 		}
 
-		return Optional.of(new BankLayoutShareCode(name, plan, type));
+		return Optional.of(new BankLayoutShareCode(name, plan, type, orders));
 	}
 
 	/**

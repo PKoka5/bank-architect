@@ -18,6 +18,7 @@ interface BankLayoutModel
 	String matchingProfile();
 	void selectProfile(String name);
 	void saveProfile(String name, BankLayoutPlan plan);
+	default void saveProfile(String name, BankLayoutPlan plan, BlueprintItemOrders items) { saveProfile(name, plan); }
 	void deleteProfile(String name);
 	BankLayoutOptions options();
 	default String rememberedBlueprint() { return ""; }

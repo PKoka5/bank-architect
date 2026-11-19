@@ -202,7 +202,7 @@ cross-tab assignments. The option also works for Main and empty destinations.
 
 Changes are saved locally. Use **Tab Layout > Save as** to include the choices
 in a named layout; switching layouts restores that layout's choices. Layout
-share codes include these choices, but never individual saved item positions.
+share codes include these choices; saved item positions only when you choose to include them.
 
 ### Use your current bank as the blueprint
 
@@ -220,8 +220,8 @@ positions in that tab. Use the header preset chooser to switch back to your prev
 
 Remove bank fillers before saving. If bank contents, the active layout or the
 analysis changes while saving, nothing is overwritten; analyze and try again.
-Captured item positions are local to your saved layout; layout share codes still
-share category assignments rather than individual item positions.
+Captured item positions are local to your saved layout. Export asks whether to
+include them in the share code; otherwise only category assignments are shared.
 
 ### Arrange categories
 
@@ -269,8 +269,12 @@ its defaults. Saved customs keep their own layout preferences and corrections.
 
 - **Save as** stores the current layout under a name.
 - **Export** copies it to your clipboard as a share code you can paste anywhere.
+  If the layout has saved item positions, it asks whether to include them; the
+  code then lists those item IDs and starts with `BAv3`.
 - **Import** reads a code someone gave you. It is always saved under a free
-  name, so importing never overwrites a layout you built.
+  name, so importing never overwrites a layout you built. A `BAv3` code also
+  restores its item positions for that new layout. Plugin versions without
+  this support reject a `BAv3` code instead of misreading it.
 - **Delete** forgets a saved layout. The bundled one cannot be deleted.
 
 A share code looks like `BAv1~Maugor setup~frequently-used+runes|gear|...` — the

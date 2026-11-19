@@ -1107,8 +1107,12 @@ final class IronmanBankArchitectPanel extends PluginPanel
 	private void exportLayout()
 	{
 		String matching = bankLayoutModel.matchingProfile();
-		String code = BankLayoutShareCode.encode(
-			matching.isEmpty() ? "Shared layout" : matching, layoutPlan, bankLayoutModel.preset());
+		BlueprintItemOrders items = bankLayoutModel.options().itemOrders();
+		boolean include = items.isSupported() && !items.serialize().isEmpty() && JOptionPane.showConfirmDialog(this,
+			"Include your saved item positions?\nThe code will then list item IDs from your bank.",
+			"Export layout", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+		String code = BankLayoutShareCode.encode(matching.isEmpty() ? "Shared layout" : matching,
+			layoutPlan, bankLayoutModel.preset(), include ? items : BlueprintItemOrders.EMPTY);
 		Toolkit.getDefaultToolkit().getSystemClipboard()
 			.setContents(new StringSelection(code), null);
 		JOptionPane.showMessageDialog(this,
@@ -1147,7 +1151,10 @@ final class IronmanBankArchitectPanel extends PluginPanel
 		BankLayoutPlan imported = BankLayoutPlan
 			.parse(bankLayoutModel.preset(), decoded.get().getPlan())
 			.completedFor(bankLayoutModel.preset());
-		bankLayoutModel.saveProfile(freeProfileName(decoded.get().getName()), imported);
+		String name = freeProfileName(decoded.get().getName());
+		java.util.Optional<BlueprintItemOrders> items = decoded.get().getItemOrders();
+		if (items.isPresent()) bankLayoutModel.saveProfile(name, imported, items.get());
+		else bankLayoutModel.saveProfile(name, imported);
 		layoutPlan = bankLayoutModel.plan().completedFor(bankLayoutModel.preset());
 		renderLayoutEditor();
 	}
