@@ -1659,6 +1659,9 @@ final class IronmanBankArchitectPanel extends PluginPanel
 				bankLayoutModel.plan(), bankLayoutModel.preset(), bankLayoutModel.options().itemOrders()) + "\n";
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(export), null);
 		exportBlueprintButton.setText("Copied Blueprint Export");
+		Timer restore = new Timer(2000, event -> exportBlueprintButton.setText("Copy Blueprint Export"));
+		restore.setRepeats(false);
+		restore.start();
 	}
 
 	private void refreshBankDialog(BankOrganizationPreview preview)
